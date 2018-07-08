@@ -1,0 +1,4 @@
+Pack/**
+obj/**
+bin/**
+webpack.config.js

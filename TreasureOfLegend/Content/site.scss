@@ -1,0 +1,11 @@
+﻿@import "partials/reset";
+@import "partials/settings";
+@import "fonts";
+@import "partials/buttons";
+@import "partials/landing";
+@import "partials/home";
+
+body {
+	overflow: hidden;
+	background-color: $gray;
+}

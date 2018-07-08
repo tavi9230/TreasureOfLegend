@@ -1,0 +1,16 @@
+﻿%loginButton {
+	$btnHeight: 30px;
+	height: $btnHeight;
+	width: 100px;
+	background-color: $blue;
+	color: $white;
+	font: 24px/#{$btnHeight} $robotoMedium;
+	text-align: center;
+	border-radius: 5px;
+	text-decoration: none;
+	letter-spacing: 1px;
+}
+
+.btnLogin {
+	@extend %loginButton;
+}
