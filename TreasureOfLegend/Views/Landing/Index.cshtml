@@ -1,0 +1,22 @@
+﻿@using TreasureOfLegend.Web.Resources
+@using Webpack.NET
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@Strings.TreasureOfLegend</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="@Strings.TreasureOfLegend" />
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="@Url.WebpackAsset("cssLanding", "css")" media="screen" />
+</head>
+<body>
+    <div class="contentRegion"></div>
+    <div class="modal"></div>
+
+    @Html.Partial("_Resources")
+    <script type="text/javascript" src="@Url.WebpackAsset("landingLayoutCombined")"></script>
+</body>
+</html>

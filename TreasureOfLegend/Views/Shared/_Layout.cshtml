@@ -1,0 +1,20 @@
+﻿@using Webpack.NET
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="@Url.WebpackAsset("cssHome", "css")" media="screen" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>@ViewBag.Title</title>
+</head>
+<body>
+    <div class="body-content">
+        <div class="mainContainer">
+            @RenderBody()
+        </div>
+    </div>
+    <div class="modal"></div>
+    @Html.Partial("_Resources")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,7 @@
+﻿@using TreasureOfLegend.Web.Infrastructure
+<script type="text/javascript">
+    (function() {
+        'use strict';
+        window.Resources = @Html.Raw(ResourceHelper.GetResourcesJson());
+    }());
+</script>
