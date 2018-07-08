@@ -1,4 +1,4 @@
-﻿export const Player = function (x, y) {
+﻿export const Player = function (x, y, images) {
 	// (x, y) = center of object
 	// ATTENTION:
 	// it represents the player position on the world(room), not the canvas position
@@ -9,8 +9,9 @@
 	this.speed = 200;
 
 	// render properties
-	this.width = 50;
-	this.height = 50;
+	this.width = 100;
+	this.height = 100;
+	this.images = images;
 
 	this.update = function (step, worldWidth, worldHeight) {
 		// parameter step is the time between frames ( in seconds )
@@ -49,7 +50,8 @@
 		context.save();
 		context.fillStyle = 'green';
 		// before draw we need to convert player world's position to canvas position
-		context.fillRect((this.x - this.width / 2) - xView, (this.y - this.height / 2) - yView, this.width, this.height);
+		context.drawImage(this.images[9], 0, 0, 512, 512, (this.x - this.width / 2) - xView, (this.y - this.height / 2) - yView, this.width, this.height);
+		//context.fillRect((this.x - this.width / 2) - xView, (this.y - this.height / 2) - yView, this.width, this.height);
 		context.restore();
 	};
 };

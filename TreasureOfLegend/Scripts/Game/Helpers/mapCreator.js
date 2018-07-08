@@ -13,19 +13,17 @@
 		ctx.canvas.width = this.width;
 		ctx.canvas.height = this.height;
 
-		//var rows = ~~(this.width / 44) + 1;
-		//var columns = ~~(this.height / 44) + 1;
-		var rows = ~~(this.width / 60) + 1;
-		var columns = ~~(this.height / 60) + 1;
+		var rows = ~~(this.width / 100) + 1;
+		var columns = ~~(this.height / 100) + 1;
 
 		var color = 'red';
 		ctx.save();
 		ctx.fillStyle = 'red';
-		for (var x = 0, i = 0; i < rows; x += 20, i++) {
+		for (var x = 0, i = 0; i < rows; x += 100, i++) {
 			ctx.beginPath();
-			for (var y = 0, j = 0; j < columns; y += 20, j++) {
+			for (var y = 0, j = 0; j < columns; y += 100, j++) {
 				//ctx.rect(x, y, 40, 40);
-				ctx.drawImage(this.images[5], 0, 0, 127, 127, x, y, 50, 50);
+				ctx.drawImage(this.images[7], 0, 0, 512, 512, x, y, 100, 100);
 			}
 			color = (color === 'red' ? 'blue' : 'red');
 			ctx.fillStyle = color;

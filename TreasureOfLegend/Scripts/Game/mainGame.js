@@ -111,7 +111,7 @@ export const MainGame = function (ctx, canvas) {
 			this.currentLevel.map.generate();
 
 			// setup player
-			this.player = new Player(50, 50);
+			this.player = new Player(50, 50, this.images);
 
 			// setup the magic camera !!!
 			this.camera = new Camera(0, 0, this.canvas.width, this.canvas.height, this.currentLevel.width, this.currentLevel.height);

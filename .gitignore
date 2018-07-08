@@ -1,3 +1,5 @@
 /TreasureOfLegend/bin
 /TreasureOfLegend/obj
 /TreasureOfLegend/Pack
+/TreasureOfLegend/node_modules
+/.vs
