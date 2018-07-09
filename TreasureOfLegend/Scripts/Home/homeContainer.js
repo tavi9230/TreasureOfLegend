@@ -4,7 +4,7 @@ export const HomeContainer = {
 	template:
 	'<div id="home">' +
 	'<div v-on:click="_startArpgGame">' + Resources.StartARPG + '</div>' +
-	'<canvas id="mainScreen" ref="mainScreen" width="800" height="800">' + Resources.CanvasError + '</canvas >' +
+	'<canvas id="mainScreen" ref="mainScreen" width="1800" height="900">' + Resources.CanvasError + '</canvas >' +
 	'</div>',
 	data: function () {
 		return {

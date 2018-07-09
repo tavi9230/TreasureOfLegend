@@ -5,6 +5,7 @@ import { Constants } from 'Game/Helpers/Constants';
 import { MapCreator } from 'Game/Helpers/mapCreator';
 import { Camera } from 'Game/Helpers/camera';
 import { Controls } from 'Game/Helpers/controls';
+import { CollisionManager } from 'Game/Helpers/collisionManager';
 
 export const MainGame = function (ctx, canvas) {
 	//----------------------  VARIABLES  ----------------------
@@ -17,7 +18,8 @@ export const MainGame = function (ctx, canvas) {
 	this.interval = {};
 	this.keys = [];
 	this.currentLevel = {};
-	window.Game = {
+    this.collisionManager = {};
+    window.Game = {
 		runningId: -1
 	};
 	//----------------------  METHODS  ----------------------
@@ -51,6 +53,7 @@ export const MainGame = function (ctx, canvas) {
 	this.update = function () {
 		this.player.update(Game.constants.STEP, this.currentLevel.width, this.currentLevel.height);
 		this.camera.update();
+	    this.collisionManager.checkCollision();
 	};
 
 	// Game draw function
@@ -104,14 +107,17 @@ export const MainGame = function (ctx, canvas) {
 			// setup an object that represents the room
 			this.currentLevel = {
 				width: 5000,
-				height: 3000,
-				map: new MapCreator(this.ctx, 5000, 3000, this.images)
+				height: 5000,
+				map: new MapCreator(this.ctx, 5000, 5000, this.images)
 			};
 
 			this.currentLevel.map.generate();
 
 			// setup player
-			this.player = new Player(50, 50, this.images);
+			this.player = new Player(200, 200, this.images);
+
+		    //setup collision manager
+		    this.collisionManager = new CollisionManager(this.player, this.currentLevel.map.objects);
 
 			// setup the magic camera !!!
 			this.camera = new Camera(0, 0, this.canvas.width, this.canvas.height, this.currentLevel.width, this.currentLevel.height);
