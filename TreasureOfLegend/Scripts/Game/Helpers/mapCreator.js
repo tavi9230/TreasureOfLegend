@@ -1,9 +1,12 @@
-﻿export const MapCreator = function (ctx, width, height, images) {
+﻿import { Wall } from 'Game/Objects/wall';
+
+export const MapCreator = function (ctx, width, height, images) {
 	this.ctx = ctx;
 	// map dimensions
 	this.width = width;
 	this.height = height;
 	this.images = images;
+    this.objects = [];
 
 	// map texture
 	this.image = null;
@@ -30,6 +33,7 @@
 			ctx.fill();
 			ctx.closePath();
 		}
+	    this.generateObjects(ctx);
 		ctx.restore();
 
 		// store the generate map as this image texture
@@ -39,6 +43,11 @@
 		// clear context
 		ctx = null;
 	};
+
+	this.generateObjects = function(ctx) {
+	    ctx.drawImage(this.images[10], 0, 0, 512, 512, 100, 0, 100, 100);
+        this.objects.push(new Wall(100, 0, this.images, 100, 100, 100, 100));
+    };
 
 	// draw the map adjusted to camera
 	this.draw = function (context, xCameraView, yCameraView) {

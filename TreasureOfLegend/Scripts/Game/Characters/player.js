@@ -10,7 +10,9 @@
 
 	// render properties
 	this.width = 100;
+	this.wWidth = 50;
 	this.height = 100;
+	this.wHeight = 50;
 	this.images = images;
 
 	this.update = function (step, worldWidth, worldHeight) {
@@ -34,8 +36,8 @@
 		if (this.x - this.width / 2 < 0) {
 			this.x = this.width / 2;
 		}
-		if (this.y - this.height / 2 < 0) {
-			this.y = this.height / 2;
+		if (this.y + this.wHeight / 2 < 0) {
+		    this.y = -1 * this.wHeight / 2;
 		}
 		if (this.x + this.width / 2 > worldWidth) {
 			this.x = worldWidth - this.width / 2;
