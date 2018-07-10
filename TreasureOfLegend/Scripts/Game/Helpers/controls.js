@@ -1,28 +1,34 @@
 ﻿export const Controls = function () {
-	this.controls = {
+	this.keys = {
 		left: false,
 		up: false,
 		right: false,
 		down: false
 	};
 
+	this._keyConstants = {
+		W: 87,
+		S: 83,
+		A: 65,
+		D: 68,
+		P: 80
+	};
+
 	this._addKeydown = function (e) {
 		switch (e.keyCode) {
-			// left arrow
-			case 37:
-				this.controls.left = true;
+			case this._keyConstants.A:
+				this.keys.left = true;
 				break;
-			// up arrow
-			case 38:
-				this.controls.up = true;
+			case this._keyConstants.W:
+				this.keys.up = true;
 				break;
-			// right arrow
-			case 39:
-				this.controls.right = true;
+			// D
+			case this._keyConstants.D:
+				this.keys.right = true;
 				break;
-			// down arrow
-			case 40:
-				this.controls.down = true;
+			// S
+			case this._keyConstants.S:
+				this.keys.down = true;
 				break;
 			default:
 				break;
@@ -31,42 +37,36 @@
 
 	this._addKeyup = function (e) {
 		switch (e.keyCode) {
-			// left arrow
-			case 37:
-				this.controls.left = false;
+			case this._keyConstants.A:
+				this.keys.left = false;
 				break;
 			// up arrow
-			case 38:
-				this.controls.up = false;
+			case this._keyConstants.W:
+				this.keys.up = false;
 				break;
 			// right arrow
-			case 39:
-				this.controls.right = false;
+			case this._keyConstants.D:
+				this.keys.right = false;
 				break;
-			// down arrow
-			case 40:
-				this.controls.down = false;
+			// S
+			case this._keyConstants.S:
+				this.keys.down = false;
 				break;
 			// key P pauses the game
-			case 80:
-				this.togglePause();
+			case this._keyConstants.P:
+				// TODO: Fix pausing
+				Emitter.$emit('pause');
 				break;
 			default:
 				break;
 		}
 	};
 
-	this.togglePause = function () {
-		Game.togglePause();
-	};
-
-	this.defineControls = function () {
-		WindowEvents.add('keydown', _.bind(this._addKeydown, this));
-		WindowEvents.add('keyup', _.bind(this._addKeyup, this));
-	};
-
-	this.undefineControls = function () {
+	this.removeControls = function () {
 		WindowEvents.remove('keydown', this._addKeydown);
 		WindowEvents.remove('keyup', this._addKeyup);
 	};
+
+	WindowEvents.add('keydown', _.bind(this._addKeydown, this));
+	WindowEvents.add('keyup', _.bind(this._addKeyup, this));
 };

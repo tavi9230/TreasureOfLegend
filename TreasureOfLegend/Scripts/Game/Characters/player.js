@@ -1,4 +1,6 @@
-﻿export const Player = function (x, y, images) {
+﻿import { Controls } from 'Game/Helpers/controls';
+
+export const Player = function (x, y, speed, playerWidth, playerHeight, images, imageWidth, imageHeight) {
 	// (x, y) = center of object
 	// ATTENTION:
 	// it represents the player position on the world(room), not the canvas position
@@ -6,54 +8,60 @@
 	this.y = y;
 
 	// move speed in pixels per second
-	this.speed = 200;
+	this.speed = speed || 200;
 
 	// render properties
-	this.width = 100;
-	this.wWidth = 50;
-	this.height = 100;
-	this.wHeight = 50;
+	this.imageWidth = imageWidth || 100;
+	this.playerWidth = playerWidth || 50;
+	this.imageHeight = imageHeight || 100;
+	this.playerHeight = playerHeight || 50;
 	this.images = images;
+	this.controls = new Controls();
 
-	this.update = function (step, worldWidth, worldHeight) {
+	this.update = function (worldWidth, worldHeight) {
 		// parameter step is the time between frames ( in seconds )
 
 		// check controls and move the player accordingly
-		if (Game.controls.controls.left) {
-			this.x -= this.speed * step;
+		if (this.controls.keys.left) {
+			this.x -= this.speed * Constants.STEP;
 		}
-		if (Game.controls.controls.up) {
-			this.y -= this.speed * step;
+		if (this.controls.keys.up) {
+			this.y -= this.speed * Constants.STEP;
 		}
-		if (Game.controls.controls.right) {
-			this.x += this.speed * step;
+		if (this.controls.keys.right) {
+			this.x += this.speed * Constants.STEP;
 		}
-		if (Game.controls.controls.down) {
-			this.y += this.speed * step;
+		if (this.controls.keys.down) {
+			this.y += this.speed * Constants.STEP;
 		}
 
-		// don't let player leaves the world's boundary
-		if (this.x - this.width / 2 < 0) {
-			this.x = this.width / 2;
-		}
-		if (this.y + this.wHeight / 2 < 0) {
-		    this.y = -1 * this.wHeight / 2;
-		}
-		if (this.x + this.width / 2 > worldWidth) {
-			this.x = worldWidth - this.width / 2;
-		}
-		if (this.y + this.height / 2 > worldHeight) {
-			this.y = worldHeight - this.height / 2;
-		}
+		this._checkPlayerBoundary(worldWidth, worldHeight);
 	};
 
 	this.draw = function (context, xView, yView) {
-		// draw a simple rectangle shape as our player model
 		context.save();
-		context.fillStyle = 'green';
 		// before draw we need to convert player world's position to canvas position
-		context.drawImage(this.images[9], 0, 0, 512, 512, (this.x - this.width / 2) - xView, (this.y - this.height / 2) - yView, this.width, this.height);
-		//context.fillRect((this.x - this.width / 2) - xView, (this.y - this.height / 2) - yView, this.width, this.height);
+		context.drawImage(this.images[9], 0, 0, 512, 512, (this.x - this.imageWidth / 2) - xView, (this.y - this.imageHeight / 2) - yView, this.imageWidth, this.imageHeight);
 		context.restore();
+	};
+
+	this.removeControls = function () {
+		this.controls.removeControls();
+	};
+
+	this._checkPlayerBoundary = function (worldWidth, worldHeight) {
+		// don't let player leave the world's boundary
+		if (this.x - this.imageWidth / 2 < 0) {
+			this.x = this.imageWidth / 2;
+		}
+		if (this.y + this.playerHeight / 2 < 0) {
+			this.y = -1 * this.playerHeight / 2;
+		}
+		if (this.x + this.imageWidth / 2 > worldWidth) {
+			this.x = worldWidth - this.imageWidth / 2;
+		}
+		if (this.y + this.imageHeight / 2 > worldHeight) {
+			this.y = worldHeight - this.imageHeight / 2;
+		}
 	};
 };
