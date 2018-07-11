@@ -7,7 +7,10 @@ export const MapCreator = function (ctx, width, height, images) {
 	this.width = width;
 	this.height = height;
 	this.images = images;
-    this.objects = [];
+	this.objects = {
+	    wallTop: [],
+        wallLeft: []
+	};
 
 	// map texture
 	this.image = null;
@@ -43,63 +46,63 @@ export const MapCreator = function (ctx, width, height, images) {
 	this.generateObjects = function(ctx) {
         // walls top
 	    ctx.drawImage(this.images[1], 0, 12, 30, 15, 100, 0, 100, 100);
-	    this.objects.push(new Wall(100, 0, this.images, 100, 100, 100, 100));
+	    this.objects.wallTop.push(new Wall(100, 0, this.images, 100, 100, 100, 100));
 	    ctx.drawImage(this.images[1], 0, 12, 30, 15, 200, 0, 100, 100);
-	    this.objects.push(new Wall(200, 0, this.images, 100, 100, 100, 100));
+	    this.objects.wallTop.push(new Wall(200, 0, this.images, 100, 100, 100, 100));
 	    ctx.drawImage(this.images[1], 0, 12, 30, 15, 300, 0, 100, 100);
-	    this.objects.push(new Wall(300, 0, this.images, 100, 100, 100, 100));
+	    this.objects.wallTop.push(new Wall(300, 0, this.images, 100, 100, 100, 100));
 	    ctx.drawImage(this.images[1], 0, 12, 30, 15, 400, 0, 100, 100);
-	    this.objects.push(new Wall(400, 0, this.images, 100, 100, 100, 100));
+	    this.objects.wallTop.push(new Wall(400, 0, this.images, 100, 100, 100, 100));
 	    ctx.drawImage(this.images[1], 0, 12, 30, 15, 500, 0, 100, 100);
-	    this.objects.push(new Wall(500, 0, this.images, 100, 100, 100, 100));
+	    this.objects.wallTop.push(new Wall(500, 0, this.images, 100, 100, 100, 100));
 	    ctx.drawImage(this.images[1], 0, 12, 30, 15, 600, 0, 100, 100);
-	    this.objects.push(new Wall(600, 0, this.images, 100, 100, 100, 100));
+	    this.objects.wallTop.push(new Wall(600, 0, this.images, 100, 100, 100, 100));
 
 	    // walls left
 	    ctx.drawImage(this.images[0], 11, 19, 4, 15, 100, 0, 25, 100);
-	    this.objects.push(new Wall(100, 0, this.images, 100, 100, 25, 100));
+	    this.objects.wallLeft.push(new Wall(100, 0, this.images, 100, 100, 25, 100));
 	    ctx.drawImage(this.images[0], 11, 19, 4, 15, 100, 100, 25, 100);
-	    this.objects.push(new Wall(100, 100, this.images, 100, 100, 25, 100));
+	    this.objects.wallLeft.push(new Wall(100, 100, this.images, 100, 100, 25, 100));
 	    ctx.drawImage(this.images[0], 11, 19, 4, 15, 100, 200, 25, 100);
-	    this.objects.push(new Wall(100, 200, this.images, 100, 100, 25, 100));
+	    this.objects.wallLeft.push(new Wall(100, 200, this.images, 100, 100, 25, 100));
 	    ctx.drawImage(this.images[0], 11, 19, 4, 15, 100, 300, 25, 100);
-	    this.objects.push(new Wall(100, 300, this.images, 100, 100, 25, 100));
+	    this.objects.wallLeft.push(new Wall(100, 300, this.images, 100, 100, 25, 100));
 	    ctx.drawImage(this.images[0], 11, 19, 4, 15, 100, 400, 25, 100);
-	    this.objects.push(new Wall(100, 400, this.images, 100, 100, 25, 100));
+	    this.objects.wallLeft.push(new Wall(100, 400, this.images, 100, 100, 25, 100));
 	    ctx.drawImage(this.images[0], 11, 19, 4, 15, 100, 500, 25, 100);
-	    this.objects.push(new Wall(100, 500, this.images, 100, 100, 25, 100));
+	    this.objects.wallLeft.push(new Wall(100, 500, this.images, 100, 100, 25, 100));
 	    ctx.drawImage(this.images[0], 11, 19, 4, 15, 100, 600, 25, 100);
-	    this.objects.push(new Wall(100, 600, this.images, 100, 100, 25, 100));
+	    this.objects.wallLeft.push(new Wall(100, 600, this.images, 100, 100, 25, 100));
 
 	    // walls right
 	    ctx.drawImage(this.images[0], 11, 19, 4, 15, 675, 0, 25, 100);
-	    this.objects.push(new Wall(675, 0, this.images, 100, 100, 25, 100));
+	    this.objects.wallLeft.push(new Wall(675, 0, this.images, 100, 100, 25, 100));
 	    ctx.drawImage(this.images[0], 11, 19, 4, 15, 675, 100, 25, 100);
-	    this.objects.push(new Wall(675, 100, this.images, 100, 100, 25, 100));
+	    this.objects.wallLeft.push(new Wall(675, 100, this.images, 100, 100, 25, 100));
 	    ctx.drawImage(this.images[0], 11, 19, 4, 15, 675, 200, 25, 100);
-	    this.objects.push(new Wall(675, 200, this.images, 100, 100, 25, 100));
+	    this.objects.wallLeft.push(new Wall(675, 200, this.images, 100, 100, 25, 100));
 	    ctx.drawImage(this.images[0], 11, 19, 4, 15, 675, 300, 25, 100);
-	    this.objects.push(new Wall(675, 300, this.images, 100, 100, 25, 100));
+	    this.objects.wallLeft.push(new Wall(675, 300, this.images, 100, 100, 25, 100));
 	    ctx.drawImage(this.images[0], 11, 19, 4, 15, 675, 400, 25, 100);
-	    this.objects.push(new Wall(675, 400, this.images, 100, 100, 25, 100));
+	    this.objects.wallLeft.push(new Wall(675, 400, this.images, 100, 100, 25, 100));
 	    ctx.drawImage(this.images[0], 11, 19, 4, 15, 675, 500, 25, 100);
-	    this.objects.push(new Wall(675, 500, this.images, 100, 100, 25, 100));
+	    this.objects.wallLeft.push(new Wall(675, 500, this.images, 100, 100, 25, 100));
 	    ctx.drawImage(this.images[0], 11, 19, 4, 15, 675, 600, 25, 100);
-	    this.objects.push(new Wall(675, 600, this.images, 100, 100, 25, 100));
+	    this.objects.wallLeft.push(new Wall(675, 600, this.images, 100, 100, 25, 100));
 
 	    // walls bottom
 	    ctx.drawImage(this.images[1], 0, 12, 30, 15, 100, 600, 100, 100);
-	    this.objects.push(new Wall(100, 600, this.images, 100, 100, 100, 100));
+	    this.objects.wallTop.push(new Wall(100, 600, this.images, 100, 100, 100, 100));
 	    ctx.drawImage(this.images[1], 0, 12, 30, 15, 200, 600, 100, 100);
-	    this.objects.push(new Wall(200, 600, this.images, 100, 100, 100, 100));
+	    this.objects.wallTop.push(new Wall(200, 600, this.images, 100, 100, 100, 100));
 	    ctx.drawImage(this.images[1], 0, 12, 30, 15, 300, 600, 100, 100);
-	    this.objects.push(new Wall(300, 600, this.images, 100, 100, 100, 100));
+	    this.objects.wallTop.push(new Wall(300, 600, this.images, 100, 100, 100, 100));
 	    ctx.drawImage(this.images[1], 0, 12, 30, 15, 400, 600, 100, 100);
-	    this.objects.push(new Wall(400, 600, this.images, 100, 100, 100, 100));
+	    this.objects.wallTop.push(new Wall(400, 600, this.images, 100, 100, 100, 100));
 	    ctx.drawImage(this.images[1], 0, 12, 30, 15, 500, 600, 100, 100);
-	    this.objects.push(new Wall(500, 600, this.images, 100, 100, 100, 100));
+	    this.objects.wallTop.push(new Wall(500, 600, this.images, 100, 100, 100, 100));
 	    ctx.drawImage(this.images[1], 0, 12, 30, 15, 600, 600, 100, 100);
-	    this.objects.push(new Wall(600, 600, this.images, 100, 100, 100, 100));
+	    this.objects.wallTop.push(new Wall(600, 600, this.images, 100, 100, 100, 100));
     };
 
 	// draw the map adjusted to camera
