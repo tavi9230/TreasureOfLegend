@@ -98,7 +98,7 @@ export const MainGame = function (ctx, canvas) {
 			this._currentLevel = new TestArena(this._ctx, this._images, 5000, 5000);
 
 			// setup player
-			this._player = new Player(200, 200, 200, 50, 50, this._images, 100, 100);
+			this._player = new Player(200, 200, 200, 100, 100, this._images, 100, 100);
 
 			//setup collision manager
 			this._collisionManager = new CollisionManager(this._player, this._currentLevel.map.objects);
