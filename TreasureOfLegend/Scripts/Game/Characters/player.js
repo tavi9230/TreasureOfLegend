@@ -16,6 +16,12 @@ export const Player = function (x, y, speed, playerWidth, playerHeight, images, 
 	this.imageHeight = imageHeight || 100;
 	this.playerHeight = playerHeight || 50;
 	this.images = images;
+
+	this.left = this.x;
+	this.right = this.x + this.playerWidth;
+	this.top = this.y;
+	this.bottom = this.y + this.playerHeight;
+
 	this.controls = new Controls();
 
 	this.update = function (worldWidth, worldHeight) {
@@ -35,6 +41,10 @@ export const Player = function (x, y, speed, playerWidth, playerHeight, images, 
 			this.y += this.speed * Constants.STEP;
 		}
 
+		this.left = this.x;
+		this.right = this.x + this.playerWidth;
+		this.top = this.y;
+		this.bottom = this.y + this.playerHeight;
 		this._checkPlayerBoundary(worldWidth, worldHeight);
 	};
 

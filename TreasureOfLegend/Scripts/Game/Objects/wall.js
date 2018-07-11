@@ -10,9 +10,14 @@
 	this.objectHeight = objectHeight;
 	this.images = images;
 
+	this.left = this.x;
+	this.right = this.x + this.objectWidth;
+	this.top = this.y;
+	this.bottom = this.y + this.objectHeight;
+
 	this.draw = function (context) {
 		context.save();
-		context.drawImage(this.images[10], 0, 0, 512, 512, this.x, this.y, this.width, this.height);
+		context.drawImage(this.images[1], 0, 12, 16, 16, this.x, this.y, this.width, this.height);
 		context.restore();
 	};
 };
