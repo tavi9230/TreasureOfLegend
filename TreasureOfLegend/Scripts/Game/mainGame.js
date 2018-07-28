@@ -11,7 +11,6 @@ export const MainGame = function (ctx, canvas) {
 	this._player = {};
 	this._images = [];
 	this._imagesLoaded = 0;
-	this._interval = {};
 	this._currentLevel = {};
 	this._collisionManager = {};
 	this._runningId = -1;
@@ -48,9 +47,11 @@ export const MainGame = function (ctx, canvas) {
 				self._images.push(image);
 				image.onload = function () {
 					self._imagesLoaded++;
+					if (self._images.length === self._imagesLoaded) {
+						self._tryStart();
+					}
 				};
 			});
-			self._interval = setInterval(_.bind(self._tryStart, self), 500);
 		});
 	};
 
@@ -103,22 +104,19 @@ export const MainGame = function (ctx, canvas) {
 	};
 
 	this._tryStart = function () {
-		if (this._images.length === this._imagesLoaded) {
-			clearInterval(this._interval);
-			// setup an object that represents the room
-			this._currentLevel = new TestArena(this._ctx, this._images, 5000, 5000);
+		// setup an object that represents the room
+		this._currentLevel = new TestArena(this._ctx, this._images, 5000, 5000);
 
-			// setup player
-			this._player = new Player(200, 200, 200, 100, 100, this._images, 100, 100);
+		// setup player
+		this._player = new Player(200, 200, 200, 100, 100, this._images, 100, 100);
 
-			//setup collision manager
-			this._collisionManager = new CollisionManager(this._player, this._currentLevel.map.objects);
+		//setup collision manager
+		this._collisionManager = new CollisionManager(this._player, this._currentLevel.map.objects);
 
-			// setup the magic camera !!!
-			this._camera = new Camera(0, 0, this._canvas.width, this._canvas.height, this._currentLevel.width, this._currentLevel.height);
-			this._camera.follow(this._player, this._canvas.width / 2, this._canvas.height / 2);
+		// setup the magic camera !!!
+		this._camera = new Camera(0, 0, this._canvas.width, this._canvas.height, this._currentLevel.width, this._currentLevel.height);
+		this._camera.follow(this._player, this._canvas.width / 2, this._canvas.height / 2);
 
-			this._play();
-		}
+		this._play();
 	};
 };
