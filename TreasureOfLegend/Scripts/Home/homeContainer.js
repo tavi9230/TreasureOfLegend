@@ -5,6 +5,7 @@ export const HomeContainer = {
 	template:
 	'<div id="home">' +
 	'<div v-on:click="_startArpgGame">' + Resources.StartARPG + '</div>' +
+	'<div v-on:click="_startDynamicGame">' + Resources.StartARPG + '</div>' +
 	'<canvas id="mainScreen" ref="mainScreen" width="1800" height="900">' + Resources.CanvasError + '</canvas >' +
 	'</div>',
 	data: function () {
@@ -25,6 +26,16 @@ export const HomeContainer = {
 			}
 		},
 		_startArpgGame: function () {
+			if (this.mainGame.stop) {
+				this.mainGame.stop();
+			}
+			this.mainGame = new MainGame(this.ctx, this.$refs.mainScreen);
+			this.mainGame.start();
+		},
+		_startDynamicGame: function () {
+			if (this.mainGame.stop) {
+				this.mainGame.stop();
+			}
 			this.mainGame = new MainGame(this.ctx, this.$refs.mainScreen);
 			this.mainGame.start();
 		}
