@@ -1,4 +1,5 @@
 ﻿import { MainGame } from 'Game/mainGame';
+import { WindowEvents } from 'Shared/windowEvents';
 
 export const HomeContainer = {
 	template:
@@ -14,6 +15,7 @@ export const HomeContainer = {
 	},
 	mounted: function () {
 		this.ctx = this.$refs.mainScreen.getContext('2d');
+		WindowEvents.setAnimationRequests();
 	},
 	methods: {
 		stop: function () {

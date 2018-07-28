@@ -1,11 +1,8 @@
 ﻿import { AjaxHelper } from 'Helpers/ajaxHelper';
 import { Player } from 'Game/Characters/player';
-import { Constants } from 'Game/Helpers/constants';
 import { TestArena } from 'Game/Maps/testArena';
 import { Camera } from 'Game/Helpers/camera';
 import { CollisionManager } from 'Game/Helpers/collisionManager';
-
-window.Constants = new Constants();
 
 export const MainGame = function (ctx, canvas) {
 	//----------------------  VARIABLES  ----------------------
@@ -19,6 +16,15 @@ export const MainGame = function (ctx, canvas) {
 	this._collisionManager = {};
 	this._runningId = -1;
 	this._camera = {};
+
+	//----------------------  FRAME VARIABLES  ----------------------
+	// last frame timestamp
+	this.last = 0;
+	// current timestamp
+	this.now = 0;
+	// time between frames
+	this.step = this.now - this.last;
+
 	//----------------------  METHODS  ----------------------
 	Emitter.$on('pause', this._togglePause);
 	this.stop = function () {
@@ -49,8 +55,8 @@ export const MainGame = function (ctx, canvas) {
 	};
 
 	// Game update function
-	this.update = function () {
-		this._player.update(this._currentLevel.width, this._currentLevel.height);
+	this.update = function (step) {
+		this._player.update(step, this._currentLevel.width, this._currentLevel.height);
 		this._camera.update();
 		this._collisionManager.checkCollision();
 	};
@@ -67,17 +73,22 @@ export const MainGame = function (ctx, canvas) {
 	};
 
 	// Game Loop
-	this._gameLoop = function () {
-		this.update();
+	this._gameLoop = function (timestamp) {
+		// <-- current timestamp (in milliseconds)
+		this.now = timestamp;
+		// <-- time between frames (in seconds)
+		this.step = (this.now - this.last) / 1000;
+		// <-- store the current timestamp for further evaluation in next frame/step
+		this.last = this.now;
+
+		this.update(this.step);
 		this.draw();
+		this.runningId = requestAnimationFrame(_.bind(this._gameLoop, this));
 	};
 
 	this._play = function () {
-		var self = this;
 		if (this._runningId === -1) {
-			this._runningId = setInterval(function () {
-				self._gameLoop();
-			}, Constants.INTERVAL);
+			this._runningId = requestAnimationFrame(_.bind(this._gameLoop, this));
 		}
 	};
 
@@ -86,7 +97,7 @@ export const MainGame = function (ctx, canvas) {
 			this._play();
 		}
 		else {
-			clearInterval(this._runningId);
+			cancelAnimationFrame(this._runningId);
 			this._runningId = -1;
 		}
 	};
