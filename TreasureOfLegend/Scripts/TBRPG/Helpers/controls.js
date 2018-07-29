@@ -70,6 +70,7 @@
 
 	this._addMouseDown = function (e) {
 		if (this.canvas) {
+			// TODO: Check when moving camera
 			var rect = this.canvas.getBoundingClientRect();
 			var x = Math.floor((e.clientX - rect.left) / 100);
 			var y = Math.floor((e.clientY - rect.top) / 100);
