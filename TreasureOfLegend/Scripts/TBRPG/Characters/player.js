@@ -30,6 +30,8 @@
 	};
 
 	this.draw = function (context, xView, yView) {
+		this.x = Controls.clicked.x * 100;
+		this.y = Controls.clicked.y * 100;
 		context.save();
 		// before draw we need to convert player world's position to canvas position
 		context.drawImage(this.images[9], 0, 0, 512, 512, (this.x - this.imageWidth / 2) - xView, (this.y - this.imageHeight / 2) - yView, this.imageWidth, this.imageHeight);

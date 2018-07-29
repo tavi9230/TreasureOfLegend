@@ -7,6 +7,11 @@
 		down: false
 	};
 
+	this.clicked = {
+		x: 0,
+		y: 0
+	};
+
 	this._keyConstants = {
 		W: 87,
 		S: 83,
@@ -70,6 +75,10 @@
 			var y = Math.floor((e.clientY - rect.top) / 100);
 			if (x >= 0 && x < this.canvas.width / 100
 				&& y >= 0 && y < this.canvas.height / 100) {
+				this.clicked = {
+					x: x,
+					y: y
+				};
 				console.log('x: ' + x + ';\n y: ' + y + ';');
 			}
 		}
