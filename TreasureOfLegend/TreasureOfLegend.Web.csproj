@@ -258,6 +258,16 @@
     <Content Include="Scripts\Shared\modalContainer.js" />
     <Content Include="Scripts\Shared\windowEvents.js" />
     <Content Include="Scripts\Shared\scroll.js" />
+    <Content Include="Scripts\TBRPG\Characters\player.js" />
+    <Content Include="Scripts\TBRPG\Helpers\camera.js" />
+    <Content Include="Scripts\TBRPG\Helpers\controls.js" />
+    <Content Include="Scripts\TBRPG\Helpers\mapCreator.js" />
+    <Content Include="Scripts\TBRPG\Helpers\rectangle.js" />
+    <Content Include="Scripts\TBRPG\mainGame.js" />
+    <Content Include="Scripts\TBRPG\Maps\testArena.js" />
+    <Content Include="Scripts\TBRPG\Menus\topMenu.js" />
+    <Content Include="Scripts\TBRPG\Objects\floor.js" />
+    <Content Include="Scripts\TBRPG\Objects\wall.js" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\web.config" />

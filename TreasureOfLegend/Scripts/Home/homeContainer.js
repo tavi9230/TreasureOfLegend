@@ -1,11 +1,12 @@
 ﻿import { MainGame } from 'Game/mainGame';
+import { TBRPGMainGame } from 'TBRPG/mainGame';
 import { WindowEvents } from 'Shared/windowEvents';
 
 export const HomeContainer = {
 	template:
 	'<div id="home">' +
 	'<div v-on:click="_startArpgGame">' + Resources.StartARPG + '</div>' +
-	'<div v-on:click="_startDynamicGame">' + Resources.StartARPG + '</div>' +
+	'<div v-on:click="_startTbrpgGame">' + Resources.StartTBRPG + '</div>' +
 	'<canvas id="mainScreen" ref="mainScreen" width="1800" height="900">' + Resources.CanvasError + '</canvas >' +
 	'</div>',
 	data: function () {
@@ -32,11 +33,11 @@ export const HomeContainer = {
 			this.mainGame = new MainGame(this.ctx, this.$refs.mainScreen);
 			this.mainGame.start();
 		},
-		_startDynamicGame: function () {
+		_startTbrpgGame: function () {
 			if (this.mainGame.stop) {
 				this.mainGame.stop();
 			}
-			this.mainGame = new MainGame(this.ctx, this.$refs.mainScreen);
+			this.mainGame = new TBRPGMainGame(this.ctx, this.$refs.mainScreen);
 			this.mainGame.start();
 		}
 	}

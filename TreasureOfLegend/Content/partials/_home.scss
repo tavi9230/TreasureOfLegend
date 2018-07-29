@@ -1,8 +1,13 @@
 ﻿#home {
 	background-color: $gray;
+
+	> div {
+		margin-left: 20px;
+		float: left;
+	}
 }
 
 #mainScreen {
-	width: 100%;
-	height: 100%;
+	/*width: 100%;
+	height: 100%;*/
 }

@@ -129,6 +129,9 @@
   <data name="StartARPG" xml:space="preserve">
     <value>Start ARPG</value>
   </data>
+  <data name="StartTBRPG" xml:space="preserve">
+    <value>Start TBRPG</value>
+  </data>
   <data name="TreasureOfLegend" xml:space="preserve">
     <value>Treasure Of Legend</value>
   </data>

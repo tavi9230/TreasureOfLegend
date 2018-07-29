@@ -97,6 +97,15 @@ namespace TreasureOfLegend.Web.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Start TBRPG.
+        /// </summary>
+        public static string StartTBRPG {
+            get {
+                return ResourceManager.GetString("StartTBRPG", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Treasure Of Legend.
         /// </summary>
         public static string TreasureOfLegend {
