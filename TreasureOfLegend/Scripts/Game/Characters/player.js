@@ -24,21 +24,21 @@ export const Player = function (x, y, speed, playerWidth, playerHeight, images, 
 
 	this.controls = new Controls();
 
-	this.update = function (worldWidth, worldHeight) {
+	this.update = function (step, worldWidth, worldHeight) {
 		// parameter step is the time between frames ( in seconds )
 
 		// check controls and move the player accordingly
 		if (this.controls.keys.left) {
-			this.x -= this.speed * Constants.STEP;
+			this.x -= this.speed * step;
 		}
 		if (this.controls.keys.up) {
-			this.y -= this.speed * Constants.STEP;
+			this.y -= this.speed * step;
 		}
 		if (this.controls.keys.right) {
-			this.x += this.speed * Constants.STEP;
+			this.x += this.speed * step;
 		}
 		if (this.controls.keys.down) {
-			this.y += this.speed * Constants.STEP;
+			this.y += this.speed * step;
 		}
 
 		this.left = this.x;
