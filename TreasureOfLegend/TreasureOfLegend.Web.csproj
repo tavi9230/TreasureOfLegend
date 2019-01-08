@@ -197,6 +197,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\Images\Assets\bomb.png" />
+    <Content Include="App_Data\Images\Assets\dude.png" />
+    <Content Include="App_Data\Images\Assets\platform.png" />
+    <Content Include="App_Data\Images\Assets\sky.png" />
+    <Content Include="App_Data\Images\Assets\star.png" />
     <Content Include="App_Data\Images\Tileset\tileset0.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -230,6 +235,11 @@
     <Content Include="App_Data\Images\Tileset\tileset9.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\bomb.png" />
+    <Content Include="Assets\dude.png" />
+    <Content Include="Assets\platform.png" />
+    <Content Include="Assets\sky.png" />
+    <Content Include="Assets\star.png" />
     <Content Include="packages.config" />
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -238,6 +248,8 @@
     <Content Include=".eslintignore" />
     <Content Include=".eslintrc" />
     <Content Include="package.json" />
+    <Content Include="Scripts\DMan\assetLoader.js" />
+    <Content Include="Scripts\DMan\main.js" />
     <Content Include="Scripts\Game\Characters\player.js" />
     <Content Include="Scripts\Game\Helpers\collisionManager.js" />
     <Content Include="Scripts\Game\Helpers\controls.js" />

@@ -2,3 +2,4 @@ Pack/**
 obj/**
 bin/**
 webpack.config.js
+Scripts/DMan/main.js

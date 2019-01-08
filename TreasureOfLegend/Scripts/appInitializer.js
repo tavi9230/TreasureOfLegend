@@ -2,6 +2,9 @@
 import { ModalContainer } from 'Shared/modalContainer';
 import { MainContainer } from 'mainContainer';
 import { WindowEvents } from 'Shared/windowEvents';
+/* eslint-disable */
+import { Phaser } from 'phaser';
+/* eslint-enable */
 
 window.WindowEvents = WindowEvents;
 window.Emitter = new Vue();
