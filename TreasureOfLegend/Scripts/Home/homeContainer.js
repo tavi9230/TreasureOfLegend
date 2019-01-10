@@ -1,5 +1,5 @@
 ﻿import { MainGame } from 'Game/mainGame';
-import { WindowEvents } from 'Shared/windowEvents';
+//import { WindowEvents } from 'Shared/windowEvents';
 import { DManGame } from 'DMan/main';
 
 export const HomeContainer = {

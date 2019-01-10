@@ -9,4 +9,10 @@
         game.load.image('bomb', AssetFolder + 'bomb.png');
         game.load.spritesheet('dude', AssetFolder + 'dude.png', { frameWidth: 32, frameHeight: 48 });
     };
+
+    this.loadSounds = function() {
+        game.load.audio('background', [AssetFolder + 'Audio/background.mp3']);
+        game.load.audio('coin', [AssetFolder + 'Audio/coin.mp3']);
+        game.load.audio('death', [AssetFolder + 'Audio/death.mp3']);
+    };
 };
