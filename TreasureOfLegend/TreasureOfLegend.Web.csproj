@@ -235,9 +235,13 @@
     <Content Include="App_Data\Images\Tileset\tileset9.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\Audio\background.mp3" />
+    <Content Include="Assets\Audio\coin.mp3" />
+    <Content Include="Assets\Audio\death.mp3" />
     <Content Include="Assets\bomb.png" />
     <Content Include="Assets\dude.png" />
     <Content Include="Assets\platform.png" />
+    <Content Include="Assets\platformVertical.png" />
     <Content Include="Assets\sky.png" />
     <Content Include="Assets\star.png" />
     <Content Include="packages.config" />
