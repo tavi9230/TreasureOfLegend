@@ -52,7 +52,8 @@ export const DManGame = function () {
         player = this.physics.add.sprite(100, 450, 'dude');
         //player.setBounce(0.1); //don't bounce after landing
         player.setCollideWorldBounds(true); //collide with edges
-        player.body.gravity.y = 400;
+        player.body.gravity.y = 500;
+
         this.anims.create({
             key: 'left',
             frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
@@ -117,55 +118,7 @@ export const DManGame = function () {
             scoreText.setY(this.cameras.main.scrollY + (600 - scoreText.height) / 2);
             scoreText.setText('You died. Final score: ' + score);
         } else {
-            if (!player.body.touching.left && !player.body.touching.right) {
-                if (cursors.left.isDown && cursors.shift.isDown) {
-                    player.setVelocityX(-250);
-                    player.anims.play('left', true);
-                } else if (cursors.right.isDown && cursors.shift.isDown) {
-                    player.setVelocityX(250);
-                    player.anims.play('right', true);
-                } else if (cursors.left.isDown) {
-                    player.setVelocityX(-200);
-                    player.anims.play('left', true);
-                } else if (cursors.right.isDown) {
-                    player.setVelocityX(200);
-                    player.anims.play('right', true);
-                } else {
-                    player.setVelocityX(0);
-                    player.anims.play('turn');
-                }
-            }
-
-            if (cursors.up.isDown && isJumpActive) {
-                isJumpActive = false;
-                if (cursors.left.isDown && (player.body.touching.left || player.body.wasTouching.left)) {
-                    player.setVelocityY(-300);
-                    player.setVelocityX(50);
-                }
-                if (cursors.left.isDown &&  (player.body.touching.left || player.body.wasTouching.left) && cursors.shift.isDown) {
-                    player.setVelocityY(-370);
-                    player.setVelocityX(100);
-                }
-                if (cursors.right.isDown && (player.body.touching.right || player.body.wasTouching.right)) {
-                    player.setVelocityY(-300);
-                    player.setVelocityX(-50);
-                }
-                if (cursors.right.isDown && (player.body.touching.right || player.body.wasTouching.right) && cursors.shift.isDown) {
-                    player.setVelocityY(-370);
-                    player.setVelocityX(-100);
-                } else if (cursors.shift.isDown && player.body.touching.down) {
-                    player.setVelocityY(-370);
-                } else if (player.body.touching.down) {
-                    player.setVelocityY(-300);
-                }
-            } else if(cursors.up.isUp) {
-                isJumpActive = true;
-            }
-
-            if (cursors.down.isDown && !player.body.touching.down) {
-                player.setVelocityY(300);
-            }
-
+            checkPlayerControls();
             testText.setText('isJumpActive: ' + isJumpActive);
         }
     }
@@ -182,7 +135,7 @@ export const DManGame = function () {
         physics: {
             default: 'arcade',
             arcade: {
-                gravity: { y: 400 },
+                gravity: { y: 500 },
                 debug: false
             }
         }
@@ -220,6 +173,57 @@ export const DManGame = function () {
             player.anims.play('turn');
             this.sound.stopAll();
             gameOver = true;
+        }
+    }
+
+    function checkPlayerControls() {
+        if (!player.body.touching.left && !player.body.touching.right) {
+            if (cursors.left.isDown && cursors.shift.isDown) {
+                player.setVelocityX(-250);
+                player.anims.play('left', true);
+            } else if (cursors.right.isDown && cursors.shift.isDown) {
+                player.setVelocityX(250);
+                player.anims.play('right', true);
+            } else if (cursors.left.isDown) {
+                player.setVelocityX(-200);
+                player.anims.play('left', true);
+            } else if (cursors.right.isDown) {
+                player.setVelocityX(200);
+                player.anims.play('right', true);
+            } else if (player.body.touching.down){
+                player.setVelocityX(0);
+                player.anims.play('turn');
+            }
+        }
+
+        if (cursors.up.isDown /*&& isJumpActive*/) {
+            isJumpActive = false;
+            if (cursors.left.isDown && (player.body.touching.left || player.body.wasTouching.left)) {
+                player.setVelocityY(-300);
+                player.setVelocityX(50);
+            }
+            if (cursors.left.isDown &&  (player.body.touching.left || player.body.wasTouching.left) && cursors.shift.isDown) {
+                player.setVelocityY(-370);
+                player.setVelocityX(100);
+            }
+            if (cursors.right.isDown && (player.body.touching.right || player.body.wasTouching.right)) {
+                player.setVelocityY(-300);
+                player.setVelocityX(-50);
+            }
+            if (cursors.right.isDown && (player.body.touching.right || player.body.wasTouching.right) && cursors.shift.isDown) {
+                player.setVelocityY(-370);
+                player.setVelocityX(-100);
+            } else if (cursors.shift.isDown && player.body.touching.down) {
+                player.setVelocityY(-370);
+            } else if (player.body.touching.down) {
+                player.setVelocityY(-300);
+            }
+        } else if(cursors.up.isUp) {
+            isJumpActive = true;
+        }
+
+        if (cursors.down.isDown && !player.body.touching.down) {
+            player.setVelocityY(300);
         }
     }
 };
