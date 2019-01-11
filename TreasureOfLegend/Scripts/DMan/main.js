@@ -9,7 +9,9 @@ export const DManGame = function () {
         score = 0,
         scoreText,
         bombs,
-        gameOver = false;
+        gameOver = false,
+        lives = 3,
+        livesText;
 
     function preload () {
         assetLoader = new AssetLoader(this);
@@ -20,7 +22,7 @@ export const DManGame = function () {
     function create ()
     {
         //add sound
-        this.sound.add('background');
+        this.sound.add('background', {volume: 0.1});
         this.sound.add('coin');
         this.sound.add('death');
         this.sound.play('background', {name: 'background'});
@@ -37,15 +39,21 @@ export const DManGame = function () {
         //add platforms
         platforms = this.physics.add.staticGroup();
 
-        platforms.create(400, 568, 'ground').setScale(5).refreshBody();
+        platforms.create(400, 568, 'ground').setScale(6).refreshBody();
         platforms.create(600, 400, 'ground');
         platforms.create(50, 250, 'ground');
-        platforms.create(750, 220, 'ground');
+        platforms.create(50, 280, 'ground');
+        platforms.create(50, 310, 'ground');
+        platforms.create(50, 340, 'ground');
+        platforms.create(50, 370, 'ground');
+        platforms.create(930, 350, 'ground').setAngle(90).refreshBody();
+        platforms.create(750, 280, 'ground');
 
         //add player
         player = this.physics.add.sprite(100, 450, 'dude');
-        player.setBounce(0.1);
+        //player.setBounce(0.1); //don't bounce after landing
         player.setCollideWorldBounds(true); //collide with edges
+        player.body.gravity.y = 400;
         this.anims.create({
             key: 'left',
             frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
@@ -88,6 +96,7 @@ export const DManGame = function () {
 
         //add score
         scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000' });
+        livesText = this.add.text(520, 16, 'Lives:' + lives, { fontSize: '32px', fill: '#000' });
 
         //add bombs
         bombs = this.physics.add.group();
@@ -100,29 +109,40 @@ export const DManGame = function () {
     }
 
     function update() {
-        if (cursors.left.isDown) {
-            player.setVelocityX(-160);
-            player.anims.play('left', true);
-        } else if (cursors.right.isDown) {
-            player.setVelocityX(160);
-            player.anims.play('right', true);
-        } else {
-            player.setVelocityX(0);
-            player.anims.play('turn');
-        }
-
-        if (cursors.up.isDown && player.body.touching.down)
-        {
-            player.setVelocityY(-330);
-        }
-
-        if (cursors.down.isDown && !player.body.touching.down)
-        {
-            player.setVelocityY(330);
-        }
+        scoreText.setX(this.cameras.main.scrollX + 16);
+        livesText.setX(this.cameras.main.scrollX + 520);
 
         if (gameOver) {
+            scoreText.setX(this.cameras.main.scrollX + (800 - scoreText.width) / 2);
+            scoreText.setY(this.cameras.main.scrollY + (600 - scoreText.height) / 2);
             scoreText.setText('You died. Final score: ' + score);
+        } else {
+            if (cursors.left.isDown && cursors.shift.isDown) {
+                player.setVelocityX(-250);
+                player.anims.play('left', true);
+            } else if (cursors.right.isDown && cursors.shift.isDown) {
+                player.setVelocityX(250);
+                player.anims.play('right', true);
+            } else if (cursors.left.isDown) {
+                player.setVelocityX(-200);
+                player.anims.play('left', true);
+            } else if (cursors.right.isDown) {
+                player.setVelocityX(200);
+                player.anims.play('right', true);
+            } else {
+                player.setVelocityX(0);
+                player.anims.play('turn');
+            }
+
+            if (cursors.up.isDown && cursors.shift.isDown && (player.body.touching.down || player.body.touching.left || player.body.touching.right)) {
+                player.setVelocityY(-370);
+            } else if (cursors.up.isDown && (player.body.touching.down || player.body.touching.left || player.body.touching.right)) {
+                player.setVelocityY(-300);
+            }
+
+            if (cursors.down.isDown && !player.body.touching.down) {
+                player.setVelocityY(300);
+            }
         }
     }
 
@@ -138,7 +158,7 @@ export const DManGame = function () {
         physics: {
             default: 'arcade',
             arcade: {
-                gravity: { y: 200 },
+                gravity: { y: 400 },
                 debug: false
             }
         }
@@ -167,9 +187,15 @@ export const DManGame = function () {
 
     function hitBomb(player, bomb) {
         this.sound.play('death', { name: 'death', start:1, duration: 3.0, config: {}});
-        this.physics.pause();
-        player.setTint(0xff0000);
-        player.anims.play('turn');
-        gameOver = true;
+        lives--;
+        livesText.setText('Lives: ' + lives);
+        bomb.setVelocityX(-1 * 5 * (player.y - bomb.y));
+        if (lives === 0) {
+            this.physics.pause();
+            player.setTint(0xff0000);
+            player.anims.play('turn');
+            this.sound.stopAll();
+            gameOver = true;
+        }
     }
 };
