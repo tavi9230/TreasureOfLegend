@@ -34,27 +34,27 @@ export const TBSGame = function () {
 
             var tiles = map.addTilesetImage('spritesheet', 'tiles');
         
-            var stone = map.createStaticLayer('Ground', tiles, 0, 0);
+            var ground = map.createStaticLayer('Ground', tiles, 0, 0);
             //var obstacles = map.createStaticLayer('Obstacles', tiles, 0, 0);
             //obstacles.setCollisionByExclusion([-1]);
 
-            this.player = this.physics.add.sprite(200, 100, 'player');
+            this.player = this.physics.add.sprite(200, 100, 'character');
             this.anims.create({
                 key: 'left',
-                frames: this.anims.generateFrameNumbers('player', { start: 12, end: 14 }),
+                frames: this.anims.generateFrameNumbers('character', { start: 12, end: 14 }),
                 frameRate: 10,
                 repeat: -1
             });
 
             this.anims.create({
                 key: 'turn',
-                frames: [ { key: 'player', frame: 2 } ],
+                frames: [ { key: 'character', frame: 2 } ],
                 frameRate: 20
             });
 
             this.anims.create({
                 key: 'right',
-                frames: this.anims.generateFrameNumbers('player', { start: 23, end: 26 }),
+                frames: this.anims.generateFrameNumbers('character', { start: 23, end: 26 }),
                 frameRate: 10,
                 repeat: -1
             });
@@ -72,8 +72,7 @@ export const TBSGame = function () {
         physics: {
             default: 'arcade',
             arcade: {
-                gravity: { y: 500 },
-                debug: false
+                gravity: { y: 0 }
             }
         },
         scene: [
