@@ -244,6 +244,8 @@
     <Content Include="Assets\platformVertical.png" />
     <Content Include="Assets\sky.png" />
     <Content Include="Assets\star.png" />
+    <Content Include="Assets\TBS\Characters\characters1.jpg" />
+    <Content Include="Assets\TBS\Tiles\tileset.jpg" />
     <Content Include="packages.config" />
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -252,6 +254,8 @@
     <Content Include=".eslintignore" />
     <Content Include=".eslintrc" />
     <Content Include="package.json" />
+    <Content Include="Scripts\TBS\assetLoader.js" />
+    <Content Include="Scripts\TBS\main.js" />
     <Content Include="Scripts\DMan\assetLoader.js" />
     <Content Include="Scripts\DMan\main.js" />
     <Content Include="Scripts\Game\Characters\player.js" />
@@ -293,6 +297,7 @@
     <Content Include="Content\partials\_reset.scss" />
     <Content Include="Content\partials\_home.scss" />
     <Content Include="Content\partials\_landing.scss" />
+    <Content Include="Assets\TBS\Maps\map1.json" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
