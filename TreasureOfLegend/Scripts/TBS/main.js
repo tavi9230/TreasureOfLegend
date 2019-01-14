@@ -1,6 +1,13 @@
 ﻿import {AssetLoader} from 'TBS/assetLoader';
 
 export const TBSGame = function () {
+    var characterConfig = {
+        life: 10,
+        speed: 5,
+        posX: 0,
+        posY: 0
+    }
+
     var BootScene = new Phaser.Class({
         Extends: Phaser.Scene,
 
@@ -30,12 +37,12 @@ export const TBSGame = function () {
         
         },
         create: function () {
-            var map = this.make.tilemap({ key: 'map' });
+            this.map = this.make.tilemap({ key: 'map' });
 
-            var tiles = map.addTilesetImage('spritesheet', 'tiles');
+            this.tiles = this.map.addTilesetImage('spritesheet', 'tiles');
         
-            var ground = map.createStaticLayer('Ground', tiles, 0, 0);
-            //var obstacles = map.createStaticLayer('Obstacles', tiles, 0, 0);
+            this.ground = this.map.createStaticLayer('Ground', this.tiles, 0, 0);
+            //var obstacles = this.map.createStaticLayer('Obstacles', this.tiles, 0, 0);
             //obstacles.setCollisionByExclusion([-1]);
 
             this.player = this.physics.add.sprite(200, 100, 'character');
@@ -59,8 +66,50 @@ export const TBSGame = function () {
                 repeat: -1
             });
 
-            this.physics.world.bounds.width = map.widthInPixels;
-            this.physics.world.bounds.height = map.heightInPixels;
+            this.physics.world.bounds.width = this.map.widthInPixels;
+            this.physics.world.bounds.height = this.map.heightInPixels;
+
+            this.player.setCollideWorldBounds(true);
+            this.player.characterConfig = characterConfig;
+            this.player.characterConfig.posX = 200;
+            this.player.characterConfig.posY = 100;
+
+            this.cursors = this.input.keyboard.createCursorKeys();
+
+            this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
+            this.cameras.main.startFollow(this.player);
+            this.cameras.main.roundPixels = true;
+
+            this.input.on('gameobjectdown', this.clickedMap);
+        },
+        update:function() {
+            this.player.body.setVelocity(0);
+ 
+            // Horizontal movement
+            if (this.cursors.left.isDown)
+            {
+                this.player.body.setVelocityX(-80);
+            }
+            else if (this.cursors.right.isDown)
+            {
+                this.player.body.setVelocityX(80);
+            }
+ 
+            // Vertical movement
+            if (this.cursors.up.isDown)
+            {
+                this.player.body.setVelocityY(-80);
+            }
+            else if (this.cursors.down.isDown)
+            {
+                this.player.body.setVelocityY(80);
+            }    
+        },
+        clickedMap: function(pointer, gameObject) {
+            var tileworldX = pointer.worldX - (pointer.worldX % 50);
+            var tileworldY = pointer.worldY - (pointer.worldY % 50);
+            this.player.characterConfig.posX = tileworldX;
+            this.player.characterConfig.posY = tileworldY;
         }
     });
  
