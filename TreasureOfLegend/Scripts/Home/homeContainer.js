@@ -2,6 +2,7 @@
 //import { WindowEvents } from 'Shared/windowEvents';
 import { DManGame } from 'DMan/main';
 import { TBSGame } from 'TBS/main';
+import { AniwarsGame } from 'Aniwars/main';
 
 export const HomeContainer = {
     template:
@@ -10,6 +11,7 @@ export const HomeContainer = {
 	'<div v-on:click="_startDynamicGame">' + Resources.StartARPG + '</div>' +
     '<div v-on:click="_startDManGame">Start D-man game</div>' +
     '<div v-on:click="_startTBSGame">TBS</div>' +
+    '<div v-on:click="_startAniwarsGame">Aniwars</div>' +
 	//'<canvas id="mainScreen" ref="mainScreen" width="1800" height="900">' + Resources.CanvasError + '</canvas >' +
 	'</div>',
     data: function () {
@@ -48,6 +50,9 @@ export const HomeContainer = {
         },
         _startTBSGame: function() {
             this.mainGame = new TBSGame();
+        },
+        _startAniwarsGame: function() {
+            this.mainGame = new AniwarsGame();
         }
     }
 };
