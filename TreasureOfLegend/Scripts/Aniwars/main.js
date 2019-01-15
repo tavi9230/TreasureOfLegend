@@ -1,20 +1,32 @@
 ﻿import {AssetLoader} from 'Aniwars/assetLoader';
 
 export const AniwarsGame = function () {
+    var levelMap = [
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1],
+        [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1],
+        [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ];
     var characterConfig = {
         life: 10,
-        movement: 5,
+        movement: 6,
         velocity: 150,
         posX: 0,
-        posY: 0
-    }
-
-    var enemyConfig = {
-        life: 10,
-        movement: 5,
-        velocity: 150,
-        posX: 0,
-        posY: 0
+        posY: 0,
+        isMoving: false,
+        path: []
     }
 
     var BootScene = new Phaser.Class({
@@ -53,18 +65,29 @@ export const AniwarsGame = function () {
                 hitArea: hitArea,
                 hitAreaCallback: hitAreaCallback
             });
-            for (let i = 0; i < 1200; i+=50) {
-                for (let j = 0; j < 800; j+=50) {
-                    this.tiles.create(i, j, 'tile').setOrigin(0,0);
+            this.objects = this.add.group({
+                hitArea: hitArea,
+                hitAreaCallback: hitAreaCallback
+            });
+            for (let i = 0, y = 0; i < levelMap.length; i++, y+=50) {
+                for (let j = 0, x = 0; j < levelMap[i].length; j++, x+=50) {
+                    if (levelMap[i][j] === 0) {
+                        this.tiles.create(x, y, 'tile').setOrigin(0,0);
+                    } else if (levelMap[i][j] === 1) {
+                        this.objects.create(x, y, 'wallTile').setOrigin(0,0);
+                    } else if (levelMap[i][j] === 2) {
+                        this.tiles.create(x, y, 'tile').setOrigin(0,0);
+                        this.objects.create(x, y, 'doorTile').setOrigin(0,0);
+                    }
                 }
             }
             this.input.setHitArea(this.tiles.getChildren());
 
             //party characters
             this.characters = this.add.group();
-            var character = this.physics.add.sprite(0, 350, 'character').setOrigin(0,0);
+            var character = this.physics.add.sprite(50, 350, 'character').setOrigin(0,0);
             character.characterConfig = characterConfig;
-            character.characterConfig.posX = 0;
+            character.characterConfig.posX = 50;
             character.characterConfig.posY = 350;
             this.characters.add(character);
             this.activeCharacter = character;
@@ -72,12 +95,12 @@ export const AniwarsGame = function () {
 
             //enemy characters
             this.enemies = this.add.group();
-            var enemy = this.physics.add.sprite(1150, 350, 'character').setOrigin(0,0);
+            var enemy = this.physics.add.sprite(1100, 350, 'character').setOrigin(0,0);
             enemy.characterConfig = characterConfig;
-            enemy.characterConfig.posX = 0;
+            enemy.characterConfig.posX = 1100;
             enemy.characterConfig.posY = 350;
             this.enemies.add(enemy);
-            this.input.on('gameobjectdown', _.bind(this._moveCharacter, this));
+            this.input.on('gameobjectdown', _.bind(this._moveCharacterOnClick, this));
 
             //----------------------------------------------------------------------------- DEBUG STUFF
             this.speedTextButton = this.add.text(10, 10, 'Velocity: 70', { fill: '#0f0' });
@@ -97,7 +120,10 @@ export const AniwarsGame = function () {
             }
             //-----------------------------------------------------------------------------
         },
-        _moveCharacter: function(pointer, tile) {
+        _moveCharacterOnClick: function(pointer, tile) {
+            this._moveCharacter(tile);
+        },
+        _moveCharacter: function(tile) {
             var currentCharacter = this.activeCharacter;
             var isObstacleInTheWay = false;
             _.each(this.enemies.getChildren(), function(enemy) {
@@ -106,11 +132,21 @@ export const AniwarsGame = function () {
                     return;
                 }
             });
-            if (currentCharacter.characterConfig.movement * 50 >= Math.abs(tile.x - currentCharacter.characterConfig.posX) &&
-                currentCharacter.characterConfig.movement * 50 >= Math.abs(tile.y - currentCharacter.characterConfig.posY)
-                && !isObstacleInTheWay) {
-                currentCharacter.characterConfig.posX = tile.x;
-                currentCharacter.characterConfig.posY = tile.y;
+            _.each(this.objects.getChildren(), function(object) {
+                if (object.x === tile.x && object.y === tile.y) {
+                    isObstacleInTheWay = true;
+                    return;
+                }
+            });
+            var pathWay = this._findWay([currentCharacter.y / 50, currentCharacter.x / 50], [tile.y / 50, tile.x / 50]);
+            currentCharacter.characterConfig.path = pathWay;
+            currentCharacter.characterConfig.path.shift();
+            if (currentCharacter.characterConfig.path.length <= currentCharacter.characterConfig.movement && !isObstacleInTheWay) {
+                    
+                currentCharacter.characterConfig.isMoving = true;
+                currentCharacter.characterConfig.posX = currentCharacter.characterConfig.path[0][1] * 50;
+                currentCharacter.characterConfig.posY = currentCharacter.characterConfig.path[0][0] * 50;
+                currentCharacter.characterConfig.path.shift();
                 var velocity = 0;
                 if (tile.x > currentCharacter.x) {
                     velocity = characterConfig.velocity;
@@ -130,44 +166,77 @@ export const AniwarsGame = function () {
         },
         _stopCharacter() {
             var currentCharacter = this.activeCharacter;
-            if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 100 && Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) > 30) {
-                currentCharacter.x > currentCharacter.characterConfig.posX
-                ? currentCharacter.setVelocityX(-100)
-                : currentCharacter.setVelocityX(100);
-            } else if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 30 && Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) > 5) {
-                currentCharacter.x > currentCharacter.characterConfig.posX
-                ? currentCharacter.setVelocityX(-80)
-                : currentCharacter.setVelocityX(80);
-            } else if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 5 && Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) > 1) {
-                currentCharacter.x > currentCharacter.characterConfig.posX
-                ? currentCharacter.setVelocityX(-25)
-                : currentCharacter.setVelocityX(25);
-            } else if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) < 1) {
-                currentCharacter.setVelocityX(0);
-                currentCharacter.x = currentCharacter.characterConfig.posX;
-            }
-            
-            if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) <= 100 && Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) > 30) {
-                currentCharacter.y > currentCharacter.characterConfig.posY
-                ? currentCharacter.setVelocityY(-100)
-                : currentCharacter.setVelocityY(100);
-            } else if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) <= 30 && Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) > 10) {
-                currentCharacter.y > currentCharacter.characterConfig.posY
-                ? currentCharacter.setVelocityY(-80)
-                : currentCharacter.setVelocityY(80);
-            } else if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) <= 10 && Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) > 1) {
-                currentCharacter.y > currentCharacter.characterConfig.posY
-                ? currentCharacter.setVelocityY(-25)
-                : currentCharacter.setVelocityY(25);
-            } else if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) < 1) {
-                currentCharacter.setVelocityY(0);
-                currentCharacter.y = currentCharacter.characterConfig.posY;
-            }
+            //reduce speed on X
+            if (currentCharacter.characterConfig.isMoving) {
+                if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 100 &&
+                    Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) > 30) {
+                    currentCharacter.x > currentCharacter.characterConfig.posX
+                        ? currentCharacter.setVelocityX(-100)
+                        : currentCharacter.setVelocityX(100);
+                } else if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 30 &&
+                    Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) > 5) {
+                    currentCharacter.x > currentCharacter.characterConfig.posX
+                        ? currentCharacter.setVelocityX(-80)
+                        : currentCharacter.setVelocityX(80);
+                } else if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 5 &&
+                    Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) > 1) {
+                    currentCharacter.x > currentCharacter.characterConfig.posX
+                        ? currentCharacter.setVelocityX(-25)
+                        : currentCharacter.setVelocityX(25);
+                } else if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) < 1) {
+                    currentCharacter.setVelocityX(0);
+                    currentCharacter.x = currentCharacter.characterConfig.posX;
+                }
 
-            if (currentCharacter.x === currentCharacter.characterConfig.posX 
-                && currentCharacter.y === currentCharacter.characterConfig.posY
-                && !this.isMovementGridShown) {
-                this._showMovementGrid(currentCharacter);
+                //reduce speed on Y
+                if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) <= 100 &&
+                    Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) > 30) {
+                    currentCharacter.y > currentCharacter.characterConfig.posY
+                        ? currentCharacter.setVelocityY(-100)
+                        : currentCharacter.setVelocityY(100);
+                } else if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) <= 30 &&
+                    Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) > 10) {
+                    currentCharacter.y > currentCharacter.characterConfig.posY
+                        ? currentCharacter.setVelocityY(-80)
+                        : currentCharacter.setVelocityY(80);
+                } else if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) <= 10 &&
+                    Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) > 1) {
+                    currentCharacter.y > currentCharacter.characterConfig.posY
+                        ? currentCharacter.setVelocityY(-25)
+                        : currentCharacter.setVelocityY(25);
+                } else if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) < 1) {
+                    currentCharacter.setVelocityY(0);
+                    currentCharacter.y = currentCharacter.characterConfig.posY;
+                }
+
+                //show grid if stopped
+                if (currentCharacter.x === currentCharacter.characterConfig.posX &&
+                    currentCharacter.y === currentCharacter.characterConfig.posY &&
+                    !this.isMovementGridShown) {
+                    if (currentCharacter.characterConfig.path.length === 0) {
+                        this._showMovementGrid(currentCharacter);
+                    }
+                    currentCharacter.characterConfig.isMoving = false;
+                }
+            } else if (!currentCharacter.characterConfig.isMoving && currentCharacter.characterConfig.path.length > 0) {
+                currentCharacter.characterConfig.isMoving = true;
+                currentCharacter.characterConfig.posX = currentCharacter.characterConfig.path[0][1] * 50;
+                currentCharacter.characterConfig.posY = currentCharacter.characterConfig.path[0][0] * 50;
+                currentCharacter.characterConfig.path.shift();
+                var velocity = 0;
+                if (currentCharacter.characterConfig.posX > currentCharacter.x) {
+                    velocity = characterConfig.velocity;
+                } else if (currentCharacter.characterConfig.posX < currentCharacter.x) {
+                    velocity = -1 * characterConfig.velocity;
+                }
+                currentCharacter.setVelocityX(velocity);
+                velocity = 0;
+                if (currentCharacter.characterConfig.posY > currentCharacter.y) {
+                    velocity = characterConfig.velocity;
+                } else if (currentCharacter.characterConfig.posY < currentCharacter.y) {
+                    velocity = -1 * characterConfig.velocity;
+                }
+                currentCharacter.setVelocityY(velocity);
             }
         },
         _showMovementGrid(character) {
@@ -175,7 +244,13 @@ export const AniwarsGame = function () {
             _.each(this.tiles.getChildren(), (tile) => {
                 if (character.characterConfig.movement * 50 >= Math.abs(tile.x - character.characterConfig.posX) 
                     && character.characterConfig.movement * 50 >= Math.abs(tile.y - character.characterConfig.posY) ) {
-                    tile.setTint(0x990899);
+                    var pathWay = this._findWay([character.y / 50, character.x / 50], [tile.y / 50, tile.x / 50]);
+                    if (pathWay) {
+                        pathWay.shift();
+                        if (pathWay.length <= character.characterConfig.movement) {
+                            tile.setTint(0x990899);
+                        }
+                    }
                 }
             });
         },
@@ -187,6 +262,48 @@ export const AniwarsGame = function () {
         },
         _checkManager: function() {
             this._stopCharacter();
+        },
+        _findWay: function(position, end) {
+            var queue = [];
+            var map = [];
+            for (let i = 0; i < levelMap.length; i++) {
+                map[i] = [];
+                for (let j = 0; j < levelMap[i].length; j++) {
+                    map[i][j] = levelMap[i][j];
+                }
+            }
+
+            map[position[0]][position[1]] = 1;
+            queue.push([position]); // store a path, not just a position
+
+            while (queue.length > 0) {
+                var path = queue.shift(); // get the path out of the queue
+                var pos = path[path.length-1]; // ... and then the last position from it
+                var direction = [
+                  [pos[0] + 1, pos[1]],
+                  [pos[0], pos[1] + 1],
+                  [pos[0] - 1, pos[1]],
+                  [pos[0], pos[1] - 1]
+                ];
+
+                for (var i = 0; i < direction.length; i++) {
+                    // Perform this check first:
+                    if (direction[i][0] === end[0] && direction[i][1] === end[1]) {
+                        // return the path that led to the find
+                        return path.concat([end]); 
+                    }
+      
+                    if (direction[i][0] < 0 || direction[i][0] >= map[0].length 
+                        || direction[i][1] < 0 || direction[i][1] >= map[0].length 
+                        || map[direction[i][0]][direction[i][1]] !== 0) { 
+                        continue;
+                    }
+
+                    map[direction[i][0]][direction[i][1]] = 1;
+                    // extend and push the path on the queue
+                    queue.push(path.concat([direction[i]])); 
+                }
+            }
         }
     });
  

@@ -237,6 +237,7 @@
     <Content Include="App_Data\Images\Tileset\tileset9.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\Aniwars\character.jpg" />
     <Content Include="Assets\Aniwars\tile.png" />
     <Content Include="Assets\Audio\background.mp3" />
     <Content Include="Assets\Audio\coin.mp3" />
