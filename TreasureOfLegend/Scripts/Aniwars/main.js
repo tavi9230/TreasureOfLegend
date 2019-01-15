@@ -140,31 +140,33 @@ export const AniwarsGame = function () {
                         return;
                     }
                 });
-                var pathWay = this._findWay([currentCharacter.y / 50, currentCharacter.x / 50], [tile.y / 50, tile.x / 50]);
-                currentCharacter.characterConfig.path = pathWay;
-                currentCharacter.characterConfig.path.shift();
-                if (currentCharacter.characterConfig.path.length <= currentCharacter.characterConfig.movement && !isObstacleInTheWay) { 
-                    currentCharacter.characterConfig.isMoving = true;
-                    currentCharacter.characterConfig.posX = currentCharacter.characterConfig.path[0][1] * 50;
-                    currentCharacter.characterConfig.posY = currentCharacter.characterConfig.path[0][0] * 50;
+                if (!isObstacleInTheWay) {
+                    var pathWay = this._findWay([currentCharacter.y / 50, currentCharacter.x / 50], [tile.y / 50, tile.x / 50]);
+                    currentCharacter.characterConfig.path = pathWay;
                     currentCharacter.characterConfig.path.shift();
-                    var velocity = 0;
-                    if (tile.x > currentCharacter.x) {
-                        velocity = characterConfig.velocity;
-                    } else if (tile.x < currentCharacter.x) {
-                        velocity = -1 * characterConfig.velocity;
+                    if (currentCharacter.characterConfig.path.length <= currentCharacter.characterConfig.movement) { 
+                        currentCharacter.characterConfig.isMoving = true;
+                        currentCharacter.characterConfig.posX = currentCharacter.characterConfig.path[0][1] * 50;
+                        currentCharacter.characterConfig.posY = currentCharacter.characterConfig.path[0][0] * 50;
+                        currentCharacter.characterConfig.path.shift();
+                        var velocity = 0;
+                        if (tile.x > currentCharacter.x) {
+                            velocity = characterConfig.velocity;
+                        } else if (tile.x < currentCharacter.x) {
+                            velocity = -1 * characterConfig.velocity;
+                        }
+                        currentCharacter.setVelocityX(velocity);
+                        velocity = 0;
+                        if (tile.y > currentCharacter.y) {
+                            velocity = characterConfig.velocity;
+                        } else if (tile.y < currentCharacter.y) {
+                            velocity = -1 * characterConfig.velocity;
+                        }
+                        currentCharacter.setVelocityY(velocity);
+                        this._hideMovementGrid();
+                    } else if (currentCharacter.characterConfig.path.length > currentCharacter.characterConfig.movement) {
+                        currentCharacter.characterConfig.path = [];
                     }
-                    currentCharacter.setVelocityX(velocity);
-                    velocity = 0;
-                    if (tile.y > currentCharacter.y) {
-                        velocity = characterConfig.velocity;
-                    } else if (tile.y < currentCharacter.y) {
-                        velocity = -1 * characterConfig.velocity;
-                    }
-                    currentCharacter.setVelocityY(velocity);
-                    this._hideMovementGrid();
-                } else if (currentCharacter.characterConfig.path.length > currentCharacter.characterConfig.movement) {
-                    currentCharacter.characterConfig.path = [];
                 }
             }
         },
