@@ -9,6 +9,14 @@ export const AniwarsGame = function () {
         posY: 0
     }
 
+    var enemyConfig = {
+        life: 10,
+        movement: 5,
+        velocity: 150,
+        posX: 0,
+        posY: 0
+    }
+
     var BootScene = new Phaser.Class({
         Extends: Phaser.Scene,
 
@@ -52,6 +60,7 @@ export const AniwarsGame = function () {
             }
             this.input.setHitArea(this.tiles.getChildren());
 
+            //party characters
             this.characters = this.add.group();
             var character = this.physics.add.sprite(0, 350, 'character').setOrigin(0,0);
             character.characterConfig = characterConfig;
@@ -61,6 +70,13 @@ export const AniwarsGame = function () {
             this.activeCharacter = character;
             this._showMovementGrid(this.activeCharacter);
 
+            //enemy characters
+            this.enemies = this.add.group();
+            var enemy = this.physics.add.sprite(1150, 350, 'character').setOrigin(0,0);
+            enemy.characterConfig = characterConfig;
+            enemy.characterConfig.posX = 0;
+            enemy.characterConfig.posY = 350;
+            this.enemies.add(enemy);
             this.input.on('gameobjectdown', _.bind(this._moveCharacter, this));
 
             //----------------------------------------------------------------------------- DEBUG STUFF
@@ -83,8 +99,16 @@ export const AniwarsGame = function () {
         },
         _moveCharacter: function(pointer, tile) {
             var currentCharacter = this.activeCharacter;
+            var isObstacleInTheWay = false;
+            _.each(this.enemies.getChildren(), function(enemy) {
+                if (enemy.x === tile.x && enemy.y === tile.y) {
+                    isObstacleInTheWay = true;
+                    return;
+                }
+            });
             if (currentCharacter.characterConfig.movement * 50 >= Math.abs(tile.x - currentCharacter.characterConfig.posX) &&
-                currentCharacter.characterConfig.movement * 50 >= Math.abs(tile.y - currentCharacter.characterConfig.posY)) {
+                currentCharacter.characterConfig.movement * 50 >= Math.abs(tile.y - currentCharacter.characterConfig.posY)
+                && !isObstacleInTheWay) {
                 currentCharacter.characterConfig.posX = tile.x;
                 currentCharacter.characterConfig.posY = tile.y;
                 var velocity = 0;
