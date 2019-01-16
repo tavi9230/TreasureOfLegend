@@ -238,7 +238,13 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Aniwars\character.jpg" />
-    <Content Include="Assets\Aniwars\tile.png" />
+    <Content Include="Assets\Aniwars\doorTile.png" />
+    <Content Include="Assets\Aniwars\tile1.png" />
+    <Content Include="Assets\Aniwars\tile2.png" />
+    <Content Include="Assets\Aniwars\tile3.png" />
+    <Content Include="Assets\Aniwars\tile4.png" />
+    <Content Include="Assets\Aniwars\tile5.png" />
+    <Content Include="Assets\Aniwars\wallTile.jpg" />
     <Content Include="Assets\Audio\background.mp3" />
     <Content Include="Assets\Audio\coin.mp3" />
     <Content Include="Assets\Audio\death.mp3" />
@@ -259,6 +265,10 @@
     <Content Include=".eslintrc" />
     <Content Include="package.json" />
     <Content Include="Scripts\Aniwars\assetLoader.js" />
+    <Content Include="Scripts\Aniwars\Maps\mapConfig.js" />
+    <Content Include="Scripts\Aniwars\pathfinder.js" />
+    <Content Include="Scripts\Aniwars\map.js" />
+    <Content Include="Scripts\Aniwars\character.js" />
     <Content Include="Scripts\Aniwars\main.js" />
     <Content Include="Scripts\TBS\assetLoader.js" />
     <Content Include="Scripts\TBS\main.js" />
