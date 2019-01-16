@@ -239,6 +239,7 @@
     </Content>
     <Content Include="Assets\Aniwars\character.jpg" />
     <Content Include="Assets\Aniwars\doorTile.png" />
+    <Content Include="Assets\Aniwars\hudbackground.png" />
     <Content Include="Assets\Aniwars\tile1.png" />
     <Content Include="Assets\Aniwars\tile2.png" />
     <Content Include="Assets\Aniwars\tile3.png" />

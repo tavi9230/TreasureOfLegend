@@ -13,6 +13,11 @@
         game.load.image('character', AssetFolder + 'character.jpg');
     };
 
+    this.loadHUDImages = function() {
+        game.load.image('hudbackground', AssetFolder + 'hudbackground.png');
+        game.load.image('hourglass', AssetFolder + 'hourglass.png');
+    };
+
     this.loadSounds = function() {
     };
 };

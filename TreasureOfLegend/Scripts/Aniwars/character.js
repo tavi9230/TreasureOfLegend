@@ -3,12 +3,16 @@
 export const Character = function (game, characterGroup) {
     this.characterConfig = {
         life: 10,
+        mana: 0,
         movement: 6,
+        movementSpent: 0,
+        armor: 10,
         velocity: 200,
         posX: 0,
         posY: 0,
         isMoving: false,
-        path: []
+        path: [],
+        hadAction: false
     };
     this.game = game;
     this.map = game.activeMap;
@@ -47,7 +51,8 @@ export const Character = function (game, characterGroup) {
                 currentCharacter.characterConfig.path = pathWay || [];
                 if (pathWay) {
                     currentCharacter.characterConfig.path.shift();
-                    if (currentCharacter.characterConfig.path.length <= currentCharacter.characterConfig.movement) {
+                    if (currentCharacter.characterConfig.path.length <= currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent) {
+                        currentCharacter.characterConfig.movementSpent++;
                         currentCharacter.characterConfig.isMoving = true;
                         currentCharacter.characterConfig.posX = currentCharacter.characterConfig.path[0][1] * 50;
                         currentCharacter.characterConfig.posY = currentCharacter.characterConfig.path[0][0] * 50;
@@ -67,7 +72,8 @@ export const Character = function (game, characterGroup) {
                         }
                         currentCharacter.setVelocityY(velocity);
                         game.activeMap.hideMovementGrid();
-                    } else if (currentCharacter.characterConfig.path.length > currentCharacter.characterConfig.movement) {
+                        game.events.emit('activeCharacterActed', currentCharacter);
+                    } else if (currentCharacter.characterConfig.path.length > currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent) {
                         currentCharacter.characterConfig.path = [];
                     }
                 }
@@ -134,6 +140,7 @@ export const Character = function (game, characterGroup) {
         var currentCharacter = game.activeCharacter;
         if (!currentCharacter.characterConfig.isMoving && currentCharacter.characterConfig.path.length > 0) {
             currentCharacter.characterConfig.isMoving = true;
+            currentCharacter.characterConfig.movementSpent++;
             currentCharacter.characterConfig.posX = currentCharacter.characterConfig.path[0][1] * 50;
             currentCharacter.characterConfig.posY = currentCharacter.characterConfig.path[0][0] * 50;
             currentCharacter.characterConfig.path.shift();
@@ -151,6 +158,7 @@ export const Character = function (game, characterGroup) {
                 velocity = -1 * this.characterConfig.velocity;
             }
             currentCharacter.setVelocityY(velocity);
+            game.events.emit('activeCharacterActed', currentCharacter);
         }
     };
 

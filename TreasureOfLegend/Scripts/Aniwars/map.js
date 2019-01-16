@@ -39,14 +39,14 @@ export const BattleMap = function (game) {
         this.isMovementGridShown = true;
         _.each(this.tiles.getChildren(),
             (tile) => {
-                if (character.characterConfig.movement * 50 >= Math.abs(tile.x - character.characterConfig.posX) &&
+                if ((character.characterConfig.movement - character.characterConfig.movementSpent) * 50 >= Math.abs(tile.x - character.characterConfig.posX) &&
                     character.characterConfig.movement * 50 >= Math.abs(tile.y - character.characterConfig.posY)) {
                     var pathWay = Pathfinder.findWay([character.y / 50, character.x / 50],
                         [tile.y / 50, tile.x / 50],
                         this.levelMap);
                     if (pathWay) {
                         pathWay.shift();
-                        if (pathWay.length <= character.characterConfig.movement) {
+                        if (pathWay.length <= (character.characterConfig.movement - character.characterConfig.movementSpent)) {
                             tile.setTint(0x990899);
                         }
                     }
@@ -65,7 +65,7 @@ export const BattleMap = function (game) {
                 this.levelMap);
             if (pathWay) {
                 pathWay.shift();
-                if (pathWay.length <= currentCharacter.characterConfig.movement)
+                if (pathWay.length <= (currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent))
                     _.each(this.tiles.getChildren(),
                         function(tile) {
                             for (let i = 0; i < pathWay.length; i++) {
