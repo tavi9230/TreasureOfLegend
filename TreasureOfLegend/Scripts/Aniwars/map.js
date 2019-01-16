@@ -46,7 +46,7 @@ export const BattleMap = function (game) {
                         this.levelMap);
                     if (pathWay) {
                         pathWay.shift();
-                        if (pathWay.length <= (character.characterConfig.movement - character.characterConfig.movementSpent)) {
+                        if (pathWay.length <= (character.characterConfig.movement - character.characterConfig.movementSpent) && this.levelMap[tile.y / 50][tile.x / 50] === MapConfig.mapEnum.tile) {
                             tile.setTint(0x990899);
                         }
                     }
@@ -55,6 +55,7 @@ export const BattleMap = function (game) {
     };
 
     this.highlightPathToThis = (tile) => {
+        var self = this;
         var currentCharacter = game.activeCharacter;
         if (currentCharacter.characterConfig.path.length === 0 &&
             currentCharacter.x === currentCharacter.characterConfig.posX &&
@@ -69,7 +70,7 @@ export const BattleMap = function (game) {
                     _.each(this.tiles.getChildren(),
                         function(tile) {
                             for (let i = 0; i < pathWay.length; i++) {
-                                if (tile.x === pathWay[i][1] * 50 && tile.y === pathWay[i][0] * 50) {
+                                if (tile.x === pathWay[i][1] * 50 && tile.y === pathWay[i][0] * 50 && self.levelMap[tile.y / 50][tile.x / 50] === MapConfig.mapEnum.tile) {
                                     tile.setTint(0x4693eb);
                                 }
                             }

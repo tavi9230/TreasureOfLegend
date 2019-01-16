@@ -1,8 +1,18 @@
 ﻿#home {
-	background-color: $gray;
+    background-color: $gray;
 }
 
 #mainScreen {
-	width: 100%;
-	height: 100%;
+    width: 100%;
+    height: 100%;
+}
+
+#mainComponent > div {
+    width: 200px;
+}
+
+canvas {
+    padding: 0;
+    margin: auto;
+    display: block;
 }
