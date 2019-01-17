@@ -22,7 +22,8 @@ export const BattleMap = function (game) {
         isInteractible: false,
         id: -1,
         description: '',
-        isActivated: false
+        isActivated: false,
+        isAngled: false
     };
     var hitArea = new Phaser.Geom.Rectangle(0, 0, 50, 50);
     var hitAreaCallback = Phaser.Geom.Rectangle.Contains;
@@ -60,8 +61,18 @@ export const BattleMap = function (game) {
                     obj.objectConfig.description = 'Stone tile';
                     obj.objectConfig.id = EnumHelper.idEnum.tile;
                     this.tiles.add(obj);
-                    obj = game.add.sprite(x, y, 'doorTile').setOrigin(0, 0);
-                    obj.objectConfig = Object.assign({}, this.objConfig);
+                    if (j - 1 > 0) {
+                        //if door is horizontal
+                        if (this.levelMap[i][j - 1] === EnumHelper.idEnum.wall) {
+                            obj = game.add.sprite(x + 50, y, 'doorTile').setOrigin(0, 0);
+                            obj.objectConfig = Object.assign({}, this.objConfig);
+                            obj.objectConfig.isAngled = true;
+                            obj.setAngle(90);
+                        } else {
+                            obj = game.add.sprite(x, y, 'doorTile').setOrigin(0, 0);
+                            obj.objectConfig = Object.assign({}, this.objConfig);
+                        }
+                    }
                     obj.objectConfig.description = 'Wooden door';
                     obj.objectConfig.id = EnumHelper.idEnum.door;
                     obj.objectConfig.isInteractible = true;

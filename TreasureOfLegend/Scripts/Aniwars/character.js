@@ -106,34 +106,47 @@ export const Character = function(game, characterGroup) {
     this.interactWithObject = (object, character) => {
         if (object.objectConfig.isInteractible &&
             character.characterConfig.minorActions - character.characterConfig.minorActionsSpent > 0) {
-            if (Math.abs(character.x - object.x) <= 50 &&
+            var objX = object.x;
+            if (object.objectConfig.isAngled) {
+                if (object.objectConfig.isActivated) {
+                    objX = object.x + 25;
+                } else {
+                    objX = object.x - 50;
+                }
+            }
+            if (Math.abs(character.x - objX) <= 50 &&
                 Math.abs(character.y - object.y) <= 50 &&
-                (Math.abs(character.x - object.x) > 0 ||
+                (Math.abs(character.x - objX) > 0 ||
                 Math.abs(character.y - object.y) > 0)) {
                 if (object.objectConfig.id === EnumHelper.idEnum.door) {
                     character.characterConfig.minorActionsSpent++;
                     game.events.emit('activeCharacterActed', character);
-                    var x = -1;
-                    var y = -1;
+                    var x = object.x / 50;
+                    var y = object.y / 50;
+                    if (object.objectConfig.isAngled) {
+                        if (object.objectConfig.isActivated) {
+                            x = (object.x + 25) / 50;
+                        } else {
+                            x = (object.x - 50) / 50;
+                        }
+                    }
+                    game.activeMap.levelMap = game.activeMap.copyMap(game.activeMap.levelMap, game.activeMap.previousMap);
+                    //door animations would be nice
                     if (!object.objectConfig.isActivated) {
-                        game.activeMap.levelMap = game.activeMap.copyMap(game.activeMap.levelMap, game.activeMap.previousMap);
-                        x = object.x / 50;
-                        y = object.y / 50;
                         game.activeMap.levelMap[y][x] = 0;
                         if (game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.door) {
                             object.setAngle(-90);
                         } else if (game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.door) {
-                            object.setAngle(270);
+                            object.setAngle(0);
+                            object.setX(object.x -75);
                         }
                     } else {
-                        game.activeMap.levelMap = game.activeMap.copyMap(game.activeMap.levelMap, game.activeMap.previousMap);
-                        x = object.x / 50;
-                        y = object.y / 50;
                         game.activeMap.levelMap[y][x] = 2;
                         if (game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.door) {
                             object.setAngle(0);
                         } else if (game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.door) {
-                            object.setAngle(0);
+                            object.setX(object.x + 75);
+                            object.setAngle(90);
                         }
                     }
                     object.objectConfig.isActivated = !object.objectConfig.isActivated;
