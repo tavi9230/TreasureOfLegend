@@ -118,12 +118,8 @@ export const Character = function(game, characterGroup) {
                         game.activeMap.levelMap[y][x] = 0;
                         if (game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.door) {
                             object.setAngle(-90);
-                        } else if (game.activeMap.levelMap[y + 1][x] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y + 1][x] !== EnumHelper.idEnum.door) {
-                            object.setAngle(270);
                         } else if (game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.door) {
-                            object.setAngle(-270);
-                        } else if (game.activeMap.levelMap[y][x + 1] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y][x + 1] !== EnumHelper.idEnum.door) {
-                            object.setAngle(90);
+                            object.setAngle(270);
                         }
                     } else {
                         game.activeMap.levelMap = game.activeMap.copyMap(game.activeMap.levelMap, game.activeMap.previousMap);
@@ -132,12 +128,8 @@ export const Character = function(game, characterGroup) {
                         game.activeMap.levelMap[y][x] = 2;
                         if (game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.door) {
                             object.setAngle(0);
-                        } else if (game.activeMap.levelMap[y + 1][x] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y + 1][x] !== EnumHelper.idEnum.door) {
-                            object.setAngle(-90);
                         } else if (game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.door) {
-                            object.setAngle(270);
-                        } else if (game.activeMap.levelMap[y][x + 1] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y][x + 1] !== EnumHelper.idEnum.door) {
-                            object.setAngle(-270);
+                            object.setAngle(0);
                         }
                     }
                     object.objectConfig.isActivated = !object.objectConfig.isActivated;

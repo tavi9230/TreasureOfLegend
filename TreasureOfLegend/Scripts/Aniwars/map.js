@@ -74,6 +74,7 @@ export const BattleMap = function (game) {
     };
 
     this.showMovementGrid = () => {
+        this.hideMovementGrid();
         var character = game.activeCharacter;
         this.isMovementGridShown = true;
         _.each(this.tiles.getChildren(),
