@@ -41,6 +41,11 @@ export const AniwarsGame = function () {
                 tile.on('pointerdown', _.bind(self._moveCharacterOnClick, self, tile));
                 tile.on('pointerover', _.bind(self._highlightPathToThis, self, tile));
             });
+            _.each(this.activeMap.objects.getChildren(), function(object) {
+                //mouse input on clicking game objects
+                object.on('pointerdown', _.bind(self._interactWithObject, self, object));
+                object.on('pointerover', _.bind(self._showDescription, self, object));
+            });
 
             //party characters
             this.characters = new Character(this, this.add.group());
@@ -89,6 +94,7 @@ export const AniwarsGame = function () {
             this.characters.moveActiveCharacter(tile, { enemies: this.enemies});
         },
         _highlightPathToThis(tile) {
+            this.events.emit('showObjectDescription', tile);
             this.activeMap.highlightPathToThis(tile);
         },
         _moveCamera() {
@@ -121,6 +127,12 @@ export const AniwarsGame = function () {
                     this.cameras.main.y = -100;
                 }
             }
+        },
+        _interactWithObject: function(object) {
+            this.characters.interactWithObject(object, this.activeCharacter);
+        },
+        _showDescription: function(object) {
+            this.events.emit('showObjectDescription', object);
         }
     });
 
@@ -154,6 +166,7 @@ export const AniwarsGame = function () {
             this.movementText = this.add.text(500, 770, 'Movement: 0', { fill: '#000' });
             this.actionsText = this.add.text(610, 710, 'Actions: 0', { fill: '#000' });
             this.minorActionsText = this.add.text(610, 730, 'Minor Actions: 0', { fill: '#000' });
+            this.descriptionsText = this.add.text(10, 710, '', { fill: '#000' });
 
             this.turn = 1;
             this.turnText = this.add.text(1150, 750, this.turn, { fill: '#000' });
@@ -165,12 +178,17 @@ export const AniwarsGame = function () {
             this.worldScene.events.on('activeCharacterPositionModified', function (activeCharacter) {
                 self._setPositionText(activeCharacter);
             });
+            this.worldScene.events.on('showObjectDescription', function(object) {
+                self.descriptionsText.setText(object.objectConfig.description);
+            });
         },
         _setTexts: function (activeCharacter) {
             this._setHpText(activeCharacter);
             this._setManaText(activeCharacter);
             this._setMovementText(activeCharacter);
             this._setArmorText(activeCharacter);
+            this._setActionsText(activeCharacter);
+            this._setMinorActionsText(activeCharacter);
         },
         _setPositionText: function(activeCharacter) {
             this.locationText.setText('X:'+ Math.floor(activeCharacter.x / 50) + ', Y:' + Math.floor(activeCharacter.y / 50));
@@ -188,10 +206,10 @@ export const AniwarsGame = function () {
             this.armorText.setText('Armor: ' + activeCharacter.characterConfig.armor);
         },
         _setActionsText: function(activeCharacter) {
-            this.armorText.setText('Actions: ' + activeCharacter.characterConfig.actions);
+            this.actionsText.setText('Actions: ' + activeCharacter.characterConfig.actions);
         },
         _setMinorActionsText: function(activeCharacter) {
-            this.armorText.setText('Minor Actions: ' + activeCharacter.characterConfig.minorActions);
+            this.minorActionsText.setText('Minor Actions: ' + activeCharacter.characterConfig.minorActions);
         },
         _endTurn: function() {
             this.events.emit('endTurn');
