@@ -60,6 +60,7 @@ export const AniwarsGame = function () {
             //main camera
             this.cameras.main.setBounds(0, 0, this.activeMap.levelMap.length * 50, this.activeMap.levelMap.length * 50 + 100);
             this.cameras.main.startFollow(this.activeCharacter, true, 0.09, 0.09);
+            //this.cameras.main.setZoom(1.2);
 
             this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -151,6 +152,8 @@ export const AniwarsGame = function () {
             this.manaText = this.add.text(500, 730, 'Mana: 0', { fill: '#000' });
             this.armorText = this.add.text(500, 750, 'Armor: 0', { fill: '#000' });
             this.movementText = this.add.text(500, 770, 'Movement: 0', { fill: '#000' });
+            this.actionsText = this.add.text(610, 710, 'Actions: 0', { fill: '#000' });
+            this.minorActionsText = this.add.text(610, 730, 'Minor Actions: 0', { fill: '#000' });
 
             this.turn = 1;
             this.turnText = this.add.text(1150, 750, this.turn, { fill: '#000' });
@@ -183,6 +186,12 @@ export const AniwarsGame = function () {
         },
         _setArmorText: function(activeCharacter) {
             this.armorText.setText('Armor: ' + activeCharacter.characterConfig.armor);
+        },
+        _setActionsText: function(activeCharacter) {
+            this.armorText.setText('Actions: ' + activeCharacter.characterConfig.actions);
+        },
+        _setMinorActionsText: function(activeCharacter) {
+            this.armorText.setText('Minor Actions: ' + activeCharacter.characterConfig.minorActions);
         },
         _endTurn: function() {
             this.events.emit('endTurn');

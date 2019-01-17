@@ -41,10 +41,8 @@ export const BattleMap = function (game) {
             (tile) => {
                 if ((character.characterConfig.movement - character.characterConfig.movementSpent) * 50 >= Math.abs(tile.x - character.characterConfig.posX) &&
                     character.characterConfig.movement * 50 >= Math.abs(tile.y - character.characterConfig.posY)) {
-                    var pathWay = Pathfinder.findWay([character.y / 50, character.x / 50],
-                        [tile.y / 50, tile.x / 50],
-                        this.levelMap);
-                    if (pathWay) {
+                    var pathWay = Pathfinder.findWay(character.x / 50, character.y / 50, tile.x / 50, tile.y / 50, this.levelMap);
+                    if (pathWay.length > 0) {
                         pathWay.shift();
                         if (pathWay.length <= (character.characterConfig.movement - character.characterConfig.movementSpent) && this.levelMap[tile.y / 50][tile.x / 50] === MapConfig.mapEnum.tile) {
                             tile.setTint(0x990899);
@@ -61,16 +59,14 @@ export const BattleMap = function (game) {
             currentCharacter.x === currentCharacter.characterConfig.posX &&
             currentCharacter.y === currentCharacter.characterConfig.posY) {
             this.showMovementGrid();
-            var pathWay = Pathfinder.findWay([currentCharacter.y / 50, currentCharacter.x / 50],
-                [tile.y / 50, tile.x / 50],
-                this.levelMap);
-            if (pathWay) {
+            var pathWay = Pathfinder.findWay(currentCharacter.x / 50, currentCharacter.y / 50, tile.x / 50, tile.y / 50, this.levelMap);
+            if (pathWay.length > 0) {
                 pathWay.shift();
                 if (pathWay.length <= (currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent))
                     _.each(this.tiles.getChildren(),
                         function(tile) {
                             for (let i = 0; i < pathWay.length; i++) {
-                                if (tile.x === pathWay[i][1] * 50 && tile.y === pathWay[i][0] * 50 && self.levelMap[tile.y / 50][tile.x / 50] === MapConfig.mapEnum.tile) {
+                                if (tile.x === pathWay[i][0] * 50 && tile.y === pathWay[i][1] * 50 && self.levelMap[tile.y / 50][tile.x / 50] === MapConfig.mapEnum.tile) {
                                     tile.setTint(0x4693eb);
                                 }
                             }

@@ -12,7 +12,10 @@ export const Character = function (game, characterGroup) {
         posY: 0,
         isMoving: false,
         path: [],
-        hadAction: false
+        actions: 1,
+        actionsSpent: 0,
+        minorActions: 0,
+        minorActionsSpent: 0
     };
     this.game = game;
     this.map = game.activeMap;
@@ -47,30 +50,33 @@ export const Character = function (game, characterGroup) {
                     }
                 });
             if (!isObstacleInTheWay) {
-                var pathWay = Pathfinder.findWay([currentCharacter.y / 50, currentCharacter.x / 50], [tile.y / 50, tile.x / 50], game.activeMap.levelMap);
+                var pathWay = Pathfinder.findWay(currentCharacter.x / 50, currentCharacter.y / 50, tile.x / 50, tile.y / 50, game.activeMap.levelMap);
                 currentCharacter.characterConfig.path = pathWay || [];
-                if (pathWay) {
+                if (pathWay.length > 0) {
                     currentCharacter.characterConfig.path.shift();
                     if (currentCharacter.characterConfig.path.length <= currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent) {
                         currentCharacter.characterConfig.movementSpent++;
                         currentCharacter.characterConfig.isMoving = true;
-                        currentCharacter.characterConfig.posX = currentCharacter.characterConfig.path[0][1] * 50;
-                        currentCharacter.characterConfig.posY = currentCharacter.characterConfig.path[0][0] * 50;
+                        currentCharacter.characterConfig.posX = currentCharacter.characterConfig.path[0][0] * 50;
+                        currentCharacter.characterConfig.posY = currentCharacter.characterConfig.path[0][1] * 50;
                         currentCharacter.characterConfig.path.shift();
-                        var velocity = 0;
-                        if (tile.x > currentCharacter.x) {
-                            velocity = this.characterConfig.velocity;
+                        if (tile.x > currentCharacter.x && tile.y > currentCharacter.y) {
+                            currentCharacter.setVelocity(this.characterConfig.velocity, this.characterConfig.velocity);
+                        } else if (tile.x < currentCharacter.x && tile.y < currentCharacter.y) {
+                            currentCharacter.setVelocity(-1 * this.characterConfig.velocity, -1 * this.characterConfig.velocity);
+                        } else if (tile.x < currentCharacter.x && tile.y > currentCharacter.y) {
+                            currentCharacter.setVelocity(-1 * this.characterConfig.velocity, this.characterConfig.velocity);
+                        } else if (tile.x > currentCharacter.x && tile.y < currentCharacter.y) {
+                            currentCharacter.setVelocity(this.characterConfig.velocity, -1 * this.characterConfig.velocity);
+                        } else if (tile.x > currentCharacter.x) {
+                            currentCharacter.setVelocityX(this.characterConfig.velocity);
                         } else if (tile.x < currentCharacter.x) {
-                            velocity = -1 * this.characterConfig.velocity;
-                        }
-                        currentCharacter.setVelocityX(velocity);
-                        velocity = 0;
-                        if (tile.y > currentCharacter.y) {
-                            velocity = this.characterConfig.velocity;
+                            currentCharacter.setVelocityX(-1 * this.characterConfig.velocity);
+                        } else if (tile.y > currentCharacter.y) {
+                            currentCharacter.setVelocityY(this.characterConfig.velocity);
                         } else if (tile.y < currentCharacter.y) {
-                            velocity = -1 * this.characterConfig.velocity;
+                            currentCharacter.setVelocityY(-1 * this.characterConfig.velocity);
                         }
-                        currentCharacter.setVelocityY(velocity);
                         game.activeMap.hideMovementGrid();
                         game.events.emit('activeCharacterActed', currentCharacter);
                     } else if (currentCharacter.characterConfig.path.length > currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent) {
@@ -92,8 +98,8 @@ export const Character = function (game, characterGroup) {
         } else if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 30 &&
             Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) > 5) {
             currentCharacter.x > currentCharacter.characterConfig.posX
-                ? currentCharacter.setVelocityX(-120)
-                : currentCharacter.setVelocityX(120);
+                ? currentCharacter.setVelocityX(-90)
+                : currentCharacter.setVelocityX(90);
         } else if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 5 &&
             Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) > 1) {
             currentCharacter.x > currentCharacter.characterConfig.posX
@@ -113,8 +119,8 @@ export const Character = function (game, characterGroup) {
         } else if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) <= 30 &&
             Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) > 10) {
             currentCharacter.y > currentCharacter.characterConfig.posY
-                ? currentCharacter.setVelocityY(-120)
-                : currentCharacter.setVelocityY(120);
+                ? currentCharacter.setVelocityY(-90)
+                : currentCharacter.setVelocityY(90);
         } else if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) <= 10 &&
             Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) > 1) {
             currentCharacter.y > currentCharacter.characterConfig.posY
@@ -141,8 +147,8 @@ export const Character = function (game, characterGroup) {
         if (!currentCharacter.characterConfig.isMoving && currentCharacter.characterConfig.path.length > 0) {
             currentCharacter.characterConfig.isMoving = true;
             currentCharacter.characterConfig.movementSpent++;
-            currentCharacter.characterConfig.posX = currentCharacter.characterConfig.path[0][1] * 50;
-            currentCharacter.characterConfig.posY = currentCharacter.characterConfig.path[0][0] * 50;
+            currentCharacter.characterConfig.posX = currentCharacter.characterConfig.path[0][0] * 50;
+            currentCharacter.characterConfig.posY = currentCharacter.characterConfig.path[0][1] * 50;
             currentCharacter.characterConfig.path.shift();
             var velocity = 0;
             if (currentCharacter.characterConfig.posX > currentCharacter.x) {
@@ -160,9 +166,5 @@ export const Character = function (game, characterGroup) {
             currentCharacter.setVelocityY(velocity);
             game.events.emit('activeCharacterActed', currentCharacter);
         }
-    };
-
-    this.findWay = (position, end) => {
-        Pathfinder.findWay(position, end, game.activeMap.levelMap);
     };
 };
