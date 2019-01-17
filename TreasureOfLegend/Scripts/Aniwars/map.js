@@ -72,6 +72,9 @@ export const BattleMap = function (game) {
                             obj = game.add.sprite(x, y, 'doorTile').setOrigin(0, 0);
                             obj.objectConfig = Object.assign({}, this.objConfig);
                         }
+                    } else {
+                        obj = game.add.sprite(x, y, 'doorTile').setOrigin(0, 0);
+                        obj.objectConfig = Object.assign({}, this.objConfig);
                     }
                     obj.objectConfig.description = 'Wooden door';
                     obj.objectConfig.id = EnumHelper.idEnum.door;

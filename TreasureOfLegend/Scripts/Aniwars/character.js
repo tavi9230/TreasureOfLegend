@@ -119,6 +119,7 @@ export const Character = function(game, characterGroup) {
                 (Math.abs(character.x - objX) > 0 ||
                 Math.abs(character.y - object.y) > 0)) {
                 if (object.objectConfig.id === EnumHelper.idEnum.door) {
+                    //move code to other file?
                     character.characterConfig.minorActionsSpent++;
                     game.events.emit('activeCharacterActed', character);
                     var x = object.x / 50;
@@ -134,17 +135,17 @@ export const Character = function(game, characterGroup) {
                     //door animations would be nice
                     if (!object.objectConfig.isActivated) {
                         game.activeMap.levelMap[y][x] = 0;
-                        if (game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.door) {
+                        if (y - 1 > 0 && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.door) {
                             object.setAngle(-90);
-                        } else if (game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.door) {
+                        } else if (x - 1 > 0 && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.door) {
                             object.setAngle(0);
                             object.setX(object.x -75);
                         }
                     } else {
                         game.activeMap.levelMap[y][x] = 2;
-                        if (game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.door) {
+                        if (y - 1 > 0 && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.door) {
                             object.setAngle(0);
-                        } else if (game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.door) {
+                        } else if (x - 1 > 0 && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.door) {
                             object.setX(object.x + 75);
                             object.setAngle(90);
                         }

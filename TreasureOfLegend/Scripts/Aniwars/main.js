@@ -73,11 +73,13 @@ export const AniwarsGame = function () {
             this.events.emit('activeCharacterPositionModified', this.activeCharacter);
 
             this.hudScene.events.on('endTurn', function() {
-                self.activeCharacter.characterConfig.movementSpent = 0;
-                self.activeCharacter.characterConfig.minorActionsSpent = 0;
-                self.activeCharacter.characterConfig.actionsSpent = 0;
-                self.events.emit('activeCharacterChanged', self.activeCharacter);
-                self.activeMap.showMovementGrid();
+                if (self.activeCharacter.characterConfig.path.length === 0 && !self.activeCharacter.characterConfig.isMoving) {
+                    self.activeCharacter.characterConfig.movementSpent = 0;
+                    self.activeCharacter.characterConfig.minorActionsSpent = 0;
+                    self.activeCharacter.characterConfig.actionsSpent = 0;
+                    self.events.emit('activeCharacterChanged', self.activeCharacter);
+                    self.activeMap.showMovementGrid();
+                }
             });
         },
         update() {
