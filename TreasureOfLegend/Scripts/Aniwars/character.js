@@ -107,8 +107,12 @@ export const Character = function(game, characterGroup) {
         if (object.objectConfig.isInteractible &&
             character.characterConfig.minorActions - character.characterConfig.minorActionsSpent > 0) {
             if (Math.abs(character.x - object.x) <= 50 &&
-                Math.abs(character.y - object.y) <= 50) {
+                Math.abs(character.y - object.y) <= 50 &&
+                (Math.abs(character.x - object.x) > 0 ||
+                Math.abs(character.y - object.y) > 0)) {
                 if (object.objectConfig.id === EnumHelper.idEnum.door) {
+                    character.characterConfig.minorActionsSpent++;
+                    game.events.emit('activeCharacterActed', character);
                     var x = -1;
                     var y = -1;
                     if (!object.objectConfig.isActivated) {

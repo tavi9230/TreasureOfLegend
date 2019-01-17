@@ -74,6 +74,8 @@ export const AniwarsGame = function () {
 
             this.hudScene.events.on('endTurn', function() {
                 self.activeCharacter.characterConfig.movementSpent = 0;
+                self.activeCharacter.characterConfig.minorActionsSpent = 0;
+                self.activeCharacter.characterConfig.actionsSpent = 0;
                 self.events.emit('activeCharacterChanged', self.activeCharacter);
                 self.activeMap.showMovementGrid();
             });
@@ -206,10 +208,10 @@ export const AniwarsGame = function () {
             this.armorText.setText('Armor: ' + activeCharacter.characterConfig.armor);
         },
         _setActionsText: function(activeCharacter) {
-            this.actionsText.setText('Actions: ' + activeCharacter.characterConfig.actions);
+            this.actionsText.setText('Actions: ' + (activeCharacter.characterConfig.actions - activeCharacter.characterConfig.actionsSpent));
         },
         _setMinorActionsText: function(activeCharacter) {
-            this.minorActionsText.setText('Minor Actions: ' + activeCharacter.characterConfig.minorActions);
+            this.minorActionsText.setText('Minor Actions: ' + (activeCharacter.characterConfig.minorActions - activeCharacter.characterConfig.minorActionsSpent));
         },
         _endTurn: function() {
             this.events.emit('endTurn');
