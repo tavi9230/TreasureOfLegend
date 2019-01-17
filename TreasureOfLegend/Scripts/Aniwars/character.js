@@ -16,7 +16,8 @@ export const Character = function(game, characterGroup) {
         actions: 1,
         actionsSpent: 0,
         minorActions: 1,
-        minorActionsSpent: 0
+        minorActionsSpent: 0,
+        actionInProgress: null
     };
     this.game = game;
     this.map = game.activeMap;
@@ -30,22 +31,24 @@ export const Character = function(game, characterGroup) {
         this.characters.add(character);
     };
 
-    this.moveActiveCharacter = (tile, config) => {
-        var enemies = config.enemies;
+    this.moveActiveCharacter = (tile, objX, objY) => {
+        var posX = tile ? tile.x : objX;
+        var posY = tile ? tile.y : objY;
+        var enemies = game.enemies;
         var currentCharacter = game.activeCharacter;
         if (!currentCharacter.characterConfig.isMoving &&
-            (currentCharacter.x !== tile.x || currentCharacter.y !== tile.y)) {
+            (currentCharacter.x !== posX || currentCharacter.y !== posY)) {
             var isObstacleInTheWay = false;
             _.each(enemies.characters.getChildren(),
                 function(enemy) {
-                    if (enemy.x === tile.x && enemy.y === tile.y) {
+                    if (enemy.x === posX && enemy.y === posY) {
                         isObstacleInTheWay = true;
                         //return;
                     }
                 });
             _.each(game.activeMap.objects.getChildren(),
                 function(object) {
-                    if (object.x === tile.x && object.y === tile.y) {
+                    if (object.x === posX && object.y === posY) {
                         //if object is a door check if it is open/activated
                         if (object.objectConfig.id === EnumHelper.idEnum.door && !object.objectConfig.isActivated) {
                             isObstacleInTheWay = true;
@@ -56,20 +59,19 @@ export const Character = function(game, characterGroup) {
                     }
                 });
             if (!isObstacleInTheWay) {
-                var pathWay = Pathfinder.findWay(currentCharacter.x / 50,
-                    currentCharacter.y / 50,
-                    tile.x / 50,
-                    tile.y / 50,
-                    game.activeMap.levelMap);
+                var pathWay = Pathfinder.findWay(currentCharacter.x / 50, currentCharacter.y / 50, posX / 50, posY / 50, game.activeMap.levelMap);
                 currentCharacter.characterConfig.path = pathWay || [];
                 if (pathWay.length > 0) {
                     currentCharacter.characterConfig.path.shift();
-                    if (currentCharacter.characterConfig.path.length <=
-                        currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent) {
+                    // if there was a click on an object close to the limit of movement, move near object
+                    if (currentCharacter.characterConfig.actionInProgress && currentCharacter.characterConfig.path.length === currentCharacter.characterConfig.movement + 1) {
+                        currentCharacter.characterConfig.path.pop();
+                    }
+
+                    if (currentCharacter.characterConfig.path.length <= currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent) {
                         this._moveCharacter(currentCharacter);
                         game.activeMap.hideMovementGrid();
-                    } else if (currentCharacter.characterConfig.path.length >
-                        currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent) {
+                    } else if (currentCharacter.characterConfig.path.length > currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent) {
                         currentCharacter.characterConfig.path = [];
                     }
                 }
@@ -90,7 +92,9 @@ export const Character = function(game, characterGroup) {
             currentCharacter.y === currentCharacter.characterConfig.posY &&
             !game.activeMap.isMovementGridShown) {
             if (currentCharacter.characterConfig.path.length === 0) {
+                game.events.emit('activeCharacterActed', currentCharacter);
                 game.activeMap.showMovementGrid(currentCharacter);
+                this.interactWithObject(currentCharacter.characterConfig.actionInProgress);
             }
             currentCharacter.characterConfig.isMoving = false;
         }
@@ -103,58 +107,67 @@ export const Character = function(game, characterGroup) {
         }
     };
 
-    this.interactWithObject = (object, character) => {
-        if (object.objectConfig.isInteractible &&
-            character.characterConfig.minorActions - character.characterConfig.minorActionsSpent > 0) {
-            var objX = object.x;
-            if (object.objectConfig.isAngled) {
-                if (object.objectConfig.isActivated) {
-                    objX = object.x + 25;
-                } else {
-                    objX = object.x - 50;
+    this.interactWithObject = (object) => {
+        if (object) {
+            var character = game.activeCharacter;
+            character.characterConfig.actionInProgress = null;
+            if (object.objectConfig.isInteractible &&
+                character.characterConfig.minorActions - character.characterConfig.minorActionsSpent > 0) {
+                var objX = object.x;
+                if (object.objectConfig.isAngled) {
+                    objX = object.objectConfig.isActivated
+                        ? object.x + 25
+                        : object.x - 50;
                 }
-            }
-            if (Math.abs(character.x - objX) <= 50 &&
-                Math.abs(character.y - object.y) <= 50 &&
-                (Math.abs(character.x - objX) > 0 ||
-                Math.abs(character.y - object.y) > 0)) {
-                if (object.objectConfig.id === EnumHelper.idEnum.door) {
-                    //move code to other file?
-                    character.characterConfig.minorActionsSpent++;
-                    game.events.emit('activeCharacterActed', character);
-                    var x = object.x / 50;
-                    var y = object.y / 50;
-                    if (object.objectConfig.isAngled) {
-                        if (object.objectConfig.isActivated) {
-                            x = (object.x + 25) / 50;
+                if (Math.abs(character.x - objX) <= 50 &&
+                    Math.abs(character.y - object.y) <= 50 &&
+                    (Math.abs(character.x - objX) > 0 ||
+                    Math.abs(character.y - object.y) > 0)) {
+                    if (object.objectConfig.id === EnumHelper.idEnum.door) {
+                        //move code to other file?
+                        character.characterConfig.minorActionsSpent++;
+                        game.events.emit('activeCharacterActed', character);
+                        var x = object.x / 50;
+                        var y = object.y / 50;
+                        if (object.objectConfig.isAngled) {
+                            x = object.objectConfig.isActivated
+                                ? (object.x + 25) / 50
+                                : (object.x - 50) / 50;
+                        }
+                        game.activeMap.levelMap = game.activeMap.copyMap(game.activeMap.levelMap, game.activeMap.previousMap);
+                        //door animations would be nice
+                        if (!object.objectConfig.isActivated) {
+                            game.activeMap.levelMap[y][x] = 0;
+                            if (y - 1 > 0 && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.door) {
+                                object.setAngle(-90);
+                            } else if (x - 1 > 0 && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.door) {
+                                object.setAngle(0);
+                                object.setX(object.x -75);
+                            }
                         } else {
-                            x = (object.x - 50) / 50;
+                            game.activeMap.levelMap[y][x] = 2;
+                            if (y - 1 > 0 && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.door) {
+                                object.setAngle(0);
+                            } else if (x - 1 > 0 && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.door) {
+                                object.setX(object.x + 75);
+                                object.setAngle(90);
+                            }
                         }
+                        object.objectConfig.isActivated = !object.objectConfig.isActivated;
+                        game.activeMap.showMovementGrid();
                     }
-                    game.activeMap.levelMap = game.activeMap.copyMap(game.activeMap.levelMap, game.activeMap.previousMap);
-                    //door animations would be nice
-                    if (!object.objectConfig.isActivated) {
-                        game.activeMap.levelMap[y][x] = 0;
-                        if (y - 1 > 0 && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.door) {
-                            object.setAngle(-90);
-                        } else if (x - 1 > 0 && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.door) {
-                            object.setAngle(0);
-                            object.setX(object.x -75);
-                        }
-                    } else {
-                        game.activeMap.levelMap[y][x] = 2;
-                        if (y - 1 > 0 && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y - 1][x] !== EnumHelper.idEnum.door) {
-                            object.setAngle(0);
-                        } else if (x - 1 > 0 && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.tile && game.activeMap.levelMap[y][x - 1] !== EnumHelper.idEnum.door) {
-                            object.setX(object.x + 75);
-                            object.setAngle(90);
-                        }
+                } else if (Math.abs(character.x - objX) !== 0 || Math.abs(character.y - object.y) !== 0) {
+                    character.characterConfig.actionInProgress = object;
+                    var posX = object.x;
+                    if (object.objectConfig.isAngled) {
+                        posX = object.x - (object.objectConfig.isActivated ? 25 : 50);
                     }
-                    object.objectConfig.isActivated = !object.objectConfig.isActivated;
-                    game.activeMap.showMovementGrid();
+                    var aux = game.activeMap.levelMap[object.y / 50][posX / 50];
+                    game.activeMap.levelMap[object.y / 50][posX / 50] = 0;
+                    var path = Pathfinder.findWay(character.x / 50, character.y / 50, posX / 50, object.y / 50, game.activeMap.levelMap);
+                    game.activeMap.levelMap[object.y / 50][posX / 50] = aux;
+                    this.moveActiveCharacter(null, path[path.length - 2][0] * 50, path[path.length - 2][1] * 50);
                 }
-            } else {
-                //move to character near object
             }
         }
     };

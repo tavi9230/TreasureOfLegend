@@ -95,7 +95,7 @@ export const AniwarsGame = function () {
             }
         },
         _moveCharacterOnClick(tile) {
-            this.characters.moveActiveCharacter(tile, { enemies: this.enemies});
+            this.characters.moveActiveCharacter(tile);
         },
         _highlightPathToThis(tile) {
             this.events.emit('showObjectDescription', tile);
@@ -133,7 +133,7 @@ export const AniwarsGame = function () {
             }
         },
         _interactWithObject: function(object) {
-            this.characters.interactWithObject(object, this.activeCharacter);
+            this.characters.interactWithObject(object);
         },
         _showDescription: function(object) {
             this.events.emit('showObjectDescription', object);
