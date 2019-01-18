@@ -241,6 +241,7 @@
     <Content Include="Assets\Aniwars\doorTile.png" />
     <Content Include="Assets\Aniwars\hourglass.png" />
     <Content Include="Assets\Aniwars\hudbackground.png" />
+    <Content Include="Assets\Aniwars\mainMenuButton.png" />
     <Content Include="Assets\Aniwars\tile1.png" />
     <Content Include="Assets\Aniwars\tile2.png" />
     <Content Include="Assets\Aniwars\tile3.png" />
@@ -275,6 +276,7 @@
     <Content Include="Scripts\Aniwars\map.js" />
     <Content Include="Scripts\Aniwars\character.js" />
     <Content Include="Scripts\Aniwars\main.js" />
+    <Content Include="Scripts\Aniwars\Scenes\mainMenuScene.js" />
     <Content Include="Scripts\Aniwars\Scenes\testLevelScene.js" />
     <Content Include="Scripts\Aniwars\Scenes\hudScene.js" />
     <Content Include="Scripts\Aniwars\Scenes\bootScene.js" />

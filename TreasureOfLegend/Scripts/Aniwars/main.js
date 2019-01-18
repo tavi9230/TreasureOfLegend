@@ -1,12 +1,11 @@
 ﻿import {AssetLoader} from 'Aniwars/assetLoader';
 import {BootScene} from 'Aniwars/Scenes/bootScene';
-import {HUDScene} from 'Aniwars/Scenes/hudScene';
-import {TestLevelScene} from 'Aniwars/Scenes/testLevelScene';
+import {MainMenuScene} from 'Aniwars/Scenes/mainMenuScene';
 
 export const AniwarsGame = function () {
     var bootScene = new BootScene();
-    var hudScene = new HUDScene('TestLevelScene');
-    var testLevelScene = new TestLevelScene();
+    var mainMenuScene = new MainMenuScene();
+    //var testLevelScene = new TestLevelScene();
     this.game = new Phaser.Game({
         type: Phaser.AUTO,
         parent: 'content',
@@ -20,8 +19,7 @@ export const AniwarsGame = function () {
         },
         scene: [
             bootScene,
-            hudScene,
-            testLevelScene
+            mainMenuScene
         ]
     });
 };

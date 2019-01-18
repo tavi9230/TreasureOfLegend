@@ -23,6 +23,13 @@ export const HUDScene = function(sceneName) {
             var endTurnButton = this.add.image(1100, 710, 'hourglass').setOrigin(0, 0);
             endTurnButton.on('pointerdown', _.bind(this._endTurn, this));
             this.hudbuttons.add(endTurnButton);
+
+            var openMenuButton = this.add.image(1000, 710, 'openMenuButton').setOrigin(0, 0);
+            openMenuButton.displayHeight = 50;
+            openMenuButton.displayWidth = 50;
+            openMenuButton.on('pointerdown', _.bind(this._openMainMenu, this));
+            this.hudbuttons.add(openMenuButton);
+
             this.input.setHitArea(this.hudbuttons.getChildren());
 
             this.locationText = this.add.text(1080, 780, 'X:0, Y:0', { fill: '#000' });
@@ -35,16 +42,17 @@ export const HUDScene = function(sceneName) {
             this.descriptionsText = this.add.text(10, 710, '', { fill: '#000' });
 
             this.turnText = this.add.text(1150, 750, this.turn, { fill: '#000' });
-            this._addEvents(this);
+            this._addEvents();
+            this.events.emit('getCharacterStartData');
         },
-        _addEvents: (context) => {
-            var self = context;
-            self.worldScene = self.scene.get(self.sceneName);
+        _addEvents: function() {
+            var self = this;
+            this.activeScene = this.scene.get(this.sceneName);
 
-            self.worldScene.events.on('activeCharacterChanged', _.bind(self._setTexts, self));
-            self.worldScene.events.on('activeCharacterActed', _.bind(self._setTexts, self));
-            self.worldScene.events.on('activeCharacterPositionModified', _.bind(self._setTexts, self));
-            self.worldScene.events.on('showObjectDescription', function(object) {
+            this.activeScene.events.on('activeCharacterChanged', _.bind(this._setTexts, this));
+            this.activeScene.events.on('activeCharacterActed', _.bind(this._setTexts, this));
+            this.activeScene.events.on('activeCharacterPositionModified', _.bind(this._setTexts, this));
+            this.activeScene.events.on('showObjectDescription', function(object) {
                 self.descriptionsText.setText(object.objectConfig.description);
             });
         },
@@ -88,6 +96,11 @@ export const HUDScene = function(sceneName) {
             this.events.emit('endTurn');
             this.turn++;
             this.turnText.setText(this.turn);
+        },
+        _openMainMenu: function() {
+            this.scene.sleep('HUDScene');
+            this.scene.sleep(this.sceneName);
+            this.scene.wake('MainMenuScene');
         }
     });
 };

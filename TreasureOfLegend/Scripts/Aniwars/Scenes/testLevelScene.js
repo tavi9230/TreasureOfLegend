@@ -34,6 +34,9 @@ export const TestLevelScene = function() {
                     self.activeMap.showMovementGrid();
                 }
             });
+            this.hudScene.events.on('getCharacterStartData', function() {
+                self.events.emit('activeCharacterChanged', self.activeCharacter);
+            });
         },
         _moveCamera() {
             //camera movement not done correctly

@@ -16,6 +16,11 @@
     this.loadHUDImages = function() {
         game.load.image('hudbackground', AssetFolder + 'hudbackground.png');
         game.load.image('hourglass', AssetFolder + 'hourglass.png');
+        game.load.image('openMenuButton', AssetFolder + 'openMenuButton.png');
+    };
+
+    this.loadMainMenuImages = function() {
+        game.load.image('mainMenuButton', AssetFolder + 'mainMenuButton.png');
     };
 
     this.loadSounds = function() {
