@@ -38,7 +38,7 @@ export const SceneManager = function (game) {
 
     this.createCamera = () => {
         //main camera
-        this.game.cameras.main.setBounds(0, 0, this.game.activeMap.levelMap.length * 50, this.game.activeMap.levelMap.length * 50 + 100);
+        this.game.cameras.main.setBounds(0, 0, this.game.activeMap.levelMap[0].length * 50, this.game.activeMap.levelMap.length * 50 + 100);
         this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
     };
 

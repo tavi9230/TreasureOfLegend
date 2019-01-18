@@ -39,34 +39,19 @@ export const TestLevelScene = function() {
             });
         },
         _moveCamera() {
-            //camera movement not done correctly
+            // TODO: Stop following active character and follow back when you don't want to scroll anymore
+            //this.cameras.main.stopFollow();
             if (this.cursors.left.isDown) {
-                this.cameras.main.x += 10;
-                if (this.cameras.main.x > 0) {
-                    this.cameras.main.x = 0;
-                }
-
+                this.cameras.main.scrollX -= 10;
             }
-
             if (this.cursors.right.isDown) {
-                this.cameras.main.x -= 10;
-                if (this.cameras.main.x < this.activeMap.levelMap[0].length * 50) {
-                    this.cameras.main.x = this.activeMap.levelMap[0].length * 50;
-                }
+                this.cameras.main.scrollX += 10;
             }
-
             if (this.cursors.up.isDown) {
-                this.cameras.main.y += 10;
-                if (this.cameras.main.y > 0) {
-                    this.cameras.main.y = 0;
-                }
-
+                this.cameras.main.scrollY -= 10;
             }
             if (this.cursors.down.isDown) {
-                this.cameras.main.y -= 10;
-                if (this.cameras.main.y < -100) {
-                    this.cameras.main.y = -100;
-                }
+                this.cameras.main.scrollY += 10;
             }
         }
     });
