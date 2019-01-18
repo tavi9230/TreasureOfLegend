@@ -4,6 +4,9 @@ import {HUDScene} from 'Aniwars/Scenes/hudScene';
 import {TestLevelScene} from 'Aniwars/Scenes/testLevelScene';
 
 export const AniwarsGame = function () {
+    var bootScene = new BootScene();
+    var hudScene = new HUDScene('TestLevelScene');
+    var testLevelScene = new TestLevelScene();
     this.game = new Phaser.Game({
         type: Phaser.AUTO,
         parent: 'content',
@@ -16,9 +19,9 @@ export const AniwarsGame = function () {
             }
         },
         scene: [
-            BootScene.initialize(),
-            HUDScene.initialize(),
-            TestLevelScene.initialize()
+            bootScene,
+            hudScene,
+            testLevelScene
         ]
     });
 };

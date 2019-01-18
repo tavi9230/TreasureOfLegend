@@ -1,23 +1,21 @@
 ﻿import {AssetLoader} from 'Aniwars/assetLoader';
 
-export const BootScene = {
-    initialize: () => {
-        return new Phaser.Class({
-            Extends: Phaser.Scene,
+export const BootScene = function() {
+    return new Phaser.Class({
+        Extends: Phaser.Scene,
 
-            initialize: function BootScene() {
-                Phaser.Scene.call(this, { key: 'BootScene' });
-            },
+        initialize: function BootScene() {
+            Phaser.Scene.call(this, { key: 'BootScene' });
+        },
 
-            preload() {
-                var assetLoader = new AssetLoader(this);
-                assetLoader.loadImages();
-                assetLoader.loadSounds();
-            },
+        preload() {
+            var assetLoader = new AssetLoader(this);
+            assetLoader.loadImages();
+            assetLoader.loadSounds();
+        },
 
-            create() {
-                this.scene.start('WorldScene');
-            }
-        });
-    }
+        create() {
+            this.scene.start('TestLevelScene');
+        }
+    });
 };

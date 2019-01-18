@@ -269,6 +269,7 @@
     <Content Include="Scripts\Aniwars\assetLoader.js" />
     <Content Include="Scripts\Aniwars\enumHelper.js" />
     <Content Include="Scripts\Aniwars\actionManager.js" />
+    <Content Include="Scripts\Aniwars\sceneManager.js" />
     <Content Include="Scripts\Aniwars\Maps\mapConfig.js" />
     <Content Include="Scripts\Aniwars\pathfinder.js" />
     <Content Include="Scripts\Aniwars\map.js" />
