@@ -27,7 +27,7 @@ export const DManGame = function () {
         this.sound.add('background', {volume: 0.1});
         this.sound.add('coin');
         this.sound.add('death');
-        //this.sound.play('background', {name: 'background'});
+        this.sound.play('background', {name: 'background'});
 
         //add camera
         this.cameras.main.setBounds(0, 0, 1600, 600);

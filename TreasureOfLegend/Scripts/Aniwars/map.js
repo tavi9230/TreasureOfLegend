@@ -99,6 +99,12 @@ export const BattleMap = function (game) {
     };
 
     this._addWall = (x, y) => {
+        //var obj = game.add.sprite(x, y, 'topWallTile').setOrigin(0, 0);
+        //obj.displayHeight = 100;
+        //obj.height = 100;
+        //obj.displayWidth = 50;
+        //obj.displayHeight = 100;
+        //obj.displayWidth = 50;
         var obj = game.add.sprite(x, y, 'wallTile').setOrigin(0, 0);
         obj.objectConfig = Object.assign({}, this.objConfig);
         obj.objectConfig.description = 'Stone wall';

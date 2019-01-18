@@ -9,6 +9,7 @@
         game.load.image('tile4', AssetFolder + 'tile4.png');
         game.load.image('tile5', AssetFolder + 'tile5.png');
         game.load.image('wallTile', AssetFolder + 'wallTile.jpg');
+        game.load.image('topWallTile', AssetFolder + 'topWallTile.png');
         game.load.image('doorTile', AssetFolder + 'doorTile.png');
         game.load.image('character', AssetFolder + 'character.jpg');
     };
