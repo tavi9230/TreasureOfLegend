@@ -8,6 +8,7 @@ export const Enemy = function(game) {
 
     this.characterConfig = {
         life: 10,
+        maxLife: 10,
         mana: 0,
         movement: 6,
         movementSpent: 0,
@@ -46,6 +47,7 @@ export const Enemy = function(game) {
         character.characterConfig = Object.assign({}, this.characterConfig);
         character.characterConfig.posX = x;
         character.characterConfig.posY = y;
+        character.characterConfig.image = spriteName;
         this.characters.add(character);
     };
 

@@ -8,6 +8,7 @@ export const Character = function(game) {
 
     this.characterConfig = {
         life: 10,
+        maxLife: 10,
         mana: 0,
         movement: 6,
         movementSpent: 0,
@@ -35,7 +36,8 @@ export const Character = function(game) {
             strength: 5,
             dexterity: 5,
             intelligence: 5
-        }
+        },
+        image: ''
     };
     this.game = game;
     this.map = game.activeMap;
@@ -46,6 +48,7 @@ export const Character = function(game) {
         character.characterConfig = Object.assign({}, this.characterConfig);
         character.characterConfig.posX = x;
         character.characterConfig.posY = y;
+        character.characterConfig.image = spriteName;
         this.characters.add(character);
     };
 

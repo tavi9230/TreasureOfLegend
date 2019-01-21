@@ -55,6 +55,7 @@ export const HUDScene = function(sceneName) {
             this.activeScene.events.on('showObjectDescription', function(object) {
                 self.descriptionsText.setText(object.objectConfig.description);
             });
+            this.activeScene.events.on('showCharacterInitiative', _.bind(this._showCharacterInitiative, this));
         },
         _setTexts: function(activeCharacter) {
             this._setPositionText(activeCharacter);
@@ -101,6 +102,39 @@ export const HUDScene = function(sceneName) {
             this.scene.sleep('HUDScene');
             this.scene.sleep(this.sceneName);
             this.scene.wake('MainMenuScene');
+        },
+        _showCharacterInitiative: function(characters) {
+            var self = this;
+            var x = 20;
+            var y = 20;
+            if (!this.initiativeTracker) {
+                this.initiativeTracker = this.add.group();
+            } else {
+                this.initiativeTracker.destroy(true);
+                this.initiativeTracker = this.add.group();
+            }
+            _.each(characters, function(character) {
+                var box = self.add.graphics();
+                box.fillStyle(0x222222, 0.8);
+                box.fillRect(x - 10, y - 10, 70, 70);
+
+                var maxLife = character.characterConfig.maxLife;
+                var life = character.characterConfig.life;
+                var percentageOfLife = (100 * life) / maxLife;
+                var lifeWidth = (70 * percentageOfLife) / 100;
+                var lifeBar = self.add.graphics();
+                lifeBar.fillStyle(0x990000, 0.8);
+                lifeBar.fillRect(x - 10, y + 50, lifeWidth, 10);
+
+                var lifeText = self.add.text(x + 20, y + 49, character.characterConfig.life, { fill: '#FFF', fontSize: '9px' });
+
+                var characterImage = self.add.image(x, y, character.characterConfig.image).setOrigin(0, 0);
+                x += 80;
+                self.initiativeTracker.add(box);
+                self.initiativeTracker.add(lifeBar);
+                self.initiativeTracker.add(lifeText);
+                self.initiativeTracker.add(characterImage);
+            });
         }
     });
 };

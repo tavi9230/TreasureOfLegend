@@ -19,6 +19,7 @@ export const ActionManager = function (game) {
         }
     };
 
+    // OBJECT INTERACTION -------------------------------------------------------------------------------------------------------------------
     this._interactWithDoor = (object) => {
         var character = this.game.activeCharacter;
         character.characterConfig.minorActionsSpent++;
@@ -41,12 +42,16 @@ export const ActionManager = function (game) {
         this.game.activeMap.showMovementGrid();
     };
 
+    //ENEMY INTERACTION --------------------------------------------------------------------------------------------------------------------
     this._attackWithMainHand = (character, enemy) => {
         character.characterConfig.actionsSpent++;
         this.game.events.emit('activeCharacterActed', character);
         enemy.characterConfig.life -= character.characterConfig.inventory.mainHand.damage;
         if (enemy.characterConfig.life <= 0) {
             enemy.destroy();
+            this.game.events.emit('showCharacterInitiative', this.game.sceneManager.getInitiativeArray());
+        } else {
+            this.game.events.emit('showCharacterInitiative', this.game.initiative);
         }
     };
 };

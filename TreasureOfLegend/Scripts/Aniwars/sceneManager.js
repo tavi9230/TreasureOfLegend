@@ -46,7 +46,7 @@ export const SceneManager = function (game) {
 
     this.createCamera = () => {
         //main camera
-        this.game.cameras.main.setBounds(0, 0, this.game.activeMap.levelMap[0].length * 50, this.game.activeMap.levelMap.length * 50 + 100);
+        this.game.cameras.main.setBounds(0, -100, this.game.activeMap.levelMap[0].length * 50, this.game.activeMap.levelMap.length * 50 + 100);
         this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
     };
 
@@ -58,6 +58,19 @@ export const SceneManager = function (game) {
             this.game.activeCharacter.characterConfig.path.length > 0) {
             this.game.characters.keepMovingActiveCharacter();
         }
+    };
+
+    this.getInitiativeArray = () => {
+        var initiative = this.game.characters.characters.getChildren();
+        initiative = initiative.concat(this.game.enemies.characters.getChildren());
+        return initiative.sort(function(a, b) {
+            if (a.characterConfig.dexterity < b.characterConfig.dexterity) {
+                return -1;
+            } else if (a.characterConfig.dexterity > b.characterConfig.dexterity) {
+                return 1;
+            }
+            return 0;
+        });
     };
 
     // PRIVATE

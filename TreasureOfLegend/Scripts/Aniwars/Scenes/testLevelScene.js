@@ -15,6 +15,7 @@ export const TestLevelScene = function() {
             this.sceneManager.createCamera();
             this._activateHUDScene();
             this.cursors = this.input.keyboard.createCursorKeys();
+            this.initiative = this.sceneManager.getInitiativeArray();
         },
         update() {
             this.sceneManager.checkManager();
@@ -36,6 +37,7 @@ export const TestLevelScene = function() {
             });
             this.hudScene.events.on('getCharacterStartData', function() {
                 self.events.emit('activeCharacterChanged', self.activeCharacter);
+                self.events.emit('showCharacterInitiative', self.initiative);
             });
         },
         _moveCamera() {
