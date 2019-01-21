@@ -237,17 +237,21 @@
     <Content Include="App_Data\Images\Tileset\tileset9.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\Aniwars\character.jpg" />
-    <Content Include="Assets\Aniwars\doorTile.png" />
+    <Content Include="Assets\Aniwars\character.png" />
+    <Content Include="Assets\Aniwars\doorDown.png" />
+    <Content Include="Assets\Aniwars\doorLeft.png" />
+    <Content Include="Assets\Aniwars\doorRight.png" />
+    <Content Include="Assets\Aniwars\doorUp.png" />
     <Content Include="Assets\Aniwars\hourglass.png" />
     <Content Include="Assets\Aniwars\hudbackground.png" />
     <Content Include="Assets\Aniwars\mainMenuButton.png" />
+    <Content Include="Assets\Aniwars\openMenuButton.png" />
     <Content Include="Assets\Aniwars\tile1.png" />
     <Content Include="Assets\Aniwars\tile2.png" />
     <Content Include="Assets\Aniwars\tile3.png" />
     <Content Include="Assets\Aniwars\tile4.png" />
     <Content Include="Assets\Aniwars\tile5.png" />
-    <Content Include="Assets\Aniwars\wallTile.jpg" />
+    <Content Include="Assets\Aniwars\wallTile.png" />
     <Content Include="Assets\Audio\background.mp3" />
     <Content Include="Assets\Audio\coin.mp3" />
     <Content Include="Assets\Audio\death.mp3" />

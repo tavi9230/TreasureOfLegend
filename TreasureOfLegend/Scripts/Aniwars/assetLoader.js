@@ -8,10 +8,12 @@
         game.load.image('tile3', AssetFolder + 'tile3.png');
         game.load.image('tile4', AssetFolder + 'tile4.png');
         game.load.image('tile5', AssetFolder + 'tile5.png');
-        game.load.image('wallTile', AssetFolder + 'wallTile.jpg');
-        game.load.image('topWallTile', AssetFolder + 'topWallTile.png');
-        game.load.image('doorTile', AssetFolder + 'doorTile.png');
-        game.load.image('character', AssetFolder + 'character.jpg');
+        game.load.image('wallTile', AssetFolder + 'wallTile.png');
+        game.load.image('doorUp', AssetFolder + 'doorUp.png');
+        game.load.image('doorDown', AssetFolder + 'doorDown.png');
+        game.load.image('doorLeft', AssetFolder + 'doorLeft.png');
+        game.load.image('doorRight', AssetFolder + 'doorRight.png');
+        game.load.image('character', AssetFolder + 'character.png');
     };
 
     this.loadHUDImages = function() {

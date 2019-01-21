@@ -1,4 +1,5 @@
 ﻿var PF = require('pathfinding');
+import {EnumHelper} from 'Aniwars/enumHelper';
 
 var _cloneMap = (levelMap) => {
     var map = [];
@@ -25,10 +26,15 @@ export const Pathfinder = {
     getPathFromAToB: (source, destination, levelMap) => {
         var map = _cloneMap(levelMap);
         var posX = destination.x;
-        if (destination.objectConfig.isAngled) {
-            posX = destination.x - (destination.objectConfig.isActivated ? 25 : 50);
+        var posY = destination.y;
+        if (destination.objectConfig.isActivated) {
+            if (destination.objectConfig.id === EnumHelper.idEnum.door.right || destination.objectConfig.id === EnumHelper.idEnum.door.left) {
+                posY = destination.y + 50;
+            } else if (destination.objectConfig.id === EnumHelper.idEnum.door.down || destination.objectConfig.id === EnumHelper.idEnum.door.up) {
+                posX = destination.x + 50;
+            }
         }
         map[destination.y / 50][posX / 50] = 0;
-        return Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, destination.y / 50, map);
+        return Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map);
     }
 };

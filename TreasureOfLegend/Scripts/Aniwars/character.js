@@ -77,18 +77,15 @@ export const Character = function(game) {
         var character = game.activeCharacter;
         character.characterConfig.actionInProgress = null;
         if (object.objectConfig.isInteractible && character.characterConfig.minorActions - character.characterConfig.minorActionsSpent > 0) {
-            var objX = object.x;
-            if (object.objectConfig.isAngled) {
-                objX = object.objectConfig.isActivated
-                    ? object.x + 25
-                    : object.x - 50;
-            }
+            var obj = this._getObjRealCoords(object);
             // If object within reach try the interaction
-            if (Math.abs(character.x - objX) <= 50 && Math.abs(character.y - object.y) <= 50 &&
-                (Math.abs(character.x - objX) > 0 || Math.abs(character.y - object.y) > 0)) {
+            if (Math.abs(character.x - obj.x) <= 50 && Math.abs(character.y - obj.y) <= 50 &&
+                (Math.abs(character.x - obj.x) > 0 || Math.abs(character.y - obj.y) > 0)) {
+                object.x = obj.x;
+                object.y = obj.y;
                 actionManager.interactWithObject(object);
-            // Otherwise move near the object and try again
-            } else if (Math.abs(character.x - objX) !== 0 || Math.abs(character.y - object.y) !== 0) {
+                // Otherwise move near the object and try again
+            } else if (Math.abs(character.x - obj.x) !== 0 || Math.abs(character.y - obj.y) !== 0) {
                 character.characterConfig.actionInProgress = object;
                 var path = Pathfinder.getPathFromAToB(character, object, game.activeMap.levelMap);
                 this.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
@@ -205,9 +202,16 @@ export const Character = function(game) {
             function(object) {
                 if (object.x === posX && object.y === posY) {
                     //if object is a door check if it is open/activated
-                    if (object.objectConfig.id === EnumHelper.idEnum.door && !object.objectConfig.isActivated) {
+                    if ((object.objectConfig.id === EnumHelper.idEnum.door.up ||
+                        object.objectConfig.id === EnumHelper.idEnum.door.right ||
+                        object.objectConfig.id === EnumHelper.idEnum.door.down ||
+                        object.objectConfig.id === EnumHelper.idEnum.door.left)
+                        && !object.objectConfig.isActivated) {
                         isObstacleInTheWay = true;
-                    } else if (object.objectConfig.id !== EnumHelper.idEnum.door) {
+                    } else if ((object.objectConfig.id !== EnumHelper.idEnum.door.up &&
+                        object.objectConfig.id !== EnumHelper.idEnum.door.right &&
+                        object.objectConfig.id !== EnumHelper.idEnum.door.down &&
+                        object.objectConfig.id !== EnumHelper.idEnum.door.left)) {
                         isObstacleInTheWay = true;
                     }
                     //return;
@@ -220,5 +224,19 @@ export const Character = function(game) {
         if (object) {
             this.interactWithObject(object);
         }
+    };
+
+    this._getObjRealCoords = (object) => {
+        var objX = object.x;
+        var objY = object.y;
+        if (object.objectConfig.id === EnumHelper.idEnum.door.right || object.objectConfig.id === EnumHelper.idEnum.door.left) {
+            objY = object.objectConfig.isActivated ? object.y + 50 : object.y;
+        } else if (object.objectConfig.id === EnumHelper.idEnum.door.down || object.objectConfig.id === EnumHelper.idEnum.door.up) {
+            objX = object.objectConfig.isActivated ? object.x + 50 : object.x;
+        }
+        return {
+            x: objX,
+            y: objY
+        };
     };
 };

@@ -22,8 +22,7 @@ export const BattleMap = function (game) {
         isInteractible: false,
         id: -1,
         description: '',
-        isActivated: false,
-        isAngled: false
+        isActivated: false
     };
     var hitArea = new Phaser.Geom.Rectangle(0, 0, 50, 50);
     var hitAreaCallback = Phaser.Geom.Rectangle.Contains;
@@ -45,9 +44,10 @@ export const BattleMap = function (game) {
                     this._addTile(x, y);
                 } else if (this.levelMap[i][j] === EnumHelper.idEnum.wall) {
                     this._addWall(x, y);
-                } else if (this.levelMap[i][j] === EnumHelper.idEnum.door) {
+                } else if (this.levelMap[i][j] === EnumHelper.idEnum.door.up || this.levelMap[i][j] === EnumHelper.idEnum.door.right ||
+                    this.levelMap[i][j] === EnumHelper.idEnum.door.down || this.levelMap[i][j] === EnumHelper.idEnum.door.left) {
                     this._addTile(x, y);
-                    this._addDoor(x, y, i, j);
+                    this._addDoor(x, y, i, j, this.levelMap[i][j]);
                 }
             }
         }
@@ -65,7 +65,9 @@ export const BattleMap = function (game) {
                 var pathWay = Pathfinder.findWay(character.x / 50, character.y / 50, tile.x / 50, tile.y / 50, this.levelMap);
                 if (pathWay.length > 0) {
                     pathWay.shift();
-                    if (pathWay.length <= (character.characterConfig.movement - character.characterConfig.movementSpent) && this.levelMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile) {
+                    if (pathWay.length <= (character.characterConfig.movement - character.characterConfig.movementSpent)
+                        && this.levelMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile
+                        && (character.x !== tile.x || character.y !== tile.y)) {
                         tile.setTint(0x990899);
                     }
                 }
@@ -99,38 +101,34 @@ export const BattleMap = function (game) {
     };
 
     this._addWall = (x, y) => {
-        //var obj = game.add.sprite(x, y, 'topWallTile').setOrigin(0, 0);
-        //obj.displayHeight = 100;
-        //obj.height = 100;
-        //obj.displayWidth = 50;
-        //obj.displayHeight = 100;
-        //obj.displayWidth = 50;
         var obj = game.add.sprite(x, y, 'wallTile').setOrigin(0, 0);
         obj.objectConfig = Object.assign({}, this.objConfig);
+        obj.displayWidth = 50;
+        obj.displayHeight = 50;
+        //obj.width = 50;
+        //obj.height = 50;
         obj.objectConfig.description = 'Stone wall';
         obj.objectConfig.id = EnumHelper.idEnum.wall;
         this.objects.add(obj);
     };
 
-    this._addDoor = (x, y, i, j) => {
+    this._addDoor = (x, y, i, j, doorId) => {
         var obj;
-        if (j - 1 > 0) {
-            //if door is horizontal
-            if (this.levelMap[i][j - 1] === EnumHelper.idEnum.wall) {
-                obj = game.add.sprite(x + 50, y, 'doorTile').setOrigin(0, 0);
-                obj.objectConfig = Object.assign({}, this.objConfig);
-                obj.objectConfig.isAngled = true;
-                obj.setAngle(90);
-            } else {
-                obj = game.add.sprite(x, y, 'doorTile').setOrigin(0, 0);
-                obj.objectConfig = Object.assign({}, this.objConfig);
-            }
-        } else {
-            obj = game.add.sprite(x, y, 'doorTile').setOrigin(0, 0);
+        if (doorId === EnumHelper.idEnum.door.up) {
+            obj = game.add.sprite(x, y, 'doorUp').setOrigin(0, 0);
+            obj.objectConfig = Object.assign({}, this.objConfig);
+        } else if (doorId === EnumHelper.idEnum.door.right) {
+            obj = game.add.sprite(x, y, 'doorRight').setOrigin(0, 0);
+            obj.objectConfig = Object.assign({}, this.objConfig);
+        } else if (doorId === EnumHelper.idEnum.door.down) {
+            obj = game.add.sprite(x, y, 'doorDown').setOrigin(0, 0);
+            obj.objectConfig = Object.assign({}, this.objConfig);
+        } else if (doorId === EnumHelper.idEnum.door.left) {
+            obj = game.add.sprite(x, y, 'doorLeft').setOrigin(0, 0);
             obj.objectConfig = Object.assign({}, this.objConfig);
         }
         obj.objectConfig.description = 'Wooden door';
-        obj.objectConfig.id = EnumHelper.idEnum.door;
+        obj.objectConfig.id = doorId;
         obj.objectConfig.isInteractible = true;
         this.objects.add(obj);
     };
