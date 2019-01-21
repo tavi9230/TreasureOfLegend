@@ -1,5 +1,6 @@
 ﻿import {BattleMap} from 'Aniwars/map';
 import {Character} from 'Aniwars/character';
+import {Enemy} from 'Aniwars/enemy';
 
 export const SceneManager = function (game) {
     this.game = game;
@@ -32,8 +33,15 @@ export const SceneManager = function (game) {
 
     this.createEnemies = () => {
         //enemy characters
-        this.game.enemies = new Character(this.game);
+        var self = this;
+        this.game.enemies = new Enemy(this.game);
         this.game.enemies.addNewCharacter(1100, 350, 'character');
+        this.game.input.setHitArea(this.game.enemies.characters.getChildren());
+        _.each(this.game.enemies.characters.getChildren(), function(enemy) {
+            //mouse input on clicking game objects
+            enemy.on('pointerdown', _.bind(self._interactWithEnemy, self, enemy));
+            enemy.on('pointerover', _.bind(self._hoverEnemy, self, enemy));
+        });
     };
 
     this.createCamera = () => {
@@ -70,5 +78,11 @@ export const SceneManager = function (game) {
     };
     this._showDescription = (object) => {
         this.game.events.emit('showObjectDescription', object);
+    };
+    this._interactWithEnemy = (enemy) => {
+        this.game.characters.interactWithEnemy(enemy);
+    };
+    this._hoverEnemy = (enemy) => {
+        this.game.activeMap.highlightPathToEnemy(enemy);
     };
 };

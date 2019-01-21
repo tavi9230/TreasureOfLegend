@@ -27,7 +27,7 @@ export const Pathfinder = {
         var map = _cloneMap(levelMap);
         var posX = destination.x;
         var posY = destination.y;
-        if (destination.objectConfig.isActivated) {
+        if (destination.objectConfig && destination.objectConfig.isActivated) {
             if (destination.objectConfig.id === EnumHelper.idEnum.door.right || destination.objectConfig.id === EnumHelper.idEnum.door.left) {
                 posY = destination.y + 50;
             } else if (destination.objectConfig.id === EnumHelper.idEnum.door.down || destination.objectConfig.id === EnumHelper.idEnum.door.up) {

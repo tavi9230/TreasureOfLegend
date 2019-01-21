@@ -3,7 +3,7 @@ import {EnumHelper} from 'Aniwars/enumHelper';
 import {ActionManager} from 'Aniwars/actionManager';
 import {InventoryConfig} from 'Aniwars/inventoryConfig';
 
-export const Character = function(game) {
+export const Enemy = function(game) {
     var actionManager = new ActionManager(game);
 
     this.characterConfig = {
@@ -42,7 +42,7 @@ export const Character = function(game) {
     this.characters = game.add.group();
 
     this.addNewCharacter = (x, y, spriteName) => {
-        var character = game.physics.add.sprite(x, y, spriteName).setOrigin(0, 0);
+        var character = game.add.sprite(x, y, spriteName).setOrigin(0, 0);
         character.characterConfig = Object.assign({}, this.characterConfig);
         character.characterConfig.posX = x;
         character.characterConfig.posY = y;

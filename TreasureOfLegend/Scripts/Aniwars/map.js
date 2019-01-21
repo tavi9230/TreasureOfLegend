@@ -83,6 +83,10 @@ export const BattleMap = function (game) {
         this._highlightPath(null, object);
     };
 
+    this.highlightPathToEnemy = (enemy) => {
+        this._highlightPath(null, null, enemy);
+    };
+
     this.hideMovementGrid = () => {
         this.isMovementGridShown = false;
         _.each(this.tiles.getChildren(), (tile) => {
@@ -116,17 +120,14 @@ export const BattleMap = function (game) {
         var obj;
         if (doorId === EnumHelper.idEnum.door.up) {
             obj = game.add.sprite(x, y, 'doorUp').setOrigin(0, 0);
-            obj.objectConfig = Object.assign({}, this.objConfig);
         } else if (doorId === EnumHelper.idEnum.door.right) {
             obj = game.add.sprite(x, y, 'doorRight').setOrigin(0, 0);
-            obj.objectConfig = Object.assign({}, this.objConfig);
         } else if (doorId === EnumHelper.idEnum.door.down) {
             obj = game.add.sprite(x, y, 'doorDown').setOrigin(0, 0);
-            obj.objectConfig = Object.assign({}, this.objConfig);
         } else if (doorId === EnumHelper.idEnum.door.left) {
             obj = game.add.sprite(x, y, 'doorLeft').setOrigin(0, 0);
-            obj.objectConfig = Object.assign({}, this.objConfig);
         }
+        obj.objectConfig = Object.assign({}, this.objConfig);
         obj.objectConfig.description = 'Wooden door';
         obj.objectConfig.id = doorId;
         obj.objectConfig.isInteractible = true;
@@ -150,10 +151,10 @@ export const BattleMap = function (game) {
         return pathWay;
     };
 
-    this._highlightPath = (tile, object) => {
+    this._highlightPath = (tile, object, enemy) => {
         var obj = {
             isTile: tile ? true : false,
-            value: tile ? tile : object
+            value: tile ? tile : object ? object : enemy
         };
         var self = this;
         var currentCharacter = game.activeCharacter;

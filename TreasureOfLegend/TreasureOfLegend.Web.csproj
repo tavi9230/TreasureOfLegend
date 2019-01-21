@@ -272,8 +272,10 @@
     <Content Include=".eslintrc" />
     <Content Include="package.json" />
     <Content Include="Scripts\Aniwars\assetLoader.js" />
+    <Content Include="Scripts\Aniwars\enemy.js" />
     <Content Include="Scripts\Aniwars\enumHelper.js" />
     <Content Include="Scripts\Aniwars\actionManager.js" />
+    <Content Include="Scripts\Aniwars\inventoryConfig.js" />
     <Content Include="Scripts\Aniwars\sceneManager.js" />
     <Content Include="Scripts\Aniwars\Maps\mapConfig.js" />
     <Content Include="Scripts\Aniwars\pathfinder.js" />
