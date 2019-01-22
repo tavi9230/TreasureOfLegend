@@ -19,5 +19,8 @@
         piercing: 2,
         bludgeoning: 3,
         fire: 4
+    },
+    traitEnum: {
+        standard: 0
     }
 };

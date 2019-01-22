@@ -38,7 +38,8 @@ export const Enemy = function(game) {
             intelligence: 5
         },
         image: '',
-        isPlayerControlled: false
+        isPlayerControlled: false,
+        traits: [EnumHelper.traitEnum.standard]
     };
     this.game = game;
     this.map = this.game.activeMap;
@@ -177,6 +178,12 @@ export const Enemy = function(game) {
         actionManager.interactWithObject(object);
     };
 
+    this.check = () => {
+        if (this.game.activeCharacter.characterConfig.traits.indexOf(EnumHelper.traitEnum.standard) !== -1) {
+            this._doStandardActions();
+        }
+    };
+
     // Private -----------------------------------------------------------------------------------------------------
     this._reduceSpeedX = function(currentCharacter) {
         if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 100 &&
@@ -285,5 +292,83 @@ export const Enemy = function(game) {
             });
         }
         return auxMap;
+    };
+
+    this._doStandardActions = () => {
+        // If enemy has movement left
+        if (this.game.activeCharacter.characterConfig.movement - this.game.activeCharacter.characterConfig.movementSpent > 0) {
+            if (this.game.activeCharacter.characterConfig.isMoving) {
+                this.game.enemies.stopActiveCharacter();
+            }
+            // If it does not have a path
+            if (this.game.activeCharacter.characterConfig.path.length === 0) {
+                var paths = this.game.enemies.getPathsToEnemies();
+                if (paths.length > 0 && paths[0].path.length > 0) {
+                    // Get the path to the closest character
+                    this.game.activeCharacter.characterConfig.path = paths[0].path;
+                    this.game.activeCharacter.characterConfig.posX = this.game.activeCharacter.characterConfig.path[0][0] * 50;
+                    this.game.activeCharacter.characterConfig.posY = this.game.activeCharacter.characterConfig.path[0][1] * 50;
+                    // And move
+                    this.game.enemies.moveActiveCharacterToPosition(this.game.activeCharacter.characterConfig.posX, this.game.activeCharacter.characterConfig.posY);
+                } else {
+                    // If no path is found to a character it might mean we are stuck in a room
+                    paths = this.game.enemies.getPathsToClosestDoor();
+                    if (paths.length > 0 && paths[0].path.length > 0) {
+                        this.game.activeCharacter.characterConfig.path = paths[0].path;
+                        this.game.activeCharacter.characterConfig.posX = this.game.activeCharacter.characterConfig.path[0][0] * 50;
+                        this.game.activeCharacter.characterConfig.posY = this.game.activeCharacter.characterConfig.path[0][1] * 50;
+                        this.game.enemies.moveActiveCharacterToPosition(this.game.activeCharacter.characterConfig.posX, this.game.activeCharacter.characterConfig.posY);
+                    }
+                }
+            } else {
+                // Move on the path
+                var path = this.game.activeCharacter.characterConfig.path;
+                this.game.activeCharacter.characterConfig.posX = this.game.activeCharacter.characterConfig.path[0][0] * 50;
+                this.game.activeCharacter.characterConfig.posY = this.game.activeCharacter.characterConfig.path[0][1] * 50;
+                this.game.enemies.moveActiveCharacterToPosition(path[0][0] * 50, path[0][1] * 50);
+            }
+        } else {
+            // If no more movement, remove path in case player characters move
+            this.game.activeCharacter.characterConfig.path = [];
+            if (this.game.activeCharacter.characterConfig.isMoving) {
+                this.game.enemies.stopActiveCharacter();
+            }
+        }
+
+        if (!this.game.activeCharacter.characterConfig.isMoving) {
+            var didSomething = false;
+            if (this.game.activeCharacter.characterConfig.actions - this.game.activeCharacter.characterConfig.actionsSpent > 0) {
+                var closestEnemy = this.game.enemies.getPathsToEnemies();
+                if (closestEnemy.length > 0) {
+                    if (closestEnemy[0].path.length === 1) {
+                        this.game.enemies.interactWithEnemy(closestEnemy[0].enemy);
+                        didSomething = true;
+                    }
+                }
+            }
+
+            if (this.game.activeCharacter.characterConfig.minorActions - this.game.activeCharacter.characterConfig.minorActionsSpent > 0) {
+                var closestDoor = this.game.enemies.getPathsToClosestDoor();
+                if (closestDoor.length > 0) {
+                    if (closestDoor[0].path.length === 1) {
+                        this.game.enemies.interactWithObject(closestDoor[0].object);
+                        didSomething = true;
+                    }
+                }
+            }
+
+            if (!didSomething) {
+                this.game.activeCharacter.characterConfig.minorActionsSpent++;
+                this.game.activeCharacter.characterConfig.actionsSpent++;
+                this.game.activeCharacter.characterConfig.movementSpent++;
+            }
+        }
+
+        if (this.game.activeCharacter.characterConfig.movement - this.game.activeCharacter.characterConfig.movementSpent <= 0 &&
+            !this.game.activeCharacter.characterConfig.isMoving && this.game.activeCharacter.characterConfig.path.length <= 0 &&
+            this.game.activeCharacter.characterConfig.actions - this.game.activeCharacter.characterConfig.actionsSpent <= 0 &&
+            this.game.activeCharacter.characterConfig.minorActions - this.game.activeCharacter.characterConfig.minorActionsSpent <= 0) {
+            this.game.events.emit('endEnemyTurn');
+        }
     };
 };

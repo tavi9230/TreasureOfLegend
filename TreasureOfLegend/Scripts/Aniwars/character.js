@@ -129,6 +129,16 @@ export const Character = function(game) {
         }
     };
 
+    this.check = () => {
+        if (this.game.activeCharacter.characterConfig.isMoving) {
+            this.game.events.emit('activeCharacterPositionModified', this.game.activeCharacter);
+            this.game.characters.stopActiveCharacter();
+        } else if (!this.game.activeCharacter.characterConfig.isMoving &&
+            this.game.activeCharacter.characterConfig.path.length > 0) {
+            this.game.characters.keepMovingActiveCharacter();
+        }
+    };
+
     // Private -----------------------------------------------------------------------------------------------------
     this._moveCharacter = function(currentCharacter) {
         currentCharacter.characterConfig.movementSpent++;
