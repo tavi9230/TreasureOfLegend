@@ -40,11 +40,11 @@ export const Character = function(game) {
         image: ''
     };
     this.game = game;
-    this.map = game.activeMap;
-    this.characters = game.add.group();
+    this.map = this.game.activeMap;
+    this.characters = this.game.add.group();
 
     this.addNewCharacter = (x, y, spriteName) => {
-        var character = game.physics.add.sprite(x, y, spriteName).setOrigin(0, 0);
+        var character = this.game.physics.add.sprite(x, y, spriteName).setOrigin(0, 0);
         character.characterConfig = Object.assign({}, this.characterConfig);
         character.characterConfig.posX = x;
         character.characterConfig.posY = y;
@@ -65,7 +65,7 @@ export const Character = function(game) {
     };
 
     this.stopActiveCharacter = () => {
-        var currentCharacter = game.activeCharacter;
+        var currentCharacter = this.game.activeCharacter;
         //reduce speed on X
         this._reduceSpeedX(currentCharacter);
 
@@ -74,10 +74,10 @@ export const Character = function(game) {
 
         //show grid if stopped
         if (currentCharacter.x === currentCharacter.characterConfig.posX &&
-            currentCharacter.y === currentCharacter.characterConfig.posY && !game.activeMap.isMovementGridShown) {
+            currentCharacter.y === currentCharacter.characterConfig.posY && !this.game.activeMap.isMovementGridShown) {
             if (currentCharacter.characterConfig.path.length === 0) {
-                game.events.emit('activeCharacterActed', currentCharacter);
-                game.activeMap.showMovementGrid(currentCharacter);
+                this.game.events.emit('activeCharacterActed', currentCharacter);
+                this.game.activeMap.showMovementGrid(currentCharacter);
                 this._checkIfObjectInteractionInProgress(currentCharacter.characterConfig.actionInProgress);
             }
             currentCharacter.characterConfig.isMoving = false;
@@ -85,14 +85,14 @@ export const Character = function(game) {
     };
 
     this.keepMovingActiveCharacter = () => {
-        var currentCharacter = game.activeCharacter;
+        var currentCharacter = this.game.activeCharacter;
         if (!currentCharacter.characterConfig.isMoving && currentCharacter.characterConfig.path.length > 0) {
             this._moveCharacter(currentCharacter);
         }
     };
 
     this.interactWithObject = (object) => {
-        var character = game.activeCharacter;
+        var character = this.game.activeCharacter;
         character.characterConfig.actionInProgress = null;
         if (object.objectConfig.isInteractible && character.characterConfig.minorActions - character.characterConfig.minorActionsSpent > 0) {
             var obj = this._getObjRealCoords(object);
@@ -105,14 +105,14 @@ export const Character = function(game) {
                 // Otherwise move near the object and try again
             } else if (Math.abs(character.x - obj.x) !== 0 || Math.abs(character.y - obj.y) !== 0) {
                 character.characterConfig.actionInProgress = object;
-                var path = Pathfinder.getPathFromAToB(character, object, game.activeMap.levelMap);
+                var path = Pathfinder.getPathFromAToB(character, object, this.game.activeMap.levelMap);
                 this.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
             }
         }
     };
 
     this.interactWithEnemy = (enemy) => {
-        var character = game.activeCharacter;
+        var character = this.game.activeCharacter;
         character.characterConfig.actionInProgress = null;
         if (character.characterConfig.actions - character.characterConfig.actionsSpent > 0) {
             // If object within reach try the interaction
@@ -122,7 +122,7 @@ export const Character = function(game) {
                 actionManager.interactWithEnemy(enemy);
                 // Otherwise move near the object and try again
             } else if (Math.abs(character.x - enemy.x) !== 0 || Math.abs(character.y - enemy.y) !== 0) {
-                var path = Pathfinder.getPathFromAToB(character, enemy, game.activeMap.levelMap);
+                var path = Pathfinder.getPathFromAToB(character, enemy, this.game.activeMap.levelMap);
                 this.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
             }
         }
@@ -152,7 +152,7 @@ export const Character = function(game) {
         } else if (currentCharacter.characterConfig.posY < currentCharacter.y) {
             currentCharacter.setVelocityY(-1 * this.characterConfig.velocity);
         }
-        game.events.emit('activeCharacterActed', currentCharacter);
+        this.game.events.emit('activeCharacterActed', currentCharacter);
     };
 
     this._reduceSpeedX = function(currentCharacter) {
@@ -200,11 +200,12 @@ export const Character = function(game) {
     };
 
     this._moveActiveCharacter = (posX, posY) => {
-        var currentCharacter = game.activeCharacter;
+        var currentCharacter = this.game.activeCharacter;
         if (!currentCharacter.characterConfig.isMoving &&
             (currentCharacter.x !== posX || currentCharacter.y !== posY)) {
             if (!this._isTileOccupied(posX, posY)) {
-                var pathWay = Pathfinder.findWay(currentCharacter.x / 50, currentCharacter.y / 50, posX / 50, posY / 50, game.activeMap.levelMap);
+                var auxMap = this._addEnemiesToMap(this.game.enemies);
+                var pathWay = Pathfinder.findWay(currentCharacter.x / 50, currentCharacter.y / 50, posX / 50, posY / 50, auxMap);
                 currentCharacter.characterConfig.path = pathWay || [];
                 if (pathWay.length > 0) {
                     currentCharacter.characterConfig.path.shift();
@@ -226,14 +227,14 @@ export const Character = function(game) {
 
     this._isTileOccupied = (posX, posY) => {
         var isObstacleInTheWay = false;
-        _.each(game.enemies.characters.getChildren(),
+        _.each(this.game.enemies.characters.getChildren(),
             function(enemy) {
                 if (enemy.x === posX && enemy.y === posY) {
                     isObstacleInTheWay = true;
                     //return;
                 }
             });
-        _.each(game.activeMap.objects.getChildren(),
+        _.each(this.game.activeMap.objects.getChildren(),
             function(object) {
                 if (object.x === posX && object.y === posY) {
                     //if object is a door check if it is open/activated
@@ -273,5 +274,16 @@ export const Character = function(game) {
             x: objX,
             y: objY
         };
+    };
+
+    this._addEnemiesToMap = (enemies) => {
+        var auxMap = [];
+        auxMap = this.game.activeMap.copyMap(this.game.activeMap.levelMap, auxMap);
+        if (this.game.enemies) {
+            _.each(enemies.characters.getChildren(), function(enemy) {
+                auxMap[enemy.y / 50][enemy.x / 50] = 1;
+            });
+        }
+        return auxMap;
     };
 };

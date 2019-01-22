@@ -61,6 +61,7 @@ export const SceneManager = function (game) {
     };
 
     this.getInitiativeArray = () => {
+        this.game.initiativeIndex = 0;
         var initiative = this.game.characters.characters.getChildren();
         initiative = initiative.concat(this.game.enemies.characters.getChildren());
         return initiative.sort(function(a, b) {

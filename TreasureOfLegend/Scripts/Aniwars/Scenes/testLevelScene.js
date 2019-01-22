@@ -32,6 +32,11 @@ export const TestLevelScene = function() {
                     self.activeCharacter.characterConfig.minorActionsSpent = 0;
                     self.activeCharacter.characterConfig.actionsSpent = 0;
                     self.events.emit('activeCharacterChanged', self.activeCharacter);
+                    self.initiativeIndex++;
+                    if (self.initiativeIndex >= self.initiative.length) {
+                        self.initiativeIndex = 0;
+                    }
+                    self.activeCharacter = self.initiative[self.initiativeIndex];
                     self.activeMap.showMovementGrid();
                 }
             });

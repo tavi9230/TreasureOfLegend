@@ -62,11 +62,12 @@ export const BattleMap = function (game) {
         _.each(this.tiles.getChildren(), (tile) => {
             if ((character.characterConfig.movement - character.characterConfig.movementSpent) * 50 >= Math.abs(tile.x - character.characterConfig.posX) &&
                 (character.characterConfig.movement - character.characterConfig.movementSpent) * 50 >= Math.abs(tile.y - character.characterConfig.posY)) {
-                var pathWay = Pathfinder.findWay(character.x / 50, character.y / 50, tile.x / 50, tile.y / 50, this.levelMap);
+                var auxMap = this._addEnemiesToMap(this.game.enemies);
+                var pathWay = Pathfinder.findWay(character.x / 50, character.y / 50, tile.x / 50, tile.y / 50, auxMap);
                 if (pathWay.length > 0) {
                     pathWay.shift();
                     if (pathWay.length <= (character.characterConfig.movement - character.characterConfig.movementSpent)
-                        && this.levelMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile
+                        && auxMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile
                         && (character.x !== tile.x || character.y !== tile.y)) {
                         tile.setTint(0x990899);
                     }
@@ -135,7 +136,8 @@ export const BattleMap = function (game) {
     };
 
     this._getPathToTile = (character, tile) => {
-        var pathWay = Pathfinder.findWay(character.x / 50, character.y / 50, tile.x / 50, tile.y / 50, this.levelMap);
+        var auxMap = this._addEnemiesToMap(this.game.enemies);
+        var pathWay = Pathfinder.findWay(character.x / 50, character.y / 50, tile.x / 50, tile.y / 50, auxMap);
         if (pathWay.length > 0) {
             pathWay.shift();
         }
@@ -143,7 +145,8 @@ export const BattleMap = function (game) {
     };
 
     this._getPathToObject = (character, object) => {
-        var pathWay = Pathfinder.getPathFromAToB(character, object, this.levelMap);
+        var auxMap = this._addEnemiesToMap(this.game.enemies);
+        var pathWay = Pathfinder.getPathFromAToB(character, object, auxMap);
         if (pathWay.length > 0) {
             pathWay.shift();
             pathWay.pop();
@@ -177,5 +180,16 @@ export const BattleMap = function (game) {
                     }
                 });
         }
+    };
+
+    this._addEnemiesToMap = (enemies) => {
+        var auxMap = [];
+        auxMap = this.game.activeMap.copyMap(this.game.activeMap.levelMap, auxMap);
+        if (this.game.enemies) {
+            _.each(enemies.characters.getChildren(), function(enemy) {
+                auxMap[enemy.y / 50][enemy.x / 50] = 1;
+            });
+        }
+        return auxMap;
     };
 };
