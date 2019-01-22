@@ -155,30 +155,32 @@ export const BattleMap = function (game) {
     };
 
     this._highlightPath = (tile, object, enemy) => {
-        var obj = {
-            isTile: tile ? true : false,
-            value: tile ? tile : object ? object : enemy
-        };
-        var self = this;
         var currentCharacter = game.activeCharacter;
-        // If character is not moving
-        if (currentCharacter.characterConfig.path.length === 0 &&
-            currentCharacter.x === currentCharacter.characterConfig.posX &&
-            currentCharacter.y === currentCharacter.characterConfig.posY) {
-            this.showMovementGrid();
-            var pathWay = obj.isTile
-                ? this._getPathToTile(currentCharacter, obj.value)
-                : this._getPathToObject(currentCharacter, obj.value);
-            if (pathWay.length > 0 && pathWay.length <= (currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent))
-                _.each(this.tiles.getChildren(), function(tile) {
-                    for (let i = 0; i < pathWay.length; i++) {
-                        if (tile.x === pathWay[i][0] * 50 &&
-                            tile.y === pathWay[i][1] * 50 &&
-                            self.levelMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile) {
-                            tile.setTint(0x4693eb);
+        if (currentCharacter.characterConfig.isPlayerControlled) {
+            var obj = {
+                isTile: tile ? true : false,
+                value: tile ? tile : object ? object : enemy
+            };
+            var self = this;
+            // If character is not moving
+            if (currentCharacter.characterConfig.path.length === 0 &&
+                currentCharacter.x === currentCharacter.characterConfig.posX &&
+                currentCharacter.y === currentCharacter.characterConfig.posY) {
+                this.showMovementGrid();
+                var pathWay = obj.isTile
+                    ? this._getPathToTile(currentCharacter, obj.value)
+                    : this._getPathToObject(currentCharacter, obj.value);
+                if (pathWay.length > 0 && pathWay.length <= (currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent))
+                    _.each(this.tiles.getChildren(), function(tile) {
+                        for (let i = 0; i < pathWay.length; i++) {
+                            if (tile.x === pathWay[i][0] * 50 &&
+                                tile.y === pathWay[i][1] * 50 &&
+                                self.levelMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile) {
+                                tile.setTint(0x4693eb);
+                            }
                         }
-                    }
-                });
+                    });
+            }
         }
     };
 

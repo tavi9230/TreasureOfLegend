@@ -23,7 +23,6 @@ export const ActionManager = function (game) {
     this._interactWithDoor = (object) => {
         var character = this.game.activeCharacter;
         character.characterConfig.minorActionsSpent++;
-        this.game.events.emit('activeCharacterActed', character);
         var x = object.x / 50;
         var y = object.y / 50;
         this.game.activeMap.levelMap = this.game.activeMap.copyMap(this.game.activeMap.levelMap, this.game.activeMap.previousMap);
@@ -39,19 +38,29 @@ export const ActionManager = function (game) {
             this.game.activeMap.levelMap[y][x] = object.objectConfig.id;
         }
         object.objectConfig.isActivated = !object.objectConfig.isActivated;
-        this.game.activeMap.showMovementGrid();
+        if (character.characterConfig.isPlayerControlled) {
+            this.game.events.emit('activeCharacterActed', character);
+            this.game.activeMap.showMovementGrid();
+        }
     };
 
     //ENEMY INTERACTION --------------------------------------------------------------------------------------------------------------------
     this._attackWithMainHand = (character, enemy) => {
         character.characterConfig.actionsSpent++;
-        this.game.events.emit('activeCharacterActed', character);
+        if (character.characterConfig.isPlayerControlled) {
+            this.game.events.emit('activeCharacterActed', character);
+        }
         enemy.characterConfig.life -= character.characterConfig.inventory.mainHand.damage;
         if (enemy.characterConfig.life <= 0) {
             enemy.destroy();
-            this.game.events.emit('showCharacterInitiative', this.game.sceneManager.getInitiativeArray());
-        } else {
-            this.game.events.emit('showCharacterInitiative', this.game.initiative);
+            if (enemy.characterConfig.isPlayerControlled) {
+                this.game.characters.characters.remove(enemy);
+            } else {
+                this.game.enemies.characters.remove(enemy);
+            }
+            this.game.initiativeIndex--;
+            this.game.initiative = this.game.sceneManager.getInitiativeArray();
         }
+        this.game.events.emit('showCharacterInitiative', this.game.initiative);
     };
 };

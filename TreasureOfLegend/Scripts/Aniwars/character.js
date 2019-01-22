@@ -7,7 +7,7 @@ export const Character = function(game) {
     var actionManager = new ActionManager(game);
 
     this.characterConfig = {
-        life: 10,
+        life: 2,
         maxLife: 10,
         mana: 0,
         movement: 6,
@@ -37,7 +37,8 @@ export const Character = function(game) {
             dexterity: 5,
             intelligence: 5
         },
-        image: ''
+        image: '',
+        isPlayerControlled: true
     };
     this.game = game;
     this.map = this.game.activeMap;

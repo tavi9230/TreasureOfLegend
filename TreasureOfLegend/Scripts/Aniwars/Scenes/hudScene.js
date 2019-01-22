@@ -56,6 +56,7 @@ export const HUDScene = function(sceneName) {
                 self.descriptionsText.setText(object.objectConfig.description);
             });
             this.activeScene.events.on('showCharacterInitiative', _.bind(this._showCharacterInitiative, this));
+            this.activeScene.events.on('endEnemyTurn', _.bind(this._endTurn, this));
         },
         _setTexts: function(activeCharacter) {
             this._setPositionText(activeCharacter);
@@ -95,6 +96,7 @@ export const HUDScene = function(sceneName) {
         },
         _endTurn: function() {
             this.events.emit('endTurn');
+            // TODO: change turn counter after all from the initiative have done their movement
             this.turn++;
             this.turnText.setText(this.turn);
         },

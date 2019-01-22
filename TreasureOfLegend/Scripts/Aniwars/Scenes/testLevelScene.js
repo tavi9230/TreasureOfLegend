@@ -16,6 +16,7 @@ export const TestLevelScene = function() {
             this._activateHUDScene();
             this.cursors = this.input.keyboard.createCursorKeys();
             this.initiative = this.sceneManager.getInitiativeArray();
+            this.initiativeIndex = 0;
         },
         update() {
             this.sceneManager.checkManager();
@@ -37,7 +38,12 @@ export const TestLevelScene = function() {
                         self.initiativeIndex = 0;
                     }
                     self.activeCharacter = self.initiative[self.initiativeIndex];
-                    self.activeMap.showMovementGrid();
+                    if (self.activeCharacter.characterConfig.isPlayerControlled) {
+                        self.activeMap.showMovementGrid();
+                        self.cameras.main.startFollow(self.activeCharacter, true, 0.09, 0.09);
+                    } else {
+                        self.activeMap.hideMovementGrid();
+                    }
                 }
             });
             this.hudScene.events.on('getCharacterStartData', function() {
