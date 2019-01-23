@@ -60,13 +60,13 @@ export const BattleMap = function (game) {
         var character = game.activeCharacter;
         this.isMovementGridShown = true;
         _.each(this.tiles.getChildren(), (tile) => {
-            if ((character.characterConfig.movement - character.characterConfig.movementSpent) * 50 >= Math.abs(tile.x - character.characterConfig.posX) &&
-                (character.characterConfig.movement - character.characterConfig.movementSpent) * 50 >= Math.abs(tile.y - character.characterConfig.posY)) {
-                var auxMap = this._addEnemiesToMap(this.game.enemies);
+            if ((character.characterConfig.movement.max - character.characterConfig.movement.spent) * 50 >= Math.abs(tile.x - character.characterConfig.posX) &&
+                (character.characterConfig.movement.max - character.characterConfig.movement.spent) * 50 >= Math.abs(tile.y - character.characterConfig.posY)) {
+                var auxMap = this.addEnemiesToMap(this.game.enemies);
                 var pathWay = Pathfinder.findWay(character.x / 50, character.y / 50, tile.x / 50, tile.y / 50, auxMap);
                 if (pathWay.length > 0) {
                     pathWay.shift();
-                    if (pathWay.length <= (character.characterConfig.movement - character.characterConfig.movementSpent)
+                    if (pathWay.length <= (character.characterConfig.movement.max - character.characterConfig.movement.spent)
                         && auxMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile
                         && (character.x !== tile.x || character.y !== tile.y)) {
                         tile.setTint(0x990899);
@@ -97,6 +97,31 @@ export const BattleMap = function (game) {
         _.each(this.tiles.getChildren(), (tile) => {
             tile.setTint(0xffffff);
         });
+    };
+
+    this.addEnemiesToMap = (enemies) => {
+        var auxMap = [];
+        auxMap = this.game.activeMap.copyMap(this.game.activeMap.levelMap, auxMap);
+        if (this.game.enemies) {
+            _.each(enemies.characters.getChildren(), function(enemy) {
+                auxMap[enemy.y / 50][enemy.x / 50] = 1;
+            });
+        }
+        return auxMap;
+    };
+
+    this.getObjRealCoords = (object) => {
+        var objX = object.x;
+        var objY = object.y;
+        if (object.objectConfig.id === EnumHelper.idEnum.door.right || object.objectConfig.id === EnumHelper.idEnum.door.left) {
+            objY = object.objectConfig.isActivated ? object.y + 50 : object.y;
+        } else if (object.objectConfig.id === EnumHelper.idEnum.door.down || object.objectConfig.id === EnumHelper.idEnum.door.up) {
+            objX = object.objectConfig.isActivated ? object.x + 50 : object.x;
+        }
+        return {
+            x: objX,
+            y: objY
+        };
     };
 
     // Private ----------------------------------------------------------------------
@@ -140,7 +165,7 @@ export const BattleMap = function (game) {
     };
 
     this._getPathToTile = (character, tile) => {
-        var auxMap = this._addEnemiesToMap(this.game.enemies);
+        var auxMap = this.addEnemiesToMap(this.game.enemies);
         var pathWay = Pathfinder.findWay(character.x / 50, character.y / 50, tile.x / 50, tile.y / 50, auxMap);
         if (pathWay.length > 0) {
             pathWay.shift();
@@ -149,7 +174,7 @@ export const BattleMap = function (game) {
     };
 
     this._getPathToObject = (character, object) => {
-        var auxMap = this._addEnemiesToMap(this.game.enemies);
+        var auxMap = this.addEnemiesToMap(this.game.enemies);
         var pathWay = Pathfinder.getPathFromAToB(character, object, auxMap);
         if (pathWay.length > 0) {
             pathWay.shift();
@@ -174,7 +199,7 @@ export const BattleMap = function (game) {
                 var pathWay = obj.isTile
                     ? this._getPathToTile(currentCharacter, obj.value)
                     : this._getPathToObject(currentCharacter, obj.value);
-                if (pathWay.length > 0 && pathWay.length <= (currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent))
+                if (pathWay.length > 0 && pathWay.length <= (currentCharacter.characterConfig.movement.max - currentCharacter.characterConfig.movement.spent))
                     _.each(this.tiles.getChildren(), function(tile) {
                         for (let i = 0; i < pathWay.length; i++) {
                             if (tile.x === pathWay[i][0] * 50 &&
@@ -186,16 +211,5 @@ export const BattleMap = function (game) {
                     });
             }
         }
-    };
-
-    this._addEnemiesToMap = (enemies) => {
-        var auxMap = [];
-        auxMap = this.game.activeMap.copyMap(this.game.activeMap.levelMap, auxMap);
-        if (this.game.enemies) {
-            _.each(enemies.characters.getChildren(), function(enemy) {
-                auxMap[enemy.y / 50][enemy.x / 50] = 1;
-            });
-        }
-        return auxMap;
     };
 };

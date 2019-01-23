@@ -1,5 +1,4 @@
 ﻿import {AssetLoader} from 'Aniwars/assetLoader';
-import {EnumHelper} from 'Aniwars/enumHelper';
 
 export const HUDScene = function(sceneName) {
     return new Phaser.Class({
@@ -70,10 +69,12 @@ export const HUDScene = function(sceneName) {
             this.activeScene.events.on('getSpells', _.bind(this._openSpellBook, this));
         },
         _displayInfo: function(activeCharacter) {
+            var charConfig = activeCharacter.characterConfig;
+
             this._setTexts(activeCharacter);
-            var image = activeCharacter.characterConfig.actionId === EnumHelper.actionEnum.attackSpell
-                ? activeCharacter.characterConfig.inventory.spells[0].image
-                : activeCharacter.characterConfig.inventory.mainHand.image;
+            var image = charConfig.actions.selectedAction
+                ? charConfig.actions.selectedAction.image
+                : charConfig.inventory.mainHand.image;
             if (this.mainAttack) {
                 this.mainAttack.destroy();
             }
@@ -94,25 +95,28 @@ export const HUDScene = function(sceneName) {
             this.locationText.setText('X:' + Math.floor(activeCharacter.x / 50) + ', Y:' + Math.floor(activeCharacter.y / 50));
         },
         _setHpText: function(activeCharacter) {
-            this.hpText.setText('HP: ' + activeCharacter.characterConfig.life);
+            var charConfig = activeCharacter.characterConfig;
+            this.hpText.setText('HP: ' + charConfig.life.current);
         },
         _setManaText: function(activeCharacter) {
-            this.manaText.setText('Mana: ' + (activeCharacter.characterConfig.mana - activeCharacter.characterConfig.manaSpent));
+            var charConfig = activeCharacter.characterConfig;
+            this.manaText.setText('Mana: ' + (charConfig.mana.max - charConfig.mana.spent));
         },
         _setMovementText: function(activeCharacter) {
-            this.movementText.setText('Movement: ' +
-                (activeCharacter.characterConfig.movement - activeCharacter.characterConfig.movementSpent));
+            var charConfig = activeCharacter.characterConfig;
+            this.movementText.setText('Movement: ' + (charConfig.movement.max - charConfig.movement.spent));
         },
         _setArmorText: function(activeCharacter) {
-            this.armorText.setText('Armor: ' + activeCharacter.characterConfig.armor);
+            var charConfig = activeCharacter.characterConfig;
+            this.armorText.setText('Armor: ' + charConfig.armor);
         },
         _setActionsText: function(activeCharacter) {
-            this.actionsText.setText('Actions: ' +
-                (activeCharacter.characterConfig.actions - activeCharacter.characterConfig.actionsSpent));
+            var charConfig = activeCharacter.characterConfig;
+            this.actionsText.setText('Actions: ' + (charConfig.actions.max - charConfig.actions.spent));
         },
         _setMinorActionsText: function(activeCharacter) {
-            this.minorActionsText.setText('Minor Actions: ' +
-                (activeCharacter.characterConfig.minorActions - activeCharacter.characterConfig.minorActionsSpent));
+            var charConfig = activeCharacter.characterConfig;
+            this.minorActionsText.setText('Minor Actions: ' + (charConfig.minorActions.max - charConfig.minorActions.spent));
         },
         _endTurn: function() {
             this.events.emit('endTurn');
@@ -136,23 +140,24 @@ export const HUDScene = function(sceneName) {
                 this.initiativeTracker = this.add.group();
             }
             _.each(characters, function(character) {
+                var charConfig = character.characterConfig;
                 var box = self.add.graphics();
-                character.characterConfig.isPlayerControlled
+                charConfig.isPlayerControlled
                     ? box.fillStyle(0x38b82c, 0.8)
                     : box.fillStyle(0x3c60d6, 0.8);
                 box.fillRect(x - 10, y - 10, 70, 70);
 
-                var maxLife = character.characterConfig.maxLife;
-                var life = character.characterConfig.life;
+                var maxLife = charConfig.life.max;
+                var life = charConfig.life.current;
                 var percentageOfLife = (100 * life) / maxLife;
                 var lifeWidth = (70 * percentageOfLife) / 100;
                 var lifeBar = self.add.graphics();
                 lifeBar.fillStyle(0x990000, 0.8);
                 lifeBar.fillRect(x - 10, y + 50, lifeWidth, 10);
 
-                var lifeText = self.add.text(x + 20, y + 49, character.characterConfig.life, { fill: '#FFF', fontSize: '9px' });
+                var lifeText = self.add.text(x + 20, y + 49, charConfig.life.current, { fill: '#FFF', fontSize: '9px' });
 
-                var characterImage = self.add.image(x, y, character.characterConfig.image).setOrigin(0, 0);
+                var characterImage = self.add.image(x, y, charConfig.image).setOrigin(0, 0);
                 x += 80;
                 self.initiativeTracker.add(box);
                 self.initiativeTracker.add(lifeBar);
@@ -191,15 +196,18 @@ export const HUDScene = function(sceneName) {
                 spellImage.displayWidth = 50;
                 spellImage.displayHeight = 50;
 
+                box.objectToSend = spell;
+                spellImage.objectToSend = spell;
+
                 self.spellBook.add(box);
                 self.spellBook.add(spellImage);
                 x += 80;
             });
             this.input.setHitArea(this.spellBook.getChildren());
-            _.each(this.spellBook.getChildren(), function(spell) {
-                //mouse input on clicking game objects
-                spell.on('pointerdown', function() {
-                    self.events.emit('spellSelected', spell);
+            _.each(this.spellBook.getChildren(), function(item) {
+                // TODO: send the spell object as the parameter?
+                item.on('pointerdown', function() {
+                    self.events.emit('spellSelected', item.objectToSend);
                     self.spellBook.destroy(true);
                     panel.destroy();
                     self._displayInfo(character);

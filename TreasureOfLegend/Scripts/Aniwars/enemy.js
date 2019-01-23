@@ -7,23 +7,36 @@ export const Enemy = function(game) {
     var actionManager = new ActionManager(game);
 
     this.characterConfig = {
-        life: 2,
+        life: {
+            max: 10,
+            current: 4
+        },
         maxLife: 10,
-        mana: 0,
-        movement: 6,
-        movementSpent: 0,
+        mana: {
+            max: 0,
+            spent: 0
+        },
+        movement: {
+            max: 6,
+            spent: 0,
+            isMoving: false
+        },
         armor: 10,
         velocity: 200,
         posX: 0,
         posY: 0,
-        isMoving: false,
         path: [],
-        actions: 1,
-        actionsSpent: 0,
-        minorActions: 1,
-        minorActionsSpent: 0,
-        actionInProgress: null,
-        actionId: -1,
+        actions: {
+            max: 1,
+            spent: 0,
+            actionId: -1,
+            selectedAction: null
+        },
+        minorActions: {
+            max: 1,
+            spent: 0,
+            inProgress: null
+        },
         inventory: {
             mainHand: InventoryConfig.punch,
             offHand: '',
@@ -31,7 +44,12 @@ export const Enemy = function(game) {
             body: '',
             feet: '',
             hands: '',
-            freeSlots: 2
+            slots: {
+                free: 2,
+                max: 2,
+                items: []
+            },
+            spells: []
         },
         attributes: {
             strength: 5,
@@ -40,7 +58,8 @@ export const Enemy = function(game) {
         },
         image: '',
         isPlayerControlled: false,
-        traits: [EnumHelper.traitEnum.standard]
+        traits: [EnumHelper.traitEnum.standard],
+        statuses: []
     };
     this.game = game;
     this.map = this.game.activeMap;
@@ -56,57 +75,59 @@ export const Enemy = function(game) {
     };
 
     this.moveActiveCharacterToPosition = (x, y) => {
-        var currentCharacter = this.game.activeCharacter;
-        if (!currentCharacter.characterConfig.isMoving && (currentCharacter.x !== x || currentCharacter.y !== y)) {
+        var currentCharacter = this.game.activeCharacter,
+            charConfig = currentCharacter.characterConfig;
+        if (!charConfig.movement.isMoving && (currentCharacter.x !== x || currentCharacter.y !== y)) {
             // Move if tile is unoccupied
             var obstacle = this._isTileOccupied(x, y);
             if (!obstacle.isObstacleInTheWay) {
-                currentCharacter.characterConfig.movementSpent++;
-                currentCharacter.characterConfig.isMoving = true;
+                charConfig.movement.spent++;
+                charConfig.movement.isMoving = true;
                 if (x > currentCharacter.x && y > currentCharacter.y) {
-                    currentCharacter.setVelocity(currentCharacter.characterConfig.velocity,
-                        currentCharacter.characterConfig.velocity);
+                    currentCharacter.setVelocity(charConfig.velocity,
+                        charConfig.velocity);
                 } else if (x < currentCharacter.x && y < currentCharacter.y) {
-                    currentCharacter.setVelocity(-1 * currentCharacter.characterConfig.velocity,
-                        -1 * currentCharacter.characterConfig.velocity);
+                    currentCharacter.setVelocity(-1 * charConfig.velocity,
+                        -1 * charConfig.velocity);
                 } else if (x < currentCharacter.x && y > currentCharacter.y) {
-                    currentCharacter.setVelocity(-1 * currentCharacter.characterConfig.velocity,
-                        currentCharacter.characterConfig.velocity);
+                    currentCharacter.setVelocity(-1 * charConfig.velocity,
+                        charConfig.velocity);
                 } else if (x > currentCharacter.x && y < currentCharacter.y) {
-                    currentCharacter.setVelocity(currentCharacter.characterConfig.velocity,
-                        -1 * currentCharacter.characterConfig.velocity);
+                    currentCharacter.setVelocity(charConfig.velocity,
+                        -1 * charConfig.velocity);
                 } else if (x > currentCharacter.x) {
-                    currentCharacter.setVelocityX(currentCharacter.characterConfig.velocity);
+                    currentCharacter.setVelocityX(charConfig.velocity);
                 } else if (x < currentCharacter.x) {
-                    currentCharacter.setVelocityX(-1 * currentCharacter.characterConfig.velocity);
+                    currentCharacter.setVelocityX(-1 * charConfig.velocity);
                 } else if (y > currentCharacter.y) {
-                    currentCharacter.setVelocityY(currentCharacter.characterConfig.velocity);
+                    currentCharacter.setVelocityY(charConfig.velocity);
                 } else if (y < currentCharacter.y) {
-                    currentCharacter.setVelocityY(-1 * currentCharacter.characterConfig.velocity);
+                    currentCharacter.setVelocityY(-1 * charConfig.velocity);
                 }
             }
         }
     };
 
     this.stopActiveCharacter = () => {
-        var currentCharacter = this.game.activeCharacter;
+        var currentCharacter = this.game.activeCharacter,
+            charConfig = currentCharacter.characterConfig;
         //reduce speed on X
         this._reduceSpeedX(currentCharacter);
 
         //reduce speed on Y
         this._reduceSpeedY(currentCharacter);
 
-        if (currentCharacter.x === currentCharacter.characterConfig.posX &&
-            currentCharacter.y === currentCharacter.characterConfig.posY ) {
-            currentCharacter.characterConfig.isMoving = false;
-            currentCharacter.characterConfig.path.shift();
+        if (currentCharacter.x === charConfig.posX &&
+            currentCharacter.y === charConfig.posY ) {
+            charConfig.movement.isMoving = false;
+            charConfig.path.shift();
         }
     };
 
     this.getPathsToEnemies = () => {
         var currentCharacter = this.game.activeCharacter;
         var paths = [];
-        var auxMap = this._addEnemiesToMap(this.game.characters);
+        var auxMap = this.game.activeMap.addEnemiesToMap(this.game.characters);
         _.each(this.game.characters.characters.getChildren(), function(character) {
             auxMap[character.y / 50][character.x / 50] = 0;
             var path = Pathfinder.findWay(currentCharacter.x / 50,
@@ -135,7 +156,7 @@ export const Enemy = function(game) {
     this.getPathsToClosestDoor = () => {
         var currentCharacter = this.game.activeCharacter;
         var paths = [];
-        var auxMap = this._addEnemiesToMap(this.game.characters);
+        var auxMap = this.game.activeMap.addEnemiesToMap(this.game.characters);
         _.each(this.game.activeMap.objects.getChildren(), function(object) {
             if (object.objectConfig.id === EnumHelper.idEnum.door.up ||
                 object.objectConfig.id === EnumHelper.idEnum.door.down ||
@@ -173,7 +194,7 @@ export const Enemy = function(game) {
     };
 
     this.interactWithObject = (object) => {
-        var realCoords = this._getObjRealCoords(object);
+        var realCoords = this.game.activeMap.getObjRealCoords(object);
         object.x = realCoords.x;
         object.y = realCoords.y;
         actionManager.interactWithObject(object);
@@ -181,52 +202,54 @@ export const Enemy = function(game) {
 
     this.check = () => {
         if (this.game.activeCharacter.characterConfig.traits.indexOf(EnumHelper.traitEnum.standard) !== -1) {
-            this._doStandardActions();
+            this._doStandardActions(this.game.activeCharacter);
         }
     };
 
     // Private -----------------------------------------------------------------------------------------------------
     this._reduceSpeedX = function(currentCharacter) {
-        if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 100 &&
-            Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) > 30) {
-            currentCharacter.x > currentCharacter.characterConfig.posX
+        var charConfig = currentCharacter.characterConfig;
+        if (Math.abs(currentCharacter.x - charConfig.posX) <= 100 &&
+            Math.abs(currentCharacter.x - charConfig.posX) > 30) {
+            currentCharacter.x > charConfig.posX
                 ? currentCharacter.setVelocityX(-150)
                 : currentCharacter.setVelocityX(150);
-        } else if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 30 &&
-            Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) > 5) {
-            currentCharacter.x > currentCharacter.characterConfig.posX
+        } else if (Math.abs(currentCharacter.x - charConfig.posX) <= 30 &&
+            Math.abs(currentCharacter.x - charConfig.posX) > 5) {
+            currentCharacter.x > charConfig.posX
                 ? currentCharacter.setVelocityX(-90)
                 : currentCharacter.setVelocityX(90);
-        } else if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 5 &&
-            Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) > 1) {
-            currentCharacter.x > currentCharacter.characterConfig.posX
+        } else if (Math.abs(currentCharacter.x - charConfig.posX) <= 5 &&
+            Math.abs(currentCharacter.x - charConfig.posX) > 1) {
+            currentCharacter.x > charConfig.posX
                 ? currentCharacter.setVelocityX(-45)
                 : currentCharacter.setVelocityX(45);
-        } else if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) < 1) {
+        } else if (Math.abs(currentCharacter.x - charConfig.posX) < 1) {
             currentCharacter.setVelocityX(0);
-            currentCharacter.x = currentCharacter.characterConfig.posX;
+            currentCharacter.x = charConfig.posX;
         }
     };
 
     this._reduceSpeedY = function(currentCharacter) {
-        if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) <= 100 &&
-            Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) > 30) {
-            currentCharacter.y > currentCharacter.characterConfig.posY
+        var charConfig = currentCharacter.characterConfig;
+        if (Math.abs(currentCharacter.y - charConfig.posY) <= 100 &&
+            Math.abs(currentCharacter.y - charConfig.posY) > 30) {
+            currentCharacter.y > charConfig.posY
                 ? currentCharacter.setVelocityY(-150)
                 : currentCharacter.setVelocityY(150);
-        } else if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) <= 30 &&
-            Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) > 10) {
-            currentCharacter.y > currentCharacter.characterConfig.posY
+        } else if (Math.abs(currentCharacter.y - charConfig.posY) <= 30 &&
+            Math.abs(currentCharacter.y - charConfig.posY) > 10) {
+            currentCharacter.y > charConfig.posY
                 ? currentCharacter.setVelocityY(-90)
                 : currentCharacter.setVelocityY(90);
-        } else if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) <= 10 &&
-            Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) > 1) {
-            currentCharacter.y > currentCharacter.characterConfig.posY
+        } else if (Math.abs(currentCharacter.y - charConfig.posY) <= 10 &&
+            Math.abs(currentCharacter.y - charConfig.posY) > 1) {
+            currentCharacter.y > charConfig.posY
                 ? currentCharacter.setVelocityY(-45)
                 : currentCharacter.setVelocityY(45);
-        } else if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) < 1) {
+        } else if (Math.abs(currentCharacter.y - charConfig.posY) < 1) {
             currentCharacter.setVelocityY(0);
-            currentCharacter.y = currentCharacter.characterConfig.posY;
+            currentCharacter.y = charConfig.posY;
         }
     };
 
@@ -264,111 +287,84 @@ export const Enemy = function(game) {
         return obstacle;
     };
 
-    this._checkIfObjectInteractionInProgress = (object) => {
-        if (object) {
-            this.interactWithObject(object);
-        }
-    };
-
-    this._getObjRealCoords = (object) => {
-        var objX = object.x;
-        var objY = object.y;
-        if (object.objectConfig.id === EnumHelper.idEnum.door.right || object.objectConfig.id === EnumHelper.idEnum.door.left) {
-            objY = object.objectConfig.isActivated ? object.y + 50 : object.y;
-        } else if (object.objectConfig.id === EnumHelper.idEnum.door.down || object.objectConfig.id === EnumHelper.idEnum.door.up) {
-            objX = object.objectConfig.isActivated ? object.x + 50 : object.x;
-        }
-        return {
-            x: objX,
-            y: objY
-        };
-    };
-
-    this._addEnemiesToMap = (enemies) => {
-        var auxMap = [];
-        auxMap = this.game.activeMap.copyMap(this.game.activeMap.levelMap, auxMap);
-        if (this.game.enemies) {
-            _.each(enemies.characters.getChildren(), function(enemy) {
-                auxMap[enemy.y / 50][enemy.x / 50] = 1;
-            });
-        }
-        return auxMap;
-    };
-
-    this._doStandardActions = () => {
+    this._doStandardActions = (currentCharacter) => {
+        var charConfig = currentCharacter.characterConfig,
+            enemies = this.game.enemies;
         // If enemy has movement left
-        if (this.game.activeCharacter.characterConfig.movement - this.game.activeCharacter.characterConfig.movementSpent > 0) {
-            if (this.game.activeCharacter.characterConfig.isMoving) {
-                this.game.enemies.stopActiveCharacter();
+        if (charConfig.movement.max - charConfig.movement.spent > 0) {
+            if (charConfig.movement.isMoving) {
+                enemies.stopActiveCharacter();
             }
             // If it does not have a path
-            if (this.game.activeCharacter.characterConfig.path.length === 0) {
-                var paths = this.game.enemies.getPathsToEnemies();
+            if (charConfig.path.length === 0) {
+                var paths = enemies.getPathsToEnemies();
                 if (paths.length > 0 && paths[0].path.length > 0) {
                     // Get the path to the closest character
-                    this.game.activeCharacter.characterConfig.path = paths[0].path;
-                    this.game.activeCharacter.characterConfig.posX = this.game.activeCharacter.characterConfig.path[0][0] * 50;
-                    this.game.activeCharacter.characterConfig.posY = this.game.activeCharacter.characterConfig.path[0][1] * 50;
+                    charConfig.path = paths[0].path;
+                    charConfig.posX = charConfig.path[0][0] * 50;
+                    charConfig.posY = charConfig.path[0][1] * 50;
                     // And move
-                    this.game.enemies.moveActiveCharacterToPosition(this.game.activeCharacter.characterConfig.posX, this.game.activeCharacter.characterConfig.posY);
+                    enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
                 } else {
                     // If no path is found to a character it might mean we are stuck in a room
-                    paths = this.game.enemies.getPathsToClosestDoor();
+                    paths = enemies.getPathsToClosestDoor();
                     if (paths.length > 0 && paths[0].path.length > 0) {
-                        this.game.activeCharacter.characterConfig.path = paths[0].path;
-                        this.game.activeCharacter.characterConfig.posX = this.game.activeCharacter.characterConfig.path[0][0] * 50;
-                        this.game.activeCharacter.characterConfig.posY = this.game.activeCharacter.characterConfig.path[0][1] * 50;
-                        this.game.enemies.moveActiveCharacterToPosition(this.game.activeCharacter.characterConfig.posX, this.game.activeCharacter.characterConfig.posY);
+                        charConfig.path = paths[0].path;
+                        charConfig.posX = charConfig.path[0][0] * 50;
+                        charConfig.posY = charConfig.path[0][1] * 50;
+                        enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
                     }
                 }
             } else {
                 // Move on the path
-                var path = this.game.activeCharacter.characterConfig.path;
-                this.game.activeCharacter.characterConfig.posX = this.game.activeCharacter.characterConfig.path[0][0] * 50;
-                this.game.activeCharacter.characterConfig.posY = this.game.activeCharacter.characterConfig.path[0][1] * 50;
-                this.game.enemies.moveActiveCharacterToPosition(path[0][0] * 50, path[0][1] * 50);
+                var path = charConfig.path;
+                charConfig.posX = charConfig.path[0][0] * 50;
+                charConfig.posY = charConfig.path[0][1] * 50;
+                enemies.moveActiveCharacterToPosition(path[0][0] * 50, path[0][1] * 50);
             }
         } else {
             // If no more movement, remove path in case player characters move
-            this.game.activeCharacter.characterConfig.path = [];
-            if (this.game.activeCharacter.characterConfig.isMoving) {
-                this.game.enemies.stopActiveCharacter();
+            charConfig.path = [];
+            if (charConfig.movement.isMoving) {
+                enemies.stopActiveCharacter();
             }
         }
 
-        if (!this.game.activeCharacter.characterConfig.isMoving) {
+        if (!charConfig.movement.isMoving) {
             var didSomething = false;
-            if (this.game.activeCharacter.characterConfig.actions - this.game.activeCharacter.characterConfig.actionsSpent > 0) {
-                var closestEnemy = this.game.enemies.getPathsToEnemies();
+            // If enemy cannot move, try doing an action or minor action
+            if (charConfig.actions.max - charConfig.actions.spent > 0) {
+                var closestEnemy = enemies.getPathsToEnemies();
                 if (closestEnemy.length > 0) {
-                    if (closestEnemy[0].path.length === this.game.activeCharacter.characterConfig.inventory.mainHand.range) {
-                        this.game.enemies.interactWithEnemy(closestEnemy[0].enemy);
+                    if (closestEnemy[0].path.length === charConfig.inventory.mainHand.range) {
+                        enemies.interactWithEnemy(closestEnemy[0].enemy);
                         didSomething = true;
                     }
                 }
             }
 
-            if (this.game.activeCharacter.characterConfig.minorActions - this.game.activeCharacter.characterConfig.minorActionsSpent > 0) {
-                var closestDoor = this.game.enemies.getPathsToClosestDoor();
+            if (charConfig.minorActions.max - charConfig.minorActions.spent > 0) {
+                var closestDoor = enemies.getPathsToClosestDoor();
                 if (closestDoor.length > 0) {
                     if (closestDoor[0].path.length === 1) {
-                        this.game.enemies.interactWithObject(closestDoor[0].object);
+                        enemies.interactWithObject(closestDoor[0].object);
                         didSomething = true;
                     }
                 }
             }
 
+            // If no action has been done it might mean we are out of movement and not near an enemy or object
             if (!didSomething) {
-                this.game.activeCharacter.characterConfig.minorActionsSpent++;
-                this.game.activeCharacter.characterConfig.actionsSpent++;
-                this.game.activeCharacter.characterConfig.movementSpent++;
+                charConfig.minorActions.spent++;
+                charConfig.actions.spent++;
+                charConfig.movement.spent++;
             }
         }
 
-        if (this.game.activeCharacter.characterConfig.movement - this.game.activeCharacter.characterConfig.movementSpent <= 0 &&
-            !this.game.activeCharacter.characterConfig.isMoving && this.game.activeCharacter.characterConfig.path.length <= 0 &&
-            this.game.activeCharacter.characterConfig.actions - this.game.activeCharacter.characterConfig.actionsSpent <= 0 &&
-            this.game.activeCharacter.characterConfig.minorActions - this.game.activeCharacter.characterConfig.minorActionsSpent <= 0) {
+        if (charConfig.movement.max - charConfig.movement.spent <= 0 &&
+            !charConfig.movement.isMoving && charConfig.path.length <= 0 &&
+            charConfig.actions.max - charConfig.actions.spent <= 0 &&
+            charConfig.minorActions.max - charConfig.minorActions.spent <= 0) {
             this.game.events.emit('endEnemyTurn');
         }
     };

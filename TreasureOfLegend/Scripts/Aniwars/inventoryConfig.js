@@ -33,16 +33,5 @@ export const InventoryConfig = {
         image: 'shortsword',
         description: 'Good ol\' shortsword',
         slots: 2
-    },
-    firebolt: {
-        id: 4,
-        damage: 4,
-        range: 6,
-        cost: 2,
-        attribute: EnumHelper.attributeEnum.intelligence,
-        damageType: EnumHelper.damageTypeEnum.fire,
-        image: 'firebolt',
-        description: 'Fire for fools',
-        slots: 0
     }
 };

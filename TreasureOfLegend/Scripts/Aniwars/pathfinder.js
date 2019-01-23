@@ -24,13 +24,14 @@ export const Pathfinder = {
         return finder.findPath(startX, startY, endX, endY, grid);
     },
     getPathFromAToB: (source, destination, levelMap) => {
-        var map = _cloneMap(levelMap);
-        var posX = destination.x;
-        var posY = destination.y;
-        if (destination.objectConfig && destination.objectConfig.isActivated) {
-            if (destination.objectConfig.id === EnumHelper.idEnum.door.right || destination.objectConfig.id === EnumHelper.idEnum.door.left) {
+        var map = _cloneMap(levelMap),
+            posX = destination.x,
+            posY = destination.y,
+            objConfig = destination.objectConfig;
+        if (objConfig && objConfig.isActivated) {
+            if (objConfig.id === EnumHelper.idEnum.door.right || objConfig.id === EnumHelper.idEnum.door.left) {
                 posY = destination.y + 50;
-            } else if (destination.objectConfig.id === EnumHelper.idEnum.door.down || destination.objectConfig.id === EnumHelper.idEnum.door.up) {
+            } else if (objConfig.id === EnumHelper.idEnum.door.down || objConfig.id === EnumHelper.idEnum.door.up) {
                 posX = destination.x + 50;
             }
         }

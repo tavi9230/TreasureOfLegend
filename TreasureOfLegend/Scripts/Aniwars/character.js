@@ -8,24 +8,35 @@ export const Character = function(game) {
     var actionManager = new ActionManager(game);
 
     this.characterConfig = {
-        life: 4,
-        maxLife: 10,
-        mana: 2,
-        manaSpent: 0,
-        movement: 6,
-        movementSpent: 0,
+        path: [],
         armor: 10,
-        velocity: 200,
         posX: 0,
         posY: 0,
-        isMoving: false,
-        path: [],
-        actions: 1,
-        actionsSpent: 0,
-        minorActions: 1,
-        minorActionsSpent: 0,
-        actionInProgress: null,
-        actionId: -1,
+        velocity: 200,
+        life: {
+            max: 10,
+            current: 4
+        },
+        mana: {
+            max: 10,
+            spent: 0
+        },
+        movement: {
+            max: 6,
+            spent: 0,
+            isMoving: false
+        },
+        actions: {
+            max: 1,
+            spent: 0,
+            actionId: -1,
+            selectedAction: null
+        },
+        minorActions: {
+            max: 1,
+            spent: 0,
+            inProgress: null
+        },
         inventory: {
             mainHand: InventoryConfig.punch,
             offHand: '',
@@ -46,7 +57,8 @@ export const Character = function(game) {
             intelligence: 5
         },
         image: '',
-        isPlayerControlled: true
+        isPlayerControlled: true,
+        statuses: []
     };
     this.game = game;
     this.map = this.game.activeMap;
@@ -62,19 +74,20 @@ export const Character = function(game) {
     };
 
     this.moveActiveCharacterToTile = (tile) => {
-        var posX = tile.x;
-        var posY = tile.y;
+        var posX = tile.x,
+            posY = tile.y;
         this._moveActiveCharacter(posX, posY);
     };
 
     this.moveActiveCharacterNearObject = (object, pathX, pathY) => {
-        var posX = object ? object.x : pathX * 50;
-        var posY = object ? object.y : pathY * 50;
+        var posX = object ? object.x : pathX * 50,
+            posY = object ? object.y : pathY * 50;
         this._moveActiveCharacter(posX, posY);
     };
 
     this.stopActiveCharacter = () => {
-        var currentCharacter = this.game.activeCharacter;
+        var currentCharacter = this.game.activeCharacter,
+            charConfig = currentCharacter.characterConfig;
         //reduce speed on X
         this._reduceSpeedX(currentCharacter);
 
@@ -82,29 +95,31 @@ export const Character = function(game) {
         this._reduceSpeedY(currentCharacter);
 
         //show grid if stopped
-        if (currentCharacter.x === currentCharacter.characterConfig.posX &&
-            currentCharacter.y === currentCharacter.characterConfig.posY && !this.game.activeMap.isMovementGridShown) {
-            if (currentCharacter.characterConfig.path.length === 0) {
+        if (currentCharacter.x === charConfig.posX &&
+            currentCharacter.y === charConfig.posY && !this.game.activeMap.isMovementGridShown) {
+            if (charConfig.path.length === 0) {
                 this.game.events.emit('activeCharacterActed', currentCharacter);
                 this.game.activeMap.showMovementGrid(currentCharacter);
-                this._checkIfObjectInteractionInProgress(currentCharacter.characterConfig.actionInProgress);
+                this._checkIfObjectInteractionInProgress(charConfig.minorActions.inProgress);
             }
-            currentCharacter.characterConfig.isMoving = false;
+            charConfig.movement.isMoving = false;
         }
     };
 
     this.keepMovingActiveCharacter = () => {
-        var currentCharacter = this.game.activeCharacter;
-        if (!currentCharacter.characterConfig.isMoving && currentCharacter.characterConfig.path.length > 0) {
+        var currentCharacter = this.game.activeCharacter,
+            charConfig = currentCharacter.characterConfig;
+        if (!charConfig.movement.isMoving && charConfig.path.length > 0) {
             this._moveCharacter(currentCharacter);
         }
     };
 
     this.interactWithObject = (object) => {
-        var character = this.game.activeCharacter;
-        character.characterConfig.actionInProgress = null;
-        if (object.objectConfig.isInteractible && character.characterConfig.minorActions - character.characterConfig.minorActionsSpent > 0) {
-            var obj = this._getObjRealCoords(object);
+        var character = this.game.activeCharacter,
+            charConfig = character.characterConfig;
+        charConfig.minorActions.inProgress = null;
+        if (object.objectConfig.isInteractible && charConfig.minorActions.max - charConfig.minorActions.spent > 0) {
+            var obj = this.game.activeMap.getObjRealCoords(object);
             // If object within reach try the interaction
             if (Math.abs(character.x - obj.x) <= 50 && Math.abs(character.y - obj.y) <= 50 &&
                 (Math.abs(character.x - obj.x) > 0 || Math.abs(character.y - obj.y) > 0)) {
@@ -113,7 +128,7 @@ export const Character = function(game) {
                 actionManager.interactWithObject(object);
                 // Otherwise move near the object and try again
             } else if (Math.abs(character.x - obj.x) !== 0 || Math.abs(character.y - obj.y) !== 0) {
-                character.characterConfig.actionInProgress = object;
+                charConfig.minorActions.inProgress = object;
                 var path = Pathfinder.getPathFromAToB(character, object, this.game.activeMap.levelMap);
                 this.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
             }
@@ -121,36 +136,39 @@ export const Character = function(game) {
     };
 
     this.interactWithEnemy = (enemy) => {
-        var character = this.game.activeCharacter;
-        character.characterConfig.actionInProgress = null;
-        if (character.characterConfig.actions - character.characterConfig.actionsSpent > 0) {
+        var character = this.game.activeCharacter,
+            charConfig = character.characterConfig;
+        charConfig.minorActions.inProgress = null;
+        if (charConfig.actions.max - charConfig.actions.spent > 0) {
             actionManager.interactWithEnemy(enemy);
         }
     };
 
     this.check = () => {
-        if (this.game.activeCharacter.characterConfig.isMoving) {
+        var charConfig = this.game.activeCharacter.characterConfig;
+        if (charConfig.movement.isMoving) {
             this.game.events.emit('activeCharacterPositionModified', this.game.activeCharacter);
             this.game.characters.stopActiveCharacter();
-        } else if (!this.game.activeCharacter.characterConfig.isMoving &&
-            this.game.activeCharacter.characterConfig.path.length > 0) {
+        } else if (!charConfig.movement.isMoving &&
+            charConfig.path.length > 0) {
             this.game.characters.keepMovingActiveCharacter();
         }
     };
 
     this.pickUpItem = (item) => {
-        var character = this.game.activeCharacter;
+        var character = this.game.activeCharacter,
+            charConfig = character.characterConfig;
         if (Math.abs(character.x - item.x) <= 50 && Math.abs(character.y - item.y) <= 50 &&
             (Math.abs(character.x - item.x) >= 0 || Math.abs(character.y - item.y) >= 0)) {
-            if (character.characterConfig.minorActions - character.characterConfig.minorActionsSpent > 0) {
-                if (character.characterConfig.inventory.slots.free >= item.itemConfig.slots) {
-                    character.characterConfig.minorActionsSpent--;
-                    character.characterConfig.inventory.slots.free -= item.itemConfig.slots;
-                    character.characterConfig.inventory.slots.items.push(item.itemConfig);
-                    if (character.characterConfig.inventory.mainHand.id === InventoryConfig.punch.id) {
-                        character.characterConfig.inventory.mainHand = item.itemConfig;
+            if (charConfig.minorActions.max - charConfig.minorActions.spent > 0) {
+                if (charConfig.inventory.slots.free >= item.itemConfig.slots) {
+                    charConfig.minorActions.spent++;
+                    charConfig.inventory.slots.free -= item.itemConfig.slots;
+                    charConfig.inventory.slots.items.push(item.itemConfig);
+                    if (charConfig.inventory.mainHand.id === InventoryConfig.punch.id) {
+                        charConfig.inventory.mainHand = item.itemConfig;
                         if (item.itemConfig.hold === 2) {
-                            character.characterConfig.inventory.offHand = item.itemConfig;
+                            charConfig.inventory.offHand = item.itemConfig;
                         }
                     }
                     item.destroy();
@@ -164,95 +182,99 @@ export const Character = function(game) {
 
     // Private -----------------------------------------------------------------------------------------------------
     this._moveCharacter = function(currentCharacter) {
-        currentCharacter.characterConfig.movementSpent++;
-        currentCharacter.characterConfig.isMoving = true;
-        currentCharacter.characterConfig.posX = currentCharacter.characterConfig.path[0][0] * 50;
-        currentCharacter.characterConfig.posY = currentCharacter.characterConfig.path[0][1] * 50;
-        currentCharacter.characterConfig.path.shift();
-        if (currentCharacter.characterConfig.posX > currentCharacter.x && currentCharacter.characterConfig.posY > currentCharacter.y) {
-            currentCharacter.setVelocity(this.characterConfig.velocity, this.characterConfig.velocity);
-        } else if (currentCharacter.characterConfig.posX < currentCharacter.x && currentCharacter.characterConfig.posY < currentCharacter.y) {
-            currentCharacter.setVelocity(-1 * this.characterConfig.velocity, -1 * this.characterConfig.velocity);
-        } else if (currentCharacter.characterConfig.posX < currentCharacter.x && currentCharacter.characterConfig.posY > currentCharacter.y) {
-            currentCharacter.setVelocity(-1 * this.characterConfig.velocity, this.characterConfig.velocity);
-        } else if (currentCharacter.characterConfig.posX > currentCharacter.x && currentCharacter.characterConfig.posY < currentCharacter.y) {
-            currentCharacter.setVelocity(this.characterConfig.velocity, -1 * this.characterConfig.velocity);
-        } else if (currentCharacter.characterConfig.posX > currentCharacter.x) {
-            currentCharacter.setVelocityX(this.characterConfig.velocity);
-        } else if (currentCharacter.characterConfig.posX < currentCharacter.x) {
-            currentCharacter.setVelocityX(-1 * this.characterConfig.velocity);
-        } else if (currentCharacter.characterConfig.posY > currentCharacter.y) {
-            currentCharacter.setVelocityY(this.characterConfig.velocity);
-        } else if (currentCharacter.characterConfig.posY < currentCharacter.y) {
-            currentCharacter.setVelocityY(-1 * this.characterConfig.velocity);
+        var charConfig = currentCharacter.characterConfig;
+        charConfig.movement.spent++;
+        charConfig.movement.isMoving = true;
+        charConfig.posX = charConfig.path[0][0] * 50;
+        charConfig.posY = charConfig.path[0][1] * 50;
+        charConfig.path.shift();
+        if (charConfig.posX > currentCharacter.x && charConfig.posY > currentCharacter.y) {
+            currentCharacter.setVelocity(charConfig.velocity, charConfig.velocity);
+        } else if (charConfig.posX < currentCharacter.x && charConfig.posY < currentCharacter.y) {
+            currentCharacter.setVelocity(-1 * charConfig.velocity, -1 * charConfig.velocity);
+        } else if (charConfig.posX < currentCharacter.x && charConfig.posY > currentCharacter.y) {
+            currentCharacter.setVelocity(-1 * charConfig.velocity, charConfig.velocity);
+        } else if (charConfig.posX > currentCharacter.x && charConfig.posY < currentCharacter.y) {
+            currentCharacter.setVelocity(charConfig.velocity, -1 * charConfig.velocity);
+        } else if (charConfig.posX > currentCharacter.x) {
+            currentCharacter.setVelocityX(charConfig.velocity);
+        } else if (charConfig.posX < currentCharacter.x) {
+            currentCharacter.setVelocityX(-1 * charConfig.velocity);
+        } else if (charConfig.posY > currentCharacter.y) {
+            currentCharacter.setVelocityY(charConfig.velocity);
+        } else if (charConfig.posY < currentCharacter.y) {
+            currentCharacter.setVelocityY(-1 * charConfig.velocity);
         }
         this.game.events.emit('activeCharacterActed', currentCharacter);
     };
 
     this._reduceSpeedX = function(currentCharacter) {
-        if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 100 &&
-            Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) > 30) {
-            currentCharacter.x > currentCharacter.characterConfig.posX
+        var charConfig = currentCharacter.characterConfig;
+        if (Math.abs(currentCharacter.x - charConfig.posX) <= 100 &&
+            Math.abs(currentCharacter.x - charConfig.posX) > 30) {
+            currentCharacter.x > charConfig.posX
                 ? currentCharacter.setVelocityX(-150)
                 : currentCharacter.setVelocityX(150);
-        } else if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 30 &&
-            Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) > 5) {
-            currentCharacter.x > currentCharacter.characterConfig.posX
+        } else if (Math.abs(currentCharacter.x - charConfig.posX) <= 30 &&
+            Math.abs(currentCharacter.x - charConfig.posX) > 5) {
+            currentCharacter.x > charConfig.posX
                 ? currentCharacter.setVelocityX(-90)
                 : currentCharacter.setVelocityX(90);
-        } else if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) <= 5 &&
-            Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) > 1) {
-            currentCharacter.x > currentCharacter.characterConfig.posX
+        } else if (Math.abs(currentCharacter.x - charConfig.posX) <= 5 &&
+            Math.abs(currentCharacter.x - charConfig.posX) > 1) {
+            currentCharacter.x > charConfig.posX
                 ? currentCharacter.setVelocityX(-45)
                 : currentCharacter.setVelocityX(45);
-        } else if (Math.abs(currentCharacter.x - currentCharacter.characterConfig.posX) < 1) {
+        } else if (Math.abs(currentCharacter.x - charConfig.posX) < 1) {
             currentCharacter.setVelocityX(0);
-            currentCharacter.x = currentCharacter.characterConfig.posX;
+            currentCharacter.x = charConfig.posX;
         }
     };
 
     this._reduceSpeedY = function(currentCharacter) {
-        if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) <= 100 &&
-            Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) > 30) {
-            currentCharacter.y > currentCharacter.characterConfig.posY
+        var charConfig = currentCharacter.characterConfig;
+        if (Math.abs(currentCharacter.y - charConfig.posY) <= 100 &&
+            Math.abs(currentCharacter.y - charConfig.posY) > 30) {
+            currentCharacter.y > charConfig.posY
                 ? currentCharacter.setVelocityY(-150)
                 : currentCharacter.setVelocityY(150);
-        } else if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) <= 30 &&
-            Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) > 10) {
-            currentCharacter.y > currentCharacter.characterConfig.posY
+        } else if (Math.abs(currentCharacter.y - charConfig.posY) <= 30 &&
+            Math.abs(currentCharacter.y - charConfig.posY) > 10) {
+            currentCharacter.y > charConfig.posY
                 ? currentCharacter.setVelocityY(-90)
                 : currentCharacter.setVelocityY(90);
-        } else if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) <= 10 &&
-            Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) > 1) {
-            currentCharacter.y > currentCharacter.characterConfig.posY
+        } else if (Math.abs(currentCharacter.y - charConfig.posY) <= 10 &&
+            Math.abs(currentCharacter.y - charConfig.posY) > 1) {
+            currentCharacter.y > charConfig.posY
                 ? currentCharacter.setVelocityY(-45)
                 : currentCharacter.setVelocityY(45);
-        } else if (Math.abs(currentCharacter.y - currentCharacter.characterConfig.posY) < 1) {
+        } else if (Math.abs(currentCharacter.y - charConfig.posY) < 1) {
             currentCharacter.setVelocityY(0);
-            currentCharacter.y = currentCharacter.characterConfig.posY;
+            currentCharacter.y = charConfig.posY;
         }
     };
 
     this._moveActiveCharacter = (posX, posY) => {
-        var currentCharacter = this.game.activeCharacter;
-        if (!currentCharacter.characterConfig.isMoving &&
+        var currentCharacter = this.game.activeCharacter,
+            charConfig = currentCharacter.characterConfig;
+        if (!charConfig.movement.isMoving &&
             (currentCharacter.x !== posX || currentCharacter.y !== posY)) {
             if (!this._isTileOccupied(posX, posY)) {
-                var auxMap = this._addEnemiesToMap(this.game.enemies);
-                var pathWay = Pathfinder.findWay(currentCharacter.x / 50, currentCharacter.y / 50, posX / 50, posY / 50, auxMap);
-                currentCharacter.characterConfig.path = pathWay || [];
+                var auxMap = this.game.activeMap.addEnemiesToMap(this.game.enemies),
+                    pathWay = Pathfinder.findWay(currentCharacter.x / 50, currentCharacter.y / 50, posX / 50, posY / 50, auxMap);
+                charConfig.path = pathWay || [];
                 if (pathWay.length > 0) {
-                    currentCharacter.characterConfig.path.shift();
+                    charConfig.path.shift();
                     // if there was a click on an object close to the limit of movement, move near object
-                    if (currentCharacter.characterConfig.actionInProgress && currentCharacter.characterConfig.path.length === currentCharacter.characterConfig.movement + 1) {
-                        currentCharacter.characterConfig.path.pop();
+                    if (charConfig.minorActions.inProgress && charConfig.path.length === charConfig.movement.max + 1) {
+                        charConfig.path.pop();
                     }
 
-                    if (currentCharacter.characterConfig.path.length <= currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent) {
+                    if (charConfig.path.length <= charConfig.movement.max - charConfig.movement.spent) {
                         this._moveCharacter(currentCharacter);
                         game.activeMap.hideMovementGrid();
-                    } else if (currentCharacter.characterConfig.path.length > currentCharacter.characterConfig.movement - currentCharacter.characterConfig.movementSpent) {
-                        currentCharacter.characterConfig.path = [];
+                    } else if (charConfig.path.length > charConfig.movement.max - charConfig.movement.spent) {
+                        charConfig.path = [];
                     }
                 }
             }
@@ -296,30 +318,5 @@ export const Character = function(game) {
                 this.interactWithObject(object);
             }
         }
-    };
-
-    this._getObjRealCoords = (object) => {
-        var objX = object.x;
-        var objY = object.y;
-        if (object.objectConfig.id === EnumHelper.idEnum.door.right || object.objectConfig.id === EnumHelper.idEnum.door.left) {
-            objY = object.objectConfig.isActivated ? object.y + 50 : object.y;
-        } else if (object.objectConfig.id === EnumHelper.idEnum.door.down || object.objectConfig.id === EnumHelper.idEnum.door.up) {
-            objX = object.objectConfig.isActivated ? object.x + 50 : object.x;
-        }
-        return {
-            x: objX,
-            y: objY
-        };
-    };
-
-    this._addEnemiesToMap = (enemies) => {
-        var auxMap = [];
-        auxMap = this.game.activeMap.copyMap(this.game.activeMap.levelMap, auxMap);
-        if (this.game.enemies) {
-            _.each(enemies.characters.getChildren(), function(enemy) {
-                auxMap[enemy.y / 50][enemy.x / 50] = 1;
-            });
-        }
-        return auxMap;
     };
 };

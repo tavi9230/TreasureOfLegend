@@ -1,4 +1,5 @@
 ﻿import {SceneManager} from 'Aniwars/sceneManager';
+import {EnumHelper} from 'Aniwars/enumHelper';
 
 export const TestLevelScene = function() {
     return new Phaser.Class({
@@ -29,16 +30,18 @@ export const TestLevelScene = function() {
             this.hudScene = this.scene.get('HUDScene');
             this.hudScene.scene.bringToTop();
             this.hudScene.events.on('endTurn', function() {
-                if (self.activeCharacter.characterConfig.path.length === 0 &&
-                    !self.activeCharacter.characterConfig.isMoving) {
-                    self.activeCharacter.characterConfig.movementSpent = 0;
-                    self.activeCharacter.characterConfig.minorActionsSpent = 0;
-                    self.activeCharacter.characterConfig.actionsSpent = 0;
+                var charConfig = self.activeCharacter.characterConfig;
+                if (charConfig.path.length === 0 &&
+                    !charConfig.movement.isMoving) {
+                    charConfig.movement.spent = 0;
+                    charConfig.minorActions.spent = 0;
+                    charConfig.actions.spent = 0;
                     self.initiativeIndex++;
                     if (self.initiativeIndex >= self.initiative.length) {
                         self.initiativeIndex = 0;
                     }
                     self.activeCharacter = self.initiative[self.initiativeIndex];
+
                     if (self.activeCharacter.characterConfig.isPlayerControlled) {
                         self.events.emit('activeCharacterChanged', self.activeCharacter);
                         self.activeMap.showMovementGrid();
@@ -57,12 +60,17 @@ export const TestLevelScene = function() {
                     self.events.emit('getSpells', self.activeCharacter);
                 }
             });
-            this.hudScene.events.on('spellSelected', function() {
-                self.activeCharacter.characterConfig.actionId = 2;
+            this.hudScene.events.on('spellSelected', function(spell) {
+                var charConfig = self.activeCharacter.characterConfig;
+                charConfig.actions.actionId = EnumHelper.actionEnum.attackSpell;
+                charConfig.actions.selectedAction = spell;
+                if (charConfig.isPlayerControlled) {
+                    self.events.emit('activeCharacterActed', self.activeCharacter);
+                }
             });
         },
         _moveCamera() {
-            // TODO: Stop following active character and follow back when you don't want to scroll anymore
+            // TODO: Stop following active character and follow back when you don't want to scroll anymore?
             //this.cameras.main.stopFollow();
             if (this.cursors.left.isDown) {
                 this.cameras.main.scrollX -= 10;
