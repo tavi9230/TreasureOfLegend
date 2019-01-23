@@ -22,5 +22,9 @@
     },
     traitEnum: {
         standard: 0
+    },
+    actionEnum: {
+        attackMainHand: 1,
+        attackSpell: 2
     }
 };

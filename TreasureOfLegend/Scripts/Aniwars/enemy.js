@@ -30,7 +30,8 @@ export const Enemy = function(game) {
             head: '',
             body: '',
             feet: '',
-            hands: ''
+            hands: '',
+            freeSlots: 2
         },
         attributes: {
             strength: 5,
@@ -340,7 +341,7 @@ export const Enemy = function(game) {
             if (this.game.activeCharacter.characterConfig.actions - this.game.activeCharacter.characterConfig.actionsSpent > 0) {
                 var closestEnemy = this.game.enemies.getPathsToEnemies();
                 if (closestEnemy.length > 0) {
-                    if (closestEnemy[0].path.length === 1) {
+                    if (closestEnemy[0].path.length === this.game.activeCharacter.characterConfig.inventory.mainHand.range) {
                         this.game.enemies.interactWithEnemy(closestEnemy[0].enemy);
                         didSomething = true;
                     }

@@ -14,12 +14,19 @@
         game.load.image('doorLeft', AssetFolder + 'doorLeft.png');
         game.load.image('doorRight', AssetFolder + 'doorRight.png');
         game.load.image('character', AssetFolder + 'character.png');
+
+        game.load.image('arrow', AssetFolder + 'items/arrow.png');
+        game.load.image('punch', AssetFolder + 'items/punch.png');
+        game.load.image('shortsword', AssetFolder + 'items/shortsword.png');
+        game.load.image('firebolt', AssetFolder + 'items/firebolt.png');
+        game.load.image('bow', AssetFolder + 'items/bow.png');
     };
 
     this.loadHUDImages = function() {
         game.load.image('hudbackground', AssetFolder + 'hudbackground.png');
         game.load.image('hourglass', AssetFolder + 'hourglass.png');
         game.load.image('openMenuButton', AssetFolder + 'openMenuButton.png');
+        game.load.image('spells', AssetFolder + 'spells.png');
     };
 
     this.loadMainMenuImages = function() {

@@ -1,6 +1,7 @@
 ﻿import {BattleMap} from 'Aniwars/map';
 import {Character} from 'Aniwars/character';
 import {Enemy} from 'Aniwars/enemy';
+import {InventoryConfig} from 'Aniwars/inventoryConfig';
 
 export const SceneManager = function (game) {
     this.game = game;
@@ -71,6 +72,29 @@ export const SceneManager = function (game) {
         });
     };
 
+    this.createItems = () => {
+        var self = this;
+
+        this.game.items = this.game.add.group();
+        var item = this.game.physics.add.sprite(550, 350, 'bow').setOrigin(0, 0);
+        item.displayHeight = 50;
+        item.displayWidth = 50;
+        item.itemConfig = InventoryConfig.bow;
+        this.game.items.add(item);
+        item = this.game.physics.add.sprite(650, 350, 'shortsword').setOrigin(0, 0);
+        item.displayHeight = 50;
+        item.displayWidth = 50;
+        item.itemConfig = InventoryConfig.shortsword;
+        this.game.items.add(item);
+
+        this.game.input.setHitArea(this.game.items.getChildren());
+        _.each(this.game.items.getChildren(), function(item) {
+            //mouse input on clicking game objects
+            item.on('pointerdown', _.bind(self._pickUpItem, self, item));
+            item.on('pointerover', _.bind(self._hoverItem, self, item));
+        });
+    };
+
     // PRIVATE
     // INTERACTION -------------------------------------------------------------------------------------
     this._moveCharacterOnClick = (tile) => {
@@ -95,5 +119,11 @@ export const SceneManager = function (game) {
     };
     this._hoverEnemy = (enemy) => {
         this.game.activeMap.highlightPathToEnemy(enemy);
+    };
+    this._hoverItem = (item) => {
+        this.game.activeMap.highlightPathToItem(item);
+    };
+    this._pickUpItem = (item) => {
+        this.game.characters.pickUpItem(item);
     };
 };

@@ -2,14 +2,16 @@
 import {EnumHelper} from 'Aniwars/enumHelper';
 import {ActionManager} from 'Aniwars/actionManager';
 import {InventoryConfig} from 'Aniwars/inventoryConfig';
+import {SpellsConfig} from 'Aniwars/spellsConfig';
 
 export const Character = function(game) {
     var actionManager = new ActionManager(game);
 
     this.characterConfig = {
-        life: 2,
+        life: 4,
         maxLife: 10,
-        mana: 0,
+        mana: 2,
+        manaSpent: 0,
         movement: 6,
         movementSpent: 0,
         armor: 10,
@@ -30,7 +32,13 @@ export const Character = function(game) {
             head: '',
             body: '',
             feet: '',
-            hands: ''
+            hands: '',
+            slots: {
+                free: 2,
+                max: 2,
+                items: []
+            },
+            spells: [SpellsConfig.firebolt]
         },
         attributes: {
             strength: 5,
@@ -116,16 +124,7 @@ export const Character = function(game) {
         var character = this.game.activeCharacter;
         character.characterConfig.actionInProgress = null;
         if (character.characterConfig.actions - character.characterConfig.actionsSpent > 0) {
-            // If object within reach try the interaction
-            if (Math.abs(character.x - enemy.x) <= 50 &&
-                Math.abs(character.y - enemy.y) <= 50 &&
-                (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)) {
-                actionManager.interactWithEnemy(enemy);
-                // Otherwise move near the object and try again
-            } else if (Math.abs(character.x - enemy.x) !== 0 || Math.abs(character.y - enemy.y) !== 0) {
-                var path = Pathfinder.getPathFromAToB(character, enemy, this.game.activeMap.levelMap);
-                this.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
-            }
+            actionManager.interactWithEnemy(enemy);
         }
     };
 
@@ -137,6 +136,30 @@ export const Character = function(game) {
             this.game.activeCharacter.characterConfig.path.length > 0) {
             this.game.characters.keepMovingActiveCharacter();
         }
+    };
+
+    this.pickUpItem = (item) => {
+        var character = this.game.activeCharacter;
+        if (Math.abs(character.x - item.x) <= 50 && Math.abs(character.y - item.y) <= 50 &&
+            (Math.abs(character.x - item.x) >= 0 || Math.abs(character.y - item.y) >= 0)) {
+            if (character.characterConfig.minorActions - character.characterConfig.minorActionsSpent > 0) {
+                if (character.characterConfig.inventory.slots.free >= item.itemConfig.slots) {
+                    character.characterConfig.minorActionsSpent--;
+                    character.characterConfig.inventory.slots.free -= item.itemConfig.slots;
+                    character.characterConfig.inventory.slots.items.push(item.itemConfig);
+                    if (character.characterConfig.inventory.mainHand.id === InventoryConfig.punch.id) {
+                        character.characterConfig.inventory.mainHand = item.itemConfig;
+                        if (item.itemConfig.hold === 2) {
+                            character.characterConfig.inventory.offHand = item.itemConfig;
+                        }
+                    }
+                    item.destroy();
+                    this.game.items.remove(item);
+                }
+                this.game.events.emit('activeCharacterActed', character);
+            }
+        }
+        this.moveActiveCharacterToTile(item);
     };
 
     // Private -----------------------------------------------------------------------------------------------------
@@ -269,7 +292,9 @@ export const Character = function(game) {
 
     this._checkIfObjectInteractionInProgress = (object) => {
         if (object) {
-            this.interactWithObject(object);
+            if (object.objectConfig) {
+                this.interactWithObject(object);
+            }
         }
     };
 

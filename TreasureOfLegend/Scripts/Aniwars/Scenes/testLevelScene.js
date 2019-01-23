@@ -10,9 +10,11 @@ export const TestLevelScene = function() {
         create() {
             this.sceneManager = new SceneManager(this);
             this.sceneManager.createMap();
+            this.sceneManager.createItems();
             this.sceneManager.createCharacters();
             this.sceneManager.createEnemies();
             this.sceneManager.createCamera();
+
             this._activateHUDScene();
             this.cursors = this.input.keyboard.createCursorKeys();
             this.initiative = this.sceneManager.getInitiativeArray();
@@ -32,13 +34,13 @@ export const TestLevelScene = function() {
                     self.activeCharacter.characterConfig.movementSpent = 0;
                     self.activeCharacter.characterConfig.minorActionsSpent = 0;
                     self.activeCharacter.characterConfig.actionsSpent = 0;
-                    self.events.emit('activeCharacterChanged', self.activeCharacter);
                     self.initiativeIndex++;
                     if (self.initiativeIndex >= self.initiative.length) {
                         self.initiativeIndex = 0;
                     }
                     self.activeCharacter = self.initiative[self.initiativeIndex];
                     if (self.activeCharacter.characterConfig.isPlayerControlled) {
+                        self.events.emit('activeCharacterChanged', self.activeCharacter);
                         self.activeMap.showMovementGrid();
                         self.cameras.main.startFollow(self.activeCharacter, true, 0.09, 0.09);
                     } else {
@@ -49,6 +51,14 @@ export const TestLevelScene = function() {
             this.hudScene.events.on('getCharacterStartData', function() {
                 self.events.emit('activeCharacterChanged', self.activeCharacter);
                 self.events.emit('showCharacterInitiative', self.initiative);
+            });
+            this.hudScene.events.on('getActiveCharacterSpells', function() {
+                if (self.activeCharacter.characterConfig.isPlayerControlled) {
+                    self.events.emit('getSpells', self.activeCharacter);
+                }
+            });
+            this.hudScene.events.on('spellSelected', function() {
+                self.activeCharacter.characterConfig.actionId = 2;
             });
         },
         _moveCamera() {

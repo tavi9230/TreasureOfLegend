@@ -1,4 +1,5 @@
 ﻿import {AssetLoader} from 'Aniwars/assetLoader';
+import {EnumHelper} from 'Aniwars/enumHelper';
 
 export const HUDScene = function(sceneName) {
     return new Phaser.Class({
@@ -17,6 +18,7 @@ export const HUDScene = function(sceneName) {
 
         create() {
             //create player hud
+            var self = this;
             this.turn = 1;
             this.hudbuttons = this.add.group();
             this.hudbackground = this.add.image(0, 700, 'hudbackground').setOrigin(0, 0);
@@ -29,6 +31,14 @@ export const HUDScene = function(sceneName) {
             openMenuButton.displayWidth = 50;
             openMenuButton.on('pointerdown', _.bind(this._openMainMenu, this));
             this.hudbuttons.add(openMenuButton);
+
+            var spellsButton = this.add.image(900, 710, 'spells').setOrigin(0, 0);
+            spellsButton.displayHeight = 50;
+            spellsButton.displayWidth = 50;
+            spellsButton.on('pointerdown', function() {
+                self.events.emit('getActiveCharacterSpells');
+            });
+            this.hudbuttons.add(spellsButton);
 
             this.input.setHitArea(this.hudbuttons.getChildren());
 
@@ -49,14 +59,27 @@ export const HUDScene = function(sceneName) {
             var self = this;
             this.activeScene = this.scene.get(this.sceneName);
 
-            this.activeScene.events.on('activeCharacterChanged', _.bind(this._setTexts, this));
-            this.activeScene.events.on('activeCharacterActed', _.bind(this._setTexts, this));
-            this.activeScene.events.on('activeCharacterPositionModified', _.bind(this._setTexts, this));
+            this.activeScene.events.on('activeCharacterChanged', _.bind(this._displayInfo, this));
+            this.activeScene.events.on('activeCharacterActed', _.bind(this._displayInfo, this));
+            this.activeScene.events.on('activeCharacterPositionModified', _.bind(this._displayInfo, this));
             this.activeScene.events.on('showObjectDescription', function(object) {
                 self.descriptionsText.setText(object.objectConfig.description);
             });
             this.activeScene.events.on('showCharacterInitiative', _.bind(this._showCharacterInitiative, this));
             this.activeScene.events.on('endEnemyTurn', _.bind(this._endTurn, this));
+            this.activeScene.events.on('getSpells', _.bind(this._openSpellBook, this));
+        },
+        _displayInfo: function(activeCharacter) {
+            this._setTexts(activeCharacter);
+            var image = activeCharacter.characterConfig.actionId === EnumHelper.actionEnum.attackSpell
+                ? activeCharacter.characterConfig.inventory.spells[0].image
+                : activeCharacter.characterConfig.inventory.mainHand.image;
+            if (this.mainAttack) {
+                this.mainAttack.destroy();
+            }
+            this.mainAttack = this.add.image(610, 745, image).setOrigin(0, 0);
+            this.mainAttack.displayWidth = 50;
+            this.mainAttack.displayHeight = 50;
         },
         _setTexts: function(activeCharacter) {
             this._setPositionText(activeCharacter);
@@ -68,16 +91,13 @@ export const HUDScene = function(sceneName) {
             this._setMinorActionsText(activeCharacter);
         },
         _setPositionText: function(activeCharacter) {
-            this.locationText.setText('X:' +
-                Math.floor(activeCharacter.x / 50) +
-                ', Y:' +
-                Math.floor(activeCharacter.y / 50));
+            this.locationText.setText('X:' + Math.floor(activeCharacter.x / 50) + ', Y:' + Math.floor(activeCharacter.y / 50));
         },
         _setHpText: function(activeCharacter) {
             this.hpText.setText('HP: ' + activeCharacter.characterConfig.life);
         },
         _setManaText: function(activeCharacter) {
-            this.manaText.setText('Mana: ' + activeCharacter.characterConfig.mana);
+            this.manaText.setText('Mana: ' + (activeCharacter.characterConfig.mana - activeCharacter.characterConfig.manaSpent));
         },
         _setMovementText: function(activeCharacter) {
             this.movementText.setText('Movement: ' +
@@ -117,7 +137,9 @@ export const HUDScene = function(sceneName) {
             }
             _.each(characters, function(character) {
                 var box = self.add.graphics();
-                box.fillStyle(0x222222, 0.8);
+                character.characterConfig.isPlayerControlled
+                    ? box.fillStyle(0x38b82c, 0.8)
+                    : box.fillStyle(0x3c60d6, 0.8);
                 box.fillRect(x - 10, y - 10, 70, 70);
 
                 var maxLife = character.characterConfig.maxLife;
@@ -136,6 +158,52 @@ export const HUDScene = function(sceneName) {
                 self.initiativeTracker.add(lifeBar);
                 self.initiativeTracker.add(lifeText);
                 self.initiativeTracker.add(characterImage);
+            });
+
+            this.input.setHitArea(this.initiativeTracker.getChildren());
+            _.each(this.initiativeTracker.getChildren(), function(character) {
+                // TODO: send the character as a parameter to the _showCharacterInfo method instead of children of initiativeTracker
+                character.on('pointerdown', _.bind(self._showCharacterInfo, self, character));
+            });
+        },
+        _showCharacterInfo: function (character) {
+            // TODO: Show character inventory if player controlled otherwise show enemy info
+            return character.characterConfig.inventory;
+        },
+        _openSpellBook: function (character) {
+            var self = this;
+            if (!this.spellBook) {
+                this.spellBook = this.add.group();
+            } else {
+                this.spellBook.destroy(true);
+                this.spellBook = this.add.group();
+            }
+            var panel = self.add.graphics();
+            panel.fillStyle(0x111111, 0.8);
+            panel.fillRect(900, 0, 300, 700);
+            var x = 920;
+            var y = 10;
+            _.each(character.characterConfig.inventory.spells, function(spell) {
+                var box = self.add.graphics();
+                box.fillStyle(0xded7c7, 0.8);
+                box.fillRect(x - 10, y, 70, 70);
+                var spellImage = self.add.image(x, y + 10, spell.image).setOrigin(0, 0);
+                spellImage.displayWidth = 50;
+                spellImage.displayHeight = 50;
+
+                self.spellBook.add(box);
+                self.spellBook.add(spellImage);
+                x += 80;
+            });
+            this.input.setHitArea(this.spellBook.getChildren());
+            _.each(this.spellBook.getChildren(), function(spell) {
+                //mouse input on clicking game objects
+                spell.on('pointerdown', function() {
+                    self.events.emit('spellSelected', spell);
+                    self.spellBook.destroy(true);
+                    panel.destroy();
+                    self._displayInfo(character);
+                });
             });
         }
     });

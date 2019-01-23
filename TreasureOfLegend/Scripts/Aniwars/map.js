@@ -85,7 +85,11 @@ export const BattleMap = function (game) {
     };
 
     this.highlightPathToEnemy = (enemy) => {
-        this._highlightPath(null, null, enemy);
+        this._highlightPath(null, enemy);
+    };
+
+    this.highlightPathToItem = (item) => {
+        this._highlightPath(null, item);
     };
 
     this.hideMovementGrid = () => {
@@ -154,12 +158,12 @@ export const BattleMap = function (game) {
         return pathWay;
     };
 
-    this._highlightPath = (tile, object, enemy) => {
+    this._highlightPath = (tile, object) => {
         var currentCharacter = game.activeCharacter;
         if (currentCharacter.characterConfig.isPlayerControlled) {
             var obj = {
                 isTile: tile ? true : false,
-                value: tile ? tile : object ? object : enemy
+                value: tile ? tile : object
             };
             var self = this;
             // If character is not moving
