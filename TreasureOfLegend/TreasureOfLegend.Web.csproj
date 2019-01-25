@@ -243,7 +243,6 @@
     <Content Include="Assets\Aniwars\doorRight.png" />
     <Content Include="Assets\Aniwars\doorUp.png" />
     <Content Include="Assets\Aniwars\hourglass.png" />
-    <Content Include="Assets\Aniwars\hudbackground.png" />
     <Content Include="Assets\Aniwars\items\arrow.png" />
     <Content Include="Assets\Aniwars\items\bow.png" />
     <Content Include="Assets\Aniwars\items\firebolt.png" />
