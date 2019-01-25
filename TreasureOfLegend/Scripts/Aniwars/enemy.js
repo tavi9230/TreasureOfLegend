@@ -38,8 +38,8 @@ export const Enemy = function(game) {
             inProgress: null
         },
         inventory: {
-            mainHand: InventoryConfig.punch,
-            offHand: '',
+            mainHand: lodash.cloneDeep(InventoryConfig.punch),
+                offHand: lodash.cloneDeep(InventoryConfig.punch),
             head: '',
             body: '',
             feet: '',

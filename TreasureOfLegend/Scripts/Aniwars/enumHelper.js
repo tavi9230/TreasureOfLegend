@@ -26,5 +26,14 @@
     actionEnum: {
         attackMainHand: 1,
         attackSpell: 2
+    },
+    inventoryEnum: {
+        defaultEquipment: 0,
+        mainHand: 1,
+        offHand: 2,
+        head: 3,
+        body: 4,
+        feet: 5,
+        hands: 6
     }
 };

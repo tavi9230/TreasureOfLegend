@@ -1,4 +1,5 @@
 ﻿import {AssetLoader} from 'Aniwars/assetLoader';
+import {EnumHelper} from 'Aniwars/enumHelper';
 
 export const HUDScene = function(sceneName) {
     return new Phaser.Class({
@@ -230,17 +231,17 @@ export const HUDScene = function(sceneName) {
                 panel.fillRect(0, 290, 400, 400);
                 this.characterInfo.add(panel);
                 // Equiped Inventory -----------------------------------------------------------------------------------------------------
-                this._createEquipedInventorySlot(75, 300, 50, 50, charConfig.inventory.head);
-                this._createEquipedInventorySlot(75, 355, 50, 50, charConfig.inventory.body);
-                this._createEquipedInventorySlot(20, 355, 50, 50, charConfig.inventory.mainHand);
-                this._createEquipedInventorySlot(130, 355, 50, 50, charConfig.inventory.offHand);
-                this._createEquipedInventorySlot(20, 410, 50, 50, charConfig.inventory.hands);
-                this._createEquipedInventorySlot(75, 410, 50, 50, charConfig.inventory.feet);
+                this._createInventorySlot(75, 300, 50, 50, character, charConfig.inventory.head);
+                this._createInventorySlot(75, 355, 50, 50, character, charConfig.inventory.body);
+                this._createInventorySlot(20, 355, 50, 50, character, charConfig.inventory.mainHand);
+                this._createInventorySlot(130, 355, 50, 50, character, charConfig.inventory.offHand);
+                this._createInventorySlot(20, 410, 50, 50, character, charConfig.inventory.hands);
+                this._createInventorySlot(75, 410, 50, 50, character, charConfig.inventory.feet);
                 // Unequiped inventory ---------------------------------------------------------------------------------------------------
                 var y = 490;
                 var x = 0;
                 for (let i = 0; i < charConfig.inventory.slots.max; i++) {
-                    this._createEquipedInventorySlot(x, y, 50, 50, charConfig.inventory.slots.items[i]);
+                    this._createInventorySlot(x, y, 50, 50, character, charConfig.inventory.slots.items[i]);
                     x += 50;
                     if (x >= 400) {
                         x = 0;
@@ -301,9 +302,10 @@ export const HUDScene = function(sceneName) {
                 });
             });
         },
-        _createEquipedInventorySlot: function(x, y, w, h, item) {
-            var image = null;
-            var box = this.add.graphics();
+        _createInventorySlot: function(x, y, w, h, character, item) {
+            var image = null,
+                box = this.add.graphics(),
+                self = this;
             box.fillStyle(0x444444, 0.8);
             box.fillRect(x, y, w, h);
             if (item) {
@@ -314,6 +316,12 @@ export const HUDScene = function(sceneName) {
             this.characterInfo.add(box);
             if (image) {
                 this.characterInfo.add(image);
+            }
+            var dropButtonGroup = this._createDropButton(x + 40, y, character, item);
+            if (dropButtonGroup) {
+                _.each(dropButtonGroup.getChildren(), function(item) {
+                    self.characterInfo.add(item);
+                });
             }
         },
         _createCloseButton: function(x, y, groupToDestroy) {
@@ -338,6 +346,28 @@ export const HUDScene = function(sceneName) {
                 });
             });
             return closeButtonGroup;
+        },
+        _createDropButton: function(x, y, character, itemToDrop) {
+            if (itemToDrop && itemToDrop.type !== EnumHelper.inventoryEnum.defaultEquipment
+                && character.x === this.activeScene.activeCharacter.x && character.y === this.activeScene.activeCharacter.y) {
+                var self = this,
+                    dropButtonGroup = this.add.group();
+
+                var dropButton = this.add.graphics();
+                dropButton.fillStyle(0x990000, 0.8);
+                dropButton.fillRect(x + 1, y, 10, 10);
+                dropButtonGroup.add(dropButton);
+
+                var dropText = this.add.text(x + 2, y, 'X', { fill: '#FFF', fontSize: '10px' });
+                dropButtonGroup.add(dropText);
+                this.input.setHitArea(dropButtonGroup.getChildren());
+                _.each(dropButtonGroup.getChildren(), function(item) {
+                    item.on('pointerdown', function() {
+                        self.events.emit('dropItem', itemToDrop);
+                    });
+                });
+                return dropButtonGroup;
+            }
         }
     });
 };

@@ -2,7 +2,7 @@
 
 export const InventoryConfig = {
     punch: {
-        id: 1,
+        type: EnumHelper.inventoryEnum.defaultEquipment,
         damage: 2,
         range: 1,
         attribute: EnumHelper.attributeEnum.strength,
@@ -13,7 +13,7 @@ export const InventoryConfig = {
         slots: 0
     },
     bow: {
-        id: 2,
+        type: EnumHelper.inventoryEnum.mainHand,
         damage: 4,
         range: 6,
         attribute: EnumHelper.attributeEnum.dexterity,
@@ -24,7 +24,7 @@ export const InventoryConfig = {
         slots: 2
     },
     shortsword: {
-        id: 3,
+        type: EnumHelper.inventoryEnum.mainHand,
         damage: 4,
         range: 1,
         attribute: EnumHelper.attributeEnum.strength,

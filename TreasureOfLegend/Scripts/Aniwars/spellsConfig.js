@@ -2,7 +2,6 @@
 
 export const SpellsConfig = {
     firebolt: {
-        id: 1,
         damage: 4,
         range: 6,
         cost: 2,

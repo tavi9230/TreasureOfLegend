@@ -75,6 +75,9 @@ export const TestLevelScene = function() {
             this.hudScene.events.on('dehighlightCharacter', function(character) {
                 self.activeMap.dehighlightCharacter(character);
             });
+            this.hudScene.events.on('dropItem', function(itemToDrop) {
+                self.characters.dropItem(itemToDrop);
+            });
         },
         _moveCamera() {
             // TODO: Stop following active character and follow back when you don't want to scroll anymore?

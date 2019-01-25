@@ -27,19 +27,19 @@ export const Character = function(game) {
             isMoving: false
         },
         actions: {
-            max: 1,
+            max: 2,
             spent: 0,
             actionId: -1,
             selectedAction: null
         },
         minorActions: {
-            max: 1,
+            max: 2,
             spent: 0,
             inProgress: null
         },
         inventory: {
-            mainHand: InventoryConfig.punch,
-            offHand: '',
+            mainHand: lodash.cloneDeep(InventoryConfig.punch),
+            offHand: lodash.cloneDeep(InventoryConfig.punch),
             head: '',
             body: '',
             feet: '',
@@ -163,22 +163,70 @@ export const Character = function(game) {
             if (charConfig.minorActions.max - charConfig.minorActions.spent > 0) {
                 if (charConfig.inventory.slots.free >= item.itemConfig.slots) {
                     charConfig.minorActions.spent++;
-                    if (charConfig.inventory.mainHand.id === InventoryConfig.punch.id) {
+                    if (charConfig.inventory.mainHand.type === InventoryConfig.punch.type) {
                         charConfig.inventory.mainHand = item.itemConfig;
+                        item.itemConfig.isEquiped = true;
                         if (item.itemConfig.hold === 2) {
                             charConfig.inventory.offHand = item.itemConfig;
                         }
                     } else {
                         charConfig.inventory.slots.items.push(item.itemConfig);
                         charConfig.inventory.slots.free--;
+                        item.itemConfig.isEquiped = false;
                     }
                     item.destroy();
                     this.game.items.remove(item);
                 }
                 this.game.events.emit('activeCharacterActed', character, this.game.characters);
             }
+        } else {
+            this.moveActiveCharacterToTile(item);
         }
-        this.moveActiveCharacterToTile(item);
+    };
+
+    this.dropItem = (itemToDrop) => {
+        var character = this.game.activeCharacter,
+            charConfig = character.characterConfig,
+            self = this;
+        if (charConfig.minorActions.max - charConfig.minorActions.spent > 0) {
+            if (itemToDrop.isEquiped) {
+                if (itemToDrop.type === EnumHelper.inventoryEnum.mainHand) {
+                    if (itemToDrop.hold === 2) {
+                        charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.punch);
+                    }
+                    charConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.punch);
+                } else if (itemToDrop.type === EnumHelper.inventoryEnum.offHand) {
+                    if (itemToDrop.hold === 2) {
+                        charConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.punch);
+                    }
+                    charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.punch);
+                }
+                if (itemToDrop.type === EnumHelper.inventoryEnum.body) {
+                    charConfig.inventory.body = '';
+                } else if (itemToDrop.type === EnumHelper.inventoryEnum.head) {
+                    charConfig.inventory.head = '';
+                } else if (itemToDrop.type === EnumHelper.inventoryEnum.hands) {
+                    charConfig.inventory.hands = '';
+                } else if (itemToDrop.type === EnumHelper.inventoryEnum.feet) {
+                    charConfig.inventory.feet = '';
+                }
+            } else {
+                var index = charConfig.inventory.slots.items.indexOf(itemToDrop);
+                charConfig.inventory.slots.items.splice(index, 1);
+            }
+            var item = this.game.physics.add.sprite(character.x, character.y, itemToDrop.image).setOrigin(0, 0);
+            item.displayHeight = 50;
+            item.displayWidth = 50;
+            item.itemConfig = itemToDrop;
+            this.game.items.add(item);
+            charConfig.inventory.slots.free++;
+            charConfig.minorActions.spent++;
+            character.setDepth(1);
+            this.game.events.emit('activeCharacterActed', character, this.game.characters);
+            this.game.input.setHitArea([item]);
+            item.on('pointerdown', _.bind(self.game.characters.pickUpItem, self, item));
+            item.on('pointerover', _.bind(self.game.activeMap.highlightPathToItem, self, item));
+        }
     };
 
     // Private -----------------------------------------------------------------------------------------------------

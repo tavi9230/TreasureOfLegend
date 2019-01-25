@@ -82,12 +82,12 @@ export const SceneManager = function (game) {
         var item = this.game.physics.add.sprite(550, 350, 'bow').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
-        item.itemConfig = InventoryConfig.bow;
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.bow);
         this.game.items.add(item);
         item = this.game.physics.add.sprite(650, 350, 'shortsword').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
-        item.itemConfig = InventoryConfig.shortsword;
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.shortsword);
         this.game.items.add(item);
 
         this.game.input.setHitArea(this.game.items.getChildren());
