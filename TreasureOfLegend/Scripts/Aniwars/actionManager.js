@@ -158,7 +158,6 @@ export const ActionManager = function (game) {
             } else {
                 this.game.enemies.characters.remove(enemy);
             }
-            this.game.initiativeIndex--;
             this.game.initiative = this.game.sceneManager.getInitiativeArray();
         }
         this.game.events.emit('showCharacterInitiative', this.game.initiative);

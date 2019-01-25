@@ -205,8 +205,18 @@ export const HUDScene = function(sceneName) {
                 characterImage.displayHeight = 75;
                 x += 80;
                 characterImage.objectToSend = character;
+                box.objectToSend = character;
                 self.initiativeTracker.add(box);
                 self.initiativeTracker.add(characterImage);
+            });
+            this.input.setHitArea(this.initiativeTracker.getChildren());
+            _.each(this.initiativeTracker.getChildren(), function(item) {
+                item.on('pointerover', function() {
+                    self.events.emit('highlightCharacter', item.objectToSend);
+                });
+                item.on('pointerout', function() {
+                    self.events.emit('dehighlightCharacter', item.objectToSend);
+                });
             });
         },
         _showCharacterInfo: function (character) {
