@@ -23,7 +23,6 @@
     };
 
     this.loadHUDImages = function() {
-        game.load.image('hudbackground', AssetFolder + 'hudbackground.png');
         game.load.image('hourglass', AssetFolder + 'hourglass.png');
         game.load.image('openMenuButton', AssetFolder + 'openMenuButton.png');
         game.load.image('spells', AssetFolder + 'spells.png');

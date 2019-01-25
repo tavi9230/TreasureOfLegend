@@ -26,6 +26,7 @@
     "karma-html-reporter": "^0.2.7",
     "karma-jasmine": "^1.1.1",
     "karma-webpack": "^2.0.9",
+    "lodash": "^4.17.11",
     "mobile-detect": "^1.4.1",
     "node-sass": "^4.7.2",
     "path": "^0.12.7",

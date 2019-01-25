@@ -6,6 +6,9 @@ import { WindowEvents } from 'Shared/windowEvents';
 import { Phaser } from 'phaser';
 /* eslint-enable */
 
+const lodash = require('lodash');
+
+window.lodash = lodash;
 window.WindowEvents = WindowEvents;
 window.Emitter = new Vue();
 Emitter.isLoggedIn = false;

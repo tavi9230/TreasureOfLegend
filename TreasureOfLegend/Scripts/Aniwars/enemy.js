@@ -67,7 +67,7 @@ export const Enemy = function(game) {
 
     this.addNewCharacter = (x, y, spriteName) => {
         var character = this.game.physics.add.sprite(x, y, spriteName).setOrigin(0, 0);
-        character.characterConfig = Object.assign({}, this.characterConfig);
+        character.characterConfig = lodash.cloneDeep(this.characterConfig);
         character.characterConfig.posX = x;
         character.characterConfig.posY = y;
         character.characterConfig.image = spriteName;
@@ -79,8 +79,7 @@ export const Enemy = function(game) {
             charConfig = currentCharacter.characterConfig;
         if (!charConfig.movement.isMoving && (currentCharacter.x !== x || currentCharacter.y !== y)) {
             // Move if tile is unoccupied
-            var obstacle = this._isTileOccupied(x, y);
-            if (!obstacle.isObstacleInTheWay) {
+            if (!this._isTileOccupied(x, y)) {
                 charConfig.movement.spent++;
                 charConfig.movement.isMoving = true;
                 if (x > currentCharacter.x && y > currentCharacter.y) {
@@ -254,14 +253,15 @@ export const Enemy = function(game) {
     };
 
     this._isTileOccupied = (posX, posY) => {
-        var obstacle = {
-            isObstacleInTheWay: false
-        };
+        var isObstacleInTheWay = false;
         _.each(this.game.characters.characters.getChildren(), function(character) {
             if (character.x === posX && character.y === posY) {
-                obstacle.isObstacleInTheWay = true;
-                obstacle.object = character;
-                //return;
+                isObstacleInTheWay = true;
+            }
+        });
+        _.each(this.game.enemies.characters.getChildren(), function(enemy) {
+            if (enemy.x === posX && enemy.y === posY) {
+                isObstacleInTheWay = true;
             }
         });
         _.each(this.game.activeMap.objects.getChildren(), function(object) {
@@ -272,19 +272,17 @@ export const Enemy = function(game) {
                     object.objectConfig.id === EnumHelper.idEnum.door.down ||
                     object.objectConfig.id === EnumHelper.idEnum.door.left)
                     && !object.objectConfig.isActivated) {
-                    obstacle.isObstacleInTheWay = true;
-                    obstacle.object = object;
+                    isObstacleInTheWay = true;
                 } else if ((object.objectConfig.id !== EnumHelper.idEnum.door.up &&
                     object.objectConfig.id !== EnumHelper.idEnum.door.right &&
                     object.objectConfig.id !== EnumHelper.idEnum.door.down &&
                     object.objectConfig.id !== EnumHelper.idEnum.door.left)) {
-                    obstacle.isObstacleInTheWay = true;
-                    obstacle.object = object;
+                    isObstacleInTheWay = true;
                 }
                 //return;
             }
         });
-        return obstacle;
+        return isObstacleInTheWay;
     };
 
     this._doStandardActions = (currentCharacter) => {

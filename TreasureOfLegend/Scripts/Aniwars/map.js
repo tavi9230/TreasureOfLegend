@@ -124,11 +124,29 @@ export const BattleMap = function (game) {
         };
     };
 
+    this.highlightCharacter = (character) => {
+        var tile = _.find(this.tiles.getChildren(), function(tile) {
+            return tile.x === character.x && tile.y === character.y;
+        });
+        if (tile) {
+            tile.setTint(0xcccc00);
+        }
+    };
+
+    this.dehighlightCharacter = (character) => {
+        var tile = _.find(this.tiles.getChildren(), function(tile) {
+            return tile.x === character.x && tile.y === character.y;
+        });
+        if (tile) {
+            tile.setTint(0xFFFFFF);
+        }
+    };
+
     // Private ----------------------------------------------------------------------
     this._addTile = (x, y) => {
         var tileNumber = Math.floor(Math.random() * 5) + 1;
         var obj = game.add.sprite(x, y, 'tile' + tileNumber).setOrigin(0, 0);
-        obj.objectConfig = Object.assign({}, this.objConfig);
+        obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.objectConfig.description = 'Stone tile';
         obj.objectConfig.id = EnumHelper.idEnum.tile;
         this.tiles.add(obj);
@@ -136,7 +154,7 @@ export const BattleMap = function (game) {
 
     this._addWall = (x, y) => {
         var obj = game.add.sprite(x, y, 'wallTile').setOrigin(0, 0);
-        obj.objectConfig = Object.assign({}, this.objConfig);
+        obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.displayWidth = 50;
         obj.displayHeight = 50;
         //obj.width = 50;
@@ -157,7 +175,7 @@ export const BattleMap = function (game) {
         } else if (doorId === EnumHelper.idEnum.door.left) {
             obj = game.add.sprite(x, y, 'doorLeft').setOrigin(0, 0);
         }
-        obj.objectConfig = Object.assign({}, this.objConfig);
+        obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.objectConfig.description = 'Wooden door';
         obj.objectConfig.id = doorId;
         obj.objectConfig.isInteractible = true;

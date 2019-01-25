@@ -66,7 +66,7 @@ export const Character = function(game) {
 
     this.addNewCharacter = (x, y, spriteName) => {
         var character = this.game.physics.add.sprite(x, y, spriteName).setOrigin(0, 0);
-        character.characterConfig = Object.assign({}, this.characterConfig);
+        character.characterConfig = lodash.cloneDeep(this.characterConfig);
         character.characterConfig.posX = x;
         character.characterConfig.posY = y;
         character.characterConfig.image = spriteName;
@@ -98,7 +98,7 @@ export const Character = function(game) {
         if (currentCharacter.x === charConfig.posX &&
             currentCharacter.y === charConfig.posY && !this.game.activeMap.isMovementGridShown) {
             if (charConfig.path.length === 0) {
-                this.game.events.emit('activeCharacterActed', currentCharacter);
+                this.game.events.emit('activeCharacterActed', currentCharacter, this.game.characters);
                 this.game.activeMap.showMovementGrid(currentCharacter);
                 this._checkIfObjectInteractionInProgress(charConfig.minorActions.inProgress);
             }
@@ -163,18 +163,19 @@ export const Character = function(game) {
             if (charConfig.minorActions.max - charConfig.minorActions.spent > 0) {
                 if (charConfig.inventory.slots.free >= item.itemConfig.slots) {
                     charConfig.minorActions.spent++;
-                    charConfig.inventory.slots.free -= item.itemConfig.slots;
-                    charConfig.inventory.slots.items.push(item.itemConfig);
                     if (charConfig.inventory.mainHand.id === InventoryConfig.punch.id) {
                         charConfig.inventory.mainHand = item.itemConfig;
                         if (item.itemConfig.hold === 2) {
                             charConfig.inventory.offHand = item.itemConfig;
                         }
+                    } else {
+                        charConfig.inventory.slots.items.push(item.itemConfig);
+                        charConfig.inventory.slots.free--;
                     }
                     item.destroy();
                     this.game.items.remove(item);
                 }
-                this.game.events.emit('activeCharacterActed', character);
+                this.game.events.emit('activeCharacterActed', character, this.game.characters);
             }
         }
         this.moveActiveCharacterToTile(item);
@@ -205,7 +206,7 @@ export const Character = function(game) {
         } else if (charConfig.posY < currentCharacter.y) {
             currentCharacter.setVelocityY(-1 * charConfig.velocity);
         }
-        this.game.events.emit('activeCharacterActed', currentCharacter);
+        this.game.events.emit('activeCharacterActed', currentCharacter, this.game.characters);
     };
 
     this._reduceSpeedX = function(currentCharacter) {
@@ -283,32 +284,34 @@ export const Character = function(game) {
 
     this._isTileOccupied = (posX, posY) => {
         var isObstacleInTheWay = false;
-        _.each(this.game.enemies.characters.getChildren(),
-            function(enemy) {
-                if (enemy.x === posX && enemy.y === posY) {
+        _.each(this.game.enemies.characters.getChildren(), function(enemy) {
+            if (enemy.x === posX && enemy.y === posY) {
+                isObstacleInTheWay = true;
+            }
+        });
+        _.each(this.game.characters.characters.getChildren(), function(character) {
+            if (character.x === posX && character.y === posY) {
+                isObstacleInTheWay = true;
+            }
+        });
+        _.each(this.game.activeMap.objects.getChildren(), function(object) {
+            if (object.x === posX && object.y === posY) {
+                //if object is a door check if it is open/activated
+                if ((object.objectConfig.id === EnumHelper.idEnum.door.up ||
+                    object.objectConfig.id === EnumHelper.idEnum.door.right ||
+                    object.objectConfig.id === EnumHelper.idEnum.door.down ||
+                    object.objectConfig.id === EnumHelper.idEnum.door.left)
+                    && !object.objectConfig.isActivated) {
                     isObstacleInTheWay = true;
-                    //return;
+                } else if ((object.objectConfig.id !== EnumHelper.idEnum.door.up &&
+                    object.objectConfig.id !== EnumHelper.idEnum.door.right &&
+                    object.objectConfig.id !== EnumHelper.idEnum.door.down &&
+                    object.objectConfig.id !== EnumHelper.idEnum.door.left)) {
+                    isObstacleInTheWay = true;
                 }
-            });
-        _.each(this.game.activeMap.objects.getChildren(),
-            function(object) {
-                if (object.x === posX && object.y === posY) {
-                    //if object is a door check if it is open/activated
-                    if ((object.objectConfig.id === EnumHelper.idEnum.door.up ||
-                        object.objectConfig.id === EnumHelper.idEnum.door.right ||
-                        object.objectConfig.id === EnumHelper.idEnum.door.down ||
-                        object.objectConfig.id === EnumHelper.idEnum.door.left)
-                        && !object.objectConfig.isActivated) {
-                        isObstacleInTheWay = true;
-                    } else if ((object.objectConfig.id !== EnumHelper.idEnum.door.up &&
-                        object.objectConfig.id !== EnumHelper.idEnum.door.right &&
-                        object.objectConfig.id !== EnumHelper.idEnum.door.down &&
-                        object.objectConfig.id !== EnumHelper.idEnum.door.left)) {
-                        isObstacleInTheWay = true;
-                    }
-                    //return;
-                }
-            });
+                //return;
+            }
+        });
         return isObstacleInTheWay;
     };
 

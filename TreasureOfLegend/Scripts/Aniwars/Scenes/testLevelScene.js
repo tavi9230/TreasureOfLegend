@@ -43,7 +43,8 @@ export const TestLevelScene = function() {
                     self.activeCharacter = self.initiative[self.initiativeIndex];
 
                     if (self.activeCharacter.characterConfig.isPlayerControlled) {
-                        self.events.emit('activeCharacterChanged', self.activeCharacter);
+                        self.events.emit('activeCharacterChanged', self.activeCharacter, self.characters);
+                        self.events.emit('activeCharacterPositionModified', self.activeCharacter);
                         self.activeMap.showMovementGrid();
                         self.cameras.main.startFollow(self.activeCharacter, true, 0.09, 0.09);
                     } else {
@@ -52,7 +53,7 @@ export const TestLevelScene = function() {
                 }
             });
             this.hudScene.events.on('getCharacterStartData', function() {
-                self.events.emit('activeCharacterChanged', self.activeCharacter);
+                self.events.emit('activeCharacterChanged', self.activeCharacter, self.characters);
                 self.events.emit('showCharacterInitiative', self.initiative);
             });
             this.hudScene.events.on('getActiveCharacterSpells', function() {
@@ -65,8 +66,14 @@ export const TestLevelScene = function() {
                 charConfig.actions.actionId = EnumHelper.actionEnum.attackSpell;
                 charConfig.actions.selectedAction = spell;
                 if (charConfig.isPlayerControlled) {
-                    self.events.emit('activeCharacterActed', self.activeCharacter);
+                    self.events.emit('activeCharacterActed', self.activeCharacter, self.characters);
                 }
+            });
+            this.hudScene.events.on('highlightCharacter', function(character) {
+                self.activeMap.highlightCharacter(character);
+            });
+            this.hudScene.events.on('dehighlightCharacter', function(character) {
+                self.activeMap.dehighlightCharacter(character);
             });
         },
         _moveCamera() {

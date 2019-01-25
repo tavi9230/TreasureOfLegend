@@ -27,8 +27,7 @@ export const ActionManager = function (game) {
 
     // OBJECT INTERACTION -------------------------------------------------------------------------------------------------------------------
     this._interactWithDoor = (object) => {
-        var character = this.game.activeCharacter,
-            charConfig = character.characterConfig,
+        var charConfig = this.game.activeCharacter.characterConfig,
             x = object.x / 50,
             y = object.y / 50;
         charConfig.minorActions.spent++;
@@ -46,7 +45,7 @@ export const ActionManager = function (game) {
         }
         object.objectConfig.isActivated = !object.objectConfig.isActivated;
         if (charConfig.isPlayerControlled) {
-            this.game.events.emit('activeCharacterActed', character);
+            this.game.events.emit('activeCharacterActed', this.game.activeCharacter, this.game.characters);
             this.game.activeMap.showMovementGrid();
         }
     };
@@ -60,7 +59,7 @@ export const ActionManager = function (game) {
         charConfig.actions.actionId = -1;
         charConfig.actions.selectedAction = null;
         if (charConfig.isPlayerControlled) {
-            this.game.events.emit('activeCharacterActed', character);
+            this.game.events.emit('activeCharacterActed', this.game.activeCharacter, this.game.characters);
         }
         this._checkInitiative(enemy);
     };
@@ -75,7 +74,7 @@ export const ActionManager = function (game) {
         charConfig.actions.selectedAction = null;
 
         if (charConfig.isPlayerControlled) {
-            this.game.events.emit('activeCharacterActed', character);
+            this.game.events.emit('activeCharacterActed', this.game.activeCharacter, this.game.characters);
         }
         this._checkInitiative(enemy);
     };

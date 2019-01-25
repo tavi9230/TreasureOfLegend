@@ -27,6 +27,9 @@ export const SceneManager = function (game) {
         //party characters
         this.game.characters = new Character(this.game);
         this.game.characters.addNewCharacter(600, 350, 'character');
+        this.game.characters.addNewCharacter(600, 400, 'character');
+        this.game.characters.addNewCharacter(600, 450, 'character');
+        this.game.characters.addNewCharacter(600, 500, 'character');
 
         this.game.activeCharacter = this.game.characters.characters.getChildren()[0];
         this.game.activeMap.showMovementGrid();
