@@ -52,8 +52,30 @@ export const ActionManager = function (game) {
 
     //ENEMY INTERACTION --------------------------------------------------------------------------------------------------------------------
     this._attackWithMainHand = (character, enemy) => {
+        // TODO: Get chance of hit (it's always a hit, but if armor is bigger than attack you just lose armor). D20 + attacking attribute vs armor of enemy
+        // if armor is bigger, armor --;
+        // if armor is equal, armor--;
+        // if armor is lower, life = life - (D20 + attacking attribute vs armor of enemy - armor)
+        // if armor is lower, armor = armor - ((D20 + attacking attribute vs armor of enemy - armor) / 2)
         var charConfig = character.characterConfig;
-        enemy.characterConfig.life.current -= charConfig.inventory.mainHand.damage;
+        var attackAttribute = EnumHelper.attributeEnum.strength === charConfig.inventory.mainHand.attribute
+            ? charConfig.attributes.strength
+            : charConfig.attributes.dexterity;
+        var d20 = Math.floor(Math.random() * 20) + 1 + attackAttribute;
+        if (d20 <= enemy.characterConfig.armor) {
+            // TODO: Get individual pieces of armor and remove one point from random armor piece
+            if (enemy.characterConfig.armor > 0) {
+                enemy.characterConfig.armor --;
+            }
+        } else {
+            var attackDamage = Math.floor(Math.random() * charConfig.inventory.mainHand.damage) + Math.floor(attackAttribute / 2);
+            enemy.characterConfig.life.current -= attackDamage;
+            // TODO: Get individual pieces of armor and remove d20 / 2 points of random armor piece. If it goes lower than 0,
+            // destroy piece and remove remaining points from another piece
+            if (enemy.characterConfig.armor > 0) {
+                enemy.characterConfig.armor -= Math.ceil(attackDamage / 2);
+            }
+        }
 
         charConfig.actions.spent++;
         charConfig.actions.actionId = -1;
@@ -66,7 +88,22 @@ export const ActionManager = function (game) {
 
     this._attackWithSpell = (character, enemy) => {
         var charConfig = character.characterConfig;
-        enemy.characterConfig.life.current -= charConfig.actions.selectedAction.damage;
+        var d20 = Math.floor(Math.random() * 20) + 1 + charConfig.attributes.intelligence;
+        if (d20 <= enemy.characterConfig.armor) {
+            // TODO: Get individual pieces of armor and remove one point from random armor piece
+            if (enemy.characterConfig.armor > 0) {
+                enemy.characterConfig.armor --;
+            }
+        } else {
+            var attackDamage = Math.floor(Math.random() * charConfig.inventory.selectedAction.damage) + Math.floor(charConfig.attributes.intelligence / 2);
+            enemy.characterConfig.life.current -= attackDamage;
+            // TODO: Get individual pieces of armor and remove d20 / 2 points of random armor piece. If it goes lower than 0,
+            // destroy piece and remove remaining points from another piece
+            if (enemy.characterConfig.armor > 0) {
+                enemy.characterConfig.armor -= Math.ceil(attackDamage / 2);
+            }
+        }
+        //enemy.characterConfig.life.current -= Math.floor(Math.random() * charConfig.actions.selectedAction.damage) + Math.floor(charConfig.attributes.intelligence / 2);
 
         charConfig.actions.spent++;
         charConfig.actions.actionId = -1;

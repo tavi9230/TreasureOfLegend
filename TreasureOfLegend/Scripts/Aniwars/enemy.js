@@ -8,10 +8,9 @@ export const Enemy = function(game) {
 
     this.characterConfig = {
         life: {
-            max: 10,
-            current: 4
+            max: 1,
+            current: 1
         },
-        maxLife: 10,
         mana: {
             max: 0,
             spent: 0
@@ -21,7 +20,7 @@ export const Enemy = function(game) {
             spent: 0,
             isMoving: false
         },
-        armor: 10,
+        armor: 0,
         velocity: 200,
         posX: 0,
         posY: 0,
@@ -52,9 +51,9 @@ export const Enemy = function(game) {
             spells: []
         },
         attributes: {
-            strength: 5,
-            dexterity: 5,
-            intelligence: 5
+            strength: 0,
+            dexterity: 0,
+            intelligence: 0
         },
         image: '',
         isPlayerControlled: false,
