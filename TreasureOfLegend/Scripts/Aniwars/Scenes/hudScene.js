@@ -204,8 +204,6 @@ export const HUDScene = function(sceneName) {
                 var characterImage = self.add.image(x, y, charConfig.image).setOrigin(0, 0);
                 characterImage.displayWidth = 75;
                 characterImage.displayHeight = 75;
-                characterImage.objectToSend = character;
-                box.objectToSend = character;
 
                 var percentageOfLife = (100 * charConfig.life.current) / charConfig.life.max,
                     lifeWidth = (75 * percentageOfLife) / 100,
@@ -221,6 +219,14 @@ export const HUDScene = function(sceneName) {
                     ((charConfig.mana.max - charConfig.mana.spent) + '/' + charConfig.mana.max), { fill: '#FFF', fontSize: '9px' });
                 manaBar.fillStyle(0x000099, 0.8);
                 manaBar.fillRect(x, y + 75, manaWidth, 10);
+
+                // TODO change event to just be thrown on image hover
+                characterImage.objectToSend = character;
+                box.objectToSend = character;
+                lifeBar.objectToSend = character;
+                lifeText.objectToSend = character;
+                manaBar.objectToSend = character;
+                manaText.objectToSend = character;
 
                 self.initiativeTracker.add(box);
                 self.initiativeTracker.add(characterImage);
