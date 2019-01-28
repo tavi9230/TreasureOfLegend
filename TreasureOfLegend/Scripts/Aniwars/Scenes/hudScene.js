@@ -315,6 +315,9 @@ export const HUDScene = function(sceneName) {
             }
             this.characterInfo.add(box);
             if (image) {
+                this.input.setHitArea([image]);
+                image.on('pointerover', _.bind(this._showItemStats, this, { x: x, y: y, item: item, character: character }));
+                image.on('pointerout', _.bind(this._hideItemStats, this));
                 this.characterInfo.add(image);
             }
             var dropButtonGroup = this._createDropButton(x + 40, y, character, item);
@@ -397,6 +400,102 @@ export const HUDScene = function(sceneName) {
                     });
                 });
                 return replaceButtonGroup;
+            }
+        },
+        _showItemStats: function(config) {
+            if (config.item.type !== EnumHelper.inventoryEnum.defaultEquipment) {
+                var item = config.item;
+                var characterConfig = config.character.characterConfig;
+                var compareBox = this.add.graphics();
+                var damageText;
+                var equippedBox;
+                var equippedDamageText;
+                compareBox.fillStyle(0x222222, 0.8);
+                compareBox.fillRect(config.x + 50, config.y, 100, 100);
+
+                this.itemStats = this.add.group();
+                this.itemStats.add(compareBox);
+
+                if (item.type === EnumHelper.inventoryEnum.mainHand) {
+                    damageText = this.add.text(config.x + 55, config.y, 'Damage: ' + item.damage, { fill: '#000' });
+                    this.itemStats.add(damageText);
+                    if (characterConfig.inventory.mainHand.type !== EnumHelper.inventoryEnum.defaultEquipment && !item.isEquipped) {
+                        equippedBox = this.add.graphics();
+                        equippedBox.fillStyle(0x222222, 0.8);
+                        equippedBox.fillRect(config.x + 150, config.y, 100, 100);
+                        equippedDamageText = this.add.text(config.x + 155, config.y, 'Damage: ' + characterConfig.inventory.mainHand.damage, { fill: '#000' });
+                        this.itemStats.add(equippedBox);
+                        this.itemStats.add(equippedDamageText);
+                    }
+                } else if (item.type === EnumHelper.inventoryEnum.offHand) {
+                    if (item.damage) {
+                        damageText = this.add.text(config.x + 55, config.y, 'Damage: ' + item.damage, { fill: '#000' });
+                    } else {
+                        damageText = this.add.text(config.x + 55, config.y, 'Armor: ' + item.armor, { fill: '#000' });
+                    }
+                    this.itemStats.add(damageText);
+                    if (characterConfig.inventory.offHand.type !== EnumHelper.inventoryEnum.defaultEquipment && !item.isEquipped) {
+                        equippedBox = this.add.graphics();
+                        equippedBox.fillStyle(0x222222, 0.8);
+                        equippedBox.fillRect(config.x + 150, config.y, 100, 100);
+                        if (characterConfig.inventory.offHand.damage) {
+                            equippedDamageText = this.add.text(config.x + 155, config.y, 'Damage: ' + characterConfig.inventory.offHand.damage, { fill: '#000' });
+                        } else {
+                            equippedDamageText = this.add.text(config.x + 155, config.y, 'Armor: ' + characterConfig.inventory.offHand.armor, { fill: '#000' });
+                        }
+                        this.itemStats.add(equippedBox);
+                        this.itemStats.add(equippedDamageText);
+                    }
+                } else if (item.type === EnumHelper.inventoryEnum.head) {
+                    damageText = this.add.text(config.x + 55, config.y, 'Armor: ' + item.armor, { fill: '#000' });
+                    this.itemStats.add(damageText);
+                    if (characterConfig.inventory.head.type !== EnumHelper.inventoryEnum.defaultEquipment && !item.isEquipped) {
+                        equippedBox = this.add.graphics();
+                        equippedBox.fillStyle(0x222222, 0.8);
+                        equippedBox.fillRect(config.x + 150, config.y, 100, 100);
+                        equippedDamageText = this.add.text(config.x + 155, config.y, 'Armor: ' + characterConfig.inventory.head.armor, { fill: '#000' });
+                        this.itemStats.add(equippedBox);
+                        this.itemStats.add(equippedDamageText);
+                    }
+                } else if (item.type === EnumHelper.inventoryEnum.body) {
+                    damageText = this.add.text(config.x + 55, config.y, 'Armor: ' + item.armor, { fill: '#000' });
+                    this.itemStats.add(damageText);
+                    if (characterConfig.inventory.body.type !== EnumHelper.inventoryEnum.defaultEquipment && !item.isEquipped) {
+                        equippedBox = this.add.graphics();
+                        equippedBox.fillStyle(0x222222, 0.8);
+                        equippedBox.fillRect(config.x + 150, config.y, 100, 100);
+                        equippedDamageText = this.add.text(config.x + 155, config.y, 'Armor: ' + characterConfig.inventory.body.armor, { fill: '#000' });
+                        this.itemStats.add(equippedBox);
+                        this.itemStats.add(equippedDamageText);
+                    }
+                } else if (item.type === EnumHelper.inventoryEnum.hands) {
+                    damageText = this.add.text(config.x + 55, config.y, 'Armor: ' + item.armor, { fill: '#000' });
+                    this.itemStats.add(damageText);
+                    if (characterConfig.inventory.hands.type !== EnumHelper.inventoryEnum.defaultEquipment && !item.isEquipped) {
+                        equippedBox = this.add.graphics();
+                        equippedBox.fillStyle(0x222222, 0.8);
+                        equippedBox.fillRect(config.x + 150, config.y, 100, 100);
+                        equippedDamageText = this.add.text(config.x + 155, config.y, 'Armor: ' + characterConfig.inventory.hands.armor, { fill: '#000' });
+                        this.itemStats.add(equippedBox);
+                        this.itemStats.add(equippedDamageText);
+                    }
+                } else if (item.type === EnumHelper.inventoryEnum.feet) {
+                    damageText = this.add.text(config.x + 55, config.y, 'Armor: ' + item.armor, { fill: '#000' });
+                    this.itemStats.add(damageText);
+                    if (characterConfig.inventory.feet.type !== EnumHelper.inventoryEnum.defaultEquipment && !item.isEquipped) {
+                        equippedBox = this.add.graphics();
+                        equippedBox.fillStyle(0x222222, 0.8);
+                        equippedBox.fillRect(config.x + 150, config.y, 100, 100);
+                        equippedDamageText = this.add.text(config.x + 155, config.y, 'Armor: ' + characterConfig.inventory.feet.armor, { fill: '#000' });
+                        this.itemStats.add(equippedBox);
+                        this.itemStats.add(equippedDamageText);
+                    }
+                }
+            }
+        },
+        _hideItemStats: function() {
+            if (this.itemStats) {
+                this.itemStats.destroy(true);
             }
         }
     });
