@@ -1,7 +1,7 @@
 ﻿import {EnumHelper} from 'Aniwars/enumHelper';
 
 export const InventoryConfig = {
-    punch: {
+    defaultMainHand: {
         type: EnumHelper.inventoryEnum.defaultEquipment,
         damage: 2,
         range: 1,
@@ -9,8 +9,36 @@ export const InventoryConfig = {
         damageType: EnumHelper.damageTypeEnum.bludgeoning,
         hold: 1,
         image: 'punch',
-        description: 'Powerful punch',
+        description: 'Default attack',
         slots: 0
+    },
+    defaultHead: {
+        type: EnumHelper.inventoryEnum.defaultEquipment,
+        image: 'punch',
+        description: 'No head gear',
+        slots: 0,
+        armor: 0
+    },
+    defaultBody: {
+        type: EnumHelper.inventoryEnum.defaultEquipment,
+        image: 'punch',
+        description: 'No body gear',
+        slots: 0,
+        armor: 0
+    },
+    defaultHands: {
+        type: EnumHelper.inventoryEnum.defaultEquipment,
+        image: 'punch',
+        description: 'No hand gear',
+        slots: 0,
+        armor: 0
+    },
+    defaultFeet: {
+        type: EnumHelper.inventoryEnum.defaultEquipment,
+        image: 'punch',
+        description: 'No feet gear',
+        slots: 0,
+        armor: 0
     },
     bow: {
         type: EnumHelper.inventoryEnum.mainHand,
@@ -33,5 +61,40 @@ export const InventoryConfig = {
         image: 'shortsword',
         description: 'Good ol\' shortsword',
         slots: 2
+    },
+    head: {
+        type: EnumHelper.inventoryEnum.head,
+        image: 'head',
+        description: 'Head item',
+        slots: 1,
+        armor: 2
+    },
+    shield: {
+        type: EnumHelper.inventoryEnum.offHand,
+        image: 'shield',
+        description: 'Shield item',
+        slots: 1,
+        armor: 2
+    },
+    chainmail: {
+        type: EnumHelper.inventoryEnum.body,
+        image: 'chainmail',
+        description: 'Chainmail item',
+        slots: 2,
+        armor: 4
+    },
+    hand: {
+        type: EnumHelper.inventoryEnum.hands,
+        image: 'hand',
+        description: 'Hand item',
+        slots: 1,
+        armor: 1
+    },
+    feet: {
+        type: EnumHelper.inventoryEnum.feet,
+        image: 'feet',
+        description: 'Feet item',
+        slots: 1,
+        armor: 1
     }
 };

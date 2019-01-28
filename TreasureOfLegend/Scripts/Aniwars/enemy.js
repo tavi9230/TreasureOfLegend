@@ -38,12 +38,12 @@ export const Enemy = function(game) {
             inProgress: null
         },
         inventory: {
-            mainHand: lodash.cloneDeep(InventoryConfig.punch),
-                offHand: lodash.cloneDeep(InventoryConfig.punch),
-            head: '',
-            body: '',
-            feet: '',
-            hands: '',
+            mainHand: lodash.cloneDeep(InventoryConfig.defaultMainHand),
+            offHand: lodash.cloneDeep(InventoryConfig.defaultMainHand),
+            head: lodash.cloneDeep(InventoryConfig.defaultHead),
+            body: lodash.cloneDeep(InventoryConfig.defaultBody),
+            feet: lodash.cloneDeep(InventoryConfig.defaultFeet),
+            hands: lodash.cloneDeep(InventoryConfig.defaultHands),
             slots: {
                 free: 2,
                 max: 2,

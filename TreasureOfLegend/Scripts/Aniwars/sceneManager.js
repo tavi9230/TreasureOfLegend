@@ -89,6 +89,31 @@ export const SceneManager = function (game) {
         item.displayWidth = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.shortsword);
         this.game.items.add(item);
+        item = this.game.physics.add.sprite(550, 400, 'head').setOrigin(0, 0);
+        item.displayHeight = 50;
+        item.displayWidth = 50;
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.head);
+        this.game.items.add(item);
+        item = this.game.physics.add.sprite(650, 400, 'shield').setOrigin(0, 0);
+        item.displayHeight = 50;
+        item.displayWidth = 50;
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.shield);
+        this.game.items.add(item);
+        item = this.game.physics.add.sprite(550, 450, 'chainmail').setOrigin(0, 0);
+        item.displayHeight = 50;
+        item.displayWidth = 50;
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.chainmail);
+        this.game.items.add(item);
+        item = this.game.physics.add.sprite(650, 450, 'hand').setOrigin(0, 0);
+        item.displayHeight = 50;
+        item.displayWidth = 50;
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.hand);
+        this.game.items.add(item);
+        item = this.game.physics.add.sprite(550, 500, 'feet').setOrigin(0, 0);
+        item.displayHeight = 50;
+        item.displayWidth = 50;
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.feet);
+        this.game.items.add(item);
 
         this.game.input.setHitArea(this.game.items.getChildren());
         _.each(this.game.items.getChildren(), function(item) {

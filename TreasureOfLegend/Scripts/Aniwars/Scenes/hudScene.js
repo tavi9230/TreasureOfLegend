@@ -323,6 +323,14 @@ export const HUDScene = function(sceneName) {
                     self.characterInfo.add(item);
                 });
             }
+            if (_.isObject(item) && !item.isEquipped) {
+                var replaceButtonGroup = this._createReplaceButton(x, y, character, item);
+                if (replaceButtonGroup) {
+                    _.each(replaceButtonGroup.getChildren(), function(item) {
+                        self.characterInfo.add(item);
+                    });
+                }
+            }
         },
         _createCloseButton: function(x, y, groupToDestroy) {
             var self = this,
@@ -367,6 +375,28 @@ export const HUDScene = function(sceneName) {
                     });
                 });
                 return dropButtonGroup;
+            }
+        },
+        _createReplaceButton: function(x, y, character, itemToReplace) {
+            if (itemToReplace && itemToReplace.type !== EnumHelper.inventoryEnum.defaultEquipment
+                && character.x === this.activeScene.activeCharacter.x && character.y === this.activeScene.activeCharacter.y) {
+                var self = this,
+                    replaceButtonGroup = this.add.group();
+
+                var replaceButton = this.add.graphics();
+                replaceButton.fillStyle(0x009900, 0.8);
+                replaceButton.fillRect(x, y, 10, 10);
+                replaceButtonGroup.add(replaceButton);
+
+                var replaceText = this.add.text(x + 2, y, 'R', { fill: '#FFF', fontSize: '10px' });
+                replaceButtonGroup.add(replaceText);
+                this.input.setHitArea(replaceButtonGroup.getChildren());
+                _.each(replaceButtonGroup.getChildren(), function(item) {
+                    item.on('pointerdown', function() {
+                        self.events.emit('replaceItem', itemToReplace);
+                    });
+                });
+                return replaceButtonGroup;
             }
         }
     });

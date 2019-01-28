@@ -20,6 +20,11 @@
         game.load.image('shortsword', AssetFolder + 'items/shortsword.png');
         game.load.image('firebolt', AssetFolder + 'items/firebolt.png');
         game.load.image('bow', AssetFolder + 'items/bow.png');
+        game.load.image('head', AssetFolder + 'items/head.jpg');
+        game.load.image('shield', AssetFolder + 'items/shield.jpg');
+        game.load.image('chainmail', AssetFolder + 'items/chainmail.jpg');
+        game.load.image('hand', AssetFolder + 'items/hand.jpg');
+        game.load.image('feet', AssetFolder + 'items/feet.jpg');
     };
 
     this.loadHUDImages = function() {
