@@ -204,11 +204,31 @@ export const HUDScene = function(sceneName) {
                 var characterImage = self.add.image(x, y, charConfig.image).setOrigin(0, 0);
                 characterImage.displayWidth = 75;
                 characterImage.displayHeight = 75;
-                x += 80;
                 characterImage.objectToSend = character;
                 box.objectToSend = character;
+
+                var percentageOfLife = (100 * charConfig.life.current) / charConfig.life.max,
+                    lifeWidth = (75 * percentageOfLife) / 100,
+                    lifeBar = self.add.graphics(),
+                    lifeText = self.add.text(x + 25, y, (charConfig.life.current + '/' + charConfig.life.max), { fill: '#FFF', fontSize: '9px' });
+                lifeBar.fillStyle(0x990000, 0.8);
+                lifeBar.fillRect(x, y, lifeWidth, 10);
+
+                var percentageOfMana = (100 * (charConfig.mana.max - charConfig.mana.spent)) / charConfig.mana.max,
+                    manaWidth = (75 * percentageOfMana) / 100,
+                    manaBar = self.add.graphics(),
+                    manaText = self.add.text(x + 25, y + 75,
+                    ((charConfig.mana.max - charConfig.mana.spent) + '/' + charConfig.mana.max), { fill: '#FFF', fontSize: '9px' });
+                manaBar.fillStyle(0x000099, 0.8);
+                manaBar.fillRect(x, y + 75, manaWidth, 10);
+
                 self.initiativeTracker.add(box);
                 self.initiativeTracker.add(characterImage);
+                self.initiativeTracker.add(lifeBar);
+                self.initiativeTracker.add(lifeText);
+                self.initiativeTracker.add(manaBar);
+                self.initiativeTracker.add(manaText);
+                x += 80;
             });
             this.input.setHitArea(this.initiativeTracker.getChildren());
             _.each(this.initiativeTracker.getChildren(), function(item) {
