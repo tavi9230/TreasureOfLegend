@@ -52,6 +52,7 @@ export const ActionManager = function (game) {
 
     //ENEMY INTERACTION --------------------------------------------------------------------------------------------------------------------
     this._attackWithMainHand = (character, enemy) => {
+        // TODO: check enemy vulerabilities, resistances and immunities and calculate life based on that
         // TODO: Get chance of hit (it's always a hit, but if armor is bigger than attack you just lose armor). D20 + attacking attribute vs armor of enemy
         // if armor is bigger, armor --;
         // if armor is equal, armor--;
