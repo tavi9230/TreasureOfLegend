@@ -1,5 +1,6 @@
 ﻿import {EnumHelper} from 'Aniwars/enumHelper';
 import {Pathfinder} from 'Aniwars/pathfinder';
+import {InventoryConfig} from 'Aniwars/inventoryConfig';
 
 export const ActionManager = function (game) {
     this.game = game;
@@ -53,30 +54,29 @@ export const ActionManager = function (game) {
     //ENEMY INTERACTION --------------------------------------------------------------------------------------------------------------------
     this._attackWithMainHand = (character, enemy) => {
         // TODO: check enemy vulerabilities, resistances and immunities and calculate life based on that
-        // TODO: Get chance of hit (it's always a hit, but if armor is bigger than attack you just lose armor). D20 + attacking attribute vs armor of enemy
-        // if armor is bigger, armor --;
-        // if armor is equal, armor--;
-        // if armor is lower, life = life - (D20 + attacking attribute vs armor of enemy - armor)
-        // if armor is lower, armor = armor - ((D20 + attacking attribute vs armor of enemy - armor) / 2)
         var charConfig = character.characterConfig;
         var attackAttribute = EnumHelper.attributeEnum.strength === charConfig.inventory.mainHand.attribute
             ? charConfig.attributes.strength
             : charConfig.attributes.dexterity;
         var d20 = Math.floor(Math.random() * 20) + 1 + attackAttribute;
         if (d20 <= enemy.characterConfig.armor) {
-            // TODO: Get individual pieces of armor and remove one point from random armor piece
             if (enemy.characterConfig.armor > 0) {
-                enemy.characterConfig.armor --;
+                this._removeArmorPointsFromEquippedInventory(enemy, 1);
             }
         } else {
-            var attackDamage = Math.floor(Math.random() * charConfig.inventory.mainHand.damage) + Math.floor(attackAttribute / 2);
+            var attackDamage = Math.floor(Math.random() * charConfig.inventory.mainHand.damage) + 1 + Math.floor(attackAttribute / 2);
             enemy.characterConfig.life.current -= attackDamage;
-            // TODO: Get individual pieces of armor and remove d20 / 2 points of random armor piece. If it goes lower than 0,
-            // destroy piece and remove remaining points from another piece
             if (enemy.characterConfig.armor > 0) {
-                enemy.characterConfig.armor -= Math.ceil(attackDamage / 2);
+                this._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2));
             }
         }
+        enemy.characterConfig.armor = enemy.characterConfig.inventory.head.armor +
+            enemy.characterConfig.inventory.body.armor +
+            enemy.characterConfig.inventory.hands.armor +
+            enemy.characterConfig.inventory.feet.armor +
+            (enemy.characterConfig.inventory.offHand.armor
+            ? enemy.characterConfig.inventory.offHand.armor
+            : 0);
 
         charConfig.actions.spent++;
         charConfig.actions.actionId = -1;
@@ -91,20 +91,19 @@ export const ActionManager = function (game) {
         var charConfig = character.characterConfig;
         var d20 = Math.floor(Math.random() * 20) + 1 + charConfig.attributes.intelligence;
         if (d20 <= enemy.characterConfig.armor) {
-            // TODO: Get individual pieces of armor and remove one point from random armor piece
-            if (enemy.characterConfig.armor > 0) {
-                enemy.characterConfig.armor --;
-            }
+            this._removeArmorPointsFromEquippedInventory(enemy, 1);
         } else {
-            var attackDamage = Math.floor(Math.random() * charConfig.inventory.selectedAction.damage) + Math.floor(charConfig.attributes.intelligence / 2);
+            var attackDamage = Math.floor(Math.random() * charConfig.inventory.selectedAction.damage) + 1 + Math.floor(charConfig.attributes.intelligence / 2);
             enemy.characterConfig.life.current -= attackDamage;
-            // TODO: Get individual pieces of armor and remove d20 / 2 points of random armor piece. If it goes lower than 0,
-            // destroy piece and remove remaining points from another piece
-            if (enemy.characterConfig.armor > 0) {
-                enemy.characterConfig.armor -= Math.ceil(attackDamage / 2);
-            }
+            this._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2));
         }
-        //enemy.characterConfig.life.current -= Math.floor(Math.random() * charConfig.actions.selectedAction.damage) + Math.floor(charConfig.attributes.intelligence / 2);
+        enemy.characterConfig.armor = enemy.characterConfig.inventory.head.armor +
+            enemy.characterConfig.inventory.body.armor +
+            enemy.characterConfig.inventory.hands.armor +
+            enemy.characterConfig.inventory.feet.armor +
+            (enemy.characterConfig.inventory.offHand.armor
+            ? enemy.characterConfig.inventory.offHand.armor
+            : 0);
 
         charConfig.actions.spent++;
         charConfig.actions.actionId = -1;
@@ -235,6 +234,72 @@ export const ActionManager = function (game) {
                 }
             } else {
                 this._tryMovingCharacter(character, enemy);
+            }
+        }
+    };
+
+    this._removeArmorPointsFromEquippedInventory = (enemy, value) => {
+        while (value > 0) {
+            var pieceHit = Math.floor(Math.random() * 6) + 1,
+                inventory = enemy.characterConfig.inventory;
+            switch (pieceHit) {
+                case EnumHelper.inventoryEnum.offHand:
+                    if (inventory.offHand.type !== InventoryConfig.defaultMainHand.type && inventory.offHand.armor) {
+                        if (inventory.offHand.armor - value <= 0) {
+                            value -= inventory.offHand.armor;
+                            inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
+                        } else {
+                            inventory.offHand.armor -= value;
+                            value = 0;
+                        }
+                    }
+                    break;
+                case EnumHelper.inventoryEnum.head:
+                    if (inventory.head.type !== InventoryConfig.defaultHead.type) {
+                        if (inventory.head.armor - value <= 0) {
+                            value -= inventory.head.armor;
+                            inventory.head = lodash.cloneDeep(InventoryConfig.defaultHead);
+                        } else {
+                            inventory.head.armor -= value;
+                            value = 0;
+                        }
+                    }
+                    break;
+                case EnumHelper.inventoryEnum.body:
+                    if (inventory.body.type !== InventoryConfig.defaultBody.type) {
+                        if (inventory.body.armor - value <= 0) {
+                            value -= inventory.body.armor;
+                            inventory.body = lodash.cloneDeep(InventoryConfig.defaultBody);
+                        } else {
+                            inventory.body.armor -= value;
+                            value = 0;
+                        }
+                    }
+                    break;
+                case EnumHelper.inventoryEnum.hands:
+                    if (inventory.hands.type !== InventoryConfig.defaultHands.type) {
+                        if (inventory.hands.armor - value <= 0) {
+                            value -= inventory.hands.armor;
+                            inventory.hands = lodash.cloneDeep(InventoryConfig.defaultHands);
+                        } else {
+                            inventory.hands.armor -= value;
+                            value = 0;
+                        }
+                    }
+                    break;
+                case EnumHelper.inventoryEnum.feet:
+                    if (inventory.feet.type !== InventoryConfig.defaultFeet.type) {
+                        if (inventory.feet.armor - value <= 0) {
+                            value -= inventory.feet.armor;
+                            inventory.feet = lodash.cloneDeep(InventoryConfig.defaultFeet);
+                        } else {
+                            inventory.feet.armor -= value;
+                            value = 0;
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
         }
     };

@@ -75,9 +75,9 @@ export const Character = function(game) {
             charConfig.inventory.body.armor +
             charConfig.inventory.hands.armor +
             charConfig.inventory.feet.armor +
-            charConfig.inventory.offHand.armor
+            (charConfig.inventory.offHand.armor
             ? charConfig.inventory.offHand.armor
-            : 0;
+            : 0);
         this.characters.add(character);
     };
 
