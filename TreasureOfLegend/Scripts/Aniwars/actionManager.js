@@ -54,28 +54,40 @@ export const ActionManager = function (game) {
     //ENEMY INTERACTION --------------------------------------------------------------------------------------------------------------------
     this._attackWithMainHand = (character, enemy) => {
         // TODO: check enemy vulerabilities, resistances and immunities and calculate life based on that
-        var charConfig = character.characterConfig;
-        var attackAttribute = EnumHelper.attributeEnum.strength === charConfig.inventory.mainHand.attribute
-            ? charConfig.attributes.strength
-            : charConfig.attributes.dexterity;
-        var d20 = Math.floor(Math.random() * 20) + 1 + attackAttribute;
-        if (d20 <= enemy.characterConfig.armor) {
-            if (enemy.characterConfig.armor > 0) {
+        var self = this,
+            charConfig = character.characterConfig,
+            enemyCharConfig = enemy.characterConfig,
+            attackAttribute = EnumHelper.attributeEnum.strength === charConfig.inventory.mainHand.attribute
+                ? charConfig.attributes.strength
+                : charConfig.attributes.dexterity,
+            d20 = Math.floor(Math.random() * 20) + 1 + attackAttribute;
+        if (d20 <= enemyCharConfig.armor) {
+            if (enemyCharConfig.armor > 0) {
                 this._removeArmorPointsFromEquippedInventory(enemy, 1);
             }
         } else {
-            var attackDamage = Math.floor(Math.random() * charConfig.inventory.mainHand.damage) + 1 + Math.floor(attackAttribute / 2);
-            enemy.characterConfig.life.current -= attackDamage;
-            if (enemy.characterConfig.armor > 0) {
-                this._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2));
-            }
+            _.each(charConfig.inventory.mainHand.damage, function(damage) {
+                var attackDamage = Math.floor(Math.random() * damage.value) + 1 + Math.floor(attackAttribute / 2);
+                if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === - 1) {
+                    if (enemyCharConfig.resistances.indexOf(damage.type) !== - 1) {
+                        enemyCharConfig.life.current -= (attackDamage / 2);
+                    } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== - 1) {
+                        enemyCharConfig.life.current -= (attackDamage * 2);
+                    } else {
+                        enemyCharConfig.life.current -= attackDamage;
+                    }
+                }
+                if (enemyCharConfig.armor > 0) {
+                    self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2));
+                }
+            });
         }
-        enemy.characterConfig.armor = enemy.characterConfig.inventory.head.armor +
-            enemy.characterConfig.inventory.body.armor +
-            enemy.characterConfig.inventory.hands.armor +
-            enemy.characterConfig.inventory.feet.armor +
-            (enemy.characterConfig.inventory.offHand.armor
-            ? enemy.characterConfig.inventory.offHand.armor
+        enemyCharConfig.armor = enemyCharConfig.inventory.head.armor +
+            enemyCharConfig.inventory.body.armor +
+            enemyCharConfig.inventory.hands.armor +
+            enemyCharConfig.inventory.feet.armor +
+            (enemyCharConfig.inventory.offHand.armor
+            ? enemyCharConfig.inventory.offHand.armor
             : 0);
 
         charConfig.actions.spent++;
@@ -88,21 +100,37 @@ export const ActionManager = function (game) {
     };
 
     this._attackWithSpell = (character, enemy) => {
-        var charConfig = character.characterConfig;
-        var d20 = Math.floor(Math.random() * 20) + 1 + charConfig.attributes.intelligence;
-        if (d20 <= enemy.characterConfig.armor) {
-            this._removeArmorPointsFromEquippedInventory(enemy, 1);
+        var self = this,
+            charConfig = character.characterConfig,
+            enemyCharConfig = enemy.characterConfig,
+            d20 = Math.floor(Math.random() * 20) + 1 + charConfig.attributes.intelligence;
+        if (d20 <= enemyCharConfig.armor) {
+            if (enemyCharConfig.armor > 0) {
+                this._removeArmorPointsFromEquippedInventory(enemy, 1);
+            }
         } else {
-            var attackDamage = Math.floor(Math.random() * charConfig.inventory.selectedAction.damage) + 1 + Math.floor(charConfig.attributes.intelligence / 2);
-            enemy.characterConfig.life.current -= attackDamage;
-            this._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2));
+            _.each(charConfig.actions.selectedAction.damage, function(damage) {
+                var attackDamage = Math.floor(Math.random() * damage.value) + 1 + Math.floor(charConfig.attributes.intelligence / 2);
+                if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === - 1) {
+                    if (enemyCharConfig.resistances.indexOf(damage.type) !== - 1) {
+                        enemyCharConfig.life.current -= (attackDamage / 2);
+                    } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== - 1) {
+                        enemyCharConfig.life.current -= (attackDamage * 2);
+                    } else {
+                        enemyCharConfig.life.current -= attackDamage;
+                    }
+                }
+                if (enemyCharConfig.armor > 0) {
+                    self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2));
+                }
+            });
         }
-        enemy.characterConfig.armor = enemy.characterConfig.inventory.head.armor +
-            enemy.characterConfig.inventory.body.armor +
-            enemy.characterConfig.inventory.hands.armor +
-            enemy.characterConfig.inventory.feet.armor +
-            (enemy.characterConfig.inventory.offHand.armor
-            ? enemy.characterConfig.inventory.offHand.armor
+        enemyCharConfig.armor = enemyCharConfig.inventory.head.armor +
+            enemyCharConfig.inventory.body.armor +
+            enemyCharConfig.inventory.hands.armor +
+            enemyCharConfig.inventory.feet.armor +
+            (enemyCharConfig.inventory.offHand.armor
+            ? enemyCharConfig.inventory.offHand.armor
             : 0);
 
         charConfig.actions.spent++;

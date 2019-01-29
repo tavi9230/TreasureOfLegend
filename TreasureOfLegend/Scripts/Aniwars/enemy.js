@@ -58,7 +58,10 @@ export const Enemy = function(game) {
         image: '',
         isPlayerControlled: false,
         traits: [EnumHelper.traitEnum.standard],
-        statuses: []
+        statuses: [],
+        resistances: [EnumHelper.damageTypeEnum.fire],
+        vulnerabilities: [EnumHelper.damageTypeEnum.slashing],
+        invulnerabilities: [EnumHelper.damageTypeEnum.bludgeoning]
     };
     this.game = game;
     this.map = this.game.activeMap;

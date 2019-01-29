@@ -3,10 +3,14 @@
 export const InventoryConfig = {
     defaultMainHand: {
         type: EnumHelper.inventoryEnum.defaultEquipment,
-        damage: 2,
+        damage: [
+            {
+                type: EnumHelper.damageTypeEnum.bludgeoning,
+                value: 2
+            }
+        ],
         range: 1,
         attribute: EnumHelper.attributeEnum.strength,
-        damageType: EnumHelper.damageTypeEnum.bludgeoning,
         hold: 1,
         image: 'punch',
         description: 'Default attack',
@@ -42,10 +46,14 @@ export const InventoryConfig = {
     },
     bow: {
         type: EnumHelper.inventoryEnum.mainHand,
-        damage: 4,
+        damage: [
+            {
+                type: EnumHelper.damageTypeEnum.piercing,
+                value: 4
+            }
+        ],
         range: 6,
         attribute: EnumHelper.attributeEnum.dexterity,
-        damageType: EnumHelper.damageTypeEnum.piercing,
         hold: 2,
         image: 'bow',
         description: 'Good bow',
@@ -53,10 +61,14 @@ export const InventoryConfig = {
     },
     shortsword: {
         type: EnumHelper.inventoryEnum.mainHand,
-        damage: 4,
+        damage: [
+            {
+                type: EnumHelper.damageTypeEnum.slashing,
+                value: 4
+            }
+        ],
         range: 1,
         attribute: EnumHelper.attributeEnum.strength,
-        damageType: EnumHelper.damageTypeEnum.slashing,
         hold: 1,
         image: 'shortsword',
         description: 'Good ol\' shortsword',

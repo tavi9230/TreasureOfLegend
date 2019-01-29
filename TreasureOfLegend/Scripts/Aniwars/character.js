@@ -58,7 +58,10 @@ export const Character = function(game) {
         },
         image: '',
         isPlayerControlled: true,
-        statuses: []
+        statuses: [],
+        resistances: [],
+        vulnerabilities: [],
+        invulnerabilities: []
     };
     this.game = game;
     this.map = this.game.activeMap;
