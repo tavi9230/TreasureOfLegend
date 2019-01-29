@@ -7,7 +7,8 @@
             right: 3,
             down: 4,
             left: 5
-        }
+        },
+        lootbag: 6
     },
     attributeEnum: {
         strength: 1,

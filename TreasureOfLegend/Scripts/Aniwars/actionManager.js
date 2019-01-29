@@ -11,6 +11,8 @@ export const ActionManager = function (game) {
             object.objectConfig.id === EnumHelper.idEnum.door.down ||
             object.objectConfig.id === EnumHelper.idEnum.door.left) {
             this._interactWithDoor(object);
+        } else if (object.objectConfig.id === EnumHelper.idEnum.lootbag) {
+            this._interactWithLootbag(object);
         }
     };
 
@@ -49,6 +51,10 @@ export const ActionManager = function (game) {
             this.game.events.emit('activeCharacterActed', this.game.activeCharacter, this.game.characters);
             this.game.activeMap.showMovementGrid();
         }
+    };
+
+    this._interactWithLootbag = (object) => {
+        this.game.events.emit('showDeadCharacterInventory', object);
     };
 
     //ENEMY INTERACTION --------------------------------------------------------------------------------------------------------------------
@@ -215,14 +221,34 @@ export const ActionManager = function (game) {
     };
 
     this._checkInitiative = (enemy) => {
-        var charConfig = enemy.characterConfig;
+        var charConfig = enemy.characterConfig,
+            self = this;
         if (charConfig.life.current <= 0) {
+            var lootbag = this.game.add.image(enemy.x, enemy.y, 'lootbag').setOrigin(0, 0);
+            lootbag.displayWidth = 50;
+            lootbag.displayHeight = 50;
+            lootbag.objectConfig = lodash.cloneDeep(this.game.activeMap.objConfig);
+            this._addItemsFromBodyToInventory(enemy);
+            lootbag.objectConfig.belongsTo = enemy;
+            lootbag.objectConfig.id = EnumHelper.idEnum.lootbag;
+            lootbag.objectConfig.isInteractible = true;
+            this.game.characters.experience += enemy.characterConfig.experience;
+
+            this.game.events.emit('getExperience', this.game.characters.experience);
             enemy.destroy();
             if (charConfig.isPlayerControlled) {
                 this.game.characters.characters.remove(enemy);
             } else {
                 this.game.enemies.characters.remove(enemy);
             }
+            this.game.activeMap.deadCharacters.add(lootbag);
+            // TODO: Check if this is overridden with each killed enemy
+            this.game.input.setHitArea(this.game.activeMap.deadCharacters.getChildren());
+            lootbag.on('pointerdown', function() {
+                if (self.game.activeCharacter.characterConfig.isPlayerControlled) {
+                    self.game.characters.interactWithObject(lootbag);
+                }
+            });
             this.game.initiative = this.game.sceneManager.getInitiativeArray();
         }
         this.game.events.emit('showCharacterInitiative', this.game.initiative);
@@ -329,6 +355,35 @@ export const ActionManager = function (game) {
                 default:
                     break;
             }
+        }
+    };
+
+    this._addItemsFromBodyToInventory = (character) => {
+        if (character.characterConfig.inventory.mainHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
+            character.characterConfig.inventory.items.push(lodash
+                .cloneDeep(character.characterConfig.inventory.mainHand));
+            character.characterConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
+        }
+        if (character.characterConfig.inventory.offHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
+            character.characterConfig.inventory.items.push(lodash
+                .cloneDeep(character.characterConfig.inventory.offHand));
+            character.characterConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
+        }
+        if (character.characterConfig.inventory.head.type !== EnumHelper.inventoryEnum.defaultEquipment) {
+            character.characterConfig.inventory.items.push(lodash.cloneDeep(character.characterConfig.inventory.head));
+            character.characterConfig.inventory.head = lodash.cloneDeep(InventoryConfig.defaultHead);
+        }
+        if (character.characterConfig.inventory.body.type !== EnumHelper.inventoryEnum.defaultEquipment) {
+            character.characterConfig.inventory.items.push(lodash.cloneDeep(character.characterConfig.inventory.body));
+            character.characterConfig.inventory.body = lodash.cloneDeep(InventoryConfig.defaultBody);
+        }
+        if (character.characterConfig.inventory.hands.type !== EnumHelper.inventoryEnum.defaultEquipment) {
+            character.characterConfig.inventory.items.push(lodash.cloneDeep(character.characterConfig.inventory.hands));
+            character.characterConfig.inventory.hands = lodash.cloneDeep(InventoryConfig.defaultHands);
+        }
+        if (character.characterConfig.inventory.feet.type !== EnumHelper.inventoryEnum.defaultEquipment) {
+            character.characterConfig.inventory.items.push(lodash.cloneDeep(character.characterConfig.inventory.feet));
+            character.characterConfig.inventory.feet = lodash.cloneDeep(InventoryConfig.defaultFeet);
         }
     };
 };

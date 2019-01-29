@@ -81,6 +81,11 @@ export const TestLevelScene = function() {
             this.hudScene.events.on('replaceItem', function(itemToReplace) {
                 self.characters.replaceItem(itemToReplace);
             });
+            this.hudScene.events.on('getItemFromLootBag', function(config) {
+                var item = config.item,
+                    lootbag = config.lootbag;
+                self.characters.addItemFromList(item, lootbag);
+            });
         },
         _moveCamera() {
             // TODO: Stop following active character and follow back when you don't want to scroll anymore?

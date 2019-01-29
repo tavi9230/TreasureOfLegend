@@ -57,7 +57,7 @@ export const InventoryConfig = {
         hold: 2,
         image: 'bow',
         description: 'Good bow',
-        slots: 2
+        slots: 1
     },
     shortsword: {
         type: EnumHelper.inventoryEnum.mainHand,
@@ -72,7 +72,7 @@ export const InventoryConfig = {
         hold: 1,
         image: 'shortsword',
         description: 'Good ol\' shortsword',
-        slots: 2
+        slots: 1
     },
     head: {
         type: EnumHelper.inventoryEnum.head,
@@ -92,7 +92,7 @@ export const InventoryConfig = {
         type: EnumHelper.inventoryEnum.body,
         image: 'chainmail',
         description: 'Chainmail item',
-        slots: 2,
+        slots: 1,
         armor: 4
     },
     hand: {

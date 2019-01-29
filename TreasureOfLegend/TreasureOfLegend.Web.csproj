@@ -250,6 +250,7 @@
     <Content Include="Assets\Aniwars\items\firebolt.png" />
     <Content Include="Assets\Aniwars\items\hand.jpg" />
     <Content Include="Assets\Aniwars\items\head.jpg" />
+    <Content Include="Assets\Aniwars\items\lootbag.png" />
     <Content Include="Assets\Aniwars\items\punch.png" />
     <Content Include="Assets\Aniwars\items\shield.jpg" />
     <Content Include="Assets\Aniwars\items\shortsword.png" />

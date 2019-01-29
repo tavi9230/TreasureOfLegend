@@ -46,7 +46,7 @@ export const Enemy = function(game) {
             slots: {
                 free: 2,
                 max: 2,
-                items: []
+                items: [lodash.cloneDeep(InventoryConfig.bow)]
             },
             spells: []
         },
@@ -61,11 +61,13 @@ export const Enemy = function(game) {
         statuses: [],
         resistances: [EnumHelper.damageTypeEnum.fire],
         vulnerabilities: [EnumHelper.damageTypeEnum.slashing],
-        invulnerabilities: [EnumHelper.damageTypeEnum.bludgeoning]
+        invulnerabilities: [EnumHelper.damageTypeEnum.bludgeoning],
+        experience: 10
     };
     this.game = game;
     this.map = this.game.activeMap;
     this.characters = this.game.add.group();
+    this.deadCharacters = this.game.add.group();
 
     this.addNewCharacter = (x, y, spriteName) => {
         var character = this.game.physics.add.sprite(x, y, spriteName).setOrigin(0, 0);

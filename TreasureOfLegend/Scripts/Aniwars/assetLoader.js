@@ -25,6 +25,7 @@
         game.load.image('chainmail', AssetFolder + 'items/chainmail.jpg');
         game.load.image('hand', AssetFolder + 'items/hand.jpg');
         game.load.image('feet', AssetFolder + 'items/feet.jpg');
+        game.load.image('lootbag', AssetFolder + 'items/lootbag.png');
     };
 
     this.loadHUDImages = function() {

@@ -22,7 +22,8 @@ export const BattleMap = function (game) {
         isInteractible: false,
         id: -1,
         description: '',
-        isActivated: false
+        isActivated: false,
+        belongsTo: null
     };
     var hitArea = new Phaser.Geom.Rectangle(0, 0, 50, 50);
     var hitAreaCallback = Phaser.Geom.Rectangle.Contains;
@@ -31,6 +32,10 @@ export const BattleMap = function (game) {
         hitAreaCallback: hitAreaCallback
     });
     this.objects = game.add.group({
+        hitArea: hitArea,
+        hitAreaCallback: hitAreaCallback
+    });
+    this.deadCharacters = game.add.group({
         hitArea: hitArea,
         hitAreaCallback: hitAreaCallback
     });
