@@ -61,13 +61,22 @@ export const Character = function(game) {
         statuses: [],
         resistances: [],
         vulnerabilities: [],
-        invulnerabilities: []
+        invulnerabilities: [],
+        experience: {
+            current: 0,
+            nextLevel: 200,
+            attributePoints: 0
+        },
+        level: 1
     };
     this.game = game;
-    this.experience = 0;
     this.map = this.game.activeMap;
     this.characters = this.game.add.group();
-    this.deadCharacters = this.game.add.group();
+    this.souls = {
+        current: 0,
+        nextLevel: 5,
+        skillPoints: 0
+    };
 
     this.addNewCharacter = (x, y, spriteName) => {
         var character = this.game.physics.add.sprite(x, y, spriteName).setOrigin(0, 0);
@@ -367,6 +376,19 @@ export const Character = function(game) {
             }
             this.game.events.emit('activeCharacterActed', character, this.game.characters);
         }
+    };
+
+    this.updateAttributes = (index) => {
+        var activeCharacter = this.game.activeCharacter;
+        if (index === EnumHelper.attributeEnum.strength) {
+            activeCharacter.characterConfig.attributes.strength++;
+        } else if (index === EnumHelper.attributeEnum.dexterity) {
+            activeCharacter.characterConfig.attributes.dexterity++;
+        } else if (index === EnumHelper.attributeEnum.intelligence) {
+            activeCharacter.characterConfig.attributes.intelligence++;
+        }
+        activeCharacter.characterConfig.experience.attributePoints--;
+        this.game.events.emit('activeCharacterActed', activeCharacter, this.game.characters);
     };
 
     // Private -----------------------------------------------------------------------------------------------------

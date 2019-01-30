@@ -62,12 +62,13 @@ export const Enemy = function(game) {
         resistances: [EnumHelper.damageTypeEnum.fire],
         vulnerabilities: [EnumHelper.damageTypeEnum.slashing],
         invulnerabilities: [EnumHelper.damageTypeEnum.bludgeoning],
-        experience: 10
+        experience: 800,
+        souls: 1,
+        level: 1
     };
     this.game = game;
     this.map = this.game.activeMap;
     this.characters = this.game.add.group();
-    this.deadCharacters = this.game.add.group();
 
     this.addNewCharacter = (x, y, spriteName) => {
         var character = this.game.physics.add.sprite(x, y, spriteName).setOrigin(0, 0);

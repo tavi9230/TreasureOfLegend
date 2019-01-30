@@ -99,10 +99,11 @@ export const ActionManager = function (game) {
         charConfig.actions.spent++;
         charConfig.actions.actionId = -1;
         charConfig.actions.selectedAction = null;
+
+        this._checkInitiative(enemy);
         if (charConfig.isPlayerControlled) {
             this.game.events.emit('activeCharacterActed', this.game.activeCharacter, this.game.characters);
         }
-        this._checkInitiative(enemy);
     };
 
     this._attackWithSpell = (character, enemy) => {
@@ -144,10 +145,10 @@ export const ActionManager = function (game) {
         charConfig.mana.spent += charConfig.actions.selectedAction.cost;
         charConfig.actions.selectedAction = null;
 
+        this._checkInitiative(enemy);
         if (charConfig.isPlayerControlled) {
             this.game.events.emit('activeCharacterActed', this.game.activeCharacter, this.game.characters);
         }
-        this._checkInitiative(enemy);
     };
 
     // PRIVATE -------------------------------------------------------------------------------------------------------------------------------
@@ -232,9 +233,25 @@ export const ActionManager = function (game) {
             lootbag.objectConfig.belongsTo = enemy;
             lootbag.objectConfig.id = EnumHelper.idEnum.lootbag;
             lootbag.objectConfig.isInteractible = true;
-            this.game.characters.experience += enemy.characterConfig.experience;
+            _.each(this.game.characters.characters.getChildren(), function(character) {
+                character.characterConfig.experience.current += Math.floor(enemy.characterConfig.experience / self.game.characters.characters.getChildren().length);
+                var difference = Math.floor(character.characterConfig.experience.current - character.characterConfig.experience.nextLevel);
+                if (difference >= 0) {
+                    character.characterConfig.experience.current = difference;
+                    character.characterConfig.level++;
+                    character.characterConfig.experience.attributePoints++;
+                    character.characterConfig.experience.nextLevel = Math.floor(character.characterConfig.experience.nextLevel * 1.3);
+                }
+            });
+            this.game.characters.souls.current += enemy.characterConfig.souls;
+            var difference = this.game.characters.souls.current - this.game.characters.souls.nextLevel;
+            if (difference >= 0) {
+                this.game.characters.souls.current = difference;
+                this.game.characters.souls.nextLevel += 5;
+                this.game.characters.souls.skillPoints++;
+            }
+            this.game.events.emit('updateSouls', this.game.characters.souls);
 
-            this.game.events.emit('getExperience', this.game.characters.experience);
             enemy.destroy();
             if (charConfig.isPlayerControlled) {
                 this.game.characters.characters.remove(enemy);

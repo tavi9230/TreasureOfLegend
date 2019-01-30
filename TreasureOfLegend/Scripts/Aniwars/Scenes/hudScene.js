@@ -25,7 +25,7 @@ export const HUDScene = function(sceneName) {
             this.footerPanel.fillStyle(0x111111, 0.8);
             this.footerPanel.fillRect(0, 690, 1200, 110);
             this.descriptionsText = this.add.text(410, 710, '', { fill: '#FFF' });
-            this.experienceText = this.add.text(410, 750, 'Experience: 0', { fill: '#FFF'});
+            this.soulsText = this.add.text(410, 750, 'Souls: 0/5', { fill: '#FFF'});
 
             var endTurnButton = this.add.image(1100, 710, 'hourglass').setOrigin(0, 0);
             endTurnButton.on('pointerdown', _.bind(this._endTurn, this));
@@ -60,7 +60,7 @@ export const HUDScene = function(sceneName) {
             this.activeScene.events.on('activeCharacterChanged', _.bind(this._setCharacterStatus, this));
             this.activeScene.events.on('activeCharacterActed', _.bind(this._setCharacterStatus, this));
             this.activeScene.events.on('activeCharacterPositionModified', _.bind(this._setCharacterPosition, this));
-            this.activeScene.events.on('getExperience', _.bind(this._showExperiencePoints, this));
+            this.activeScene.events.on('updateSouls', _.bind(this._updateSoulPoints, this));
             this.activeScene.events.on('showObjectDescription', function(object) {
                 self.descriptionsText.setText(object.objectConfig.description);
             });
@@ -69,12 +69,13 @@ export const HUDScene = function(sceneName) {
             this.activeScene.events.on('getSpells', _.bind(this._openSpellBook, this));
             this.activeScene.events.on('showDeadCharacterInventory', _.bind(this._showDeadCharacterInventory, this));
             this.activeScene.events.on('closeLootbag', _.bind(this._closeLootbag, this));
+            this.activeScene.events.on('updateAttributePointsPanel', _.bind(this._showAttributePointSelection, this));
         },
         _setCharacterPosition: function(character) {
             this.locationText.setText('X:' + Math.floor(character.x / 50) + ', Y:' + Math.floor(character.y / 50));
         },
-        _showExperiencePoints: function(experience) {
-            this.experienceText.setText('Experience: ' + experience);
+        _updateSoulPoints: function(souls) {
+            this.soulsText.setText('Souls: ' + souls.current + '/' + souls.nextLevel);
         },
         _setCharacterStatus: function(activeCharacter, characters) {
             //TODO: Change this function to a creation function and an update function per character
@@ -283,11 +284,56 @@ export const HUDScene = function(sceneName) {
                 }
                 this.characterInfo.name = 'characterInfo';
                 this.characterInfoCloseButtonGroup = this._createCloseButton(380, 290, this.characterInfo);
+
+                var experienceText = this.add.text(210, 330, 'Experience: ' + charConfig.experience.current + '/' + charConfig.experience.nextLevel, { fill: '#FFF'});
+                var strengthText = this.add.text(210, 345, 'Strength: ' + charConfig.attributes.strength, { fill: '#FFF'});
+                var dexterityText = this.add.text(210, 360, 'Dexterity: ' + charConfig.attributes.dexterity, { fill: '#FFF'});
+                var intelligenceText = this.add.text(210, 375, 'Intelligence: ' + charConfig.attributes.intelligence, { fill: '#FFF'});
+                this.characterInfo.add(experienceText);
+                this.characterInfo.add(strengthText);
+                this.characterInfo.add(dexterityText);
+                this.characterInfo.add(intelligenceText);
+
+                this._showAttributePointSelection(character);
             } else {
                 this.isCharacterInfoMenuOpen = false;
                 this.characterInfo.destroy(true);
                 this.characterInfoCloseButtonGroup.destroy(true);
                 this._showCharacterInfo(character);
+            }
+        },
+        _showAttributePointSelection: function(character) {
+            var charConfig = character.characterConfig;
+            if (this.attributesInfo) {
+                this.attributesInfo.destroy(true);
+            }
+            if (this.attributesInfoBox) {
+                this.attributesInfoBox.destroy(true);
+            }
+            if (charConfig.experience.attributePoints > 0
+                && character.x === this.activeScene.activeCharacter.x
+                && character.y === this.activeScene.activeCharacter.y) {
+                var self = this;
+                this.attributesInfo = this.add.group();
+                this.attributesInfoBox = this.add.group();
+                var attributePointsText = this.add.text(210, 315, 'Attribute points: ' + charConfig.experience.attributePoints, { fill: '#FFF'});
+                this.attributesInfo.add(attributePointsText);
+                for (let i = 0; i < 3; i++) {
+                    var attributeBox = this.add.graphics();
+                    attributeBox.fillStyle(0xFFD700, 0.8);
+                    attributeBox.fillRect(190, 345 + (i * 15), 15, 15);
+                    attributeBox.objectToSend = i + 1;
+                    var attributeButtonText = this.add.text(193, 345 + (i * 15), '+', { fill: '#FFF'});
+                    attributeButtonText.objectToSend = i + 1;
+                    this.attributesInfoBox.add(attributeBox);
+                    this.attributesInfoBox.add(attributeButtonText);
+                }
+                this.input.setHitArea(this.attributesInfoBox.getChildren());
+                _.each(this.attributesInfoBox.getChildren(), function (item) {
+                    item.on('pointerdown', function() {
+                        self.events.emit('addAttributePoint', item.objectToSend);
+                    });
+                });
             }
         },
         _openSpellBook: function (character) {
