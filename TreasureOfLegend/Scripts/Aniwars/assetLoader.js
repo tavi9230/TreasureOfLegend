@@ -32,6 +32,7 @@
         game.load.image('hourglass', AssetFolder + 'hourglass.png');
         game.load.image('openMenuButton', AssetFolder + 'openMenuButton.png');
         game.load.image('spells', AssetFolder + 'spells.png');
+        game.load.image('skills', AssetFolder + 'skills.png');
     };
 
     this.loadMainMenuImages = function() {

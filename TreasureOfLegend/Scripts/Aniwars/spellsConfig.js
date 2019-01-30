@@ -12,6 +12,10 @@ export const SpellsConfig = {
         cost: 2,
         attribute: EnumHelper.attributeEnum.intelligence,
         image: 'firebolt',
-        description: 'Fire for fools'
+        description: 'Fire for fools',
+        level: 0,
+        maxLevel: 1,
+        isPassive: false,
+        isSpell: true
     }
 };

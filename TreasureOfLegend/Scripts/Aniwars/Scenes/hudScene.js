@@ -45,6 +45,16 @@ export const HUDScene = function(sceneName) {
             });
             this.hudbuttons.add(spellsButton);
 
+            var skillsButton = this.add.image(850, 710, 'skills').setOrigin(0, 0);
+            skillsButton.displayHeight = 50;
+            skillsButton.displayWidth = 50;
+            skillsButton.on('pointerdown', function() {
+                if (self.activeScene.activeCharacter.characterConfig.isPlayerControlled) {
+                    self._openSkillTree(self.activeScene.activeCharacter);
+                }
+            });
+            this.hudbuttons.add(skillsButton);
+
             this.input.setHitArea(this.hudbuttons.getChildren());
 
             this.locationText = this.add.text(1080, 780, 'X:0, Y:0', { fill: '#FFF' });
@@ -338,51 +348,6 @@ export const HUDScene = function(sceneName) {
                 });
             }
         },
-        _openSpellBook: function (character) {
-            var self = this;
-            if (!this.spellBook) {
-                this.spellBook = this.add.group();
-            } else {
-                this.spellBook.destroy(true);
-                this.spellBook = this.add.group();
-            }
-            var panel = self.add.graphics();
-            panel.fillStyle(0x111111, 0.8);
-            panel.fillRect(900, 0, 300, 700);
-            this.spellBook.add(panel);
-            var x = 920;
-            var y = 10;
-            _.each(character.characterConfig.inventory.spells, function(spell) {
-                var box = self.add.graphics();
-                box.fillStyle(0xded7c7, 0.8);
-                box.fillRect(x - 10, y, 70, 70);
-                var spellImage = self.add.image(x, y + 10, spell.image).setOrigin(0, 0);
-                spellImage.displayWidth = 50;
-                spellImage.displayHeight = 50;
-
-                box.objectToSend = spell;
-                spellImage.objectToSend = spell;
-
-                self.spellBook.add(box);
-                self.spellBook.add(spellImage);
-                x += 80;
-            });
-
-            var closeButtonGroup = this._createCloseButton(1180, 0, this.spellBook);
-
-            this.input.setHitArea(this.spellBook.getChildren());
-            _.each(this.spellBook.getChildren(), function(item) {
-                item.on('pointerdown', function() {
-                    self.events.emit('spellSelected', item.objectToSend);
-                    self.spellBook.destroy(true);
-                    closeButtonGroup.destroy(true);
-                    panel.destroy();
-                    // Get main attack icon
-                    // TODO Change this to call a separate function
-                    self.events.emit('getCharacterStartData');
-                });
-            });
-        },
         _createInventorySlot: function(x, y, w, h, character, item) {
             var image = null,
                 box = this.add.graphics(),
@@ -675,6 +640,104 @@ export const HUDScene = function(sceneName) {
             if (this.enemyInventory) {
                 this.enemyInventory.destroy(true);
                 this._hideItemStats();
+            }
+        },
+        _openSpellBook: function (character) {
+            var self = this;
+            if (this.skillTree) {
+                this.skillTree.destroy(true);
+                this.skillTree.closeButtonGroup.destroy(true);
+            }
+            if (!this.spellBook) {
+                this.spellBook = this.add.group();
+            } else {
+                this.spellBook.destroy(true);
+                this.spellBook = this.add.group();
+            }
+            var panel = self.add.graphics();
+            panel.fillStyle(0x111111, 0.8);
+            panel.fillRect(900, 0, 300, 700);
+            this.spellBook.add(panel);
+            var x = 920;
+            var y = 10;
+            _.each(character.characterConfig.inventory.spells, function(spell) {
+                var box = self.add.graphics();
+                box.fillStyle(0xded7c7, 0.8);
+                box.fillRect(x - 10, y, 70, 70);
+                var spellImage = self.add.image(x, y + 10, spell.image).setOrigin(0, 0);
+                spellImage.displayWidth = 50;
+                spellImage.displayHeight = 50;
+
+                box.objectToSend = spell;
+                spellImage.objectToSend = spell;
+
+                self.spellBook.add(box);
+                self.spellBook.add(spellImage);
+                x += 80;
+            });
+
+            this.spellBook.closeButtonGroup = this._createCloseButton(1180, 0, this.spellBook);
+            this.input.setHitArea(this.spellBook.getChildren());
+            _.each(this.spellBook.getChildren(), function(item) {
+                item.on('pointerdown', function() {
+                    self.events.emit('spellSelected', item.objectToSend);
+                    self.spellBook.destroy(true);
+                    self.spellBook.closeButtonGroup.destroy(true);
+                    panel.destroy();
+                    // Get main attack icon
+                    // TODO Change this to call a separate function
+                    self.events.emit('getCharacterStartData');
+                });
+            });
+        },
+        _openSkillTree: function (character) {
+            var self = this;
+            if (this.spellBook) {
+                this.spellBook.destroy(true);
+                this.spellBook.closeButtonGroup.destroy(true);
+            }
+            if (!this.skillTree) {
+                this.skillTree = this.add.group();
+            } else {
+                this.skillTree.destroy(true);
+                this.skillTree = this.add.group();
+            }
+            var panel = self.add.graphics();
+            panel.fillStyle(0x111111, 0.8);
+            panel.fillRect(900, 0, 300, 700);
+            this.skillTree.add(panel);
+            var x = 920;
+            var y = 10;
+            _.each(character.characterConfig.skillsToBuy, function(skill) {
+                var box = self.add.graphics();
+                box.fillStyle(0xded7c7, 0.8);
+                box.fillRect(x - 10, y, 70, 70);
+                var skillImage = self.add.image(x, y + 10, skill.image).setOrigin(0, 0);
+                skillImage.displayWidth = 50;
+                skillImage.displayHeight = 50;
+                var skillLevelText = self.add.text(x + 22, y + 60, skill.level, { fill: '#FFF' });
+
+                box.objectToSend = skill;
+                skillImage.objectToSend = skill;
+                skillLevelText.objectToSend = skill;
+
+                self.skillTree.add(box);
+                self.skillTree.add(skillImage);
+                self.skillTree.add(skillLevelText);
+                x += 80;
+            });
+
+            this.skillTree.closeButtonGroup = this._createCloseButton(1180, 0, this.skillTree);
+            if (this.activeScene.characters.souls.skillPoints > 0) {
+                this.input.setHitArea(this.skillTree.getChildren());
+                _.each(this.skillTree.getChildren(), function(item) {
+                    item.on('pointerdown', function() {
+                        self.events.emit('boughtSkill', item.objectToSend);
+                        self.skillTree.closeButtonGroup.destroy(true);
+                        panel.destroy();
+                        self._openSkillTree(character);
+                    });
+                });
             }
         }
     });

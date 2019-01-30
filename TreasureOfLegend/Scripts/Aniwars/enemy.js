@@ -63,7 +63,7 @@ export const Enemy = function(game) {
         vulnerabilities: [EnumHelper.damageTypeEnum.slashing],
         invulnerabilities: [EnumHelper.damageTypeEnum.bludgeoning],
         experience: 800,
-        souls: 1,
+        souls: 5,
         level: 1
     };
     this.game = game;

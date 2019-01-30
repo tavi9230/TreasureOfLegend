@@ -49,13 +49,15 @@ export const Character = function(game) {
                 max: 2,
                 items: []
             },
-            spells: [SpellsConfig.firebolt]
+            spells: []
         },
         attributes: {
             strength: 0,
             dexterity: 0,
             intelligence: 0
         },
+        skillsToBuy: [SpellsConfig.firebolt],
+        activeSkills: [],
         image: '',
         isPlayerControlled: true,
         statuses: [],
@@ -389,6 +391,24 @@ export const Character = function(game) {
         }
         activeCharacter.characterConfig.experience.attributePoints--;
         this.game.events.emit('activeCharacterActed', activeCharacter, this.game.characters);
+    };
+
+    this.buySkill = (skill) => {
+        var activeCharacter = this.game.activeCharacter,
+            charConfig = activeCharacter.characterConfig;
+        if (!skill.isPassive && skill.isSpell) {
+            var index = charConfig.inventory.spells.indexOf(skill);
+            if (index < 0) {
+                skill.level++;
+                charConfig.inventory.spells.push(skill);
+            } else {
+                var level = charConfig.inventory.spells[index].level;
+                if (level < charConfig.inventory.spells[index].maxLevel) {
+                    charConfig.inventory.spells[index].level++;
+                }
+            }
+        }
+        this.souls.skillPoints--;
     };
 
     // Private -----------------------------------------------------------------------------------------------------

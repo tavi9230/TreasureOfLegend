@@ -256,6 +256,7 @@
     <Content Include="Assets\Aniwars\items\shortsword.png" />
     <Content Include="Assets\Aniwars\mainMenuButton.png" />
     <Content Include="Assets\Aniwars\openMenuButton.png" />
+    <Content Include="Assets\Aniwars\skills.png" />
     <Content Include="Assets\Aniwars\spells.png" />
     <Content Include="Assets\Aniwars\tile1.png" />
     <Content Include="Assets\Aniwars\tile2.png" />

@@ -95,6 +95,9 @@ export const TestLevelScene = function() {
             this.hudScene.events.on('addAttributePoint', function(index) {
                 self.characters.updateAttributes(index);
             });
+            this.hudScene.events.on('boughtSkill', function(skill) {
+                self.characters.buySkill(skill);
+            });
         },
         _moveCamera() {
             // TODO: Stop following active character and follow back when you don't want to scroll anymore?
