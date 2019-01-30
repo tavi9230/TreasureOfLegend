@@ -46,7 +46,7 @@ export const Enemy = function(game) {
             slots: {
                 free: 2,
                 max: 2,
-                items: [lodash.cloneDeep(InventoryConfig.bow)]
+                items: [lodash.cloneDeep(InventoryConfig.bow), lodash.cloneDeep(InventoryConfig.shortsword)]
             },
             spells: []
         },

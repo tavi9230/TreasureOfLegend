@@ -68,6 +68,7 @@ export const HUDScene = function(sceneName) {
             this.activeScene.events.on('endEnemyTurn', _.bind(this._endTurn, this));
             this.activeScene.events.on('getSpells', _.bind(this._openSpellBook, this));
             this.activeScene.events.on('showDeadCharacterInventory', _.bind(this._showDeadCharacterInventory, this));
+            this.activeScene.events.on('closeLootbag', _.bind(this._closeLootbag, this));
         },
         _setCharacterPosition: function(character) {
             this.locationText.setText('X:' + Math.floor(character.x / 50) + ', Y:' + Math.floor(character.y / 50));
@@ -535,6 +536,7 @@ export const HUDScene = function(sceneName) {
         },
         _showDeadCharacterInventory: function(lootbag) {
             // TODO: Show character inventory items as a list of icons
+            this._closeLootbag();
             var activeCharacter = this.activeScene.activeCharacter,
                 lootbagConfig = lootbag.objectConfig,
                 characterBelonging = lootbagConfig.belongsTo.characterConfig;
@@ -614,6 +616,12 @@ export const HUDScene = function(sceneName) {
                 item.on('pointerover', _.bind(self._showItemStats, self, { x: item.x, y: item.y, item: item.objectToSend, character: activeCharacter }));
                 item.on('pointerout', _.bind(self._hideItemStats, self));
             });
+        },
+        _closeLootbag: function() {
+            if (this.enemyInventory) {
+                this.enemyInventory.destroy(true);
+                this._hideItemStats();
+            }
         }
     });
 };
