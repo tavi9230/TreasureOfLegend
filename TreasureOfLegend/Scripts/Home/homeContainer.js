@@ -2,7 +2,7 @@
 //import { WindowEvents } from 'Shared/windowEvents';
 import { DManGame } from 'DMan/main';
 import { TBSGame } from 'TBS/main';
-import { AniwarsGame } from 'Aniwars/main';
+import {NavigationHelper} from 'Helpers/navigationHelper';
 
 export const HomeContainer = {
     template:
@@ -52,7 +52,8 @@ export const HomeContainer = {
             this.mainGame = new TBSGame();
         },
         _startAniwarsGame: function() {
-            this.mainGame = new AniwarsGame();
+            var split = window.location.href.split('Home');
+            NavigationHelper.openLocationInNewTab(split[0] + 'Aniwars');
         }
     }
 };

@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import { Error } from 'Shared/error';
 import { LandingContainer } from 'Landing/landingContainer';
 import { HomeContainer } from 'Home/homeContainer';
+import { Aniwars } from 'Aniwars/aniwars';
 
 Vue.use(VueRouter);
 
@@ -18,7 +19,12 @@ export const router = new VueRouter({
         {
             path: '/Home',
             name: 'Home',
-			component: HomeContainer
+            component: HomeContainer
+        },
+        {
+            path: '/Aniwars',
+            name: 'Aniwars',
+            component: Aniwars
         },
         {
             path: '*',
