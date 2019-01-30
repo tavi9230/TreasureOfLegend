@@ -1,6 +1,6 @@
-﻿import {AssetLoader} from 'Aniwars/assetLoader';
-import {HUDScene} from 'Aniwars/Scenes/hudScene';
-import {TestLevelScene} from 'Aniwars/Scenes/testLevelScene';
+﻿import {AssetLoader} from 'Aniwars/Helpers/assetLoader';
+import {HUDScene} from 'Aniwars/Scenes/HUD/hudScene';
+import {TestLevelScene} from 'Aniwars/Scenes/TestLevel/testLevelScene';
 
 export const MainMenuScene = function() {
     this.sceneObject = new Phaser.Class({

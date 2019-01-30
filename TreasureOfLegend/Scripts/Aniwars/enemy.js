@@ -1,7 +1,7 @@
-﻿import {Pathfinder} from 'Aniwars/pathfinder';
-import {EnumHelper} from 'Aniwars/enumHelper';
-import {ActionManager} from 'Aniwars/actionManager';
-import {InventoryConfig} from 'Aniwars/inventoryConfig';
+﻿import {Pathfinder} from 'Aniwars/Helpers/pathfinder';
+import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
+import {ActionManager} from 'Aniwars/Managers/actionManager';
+import {InventoryConfig} from 'Aniwars/Configurations/inventoryConfig';
 
 export const Enemy = function(game) {
     var actionManager = new ActionManager(game);
@@ -260,6 +260,7 @@ export const Enemy = function(game) {
 
     this._isTileOccupied = (posX, posY) => {
         var isObstacleInTheWay = false;
+        // TODO: Optimize these to only get one object with sort
         _.each(this.game.characters.characters.getChildren(), function(character) {
             if (character.x === posX && character.y === posY) {
                 isObstacleInTheWay = true;

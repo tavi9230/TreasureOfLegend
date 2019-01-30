@@ -1,7 +1,7 @@
 ﻿import {BattleMap} from 'Aniwars/map';
 import {Character} from 'Aniwars/character';
 import {Enemy} from 'Aniwars/enemy';
-import {InventoryConfig} from 'Aniwars/inventoryConfig';
+import {InventoryConfig} from 'Aniwars/Configurations/inventoryConfig';
 
 export const SceneManager = function (game) {
     this.game = game;
@@ -49,7 +49,7 @@ export const SceneManager = function (game) {
 
     this.createCamera = () => {
         //main camera
-        this.game.cameras.main.setBounds(0, -100, this.game.activeMap.levelMap[0].length * 50, this.game.activeMap.levelMap.length * 50 + 100);
+        this.game.cameras.main.setBounds(0, -100, this.game.activeMap.levelMap[0].length * 50, this.game.activeMap.levelMap.length * 50 + 200);
         if (this.game.activeCharacter.characterConfig.isPlayerControlled) {
             this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
         }

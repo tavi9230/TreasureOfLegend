@@ -1,6 +1,6 @@
-﻿import {EnumHelper} from 'Aniwars/enumHelper';
-import {Pathfinder} from 'Aniwars/pathfinder';
-import {InventoryConfig} from 'Aniwars/inventoryConfig';
+﻿import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
+import {Pathfinder} from 'Aniwars/Helpers/pathfinder';
+import {InventoryConfig} from 'Aniwars/Configurations/inventoryConfig';
 
 export const ActionManager = function (game) {
     this.game = game;

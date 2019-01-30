@@ -1,5 +1,5 @@
-﻿import {SceneManager} from 'Aniwars/sceneManager';
-import {EnumHelper} from 'Aniwars/enumHelper';
+﻿import {SceneManager} from 'Aniwars/Managers/sceneManager';
+import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
 
 export const TestLevelScene = function() {
     return new Phaser.Class({

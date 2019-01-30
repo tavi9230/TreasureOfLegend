@@ -4,4 +4,3 @@ bin/**
 webpack.config.js
 Scripts/DMan/main.js
 Scripts/TBS/main.js
-Scripts/Aniwars/main.js

@@ -1,6 +1,6 @@
-﻿import {Pathfinder} from 'Aniwars/pathfinder';
-import {MapConfig} from 'Aniwars/Maps/mapConfig';
-import {EnumHelper} from 'Aniwars/enumHelper';
+﻿import {Pathfinder} from 'Aniwars/Helpers/pathfinder';
+import {MapConfig} from 'Aniwars/Configurations/mapConfig';
+import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
 
 export const BattleMap = function (game) {
     this.game = game;
@@ -64,6 +64,7 @@ export const BattleMap = function (game) {
         this.hideMovementGrid();
         var character = game.activeCharacter;
         this.isMovementGridShown = true;
+        // TODO: Optimize this to only get one object with sort
         _.each(this.tiles.getChildren(), (tile) => {
             if ((character.characterConfig.movement.max - character.characterConfig.movement.spent) * 50 >= Math.abs(tile.x - character.characterConfig.posX) &&
                 (character.characterConfig.movement.max - character.characterConfig.movement.spent) * 50 >= Math.abs(tile.y - character.characterConfig.posY)) {
@@ -223,6 +224,7 @@ export const BattleMap = function (game) {
                     ? this._getPathToTile(currentCharacter, obj.value)
                     : this._getPathToObject(currentCharacter, obj.value);
                 if (pathWay.length > 0 && pathWay.length <= (currentCharacter.characterConfig.movement.max - currentCharacter.characterConfig.movement.spent))
+                    // TODO: Optimize this to only get one object with sort
                     _.each(this.tiles.getChildren(), function(tile) {
                         for (let i = 0; i < pathWay.length; i++) {
                             if (tile.x === pathWay[i][0] * 50 &&

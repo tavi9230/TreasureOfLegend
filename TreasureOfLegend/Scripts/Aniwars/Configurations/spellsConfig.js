@@ -1,4 +1,4 @@
-﻿import {EnumHelper} from 'Aniwars/enumHelper';
+﻿import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
 
 export const SpellsConfig = {
     firebolt: {

@@ -1,5 +1,5 @@
 ﻿var PF = require('pathfinding');
-import {EnumHelper} from 'Aniwars/enumHelper';
+import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
 
 var _cloneMap = (levelMap) => {
     var map = [];

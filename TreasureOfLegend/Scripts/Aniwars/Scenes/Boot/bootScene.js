@@ -1,4 +1,4 @@
-﻿import {AssetLoader} from 'Aniwars/assetLoader';
+﻿import {AssetLoader} from 'Aniwars/Helpers/assetLoader';
 
 export const BootScene = function() {
     return new Phaser.Class({

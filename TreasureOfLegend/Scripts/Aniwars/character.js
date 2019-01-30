@@ -1,8 +1,8 @@
-﻿import {Pathfinder} from 'Aniwars/pathfinder';
-import {EnumHelper} from 'Aniwars/enumHelper';
-import {ActionManager} from 'Aniwars/actionManager';
-import {InventoryConfig} from 'Aniwars/inventoryConfig';
-import {SpellsConfig} from 'Aniwars/spellsConfig';
+﻿import {Pathfinder} from 'Aniwars/Helpers/pathfinder';
+import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
+import {ActionManager} from 'Aniwars/Managers/actionManager';
+import {InventoryConfig} from 'Aniwars/Configurations/inventoryConfig';
+import {SpellsConfig} from 'Aniwars/Configurations/spellsConfig';
 
 export const Character = function(game) {
     var actionManager = new ActionManager(game);
@@ -268,6 +268,7 @@ export const Character = function(game) {
                     charConfig.inventory.slots.items.splice(index, 1);
                 }
                 if (itemToReplace.hold === 2) {
+                    // TODO: remove inventory free space when replacing two handed weapon with active weapon
                     if (charConfig.inventory.offHand.armor) {
                         charConfig.armor -= charConfig.inventory.offHand.armor;
                     }
@@ -516,6 +517,7 @@ export const Character = function(game) {
 
     this._isTileOccupied = (posX, posY) => {
         var isObstacleInTheWay = false;
+        // TODO: Optimize these to only get one object with sort
         _.each(this.game.enemies.characters.getChildren(), function(enemy) {
             if (enemy.x === posX && enemy.y === posY) {
                 isObstacleInTheWay = true;
