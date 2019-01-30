@@ -62,11 +62,6 @@ export const TestLevelScene = function() {
                 self.events.emit('activeCharacterChanged', self.activeCharacter, self.characters);
                 self.events.emit('showCharacterInitiative', self.initiative);
             });
-            this.hudScene.events.on('getActiveCharacterSpells', function() {
-                if (self.activeCharacter.characterConfig.isPlayerControlled) {
-                    self.events.emit('getSpells', self.activeCharacter);
-                }
-            });
             this.hudScene.events.on('spellSelected', function(spell) {
                 var charConfig = self.activeCharacter.characterConfig;
                 charConfig.actions.actionId = EnumHelper.actionEnum.attackSpell;
