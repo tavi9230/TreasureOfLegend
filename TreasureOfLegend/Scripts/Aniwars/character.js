@@ -273,7 +273,9 @@ export const Character = function(game) {
                         charConfig.armor -= charConfig.inventory.offHand.armor;
                     }
                     charConfig.inventory.offHand.isEquipped = false;
-                    charConfig.inventory.slots.items.splice(index, 1, lodash.cloneDeep(charConfig.inventory.offHand));
+                    if (charConfig.inventory.offHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
+                        charConfig.inventory.slots.items.splice(index, 1, lodash.cloneDeep(charConfig.inventory.offHand));
+                    }
                     charConfig.inventory.offHand = lodash.cloneDeep(itemToReplace);
                 }
                 if (charConfig.inventory.mainHand.hold === 2) {
