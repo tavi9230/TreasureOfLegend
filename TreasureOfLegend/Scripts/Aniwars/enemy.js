@@ -48,6 +48,7 @@ export const Enemy = function(game) {
                 max: 2,
                 items: [lodash.cloneDeep(InventoryConfig.bow), lodash.cloneDeep(InventoryConfig.shortsword)]
             },
+            money: 0,
             spells: []
         },
         attributes: {

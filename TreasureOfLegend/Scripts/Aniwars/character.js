@@ -49,6 +49,7 @@ export const Character = function(game) {
                 max: 2,
                 items: []
             },
+            money: 0,
             spells: []
         },
         attributes: {
