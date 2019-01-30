@@ -70,6 +70,7 @@ export const HUDScene = function(sceneName) {
             this.activeScene.events.on('showDeadCharacterInventory', _.bind(this._showDeadCharacterInventory, this));
             this.activeScene.events.on('closeLootbag', _.bind(this._closeLootbag, this));
             this.activeScene.events.on('updateAttributePointsPanel', _.bind(this._showAttributePointSelection, this));
+            this.activeScene.events.on('changeTurnCounter', _.bind(this._changeTurnCounter, this));
         },
         _setCharacterPosition: function(character) {
             this.locationText.setText('X:' + Math.floor(character.x / 50) + ', Y:' + Math.floor(character.y / 50));
@@ -182,7 +183,8 @@ export const HUDScene = function(sceneName) {
         },
         _endTurn: function() {
             this.events.emit('endTurn');
-            // TODO: change turn counter after all from the initiative have done their movement
+        },
+        _changeTurnCounter: function() {
             this.turn++;
             this.turnText.setText(this.turn);
         },
@@ -434,6 +436,12 @@ export const HUDScene = function(sceneName) {
                     }
                     if (self.enemyInventory) {
                         self.enemyInventory.destroy(true);
+                    }
+                    if (self.attributesInfo) {
+                        self.attributesInfo.destroy(true);
+                    }
+                    if (self.attributesInfoBox) {
+                        self.attributesInfoBox.destroy(true);
                     }
                     closeButtonGroup.destroy(true);
                 });

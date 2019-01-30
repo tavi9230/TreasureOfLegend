@@ -14,12 +14,12 @@ export const TestLevelScene = function() {
             this.sceneManager.createItems();
             this.sceneManager.createCharacters();
             this.sceneManager.createEnemies();
-            this.sceneManager.createCamera();
-
             this._activateHUDScene();
             this.cursors = this.input.keyboard.createCursorKeys();
             this.initiative = this.sceneManager.getInitiativeArray();
+            this.activeCharacter = this.initiative[0];
             this.initiativeIndex = 0;
+            this.sceneManager.createCamera();
         },
         update() {
             this.sceneManager.checkManager();
@@ -31,14 +31,17 @@ export const TestLevelScene = function() {
             this.hudScene.scene.bringToTop();
             this.hudScene.events.on('endTurn', function() {
                 var charConfig = self.activeCharacter.characterConfig;
+                var shouldChangeTurn = false;
                 if (charConfig.path.length === 0 &&
                     !charConfig.movement.isMoving) {
                     charConfig.movement.spent = 0;
                     charConfig.minorActions.spent = 0;
                     charConfig.actions.spent = 0;
+                    // TODO: Fix initiative. When one or multiple enemies die, redo the initiative
                     self.initiativeIndex++;
                     if (self.initiativeIndex >= self.initiative.length) {
                         self.initiativeIndex = 0;
+                        shouldChangeTurn = true;
                     }
                     self.activeCharacter = self.initiative[self.initiativeIndex];
 
@@ -49,6 +52,9 @@ export const TestLevelScene = function() {
                         self.cameras.main.startFollow(self.activeCharacter, true, 0.09, 0.09);
                     } else {
                         self.activeMap.hideMovementGrid();
+                    }
+                    if (shouldChangeTurn) {
+                        self.events.emit('changeTurnCounter');
                     }
                 }
             });

@@ -31,8 +31,7 @@ export const SceneManager = function (game) {
         this.game.characters.addNewCharacter(600, 450, 'character');
         this.game.characters.addNewCharacter(600, 500, 'character');
 
-        this.game.activeCharacter = this.game.characters.characters.getChildren()[0];
-        this.game.activeMap.showMovementGrid();
+        //this.game.activeMap.showMovementGrid();
     };
 
     this.createEnemies = () => {
@@ -51,7 +50,9 @@ export const SceneManager = function (game) {
     this.createCamera = () => {
         //main camera
         this.game.cameras.main.setBounds(0, -100, this.game.activeMap.levelMap[0].length * 50, this.game.activeMap.levelMap.length * 50 + 100);
-        this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
+        if (this.game.activeCharacter.characterConfig.isPlayerControlled) {
+            this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
+        }
     };
 
     this.checkManager = () => {
@@ -62,17 +63,49 @@ export const SceneManager = function (game) {
         }
     };
 
-    this.getInitiativeArray = () => {
-        var initiative = this.game.characters.characters.getChildren();
-        initiative = initiative.concat(this.game.enemies.characters.getChildren());
-        return initiative.sort(function(a, b) {
-            if (a.characterConfig.dexterity < b.characterConfig.dexterity) {
-                return -1;
-            } else if (a.characterConfig.dexterity > b.characterConfig.dexterity) {
-                return 1;
-            }
-            return 0;
-        });
+    this.getInitiativeArray = (deadCharacters) => {
+        if (!this.game.initiative) {
+            var preinitiative = [],
+                initiative = [];
+            _.each(this.game.characters.characters.getChildren(),
+                function(character) {
+                    var index = Math.floor(Math.random() * 20) + 1 + character.characterConfig.attributes.dexterity;
+                    preinitiative.push({
+                        index: index,
+                        character: character
+                    });
+                });
+            _.each(this.game.enemies.characters.getChildren(),
+                function(character) {
+                    var index = Math.floor(Math.random() * 20) + 1 + character.characterConfig.attributes.dexterity;
+                    preinitiative.push({
+                        index: index,
+                        character: character
+                    });
+                });
+            preinitiative = preinitiative.sort(function(a, b) {
+                if (a.index < b.index) {
+                    return -1;
+                } else if (a.index > b.index) {
+                    return 1;
+                }
+                return 0;
+            });
+            _.each(preinitiative,
+                function(item) {
+                    initiative.push(item.character);
+                });
+            return initiative;
+        } else {
+            var self = this;
+            _.each(deadCharacters, function(character) {
+                var index = self.game.initiative.indexOf(character);
+                if (index > -1) {
+                    self.game.initiative.splice(index, 1);
+                }
+            });
+            return self.game.initiative;
+        }
     };
 
     this.createItems = () => {

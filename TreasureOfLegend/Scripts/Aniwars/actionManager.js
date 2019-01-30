@@ -120,7 +120,7 @@ export const ActionManager = function (game) {
                 var attackDamage = Math.floor(Math.random() * damage.value) + 1 + Math.floor(charConfig.attributes.intelligence / 2);
                 if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === - 1) {
                     if (enemyCharConfig.resistances.indexOf(damage.type) !== - 1) {
-                        enemyCharConfig.life.current -= (attackDamage / 2);
+                        enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
                     } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== - 1) {
                         enemyCharConfig.life.current -= (attackDamage * 2);
                     } else {
@@ -266,7 +266,7 @@ export const ActionManager = function (game) {
                     self.game.characters.interactWithObject(lootbag);
                 }
             });
-            this.game.initiative = this.game.sceneManager.getInitiativeArray();
+            this.game.initiative = this.game.sceneManager.getInitiativeArray([enemy]);
         }
         this.game.events.emit('showCharacterInitiative', this.game.initiative);
     };
