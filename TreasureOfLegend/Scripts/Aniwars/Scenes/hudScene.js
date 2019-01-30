@@ -110,6 +110,12 @@ export const HUDScene = function(sceneName) {
                 this.characterBarImages.destroy(true);
                 this.characterBarImages = this.add.group();
             }
+            if (!this.characterMainAttack) {
+                this.characterMainAttack = this.add.group();
+            } else {
+                this.characterMainAttack.destroy(true);
+                this.characterMainAttack = this.add.group();
+            }
             _.each(characters.characters.getChildren(), function(character) {
                 var charConfig = character.characterConfig;
                 var characterImage = self.add.image(x, y, charConfig.image).setOrigin(0, 0);
@@ -161,6 +167,7 @@ export const HUDScene = function(sceneName) {
                     mainAttack = self.add.image(x + 75, y + 75, mainAttackImage).setOrigin(0, 0);
                 mainAttack.displayWidth = 25;
                 mainAttack.displayHeight = 25;
+                mainAttack.objectToSend = character;
 
                 self.characterBarImages.add(characterImage);
                 self.characterBar.add(lifeBar);
@@ -175,19 +182,24 @@ export const HUDScene = function(sceneName) {
                 self.characterBar.add(actionsText);
                 self.characterBar.add(minorActionsBox);
                 self.characterBar.add(minorActionsText);
-                self.characterBar.add(mainAttack);
+                self.characterMainAttack.add(mainAttack);
                 x += 100;
             });
 
             this.input.setHitArea(this.characterBarImages.getChildren());
             _.each(this.characterBarImages.getChildren(), function(item) {
-                // TODO: send the character as a parameter to the _showCharacterInfo method instead of children of initiativeTracker
                 item.on('pointerdown', _.bind(self._showCharacterInfo, self, item.objectToSend));
                 item.on('pointerover', function() {
                     self.events.emit('highlightCharacter', item.objectToSend);
                 });
                 item.on('pointerout', function() {
                     self.events.emit('dehighlightCharacter', item.objectToSend);
+                });
+            });
+            this.input.setHitArea(this.characterMainAttack.getChildren());
+            _.each(this.characterMainAttack.getChildren(), function(item) {
+                item.on('pointerdown', function() {
+                    self.events.emit('mainHandSelected', item.objectToSend);
                 });
             });
         },

@@ -98,6 +98,14 @@ export const TestLevelScene = function() {
             this.hudScene.events.on('boughtSkill', function(skill) {
                 self.characters.buySkill(skill);
             });
+            this.hudScene.events.on('mainHandSelected', function(character) {
+                var charConfig = character.characterConfig;
+                charConfig.actions.actionId = EnumHelper.actionEnum.attackMainHand;
+                charConfig.actions.selectedAction = null;
+                if (charConfig.isPlayerControlled) {
+                    self.events.emit('activeCharacterActed', self.activeCharacter, self.characters);
+                }
+            });
         },
         _moveCamera() {
             // TODO: Stop following active character and follow back when you don't want to scroll anymore?
