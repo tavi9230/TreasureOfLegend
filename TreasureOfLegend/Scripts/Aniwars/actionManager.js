@@ -76,7 +76,7 @@ export const ActionManager = function (game) {
                 var attackDamage = Math.floor(Math.random() * damage.value) + 1 + Math.floor(attackAttribute / 2);
                 if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === - 1) {
                     if (enemyCharConfig.resistances.indexOf(damage.type) !== - 1) {
-                        enemyCharConfig.life.current -= (attackDamage / 2);
+                        enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
                     } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== - 1) {
                         enemyCharConfig.life.current -= (attackDamage * 2);
                     } else {
