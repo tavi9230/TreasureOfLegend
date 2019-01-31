@@ -29,9 +29,9 @@ export const Pathfinder = {
             posY = destination.y,
             objConfig = destination.objectConfig;
         if (objConfig && objConfig.isActivated) {
-            if (objConfig.id === EnumHelper.idEnum.door.right || objConfig.id === EnumHelper.idEnum.door.left) {
+            if (objConfig.id === EnumHelper.idEnum.door.type.right || objConfig.id === EnumHelper.idEnum.door.type.left) {
                 posY = destination.y + 50;
-            } else if (objConfig.id === EnumHelper.idEnum.door.down || objConfig.id === EnumHelper.idEnum.door.up) {
+            } else if (objConfig.id === EnumHelper.idEnum.door.type.down || objConfig.id === EnumHelper.idEnum.door.type.up) {
                 posX = destination.x + 50;
             }
         }

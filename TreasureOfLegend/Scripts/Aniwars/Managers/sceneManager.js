@@ -26,10 +26,10 @@ export const SceneManager = function (game) {
     this.createCharacters = () => {
         //party characters
         this.game.characters = new Character(this.game);
-        this.game.characters.addNewCharacter(600, 350, 'character');
-        this.game.characters.addNewCharacter(600, 400, 'character');
-        this.game.characters.addNewCharacter(600, 450, 'character');
-        this.game.characters.addNewCharacter(600, 500, 'character');
+        this.game.characters.addNewCharacter(600, 300, 'character1');
+        this.game.characters.addNewCharacter(600, 350, 'character2');
+        this.game.characters.addNewCharacter(600, 400, 'character3');
+        this.game.characters.addNewCharacter(550, 300, 'character4');
 
         //this.game.activeMap.showMovementGrid();
     };
@@ -38,7 +38,7 @@ export const SceneManager = function (game) {
         //enemy characters
         var self = this;
         this.game.enemies = new Enemy(this.game);
-        this.game.enemies.addNewCharacter(1100, 350, 'character');
+        this.game.enemies.addNewCharacter(1000, 450, 'character');
         this.game.input.setHitArea(this.game.enemies.characters.getChildren());
         _.each(this.game.enemies.characters.getChildren(), function(enemy) {
             //mouse input on clicking game objects
@@ -51,7 +51,7 @@ export const SceneManager = function (game) {
         //main camera
         this.game.cameras.main.setBounds(0, -100, this.game.activeMap.levelMap[0].length * 50, this.game.activeMap.levelMap.length * 50 + 200);
         if (this.game.activeCharacter.characterConfig.isPlayerControlled) {
-            this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
+            //this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
         }
     };
 
@@ -67,22 +67,22 @@ export const SceneManager = function (game) {
         if (!this.game.initiative) {
             var preinitiative = [],
                 initiative = [];
-            _.each(this.game.characters.characters.getChildren(),
-                function(character) {
+            _.each(this.game.characters.characters.getChildren(), function(character) {
+                var index = Math.floor(Math.random() * 20) + 1 + character.characterConfig.attributes.dexterity;
+                preinitiative.push({
+                    index: index,
+                    character: character
+                });
+            });
+            if (this.game.enemies) {
+                _.each(this.game.enemies.characters.getChildren(), function(character) {
                     var index = Math.floor(Math.random() * 20) + 1 + character.characterConfig.attributes.dexterity;
                     preinitiative.push({
                         index: index,
                         character: character
                     });
                 });
-            _.each(this.game.enemies.characters.getChildren(),
-                function(character) {
-                    var index = Math.floor(Math.random() * 20) + 1 + character.characterConfig.attributes.dexterity;
-                    preinitiative.push({
-                        index: index,
-                        character: character
-                    });
-                });
+            }
             preinitiative = preinitiative.sort(function(a, b) {
                 if (a.index < b.index) {
                     return -1;
@@ -112,19 +112,19 @@ export const SceneManager = function (game) {
         var self = this;
 
         this.game.items = this.game.add.group();
-        var item = this.game.physics.add.sprite(550, 350, 'bow').setOrigin(0, 0);
+        var item = this.game.physics.add.sprite(700, 200, 'bow').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.bow);
         this.game.items.add(item);
 
-        item = this.game.physics.add.sprite(500, 350, 'bow').setOrigin(0, 0);
+        item = this.game.physics.add.sprite(700, 250, 'bow').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.bow);
         this.game.items.add(item);
 
-        item = this.game.physics.add.sprite(650, 350, 'shortsword').setOrigin(0, 0);
+        item = this.game.physics.add.sprite(700, 300, 'shortsword').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.shortsword);
@@ -136,31 +136,31 @@ export const SceneManager = function (game) {
         item.itemConfig = lodash.cloneDeep(InventoryConfig.shortsword);
         this.game.items.add(item);
 
-        item = this.game.physics.add.sprite(550, 400, 'head').setOrigin(0, 0);
+        item = this.game.physics.add.sprite(700, 400, 'head').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.head);
         this.game.items.add(item);
 
-        item = this.game.physics.add.sprite(650, 400, 'shield').setOrigin(0, 0);
+        item = this.game.physics.add.sprite(700, 450, 'shield').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.shield);
         this.game.items.add(item);
 
-        item = this.game.physics.add.sprite(550, 450, 'chainmail').setOrigin(0, 0);
+        item = this.game.physics.add.sprite(700, 500, 'chainmail').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.chainmail);
         this.game.items.add(item);
 
-        item = this.game.physics.add.sprite(650, 450, 'hand').setOrigin(0, 0);
+        item = this.game.physics.add.sprite(700, 550, 'hand').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.hand);
         this.game.items.add(item);
 
-        item = this.game.physics.add.sprite(550, 500, 'feet').setOrigin(0, 0);
+        item = this.game.physics.add.sprite(700, 600, 'feet').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.feet);

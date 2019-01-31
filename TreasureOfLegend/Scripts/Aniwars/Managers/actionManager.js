@@ -6,12 +6,9 @@ export const ActionManager = function (game) {
     this.game = game;
 
     this.interactWithObject = (object) => {
-        if (object.objectConfig.id === EnumHelper.idEnum.door.up ||
-            object.objectConfig.id === EnumHelper.idEnum.door.right ||
-            object.objectConfig.id === EnumHelper.idEnum.door.down ||
-            object.objectConfig.id === EnumHelper.idEnum.door.left) {
+        if (Math.floor(object.objectConfig.id) === EnumHelper.idEnum.door.id) {
             this._interactWithDoor(object);
-        } else if (object.objectConfig.id === EnumHelper.idEnum.lootbag) {
+        } else if (object.objectConfig.id === EnumHelper.idEnum.lootbag.id) {
             this._interactWithLootbag(object);
         }
     };
@@ -40,9 +37,9 @@ export const ActionManager = function (game) {
         //door animations would be nice
         if (!object.objectConfig.isActivated) {
             this.game.activeMap.levelMap[y][x] = 0;
-            if (object.objectConfig.id === EnumHelper.idEnum.door.up || object.objectConfig.id === EnumHelper.idEnum.door.down) {
+            if (object.objectConfig.id === EnumHelper.idEnum.door.type.up || object.objectConfig.id === EnumHelper.idEnum.door.type.down) {
                 object.setX(object.x - 50);
-            } else if (object.objectConfig.id === EnumHelper.idEnum.door.right || object.objectConfig.id === EnumHelper.idEnum.door.left) {
+            } else if (object.objectConfig.id === EnumHelper.idEnum.door.type.right || object.objectConfig.id === EnumHelper.idEnum.door.type.left) {
                 object.setY(object.y - 50);
             }
         } else {
@@ -241,32 +238,45 @@ export const ActionManager = function (game) {
         var charConfig = enemy.characterConfig,
             self = this;
         if (charConfig.life.current <= 0) {
-            var lootbag = this.game.add.image(enemy.x, enemy.y, 'lootbag').setOrigin(0, 0);
-            lootbag.displayWidth = 50;
-            lootbag.displayHeight = 50;
-            lootbag.objectConfig = lodash.cloneDeep(this.game.activeMap.objConfig);
+            var lootbag;
             this._addItemsFromBodyToInventory(enemy);
-            lootbag.objectConfig.belongsTo = enemy;
-            lootbag.objectConfig.id = EnumHelper.idEnum.lootbag;
-            lootbag.objectConfig.isInteractible = true;
-            _.each(this.game.characters.characters.getChildren(), function(character) {
-                character.characterConfig.experience.current += Math.floor(enemy.characterConfig.experience / self.game.characters.characters.getChildren().length);
-                var difference = Math.floor(character.characterConfig.experience.current - character.characterConfig.experience.nextLevel);
-                if (difference >= 0) {
-                    character.characterConfig.experience.current = difference;
-                    character.characterConfig.level++;
-                    character.characterConfig.experience.attributePoints++;
-                    character.characterConfig.experience.nextLevel = Math.floor(character.characterConfig.experience.nextLevel * 1.3);
-                }
-            });
-            this.game.characters.souls.current += enemy.characterConfig.souls;
-            var difference = this.game.characters.souls.current - this.game.characters.souls.nextLevel;
-            if (difference >= 0) {
-                this.game.characters.souls.current = difference;
-                this.game.characters.souls.nextLevel += 5;
-                this.game.characters.souls.skillPoints++;
+            if (charConfig.inventory.slots.items.length > 0) {
+                lootbag = this.game.add.image(enemy.x, enemy.y, 'lootbag').setOrigin(0, 0);
+                lootbag.displayWidth = 50;
+                lootbag.displayHeight = 50;
+                lootbag.objectConfig = lodash.cloneDeep(this.game.activeMap.objConfig);
+                lootbag.objectConfig.belongsTo = enemy;
+                lootbag.objectConfig.id = EnumHelper.idEnum.lootbag.id;
+                lootbag.objectConfig.isInteractible = true;
+                this.game.activeMap.deadCharacters.add(lootbag);
+                // TODO: Check if this is overridden with each killed enemy
+                this.game.input.setHitArea(this.game.activeMap.deadCharacters.getChildren());
+                lootbag.on('pointerdown', function() {
+                    if (self.game.activeCharacter.characterConfig.isPlayerControlled) {
+                        self.game.characters.interactWithObject(lootbag);
+                    }
+                });
             }
-            this.game.events.emit('updateSouls', this.game.characters.souls);
+            if (!charConfig.isPlayerControlled) {
+                _.each(this.game.characters.characters.getChildren(), function(character) {
+                    character.characterConfig.experience.current += Math.floor(enemy.characterConfig.experience / self.game.characters.characters.getChildren().length);
+                    var difference = Math.floor(character.characterConfig.experience.current - character.characterConfig.experience.nextLevel);
+                    if (difference >= 0) {
+                        character.characterConfig.experience.current = difference;
+                        character.characterConfig.level++;
+                        character.characterConfig.experience.attributePoints++;
+                        character.characterConfig.experience.nextLevel = Math.floor(character.characterConfig.experience.nextLevel * 1.3);
+                    }
+                });
+                this.game.characters.souls.current += enemy.characterConfig.souls;
+                var difference = this.game.characters.souls.current - this.game.characters.souls.nextLevel;
+                if (difference >= 0) {
+                    this.game.characters.souls.current = difference;
+                    this.game.characters.souls.nextLevel += 5;
+                    this.game.characters.souls.skillPoints++;
+                }
+                this.game.events.emit('updateSouls', this.game.characters.souls);
+            }
 
             enemy.destroy();
             if (charConfig.isPlayerControlled) {
@@ -274,14 +284,6 @@ export const ActionManager = function (game) {
             } else {
                 this.game.enemies.characters.remove(enemy);
             }
-            this.game.activeMap.deadCharacters.add(lootbag);
-            // TODO: Check if this is overridden with each killed enemy
-            this.game.input.setHitArea(this.game.activeMap.deadCharacters.getChildren());
-            lootbag.on('pointerdown', function() {
-                if (self.game.activeCharacter.characterConfig.isPlayerControlled) {
-                    self.game.characters.interactWithObject(lootbag);
-                }
-            });
             this.game.initiative = this.game.sceneManager.getInitiativeArray([enemy]);
         }
         this.game.events.emit('showCharacterInitiative', this.game.initiative);
@@ -381,29 +383,29 @@ export const ActionManager = function (game) {
 
     this._addItemsFromBodyToInventory = (character) => {
         if (character.characterConfig.inventory.mainHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
-            character.characterConfig.inventory.items.push(lodash
+            character.characterConfig.inventory.slots.items.push(lodash
                 .cloneDeep(character.characterConfig.inventory.mainHand));
             character.characterConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
         }
         if (character.characterConfig.inventory.offHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
-            character.characterConfig.inventory.items.push(lodash
+            character.characterConfig.inventory.slots.items.push(lodash
                 .cloneDeep(character.characterConfig.inventory.offHand));
             character.characterConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
         }
         if (character.characterConfig.inventory.head.type !== EnumHelper.inventoryEnum.defaultEquipment) {
-            character.characterConfig.inventory.items.push(lodash.cloneDeep(character.characterConfig.inventory.head));
+            character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(character.characterConfig.inventory.head));
             character.characterConfig.inventory.head = lodash.cloneDeep(InventoryConfig.defaultHead);
         }
         if (character.characterConfig.inventory.body.type !== EnumHelper.inventoryEnum.defaultEquipment) {
-            character.characterConfig.inventory.items.push(lodash.cloneDeep(character.characterConfig.inventory.body));
+            character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(character.characterConfig.inventory.body));
             character.characterConfig.inventory.body = lodash.cloneDeep(InventoryConfig.defaultBody);
         }
         if (character.characterConfig.inventory.hands.type !== EnumHelper.inventoryEnum.defaultEquipment) {
-            character.characterConfig.inventory.items.push(lodash.cloneDeep(character.characterConfig.inventory.hands));
+            character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(character.characterConfig.inventory.hands));
             character.characterConfig.inventory.hands = lodash.cloneDeep(InventoryConfig.defaultHands);
         }
         if (character.characterConfig.inventory.feet.type !== EnumHelper.inventoryEnum.defaultEquipment) {
-            character.characterConfig.inventory.items.push(lodash.cloneDeep(character.characterConfig.inventory.feet));
+            character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(character.characterConfig.inventory.feet));
             character.characterConfig.inventory.feet = lodash.cloneDeep(InventoryConfig.defaultFeet);
         }
     };

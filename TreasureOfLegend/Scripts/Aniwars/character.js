@@ -82,7 +82,9 @@ export const Character = function(game) {
     };
 
     this.addNewCharacter = (x, y, spriteName) => {
-        var character = this.game.physics.add.sprite(x, y, spriteName).setOrigin(0, 0);
+        var character = this.game.physics.add.sprite(x, y, spriteName).setOrigin(0, 0.5);
+        character.height = 50;
+        character.width = 50;
         character.characterConfig = lodash.cloneDeep(this.characterConfig);
         var charConfig = character.characterConfig;
         charConfig.posX = x;
@@ -540,11 +542,13 @@ export const Character = function(game) {
     this._isTileOccupied = (posX, posY) => {
         var isObstacleInTheWay = false;
         // TODO: Optimize these to only get one object with sort
-        _.each(this.game.enemies.characters.getChildren(), function(enemy) {
-            if (enemy.x === posX && enemy.y === posY) {
-                isObstacleInTheWay = true;
-            }
-        });
+        if (this.game.enemies) {
+            _.each(this.game.enemies.characters.getChildren(), function(enemy) {
+                if (enemy.x === posX && enemy.y === posY) {
+                    isObstacleInTheWay = true;
+                }
+            });
+        }
         _.each(this.game.characters.characters.getChildren(), function(character) {
             if (character.x === posX && character.y === posY) {
                 isObstacleInTheWay = true;
@@ -553,16 +557,9 @@ export const Character = function(game) {
         _.each(this.game.activeMap.objects.getChildren(), function(object) {
             if (object.x === posX && object.y === posY) {
                 //if object is a door check if it is open/activated
-                if ((object.objectConfig.id === EnumHelper.idEnum.door.up ||
-                    object.objectConfig.id === EnumHelper.idEnum.door.right ||
-                    object.objectConfig.id === EnumHelper.idEnum.door.down ||
-                    object.objectConfig.id === EnumHelper.idEnum.door.left)
-                    && !object.objectConfig.isActivated) {
+                if (Math.floor(object.objectConfig.id) === Math.floor(EnumHelper.idEnum.door.id) && !object.objectConfig.isActivated) {
                     isObstacleInTheWay = true;
-                } else if ((object.objectConfig.id !== EnumHelper.idEnum.door.up &&
-                    object.objectConfig.id !== EnumHelper.idEnum.door.right &&
-                    object.objectConfig.id !== EnumHelper.idEnum.door.down &&
-                    object.objectConfig.id !== EnumHelper.idEnum.door.left)) {
+                } else if (Math.floor(object.objectConfig.id) !== Math.floor(EnumHelper.idEnum.door.id)) {
                     isObstacleInTheWay = true;
                 }
                 //return;

@@ -9,11 +9,25 @@
         game.load.image('tile4', AssetFolder + 'tile4.png');
         game.load.image('tile5', AssetFolder + 'tile5.png');
         game.load.image('wallTile', AssetFolder + 'wallTile.png');
+        game.load.image('wallTile2', AssetFolder + 'wallTile2.png');
+        game.load.image('wallTileVertical', AssetFolder + 'wallTileVertical.png');
         game.load.image('doorUp', AssetFolder + 'doorUp.png');
         game.load.image('doorDown', AssetFolder + 'doorDown.png');
         game.load.image('doorLeft', AssetFolder + 'doorLeft.png');
         game.load.image('doorRight', AssetFolder + 'doorRight.png');
         game.load.image('character', AssetFolder + 'character.png');
+
+        game.load.image('character1', AssetFolder + 'char01_0000.png');
+        game.load.image('character2', AssetFolder + 'char02_0000.png');
+        game.load.image('character3', AssetFolder + 'char03_0000.png');
+        game.load.image('character4', AssetFolder + 'char04_0000.png');
+
+        game.load.image('wallTest', AssetFolder + 'walls/wallTest.png');
+        game.load.image('wallVerticalTest', AssetFolder + 'walls/wallVerticalTest.png');
+        game.load.image('wallTopLeftTest', AssetFolder + 'walls/wallTopLeft.png');
+        game.load.image('wallTopRightTest', AssetFolder + 'walls/wallTopRight.png');
+        game.load.image('wallBottomRightTest', AssetFolder + 'walls/wallBottomRightTest.png');
+        game.load.image('wallBottomLeftTest', AssetFolder + 'walls/wallBottomLeftTest.png');
 
         game.load.image('arrow', AssetFolder + 'items/arrow.png');
         game.load.image('punch', AssetFolder + 'items/punch.png');

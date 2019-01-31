@@ -45,12 +45,11 @@ export const BattleMap = function (game) {
     this.generateMap = () => {
         for (let i = 0, y = 0; i < this.levelMap.length; i++, y += 50) {
             for (let j = 0, x = 0; j < this.levelMap[i].length; j++, x += 50) {
-                if (this.levelMap[i][j] === EnumHelper.idEnum.tile) {
+                if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.tile.id)) {
                     this._addTile(x, y);
-                } else if (this.levelMap[i][j] === EnumHelper.idEnum.wall) {
-                    this._addWall(x, y);
-                } else if (this.levelMap[i][j] === EnumHelper.idEnum.door.up || this.levelMap[i][j] === EnumHelper.idEnum.door.right ||
-                    this.levelMap[i][j] === EnumHelper.idEnum.door.down || this.levelMap[i][j] === EnumHelper.idEnum.door.left) {
+                } else if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.wall.id)) {
+                    this._addWall(x, y, this.levelMap[i][j]);
+                } else if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.door.id)) {
                     this._addTile(x, y);
                     this._addDoor(x, y, i, j, this.levelMap[i][j]);
                 }
@@ -73,7 +72,7 @@ export const BattleMap = function (game) {
                 if (pathWay.length > 0) {
                     pathWay.shift();
                     if (pathWay.length <= (character.characterConfig.movement.max - character.characterConfig.movement.spent)
-                        && auxMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile
+                        && auxMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile.id
                         && (character.x !== tile.x || character.y !== tile.y)) {
                         tile.setTint(0x990899);
                     }
@@ -119,9 +118,9 @@ export const BattleMap = function (game) {
     this.getObjRealCoords = (object) => {
         var objX = object.x;
         var objY = object.y;
-        if (object.objectConfig.id === EnumHelper.idEnum.door.right || object.objectConfig.id === EnumHelper.idEnum.door.left) {
+        if (object.objectConfig.id === EnumHelper.idEnum.door.type.right || object.objectConfig.id === EnumHelper.idEnum.door.type.left) {
             objY = object.objectConfig.isActivated ? object.y + 50 : object.y;
-        } else if (object.objectConfig.id === EnumHelper.idEnum.door.down || object.objectConfig.id === EnumHelper.idEnum.door.up) {
+        } else if (object.objectConfig.id === EnumHelper.idEnum.door.type.down || object.objectConfig.id === EnumHelper.idEnum.door.type.up) {
             objX = object.objectConfig.isActivated ? object.x + 50 : object.x;
         }
         return {
@@ -154,31 +153,52 @@ export const BattleMap = function (game) {
         var obj = game.add.sprite(x, y, 'tile' + tileNumber).setOrigin(0, 0);
         obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.objectConfig.description = 'Stone tile';
-        obj.objectConfig.id = EnumHelper.idEnum.tile;
+        obj.objectConfig.id = EnumHelper.idEnum.tile.id;
         this.tiles.add(obj);
     };
 
-    this._addWall = (x, y) => {
-        var obj = game.add.sprite(x, y, 'wallTile').setOrigin(0, 0);
+    this._addWall = (x, y, wallId) => {
+        var obj;
+        if (wallId === EnumHelper.idEnum.wall.type.top) {
+            obj = game.add.sprite(x, y, 'wallTest').setOrigin(0, 0);
+        } else if (wallId === EnumHelper.idEnum.wall.type.side) {
+            obj = game.add.sprite(x, y, 'wallVerticalTest').setOrigin(0, 0);
+        } else if (wallId === EnumHelper.idEnum.wall.type.bottomLeft) {
+            obj = game.add.sprite(x, y, 'wallBottomLeftTest').setOrigin(0, 0);
+        } else if (wallId === EnumHelper.idEnum.wall.type.bottomRight) {
+            obj = game.add.sprite(x, y, 'wallBottomRightTest').setOrigin(0, 0);
+        } else if (wallId === EnumHelper.idEnum.wall.type.topLeft) {
+            obj = game.add.sprite(x, y, 'wallTopLeftTest').setOrigin(0, 0);
+        } else if (wallId === EnumHelper.idEnum.wall.type.topRight) {
+            obj = game.add.sprite(x, y, 'wallTopRightTest').setOrigin(0, 0);
+        }
         obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.displayWidth = 50;
         obj.displayHeight = 50;
-        //obj.width = 50;
-        //obj.height = 50;
+        obj.width = 50;
+        obj.height = 50;
+        if (wallId === EnumHelper.idEnum.wall.type.top
+            || wallId === EnumHelper.idEnum.wall.type.bottomLeft
+            || wallId === EnumHelper.idEnum.wall.type.bottomRight) {
+            obj.displayWidth = 50;
+            obj.displayHeight = 100;
+            obj.width = 50;
+            obj.height = 100;
+        }
         obj.objectConfig.description = 'Stone wall';
-        obj.objectConfig.id = EnumHelper.idEnum.wall;
+        obj.objectConfig.id = EnumHelper.idEnum.wall.id;
         this.objects.add(obj);
     };
 
     this._addDoor = (x, y, i, j, doorId) => {
         var obj;
-        if (doorId === EnumHelper.idEnum.door.up) {
+        if (doorId === EnumHelper.idEnum.door.type.up) {
             obj = game.add.sprite(x, y, 'doorUp').setOrigin(0, 0);
-        } else if (doorId === EnumHelper.idEnum.door.right) {
+        } else if (doorId === EnumHelper.idEnum.door.type.right) {
             obj = game.add.sprite(x, y, 'doorRight').setOrigin(0, 0);
-        } else if (doorId === EnumHelper.idEnum.door.down) {
+        } else if (doorId === EnumHelper.idEnum.door.type.down) {
             obj = game.add.sprite(x, y, 'doorDown').setOrigin(0, 0);
-        } else if (doorId === EnumHelper.idEnum.door.left) {
+        } else if (doorId === EnumHelper.idEnum.door.type.left) {
             obj = game.add.sprite(x, y, 'doorLeft').setOrigin(0, 0);
         }
         obj.objectConfig = lodash.cloneDeep(this.objConfig);
@@ -229,7 +249,7 @@ export const BattleMap = function (game) {
                         for (let i = 0; i < pathWay.length; i++) {
                             if (tile.x === pathWay[i][0] * 50 &&
                                 tile.y === pathWay[i][1] * 50 &&
-                                self.levelMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile) {
+                                self.levelMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile.id) {
                                 tile.setTint(0x4693eb);
                             }
                         }

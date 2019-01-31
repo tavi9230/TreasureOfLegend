@@ -172,10 +172,7 @@ export const Enemy = function(game) {
         var paths = [];
         var auxMap = this.game.activeMap.addEnemiesToMap(this.game.characters);
         _.each(this.game.activeMap.objects.getChildren(), function(object) {
-            if (object.objectConfig.id === EnumHelper.idEnum.door.up ||
-                object.objectConfig.id === EnumHelper.idEnum.door.down ||
-                object.objectConfig.id === EnumHelper.idEnum.door.left ||
-                object.objectConfig.id === EnumHelper.idEnum.door.right) {
+            if (Math.floor(object.objectConfig.id) === Math.floor(EnumHelper.idEnum.door.id)) {
                 if (!object.objectConfig.isActivated) {
                     auxMap[object.y / 50][object.x / 50] = 0;
                     var path = Pathfinder.findWay(currentCharacter.x / 50,
@@ -283,16 +280,9 @@ export const Enemy = function(game) {
         _.each(this.game.activeMap.objects.getChildren(), function(object) {
             if (object.x === posX && object.y === posY) {
                 //if object is a door check if it is open/activated
-                if ((object.objectConfig.id === EnumHelper.idEnum.door.up ||
-                    object.objectConfig.id === EnumHelper.idEnum.door.right ||
-                    object.objectConfig.id === EnumHelper.idEnum.door.down ||
-                    object.objectConfig.id === EnumHelper.idEnum.door.left)
-                    && !object.objectConfig.isActivated) {
+                if ((Math.floor(object.objectConfig.id) === Math.floor(EnumHelper.idEnum.door.id)) && !object.objectConfig.isActivated) {
                     isObstacleInTheWay = true;
-                } else if ((object.objectConfig.id !== EnumHelper.idEnum.door.up &&
-                    object.objectConfig.id !== EnumHelper.idEnum.door.right &&
-                    object.objectConfig.id !== EnumHelper.idEnum.door.down &&
-                    object.objectConfig.id !== EnumHelper.idEnum.door.left)) {
+                } else if (Math.floor(object.objectConfig.id) !== Math.floor(EnumHelper.idEnum.door.id)) {
                     isObstacleInTheWay = true;
                 }
                 //return;

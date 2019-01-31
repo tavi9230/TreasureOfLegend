@@ -4,3 +4,4 @@ bin/**
 webpack.config.js
 Scripts/DMan/main.js
 Scripts/TBS/main.js
+Scripts/Aniwars/Configurations/mapConfig.js

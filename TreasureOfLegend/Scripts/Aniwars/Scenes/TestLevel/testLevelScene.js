@@ -49,7 +49,7 @@ export const TestLevelScene = function() {
                         self.events.emit('activeCharacterChanged', self.activeCharacter, self.characters);
                         self.events.emit('activeCharacterPositionModified', self.activeCharacter);
                         self.activeMap.showMovementGrid();
-                        self.cameras.main.startFollow(self.activeCharacter, true, 0.09, 0.09);
+                        //self.cameras.main.startFollow(self.activeCharacter, true, 0.09, 0.09);
                     } else {
                         self.activeMap.hideMovementGrid();
                     }

@@ -1,14 +1,33 @@
 ﻿export const EnumHelper = {
     idEnum: {
-        tile: 0,
-        wall: 1,
-        door: {
-            up: 2,
-            right: 3,
-            down: 4,
-            left: 5
+        tile: {
+            id: 0,
+            type: {}
         },
-        lootbag: 6
+        wall: {
+            id: 1,
+            type: {
+                top: 1.1,
+                side: 1.2,
+                topLeft: 1.3,
+                topRight: 1.4,
+                bottomLeft: 1.5,
+                bottomRight: 1.6
+            }
+        },
+        door: {
+            id: 2,
+            type: {
+                up: 2.1,
+                right: 2.2,
+                down: 2.3,
+                left: 2.4
+            }
+        },
+        lootbag: {
+            id: 3,
+            type: {}
+        }
     },
     attributeEnum: {
         strength: 1,
