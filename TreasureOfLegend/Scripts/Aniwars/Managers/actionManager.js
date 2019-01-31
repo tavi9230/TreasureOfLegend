@@ -310,6 +310,7 @@ export const ActionManager = function (game) {
     };
 
     this._removeArmorPointsFromEquippedInventory = (enemy, value) => {
+        //TODO make sure this works when enemy has no armor
         while (value > 0) {
             var pieceHit = Math.floor(Math.random() * 6) + 1,
                 inventory = enemy.characterConfig.inventory;

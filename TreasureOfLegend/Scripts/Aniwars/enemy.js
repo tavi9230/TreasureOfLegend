@@ -8,8 +8,8 @@ export const Enemy = function(game) {
 
     this.characterConfig = {
         life: {
-            max: 1,
-            current: 1
+            max: 5,
+            current: 5
         },
         mana: {
             max: 0,
