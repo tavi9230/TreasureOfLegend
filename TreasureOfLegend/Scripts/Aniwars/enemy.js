@@ -21,6 +21,7 @@ export const Enemy = function(game) {
             isMoving: false
         },
         armor: 0,
+        naturalArmor: 2,
         velocity: 200,
         posX: 0,
         posY: 0,
@@ -74,9 +75,17 @@ export const Enemy = function(game) {
     this.addNewCharacter = (x, y, spriteName) => {
         var character = this.game.physics.add.sprite(x, y, spriteName).setOrigin(0, 0);
         character.characterConfig = lodash.cloneDeep(this.characterConfig);
-        character.characterConfig.posX = x;
-        character.characterConfig.posY = y;
-        character.characterConfig.image = spriteName;
+        var charConfig = character.characterConfig;
+        charConfig.posX = x;
+        charConfig.posY = y;
+        charConfig.image = spriteName;
+        charConfig.armor = charConfig.inventory.head.armor +
+            charConfig.inventory.body.armor +
+            charConfig.inventory.hands.armor +
+            charConfig.inventory.feet.armor +
+            (charConfig.inventory.offHand.armor
+            ? charConfig.inventory.offHand.armor
+            : 0) + charConfig.naturalArmor;
         this.characters.add(character);
     };
 

@@ -19,12 +19,14 @@ export const ActionManager = function (game) {
     this.interactWithEnemy = (enemy) => {
         var character = this.game.activeCharacter,
             charConfig = character.characterConfig;
-        if (charConfig.actions.actionId === EnumHelper.actionEnum.attackMainHand) {
-            this._checkDefaultAction(character, enemy);
-        } else if (charConfig.actions.actionId === EnumHelper.actionEnum.attackSpell) {
-            this._checkSpellAttack(character, enemy);
-        } else {
-            this._checkDefaultAction(character, enemy);
+        if (!charConfig.movement.isMoving) {
+            if (charConfig.actions.actionId === EnumHelper.actionEnum.attackMainHand) {
+                this._checkDefaultAction(character, enemy);
+            } else if (charConfig.actions.actionId === EnumHelper.actionEnum.attackSpell) {
+                this._checkSpellAttack(character, enemy);
+            } else {
+                this._checkDefaultAction(character, enemy);
+            }
         }
     };
 
@@ -68,8 +70,10 @@ export const ActionManager = function (game) {
                 : charConfig.attributes.dexterity,
             d20 = Math.floor(Math.random() * 20) + 1 + attackAttribute;
         if (d20 <= enemyCharConfig.armor) {
-            if (enemyCharConfig.armor > 0) {
+            if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                 this._removeArmorPointsFromEquippedInventory(enemy, 1);
+            } else if (enemyCharConfig.naturalArmor > 0) {
+                enemyCharConfig.naturalArmor--;
             }
         } else {
             _.each(charConfig.inventory.mainHand.damage, function(damage) {
@@ -83,8 +87,13 @@ export const ActionManager = function (game) {
                         enemyCharConfig.life.current -= attackDamage;
                     }
                 }
-                if (enemyCharConfig.armor > 0) {
+                if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                     self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2));
+                } else if (enemyCharConfig.naturalArmor > 0) {
+                    enemyCharConfig.naturalArmor -= Math.ceil(attackDamage / 2);
+                    if (enemyCharConfig.naturalArmor < 0) {
+                        enemyCharConfig.naturalArmor = 0;
+                    }
                 }
             });
         }
@@ -94,7 +103,7 @@ export const ActionManager = function (game) {
             enemyCharConfig.inventory.feet.armor +
             (enemyCharConfig.inventory.offHand.armor
             ? enemyCharConfig.inventory.offHand.armor
-            : 0);
+            : 0) + enemyCharConfig.naturalArmor;
 
         charConfig.actions.spent++;
         charConfig.actions.actionId = -1;
@@ -112,8 +121,10 @@ export const ActionManager = function (game) {
             enemyCharConfig = enemy.characterConfig,
             d20 = Math.floor(Math.random() * 20) + 1 + charConfig.attributes.intelligence;
         if (d20 <= enemyCharConfig.armor) {
-            if (enemyCharConfig.armor > 0) {
+            if (enemyCharConfig.armor - enemyCharConfig.naturalArmor> 0) {
                 this._removeArmorPointsFromEquippedInventory(enemy, 1);
+            } else if (enemyCharConfig.naturalArmor > 0) {
+                enemyCharConfig.naturalArmor--;
             }
         } else {
             _.each(charConfig.actions.selectedAction.damage, function(damage) {
@@ -127,8 +138,13 @@ export const ActionManager = function (game) {
                         enemyCharConfig.life.current -= attackDamage;
                     }
                 }
-                if (enemyCharConfig.armor > 0) {
+                if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                     self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2));
+                } else if (enemyCharConfig.naturalArmor > 0) {
+                    enemyCharConfig.naturalArmor -= Math.ceil(attackDamage / 2);
+                    if (enemyCharConfig.naturalArmor < 0) {
+                        enemyCharConfig.naturalArmor = 0;
+                    }
                 }
             });
         }
@@ -138,7 +154,7 @@ export const ActionManager = function (game) {
             enemyCharConfig.inventory.feet.armor +
             (enemyCharConfig.inventory.offHand.armor
             ? enemyCharConfig.inventory.offHand.armor
-            : 0);
+            : 0) + enemyCharConfig.naturalArmor;
 
         charConfig.actions.spent++;
         charConfig.actions.actionId = -1;
@@ -310,69 +326,56 @@ export const ActionManager = function (game) {
     };
 
     this._removeArmorPointsFromEquippedInventory = (enemy, value) => {
-        //TODO make sure this works when enemy has no armor
-        while (value > 0) {
-            var pieceHit = Math.floor(Math.random() * 6) + 1,
-                inventory = enemy.characterConfig.inventory;
-            switch (pieceHit) {
-                case EnumHelper.inventoryEnum.offHand:
-                    if (inventory.offHand.type !== InventoryConfig.defaultMainHand.type && inventory.offHand.armor) {
-                        if (inventory.offHand.armor - value <= 0) {
-                            value -= inventory.offHand.armor;
-                            inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
-                        } else {
-                            inventory.offHand.armor -= value;
-                            value = 0;
-                        }
+        var pieceHit = Math.floor(Math.random() * 6) + 1,
+            inventory = enemy.characterConfig.inventory;
+        switch (pieceHit) {
+            case EnumHelper.inventoryEnum.offHand:
+                if (inventory.offHand.type !== InventoryConfig.defaultMainHand.type && inventory.offHand.armor) {
+                    if (inventory.offHand.armor - value <= 0) {
+                        inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
+                    } else {
+                        inventory.offHand.armor -= value;
                     }
-                    break;
-                case EnumHelper.inventoryEnum.head:
-                    if (inventory.head.type !== InventoryConfig.defaultHead.type) {
-                        if (inventory.head.armor - value <= 0) {
-                            value -= inventory.head.armor;
-                            inventory.head = lodash.cloneDeep(InventoryConfig.defaultHead);
-                        } else {
-                            inventory.head.armor -= value;
-                            value = 0;
-                        }
+                }
+                break;
+            case EnumHelper.inventoryEnum.head:
+                if (inventory.head.type !== InventoryConfig.defaultHead.type) {
+                    if (inventory.head.armor - value <= 0) {
+                        inventory.head = lodash.cloneDeep(InventoryConfig.defaultHead);
+                    } else {
+                        inventory.head.armor -= value;
                     }
-                    break;
-                case EnumHelper.inventoryEnum.body:
-                    if (inventory.body.type !== InventoryConfig.defaultBody.type) {
-                        if (inventory.body.armor - value <= 0) {
-                            value -= inventory.body.armor;
-                            inventory.body = lodash.cloneDeep(InventoryConfig.defaultBody);
-                        } else {
-                            inventory.body.armor -= value;
-                            value = 0;
-                        }
+                }
+                break;
+            case EnumHelper.inventoryEnum.body:
+                if (inventory.body.type !== InventoryConfig.defaultBody.type) {
+                    if (inventory.body.armor - value <= 0) {
+                        inventory.body = lodash.cloneDeep(InventoryConfig.defaultBody);
+                    } else {
+                        inventory.body.armor -= value;
                     }
-                    break;
-                case EnumHelper.inventoryEnum.hands:
-                    if (inventory.hands.type !== InventoryConfig.defaultHands.type) {
-                        if (inventory.hands.armor - value <= 0) {
-                            value -= inventory.hands.armor;
-                            inventory.hands = lodash.cloneDeep(InventoryConfig.defaultHands);
-                        } else {
-                            inventory.hands.armor -= value;
-                            value = 0;
-                        }
+                }
+                break;
+            case EnumHelper.inventoryEnum.hands:
+                if (inventory.hands.type !== InventoryConfig.defaultHands.type) {
+                    if (inventory.hands.armor - value <= 0) {
+                        inventory.hands = lodash.cloneDeep(InventoryConfig.defaultHands);
+                    } else {
+                        inventory.hands.armor -= value;
                     }
-                    break;
-                case EnumHelper.inventoryEnum.feet:
-                    if (inventory.feet.type !== InventoryConfig.defaultFeet.type) {
-                        if (inventory.feet.armor - value <= 0) {
-                            value -= inventory.feet.armor;
-                            inventory.feet = lodash.cloneDeep(InventoryConfig.defaultFeet);
-                        } else {
-                            inventory.feet.armor -= value;
-                            value = 0;
-                        }
+                }
+                break;
+            case EnumHelper.inventoryEnum.feet:
+                if (inventory.feet.type !== InventoryConfig.defaultFeet.type) {
+                    if (inventory.feet.armor - value <= 0) {
+                        inventory.feet = lodash.cloneDeep(InventoryConfig.defaultFeet);
+                    } else {
+                        inventory.feet.armor -= value;
                     }
-                    break;
-                default:
-                    break;
-            }
+                }
+                break;
+            default:
+                break;
         }
     };
 

@@ -10,6 +10,7 @@ export const Character = function(game) {
     this.characterConfig = {
         path: [],
         armor: 0,
+        naturalArmor: 0,
         posX: 0,
         posY: 0,
         velocity: 200,
@@ -93,7 +94,7 @@ export const Character = function(game) {
             charConfig.inventory.feet.armor +
             (charConfig.inventory.offHand.armor
             ? charConfig.inventory.offHand.armor
-            : 0);
+            : 0) + charConfig.naturalArmor;
         this.characters.add(character);
     };
 
