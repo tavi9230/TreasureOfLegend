@@ -84,6 +84,7 @@ export const BattleMap = function (game) {
                 if (pathWay.length <= (character.characterConfig.movement.max - character.characterConfig.movement.spent)
                     && auxMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile.id
                     && (character.x !== tile.x || character.y !== tile.y)) {
+                    // TODO: Don't highlight if another character or enemy is on the tile
                     tile.setTint(0x990899);
                 }
             }

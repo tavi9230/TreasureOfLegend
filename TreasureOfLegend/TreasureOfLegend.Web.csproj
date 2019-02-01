@@ -237,11 +237,15 @@
     <Content Include="App_Data\Images\Tileset\tileset9.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\Aniwars\castledoors.png" />
+    <Content Include="Assets\Aniwars\castledoorsVertical.png" />
+    <Content Include="Assets\Aniwars\char01_0000.png" />
+    <Content Include="Assets\Aniwars\char02_0000.png" />
+    <Content Include="Assets\Aniwars\char03_0000.png" />
+    <Content Include="Assets\Aniwars\char04_0000.png" />
     <Content Include="Assets\Aniwars\character.png" />
-    <Content Include="Assets\Aniwars\doorDown.png" />
     <Content Include="Assets\Aniwars\doorLeft.png" />
     <Content Include="Assets\Aniwars\doorRight.png" />
-    <Content Include="Assets\Aniwars\doorUp.png" />
     <Content Include="Assets\Aniwars\hourglass.png" />
     <Content Include="Assets\Aniwars\items\arrow.png" />
     <Content Include="Assets\Aniwars\items\bow.png" />
@@ -255,15 +259,25 @@
     <Content Include="Assets\Aniwars\items\shield.jpg" />
     <Content Include="Assets\Aniwars\items\shortsword.png" />
     <Content Include="Assets\Aniwars\mainMenuButton.png" />
+    <Content Include="Assets\Aniwars\objects\energyWell.png" />
+    <Content Include="Assets\Aniwars\objects\healthWell.png" />
+    <Content Include="Assets\Aniwars\objects\manaWell.png" />
+    <Content Include="Assets\Aniwars\objects\movementWell.png" />
     <Content Include="Assets\Aniwars\openMenuButton.png" />
     <Content Include="Assets\Aniwars\skills.png" />
     <Content Include="Assets\Aniwars\spells.png" />
+    <Content Include="Assets\Aniwars\test.jpg" />
     <Content Include="Assets\Aniwars\tile1.png" />
     <Content Include="Assets\Aniwars\tile2.png" />
     <Content Include="Assets\Aniwars\tile3.png" />
     <Content Include="Assets\Aniwars\tile4.png" />
     <Content Include="Assets\Aniwars\tile5.png" />
-    <Content Include="Assets\Aniwars\wallTile.png" />
+    <Content Include="Assets\Aniwars\walls\wallBottomLeftTest.png" />
+    <Content Include="Assets\Aniwars\walls\wallBottomRightTest.png" />
+    <Content Include="Assets\Aniwars\walls\wallTest.png" />
+    <Content Include="Assets\Aniwars\walls\wallTopLeft.png" />
+    <Content Include="Assets\Aniwars\walls\wallTopRight.png" />
+    <Content Include="Assets\Aniwars\walls\wallVerticalTest.png" />
     <Content Include="Assets\Audio\background.mp3" />
     <Content Include="Assets\Audio\coin.mp3" />
     <Content Include="Assets\Audio\death.mp3" />
