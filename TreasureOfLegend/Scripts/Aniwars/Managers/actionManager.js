@@ -62,7 +62,7 @@ export const ActionManager = function (game) {
     this._interactWithWell = (object) => {
         var activeCharacter = this.game.activeCharacter;
         if (object.objectConfig.id === EnumHelper.idEnum.well.type.health) {
-            activeCharacter.characterConfig.health.current = activeCharacter.characterConfig.health.max;
+            activeCharacter.characterConfig.life.current = activeCharacter.characterConfig.life.max;
         } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.mana) {
             activeCharacter.characterConfig.mana.spent = 0;
         } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.movement) {

@@ -143,7 +143,10 @@ export const Character = function(game) {
             charConfig = character.characterConfig;
         charConfig.energy.inProgress = null;
         if (object.objectConfig.isInteractible && charConfig.energy.max - charConfig.energy.spent > 0) {
-            var obj,
+            var obj = {
+                x: object.x,
+                y: object.y
+            },
                 isWithinReach = false;
             if (Math.floor(object.objectConfig.id) === EnumHelper.idEnum.door.id) {
                 obj = this.game.activeMap.getObjRealCoords(object);
@@ -166,18 +169,9 @@ export const Character = function(game) {
                 if (XY || plusXY || XplusY || plusXplusY) {
                     isWithinReach = true;
                 }
-            } else {
-                if (!obj) {
-                    obj = {
-                        x: object.x,
-                        y: object.y
-                    };
-                }
-                if (Math.abs(character.x - obj.x) <= 50 &&
-                    Math.abs(character.y - obj.y) <= 50 &&
-                    (Math.abs(character.x - obj.x) > 0 || Math.abs(character.y - obj.y) > 0)) {
-                    isWithinReach = true;
-                }
+            } else if (Math.abs(character.x - obj.x) <= 50 && Math.abs(character.y - obj.y) <= 50 &&
+                (Math.abs(character.x - obj.x) > 0 || Math.abs(character.y - obj.y) > 0)) {
+                isWithinReach = true;
             }
 
             // If object within reach try the interaction
