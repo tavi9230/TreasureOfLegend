@@ -39,8 +39,8 @@ export const SceneManager = function (game) {
         var self = this;
         this.game.enemies = new Enemy(this.game);
         this.game.enemies.addNewCharacter(1000, 450, 'character');
-        this.game.enemies.addNewCharacter(950, 450, 'character');
-        this.game.enemies.addNewCharacter(900, 450, 'character');
+        //this.game.enemies.addNewCharacter(950, 450, 'character');
+        //this.game.enemies.addNewCharacter(900, 450, 'character');
         this.game.input.setHitArea(this.game.enemies.characters.getChildren());
         _.each(this.game.enemies.characters.getChildren(), function(enemy) {
             //mouse input on clicking game objects
