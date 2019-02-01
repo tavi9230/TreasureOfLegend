@@ -295,13 +295,20 @@ export const ActionManager = function (game) {
         if (Math.abs(character.x - enemy.x) <= 50 * charConfig.inventory.mainHand.range &&
            Math.abs(character.y - enemy.y) <= 50 * charConfig.inventory.mainHand.range &&
            (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)) {
-            // If it is a ranged weapon chekc if projectile hits
-            if (charConfig.inventory.mainHand.range > 1) {
-                if (this._checkProjectileSuccess(character, enemy)) {
+            // If weapon is held with two hands check to have nothing in the offhand.
+            // If it is a projectile weapon it can have projectiles in offhand
+            // if it is a melee weapon check if two handed skill is available or some skill
+            // that allows character to use TH weapons as OH
+            if (charConfig.inventory.mainHand.hold === 2 &&
+                charConfig.inventory.offHand.type === EnumHelper.inventoryEnum.defaultEquipment) {
+                // If it is a ranged weapon check if projectile hits
+                if (charConfig.inventory.mainHand.range > 1) {
+                    if (this._checkProjectileSuccess(character, enemy)) {
+                        this._attackWithMainHand(character, enemy);
+                    }
+                } else {
                     this._attackWithMainHand(character, enemy);
                 }
-            } else {
-                this._attackWithMainHand(character, enemy);
             }
         }
             // Otherwise move near the object and try again

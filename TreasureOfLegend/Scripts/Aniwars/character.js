@@ -205,17 +205,9 @@ export const Character = function(game) {
             self = this;
         if (itemToDrop.isEquipped) {
             if (itemToDrop.type === EnumHelper.inventoryEnum.mainHand) {
-                if (itemToDrop.hold === 2) {
-                    charConfig.inventory.offHand.isEquipped = false;
-                    charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
-                }
                 charConfig.inventory.mainHand.isEquipped = false;
                 charConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
             } else if (itemToDrop.type === EnumHelper.inventoryEnum.offHand) {
-                if (itemToDrop.hold === 2) {
-                    charConfig.inventory.mainHand.isEquipped = false;
-                    charConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
-                }
                 if (itemToDrop.armor) {
                     charConfig.armor -= itemToDrop.armor;
                 }
@@ -258,45 +250,16 @@ export const Character = function(game) {
         var character = this.game.activeCharacter,
             charConfig = character.characterConfig;
         if (charConfig.minorActions.max - charConfig.minorActions.spent > 0) {
-            var index = charConfig.inventory.slots.items.indexOf(itemToReplace),
-                canSwitch = true;
+            var index = charConfig.inventory.slots.items.indexOf(itemToReplace);
             if (itemToReplace.type === EnumHelper.inventoryEnum.mainHand) {
-                canSwitch = itemToReplace.hold === 1 ||
-                    (itemToReplace.hold === 2 && charConfig.inventory.slots.max - charConfig.inventory.slots.items.length >= 1) ||
-                    (itemToReplace.hold === 2 && charConfig.inventory.slots.max - charConfig.inventory.slots.items.length === 0
-                    && charConfig.inventory.offHand.type === EnumHelper.inventoryEnum.defaultEquipment)
-                || (itemToReplace.hold === 2 && charConfig.inventory.slots.max - charConfig.inventory.slots.items.length === 0
-                    && charConfig.inventory.mainHand.type === EnumHelper.inventoryEnum.defaultEquipment)
-                || (itemToReplace.hold === 2 && charConfig.inventory.slots.max - charConfig.inventory.slots.items.length === 0
-                    && charConfig.inventory.mainHand.hold === 2);
-                if (canSwitch) {
-                    charConfig.inventory.mainHand.isEquipped = false;
-                    if (charConfig.inventory.mainHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
-                        charConfig.inventory.slots.items.splice(index, 1, lodash.cloneDeep(charConfig.inventory.mainHand));
-                        index++;
-                    } else {
-                        charConfig.inventory.slots.items.splice(index, 1);
-                    }
-                    // Remove offhand if item is two handed
-                    if (itemToReplace.hold === 2) {
-                        if (charConfig.inventory.offHand.armor) {
-                            charConfig.armor -= charConfig.inventory.offHand.armor;
-                        }
-                        charConfig.inventory.offHand.isEquipped = false;
-                        if (charConfig.inventory.offHand.type !== EnumHelper.inventoryEnum.defaultEquipment
-                            && JSON.stringify(charConfig.inventory.mainHand) !== JSON.stringify(charConfig.inventory.offHand)) {
-                            charConfig.inventory.slots.items.splice(index, 1, lodash.cloneDeep(charConfig.inventory.offHand));
-                        }
-                        charConfig.inventory.offHand = lodash.cloneDeep(itemToReplace);
-                        charConfig.inventory.offHand.isEquipped = true;
-                    }
-                    if (charConfig.inventory.mainHand.hold === 2 && itemToReplace.hold === 1) {
-                        charConfig.inventory.offHand.isEquipped = false;
-                        charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
-                    }
-                    charConfig.inventory.mainHand = lodash.cloneDeep(itemToReplace);
-                    charConfig.inventory.mainHand.isEquipped = true;
+                charConfig.inventory.mainHand.isEquipped = false;
+                if (charConfig.inventory.mainHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
+                    charConfig.inventory.slots.items.splice(index, 1, lodash.cloneDeep(charConfig.inventory.mainHand));
+                } else {
+                    charConfig.inventory.slots.items.splice(index, 1);
                 }
+                charConfig.inventory.mainHand = lodash.cloneDeep(itemToReplace);
+                charConfig.inventory.mainHand.isEquipped = true;
             } else if (itemToReplace.type === EnumHelper.inventoryEnum.offHand) {
                 charConfig.inventory.offHand.isEquipped = false;
                 if (charConfig.inventory.offHand.armor) {
@@ -304,18 +267,8 @@ export const Character = function(game) {
                 }
                 if (charConfig.inventory.offHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
                     charConfig.inventory.slots.items.splice(index, 1, lodash.cloneDeep(charConfig.inventory.offHand));
-                    index++;
                 } else {
                     charConfig.inventory.slots.items.splice(index, 1);
-                }
-                if (itemToReplace.hold === 2) {
-                    charConfig.inventory.mainHand.isEquipped = false;
-                    charConfig.inventory.slots.items.splice(index, 1, lodash.cloneDeep(charConfig.inventory.mainHand));
-                    charConfig.inventory.mainHand = lodash.cloneDeep(itemToReplace);
-                    charConfig.inventory.mainHand.isEquipped = true;
-                }
-                if (charConfig.inventory.mainHand.hold === 2) {
-                    charConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
                 }
                 if (itemToReplace.armor) {
                     charConfig.armor += itemToReplace.armor;
@@ -367,10 +320,8 @@ export const Character = function(game) {
                 charConfig.inventory.feet = lodash.cloneDeep(itemToReplace);
                 charConfig.inventory.feet.isEquipped = true;
             }
-            if (canSwitch) {
-                charConfig.minorActions.spent++;
-                this.game.events.emit('activeCharacterActed', character, this.game.characters);
-            }
+            charConfig.minorActions.spent++;
+            this.game.events.emit('activeCharacterActed', character, this.game.characters);
         }
     };
 
@@ -579,29 +530,11 @@ export const Character = function(game) {
         var itemAdded = false;
         if (charConfig.inventory.mainHand.type === EnumHelper.inventoryEnum.defaultEquipment &&
             newItem.type === EnumHelper.inventoryEnum.mainHand) {
-            if (charConfig.inventory.offHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
-                if (newItem.hold === 1) {
-                    charConfig.inventory.mainHand = newItem;
-                    newItem.isEquipped = true;
-                    itemAdded = true;
-                } else {
-                    newItem.isEquipped = false;
-                    charConfig.inventory.slots.items.push(newItem);
-                    itemAdded = true;
-                }
-            } else {
-                if (newItem.hold === 2) {
-                    charConfig.inventory.offHand = newItem;
-                }
-                charConfig.inventory.mainHand = newItem;
-                newItem.isEquipped = true;
-                itemAdded = true;
-            }
+            charConfig.inventory.mainHand = newItem;
+            newItem.isEquipped = true;
+            itemAdded = true;
         } else if (charConfig.inventory.offHand.type === EnumHelper.inventoryEnum.defaultEquipment &&
             newItem.type === EnumHelper.inventoryEnum.offHand) {
-            if (newItem.hold === 2) {
-                charConfig.inventory.mainHand = newItem;
-            }
             charConfig.inventory.offHand = newItem;
             newItem.isEquipped = true;
             if (newItem.armor) {
