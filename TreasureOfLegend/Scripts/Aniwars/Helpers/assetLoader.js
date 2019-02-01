@@ -31,6 +31,11 @@
         game.load.image('wallBottomRightTest', AssetFolder + 'walls/wallBottomRightTest.png');
         game.load.image('wallBottomLeftTest', AssetFolder + 'walls/wallBottomLeftTest.png');
 
+        game.load.image('movementWell', AssetFolder + 'objects/movementWell.png');
+        game.load.image('healthWell', AssetFolder + 'objects/healthWell.png');
+        game.load.image('manaWell', AssetFolder + 'objects/manaWell.png');
+        game.load.image('energyWell', AssetFolder + 'objects/energyWell.png');
+
         game.load.image('arrow', AssetFolder + 'items/arrow.png');
         game.load.image('punch', AssetFolder + 'items/punch.png');
         game.load.image('shortsword', AssetFolder + 'items/shortsword.png');

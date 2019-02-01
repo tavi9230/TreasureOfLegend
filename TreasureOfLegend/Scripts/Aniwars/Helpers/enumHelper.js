@@ -27,6 +27,15 @@
         lootbag: {
             id: 3,
             type: {}
+        },
+        well: {
+            id: 4,
+            type: {
+                health: 4.1,
+                mana: 4.2,
+                movement: 4.3,
+                energy: 4.4
+            }
         }
     },
     attributeEnum: {

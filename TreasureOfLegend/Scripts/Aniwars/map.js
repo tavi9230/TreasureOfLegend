@@ -39,6 +39,7 @@ export const BattleMap = function (game) {
         hitArea: hitArea,
         hitAreaCallback: hitAreaCallback
     });
+    this.unreachableTiles = game.add.group();
 
     this.isMovementGridShown = false;
 
@@ -52,6 +53,12 @@ export const BattleMap = function (game) {
                 } else if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.door.id)) {
                     this._addTile(x, y);
                     this._addDoor(x, y, i, j, this.levelMap[i][j]);
+                } else if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.well.id)) {
+                    this._addTile(x, y, true);
+                    this._addTile(x + 50, y, true);
+                    this._addTile(x, y + 50, true);
+                    this._addTile(x + 50, y + 50, true);
+                    this._addWell(x, y, i, j, this.levelMap[i][j]);
                 }
             }
         }
@@ -150,13 +157,17 @@ export const BattleMap = function (game) {
     };
 
     // Private ----------------------------------------------------------------------
-    this._addTile = (x, y) => {
+    this._addTile = (x, y, isUnreachable) => {
         var tileNumber = Math.floor(Math.random() * 5) + 1;
         var obj = game.add.sprite(x, y, 'tile' + tileNumber).setOrigin(0, 0);
         obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.objectConfig.description = 'Stone tile';
         obj.objectConfig.id = EnumHelper.idEnum.tile.id;
-        this.tiles.add(obj);
+        if (!isUnreachable) {
+            this.tiles.add(obj);
+        } else {
+            this.unreachableTiles.add(obj);
+        }
     };
 
     this._addWall = (x, y, wallId) => {
@@ -208,6 +219,34 @@ export const BattleMap = function (game) {
         obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.objectConfig.description = 'Wooden door';
         obj.objectConfig.id = doorId;
+        obj.objectConfig.isInteractible = true;
+        this.objects.add(obj);
+    };
+
+    this._addWell = (x, y, i, j, wellId) => {
+        var obj;
+        if (wellId === EnumHelper.idEnum.well.type.health) {
+            obj = game.add.sprite(x, y, 'healthWell').setOrigin(0, 0);
+            obj.objectConfig = lodash.cloneDeep(this.objConfig);
+            obj.objectConfig.description = 'Restore Health';
+        } else if (wellId === EnumHelper.idEnum.well.type.mana) {
+            obj = game.add.sprite(x, y, 'manaWell').setOrigin(0, 0);
+            obj.objectConfig = lodash.cloneDeep(this.objConfig);
+            obj.objectConfig.description = 'Restore Mana';
+        } else if (wellId === EnumHelper.idEnum.well.type.movement) {
+            obj = game.add.sprite(x, y, 'movementWell').setOrigin(0, 0);
+            obj.objectConfig = lodash.cloneDeep(this.objConfig);
+            obj.objectConfig.description = 'Restore Movement';
+        } else if (wellId === EnumHelper.idEnum.well.type.energy) {
+            obj = game.add.sprite(x, y, 'energyWell').setOrigin(0, 0);
+            obj.objectConfig = lodash.cloneDeep(this.objConfig);
+            obj.objectConfig.description = 'Restore Energy';
+        }
+        obj.displayWidth = 100;
+        obj.displayHeight = 100;
+        obj.width = 100;
+        obj.height = 100;
+        obj.objectConfig.id = wellId;
         obj.objectConfig.isInteractible = true;
         this.objects.add(obj);
     };
