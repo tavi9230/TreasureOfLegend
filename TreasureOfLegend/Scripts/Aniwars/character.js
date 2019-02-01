@@ -523,48 +523,14 @@ export const Character = function(game) {
         }
     };
 
-    this._addItemToInventory = (charConfig, newItem) => {
+    this._addItemToInventory = (charConfig, newItem, location) => {
         var itemAdded = false;
-        if (charConfig.inventory.mainHand.type === EnumHelper.inventoryEnum.defaultEquipment &&
-            newItem.type === EnumHelper.inventoryEnum.mainHand) {
-            charConfig.inventory.mainHand = newItem;
-            newItem.isEquipped = true;
-            itemAdded = true;
-        } else if (charConfig.inventory.offHand.type === EnumHelper.inventoryEnum.defaultEquipment &&
-            newItem.type === EnumHelper.inventoryEnum.offHand) {
-            charConfig.inventory.offHand = newItem;
+        if (charConfig.inventory[location].type === EnumHelper.inventoryEnum.defaultEquipment) {
+            charConfig.inventory[location] = newItem;
             newItem.isEquipped = true;
             if (newItem.armor) {
                 charConfig.armor += newItem.armor;
             }
-            itemAdded = true;
-        } else if (charConfig.inventory.head.type === EnumHelper.inventoryEnum.defaultEquipment &&
-            newItem.type === EnumHelper.inventoryEnum.head) {
-            charConfig.inventory.head = newItem;
-            newItem.isEquipped = true;
-            charConfig.armor += newItem.armor;
-            itemAdded = true;
-        } else if (charConfig.inventory.body.type === EnumHelper.inventoryEnum.defaultEquipment &&
-            newItem.type === EnumHelper.inventoryEnum.body) {
-            charConfig.inventory.body = newItem;
-            newItem.isEquipped = true;
-            charConfig.armor += newItem.armor;
-            itemAdded = true;
-        } else if (charConfig.inventory.hands.type === EnumHelper.inventoryEnum.defaultEquipment &&
-            newItem.type === EnumHelper.inventoryEnum.hands) {
-            charConfig.inventory.hands = newItem;
-            newItem.isEquipped = true;
-            charConfig.armor += newItem.armor;
-            itemAdded = true;
-        } else if (charConfig.inventory.feet.type === EnumHelper.inventoryEnum.defaultEquipment &&
-            newItem.type === EnumHelper.inventoryEnum.feet) {
-            charConfig.inventory.feet = newItem;
-            newItem.isEquipped = true;
-            charConfig.armor += newItem.armor;
-            itemAdded = true;
-        } else if (charConfig.inventory.slots.max - charConfig.inventory.slots.items.length >= newItem.slots) {
-            newItem.isEquipped = false;
-            charConfig.inventory.slots.items.push(newItem);
             itemAdded = true;
         }
         return itemAdded;

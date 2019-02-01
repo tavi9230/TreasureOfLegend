@@ -333,14 +333,15 @@ export const Enemy = function(game) {
         }
 
         if (!charConfig.movement.isMoving) {
-            var didSomething = false;
+            var hasAttacked = false,
+                hasInteracted = false;
             // If enemy cannot move, try attacking
             if (charConfig.energy.max - charConfig.energy.spent > 1) {
                 var closestEnemy = enemies.getPathsToEnemies();
                 if (closestEnemy.length > 0) {
                     if (closestEnemy[0].path.length === charConfig.inventory.mainHand.range) {
                         enemies.interactWithEnemy(closestEnemy[0].enemy);
-                        didSomething = true;
+                        hasAttacked = true;
                     }
                 }
             }
@@ -350,13 +351,13 @@ export const Enemy = function(game) {
                 if (closestDoor.length > 0) {
                     if (closestDoor[0].path.length === 1) {
                         enemies.interactWithObject(closestDoor[0].object);
-                        didSomething = true;
+                        hasInteracted = true;
                     }
                 }
             }
 
             // If no action has been done it might mean we are out of movement and not near an enemy or object
-            if (!didSomething) {
+            if (!hasAttacked && !hasInteracted) {
                 charConfig.energy.spent++;
                 charConfig.movement.spent++;
             }

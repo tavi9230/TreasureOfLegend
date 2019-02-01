@@ -194,14 +194,16 @@ export const BattleMap = function (game) {
 
     this._addDoor = (x, y, i, j, doorId) => {
         var obj;
-        if (doorId === EnumHelper.idEnum.door.type.up) {
-            obj = game.add.sprite(x, y, 'doorUp').setOrigin(0, 0);
-        } else if (doorId === EnumHelper.idEnum.door.type.right) {
+         if (doorId === EnumHelper.idEnum.door.type.right) {
             obj = game.add.sprite(x, y, 'doorRight').setOrigin(0, 0);
-        } else if (doorId === EnumHelper.idEnum.door.type.down) {
-            obj = game.add.sprite(x, y, 'doorDown').setOrigin(0, 0);
         } else if (doorId === EnumHelper.idEnum.door.type.left) {
             obj = game.add.sprite(x, y, 'doorLeft').setOrigin(0, 0);
+        } else if (doorId === EnumHelper.idEnum.door.type.up || EnumHelper.idEnum.door.type.down) {
+            obj = game.add.sprite(x, y, 'castleDoor').setOrigin(0, 0.25);
+            obj.displayWidth = 50;
+            obj.displayHeight = 75;
+            obj.width = 50;
+            obj.height = 75;
         }
         obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.objectConfig.description = 'Wooden door';
