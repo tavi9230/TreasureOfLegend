@@ -288,7 +288,7 @@ export const HUDScene = function(sceneName) {
             });
             this.activeScene.events.on('changeTurnCounter', function() {
                 self.turn++;
-                self.turnText.setText(this.turn);
+                self.turnText.setText(self.turn);
             });
         },
         _addToEnemyInventory: function(location, characterBelonging, x, y) {

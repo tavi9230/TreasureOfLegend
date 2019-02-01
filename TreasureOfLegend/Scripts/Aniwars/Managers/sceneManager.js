@@ -39,6 +39,8 @@ export const SceneManager = function (game) {
         var self = this;
         this.game.enemies = new Enemy(this.game);
         this.game.enemies.addNewCharacter(1000, 450, 'character');
+        this.game.enemies.addNewCharacter(950, 450, 'character');
+        this.game.enemies.addNewCharacter(900, 450, 'character');
         this.game.input.setHitArea(this.game.enemies.characters.getChildren());
         _.each(this.game.enemies.characters.getChildren(), function(enemy) {
             //mouse input on clicking game objects
@@ -50,7 +52,7 @@ export const SceneManager = function (game) {
     this.createCamera = () => {
         //main camera
         this.game.cameras.main.setBounds(0, -100, this.game.activeMap.levelMap[0].length * 50, this.game.activeMap.levelMap.length * 50 + 200);
-        this.game.cameras.main.setZoom(1.5);
+        this.game.cameras.main.setZoom(1.25);
         if (this.game.activeCharacter.characterConfig.isPlayerControlled) {
             //this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
         }
