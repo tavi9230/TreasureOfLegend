@@ -154,24 +154,32 @@ export const Character = function(game) {
                     object.y = obj.y;
                 }
             } else if (Math.floor(object.objectConfig.id) === EnumHelper.idEnum.well.id) {
-                var XY = Math.abs(character.x - object.x) <= 50 && Math.abs(character.y - object.y) <= 50 &&
-                    (Math.abs(character.x - object.x) > 0 || Math.abs(character.y - object.y) > 0),
-                    plusXY = Math.abs(character.x - (object.x + (object.width / 2))) <= 50 && Math.abs(character.y - object.y) <= 50
-                    && (Math.abs(character.x - (object.x + (object.width / 2))) > 0 || Math.abs(character.y - object.y)) > 0,
-                    XplusY = Math.abs(character.x - object.x) <= 50 && Math.abs(character.y - (object.y + (object.height / 2))) <= 50
-                    && (Math.abs(character.x - object.x) > 0 || Math.abs(character.y - (object.y + (object.height / 2)))) > 0,
-                    plusXplusY = Math.abs(character.x - (object.x + (object.width / 2))) <= 50 && Math.abs(character.y - (object.y + (object.height / 2))) <= 50
-                    && (Math.abs(character.x - (object.x + (object.width / 2))) > 0 || Math.abs(character.y - (object.y + (object.height / 2)))) > 0;
+                var XY = Math.abs(character.x - object.x) <= 50 &&
+                        Math.abs(character.y - object.y) <= 50 &&
+                        (Math.abs(character.x - object.x) > 0 || Math.abs(character.y - object.y) > 0),
+                    plusXY = Math.abs(character.x - (object.x + (object.width / 2))) <= 50 && Math.abs(character.y - object.y) <= 50 &&
+                    (Math.abs(character.x - (object.x + (object.width / 2))) > 0 || Math.abs(character.y - object.y)) > 0,
+                    XplusY = Math.abs(character.x - object.x) <= 50 && Math.abs(character.y - (object.y + (object.height / 2))) <= 50 &&
+                        (Math.abs(character.x - object.x) > 0 || Math.abs(character.y - (object.y + (object.height / 2)))) > 0,
+                    plusXplusY = Math.abs(character.x - (object.x + (object.width / 2))) <= 50 && Math.abs(character.y - (object.y + (object.height / 2))) <= 50 &&
+                        (Math.abs(character.x - (object.x + (object.width / 2))) > 0 || Math.abs(character.y - (object.y + (object.height / 2)))) > 0;
                 if (XY || plusXY || XplusY || plusXplusY) {
                     isWithinReach = true;
                 }
+            } else {
+                if (!obj) {
+                    obj = {
+                        x: object.x,
+                        y: object.y
+                    };
+                }
+                if (Math.abs(character.x - obj.x) <= 50 &&
+                    Math.abs(character.y - obj.y) <= 50 &&
+                    (Math.abs(character.x - obj.x) > 0 || Math.abs(character.y - obj.y) > 0)) {
+                    isWithinReach = true;
+                }
             }
-            if (!obj) {
-                obj = {
-                    x: object.x,
-                    y: object.y
-                };
-            }
+
             // If object within reach try the interaction
             if (isWithinReach) {
                 actionManager.interactWithObject(object);
@@ -179,8 +187,19 @@ export const Character = function(game) {
             } else if (Math.abs(character.x - obj.x) !== 0 || Math.abs(character.y - obj.y) !== 0) {
                 var path = Pathfinder.getPathFromAToB(character, object, this.game.activeMap.levelMap);
                 if (path) {
-                    charConfig.energy.inProgress = object;
-                    this.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
+                    if (!this._isTileOccupied(path[path.length - 2][0] * 50, path[path.length - 2][1] * 50)) {
+                        charConfig.energy.inProgress = object;
+                        this.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
+                    } else {
+                        var auxMap = [];
+                        auxMap = this.game.activeMap.copyMap(this.game.activeMap.levelMap, auxMap);
+                        auxMap[path[path.length - 2][1]][path[path.length - 2][0]] = 1;
+                        path = Pathfinder.getPathFromAToB(character, object, auxMap);
+                        if (path) {
+                            charConfig.energy.inProgress = object;
+                            this.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
+                        }
+                    }
                 }
             }
         }
@@ -211,14 +230,14 @@ export const Character = function(game) {
             charConfig = character.characterConfig;
         if (Math.abs(character.x - item.x) <= 50 && Math.abs(character.y - item.y) <= 50 &&
             (Math.abs(character.x - item.x) >= 0 || Math.abs(character.y - item.y) >= 0)) {
-            if (charConfig.energy.max - charConfig.energy.spent > 0
-                && this._addItemToInventory(charConfig, lodash.cloneDeep(item.itemConfig))) {
+            if (charConfig.energy.max - charConfig.energy.spent > 0 && this._addItemToInventory(charConfig, item.itemConfig)) {
                 charConfig.energy.spent += EnergyConfig.pickup.cost;
                 item.destroy();
                 this.game.items.remove(item);
                 this.game.events.emit('activeCharacterActed', character, this.game.characters);
             }
         } else {
+            charConfig.energy.inProgress = item;
             this.moveActiveCharacterToTile(item);
         }
     };
@@ -352,8 +371,7 @@ export const Character = function(game) {
     this.addItemFromList = (item, lootbag) => {
         var character = this.game.activeCharacter,
             charConfig = character.characterConfig;
-        if (charConfig.energy.max - charConfig.energy.spent > 0
-            && this._addItemToInventory(charConfig, lodash.cloneDeep(item))) {
+        if (charConfig.energy.max - charConfig.energy.spent > 0 && this._addItemToInventory(charConfig, item)) {
             charConfig.energy.spent += EnergyConfig.pickup.cost;
             var lootbagConfig = lootbag.objectConfig.belongsTo.characterConfig;
             var index = lootbagConfig.inventory.slots.items.indexOf(item);
@@ -550,7 +568,26 @@ export const Character = function(game) {
         }
     };
 
-    this._addItemToInventory = (charConfig, newItem, location) => {
+    this._addItemToInventory = (charConfig, item) => {
+        switch (item.type) {
+            case EnumHelper.inventoryEnum.mainHand:
+                return this._addItem(charConfig, lodash.cloneDeep(item), 'mainHand');
+            case EnumHelper.inventoryEnum.offHand:
+                return this._addItem(charConfig, lodash.cloneDeep(item), 'offHand');
+            case EnumHelper.inventoryEnum.head:
+                return this._addItem(charConfig, lodash.cloneDeep(item), 'head');
+            case EnumHelper.inventoryEnum.body:
+                return this._addItem(charConfig, lodash.cloneDeep(item), 'body');
+            case EnumHelper.inventoryEnum.hands:
+                return this._addItem(charConfig, lodash.cloneDeep(item), 'hands');
+            case EnumHelper.inventoryEnum.feet:
+                return this._addItem(charConfig, lodash.cloneDeep(item), 'feet');
+            default:
+                return false;
+        }
+    };
+
+    this._addItem = (charConfig, newItem, location) => {
         var itemAdded = false;
         if (charConfig.inventory[location].type === EnumHelper.inventoryEnum.defaultEquipment) {
             charConfig.inventory[location] = newItem;
@@ -558,6 +595,9 @@ export const Character = function(game) {
             if (newItem.armor) {
                 charConfig.armor += newItem.armor;
             }
+            itemAdded = true;
+        } else if (charConfig.inventory.slots.max - charConfig.inventory.slots.items.length > 0) {
+            charConfig.inventory.slots.items.push(newItem);
             itemAdded = true;
         }
         return itemAdded;
