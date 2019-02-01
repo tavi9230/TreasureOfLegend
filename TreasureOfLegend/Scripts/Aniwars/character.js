@@ -143,18 +143,45 @@ export const Character = function(game) {
             charConfig = character.characterConfig;
         charConfig.energy.inProgress = null;
         if (object.objectConfig.isInteractible && charConfig.energy.max - charConfig.energy.spent > 0) {
-            var obj = this.game.activeMap.getObjRealCoords(object);
+            var obj,
+                isWithinReach = false;
+            if (Math.floor(object.objectConfig.id) === EnumHelper.idEnum.door.id) {
+                obj = this.game.activeMap.getObjRealCoords(object);
+                if (Math.abs(character.x - obj.x) <= 50 && Math.abs(character.y - obj.y) <= 50 &&
+                    (Math.abs(character.x - obj.x) > 0 || Math.abs(character.y - obj.y) > 0)) {
+                    isWithinReach = true;
+                    object.x = obj.x;
+                    object.y = obj.y;
+                }
+            } else if (Math.floor(object.objectConfig.id) === EnumHelper.idEnum.well.id) {
+                var XY = Math.abs(character.x - object.x) <= 50 && Math.abs(character.y - object.y) <= 50 &&
+                    (Math.abs(character.x - object.x) > 0 || Math.abs(character.y - object.y) > 0),
+                    plusXY = Math.abs(character.x - (object.x + (object.width / 2))) <= 50 && Math.abs(character.y - object.y) <= 50
+                    && (Math.abs(character.x - (object.x + (object.width / 2))) > 0 || Math.abs(character.y - object.y)) > 0,
+                    XplusY = Math.abs(character.x - object.x) <= 50 && Math.abs(character.y - (object.y + (object.height / 2))) <= 50
+                    && (Math.abs(character.x - object.x) > 0 || Math.abs(character.y - (object.y + (object.height / 2)))) > 0,
+                    plusXplusY = Math.abs(character.x - (object.x + (object.width / 2))) <= 50 && Math.abs(character.y - (object.y + (object.height / 2))) <= 50
+                    && (Math.abs(character.x - (object.x + (object.width / 2))) > 0 || Math.abs(character.y - (object.y + (object.height / 2)))) > 0;
+                if (XY || plusXY || XplusY || plusXplusY) {
+                    isWithinReach = true;
+                }
+            }
+            if (!obj) {
+                obj = {
+                    x: object.x,
+                    y: object.y
+                };
+            }
             // If object within reach try the interaction
-            if (Math.abs(character.x - obj.x) <= 50 && Math.abs(character.y - obj.y) <= 50 &&
-                (Math.abs(character.x - obj.x) > 0 || Math.abs(character.y - obj.y) > 0)) {
-                object.x = obj.x;
-                object.y = obj.y;
+            if (isWithinReach) {
                 actionManager.interactWithObject(object);
                 // Otherwise move near the object and try again
             } else if (Math.abs(character.x - obj.x) !== 0 || Math.abs(character.y - obj.y) !== 0) {
-                charConfig.energy.inProgress = object;
                 var path = Pathfinder.getPathFromAToB(character, object, this.game.activeMap.levelMap);
-                this.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
+                if (path) {
+                    charConfig.energy.inProgress = object;
+                    this.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
+                }
             }
         }
     };

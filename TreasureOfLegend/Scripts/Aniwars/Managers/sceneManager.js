@@ -85,9 +85,9 @@ export const SceneManager = function (game) {
             }
             preinitiative = preinitiative.sort(function(a, b) {
                 if (a.index < b.index) {
-                    return -1;
-                } else if (a.index > b.index) {
                     return 1;
+                } else if (a.index > b.index) {
+                    return -1;
                 }
                 return 0;
             });
@@ -115,54 +115,72 @@ export const SceneManager = function (game) {
         var item = this.game.physics.add.sprite(700, 200, 'bow').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
+        item.width = 50;
+        item.height = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.bow);
         this.game.items.add(item);
 
         item = this.game.physics.add.sprite(700, 250, 'bow').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
+        item.width = 50;
+        item.height = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.bow);
         this.game.items.add(item);
 
         item = this.game.physics.add.sprite(700, 300, 'shortsword').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
+        item.width = 50;
+        item.height = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.shortsword);
         this.game.items.add(item);
 
         item = this.game.physics.add.sprite(700, 350, 'shortsword').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
+        item.width = 50;
+        item.height = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.shortsword);
         this.game.items.add(item);
 
         item = this.game.physics.add.sprite(700, 400, 'head').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
+        item.width = 50;
+        item.height = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.head);
         this.game.items.add(item);
 
         item = this.game.physics.add.sprite(700, 450, 'shield').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
+        item.width = 50;
+        item.height = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.shield);
         this.game.items.add(item);
 
         item = this.game.physics.add.sprite(700, 500, 'chainmail').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
+        item.width = 50;
+        item.height = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.chainmail);
         this.game.items.add(item);
 
         item = this.game.physics.add.sprite(700, 550, 'hand').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
+        item.width = 50;
+        item.height = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.hand);
         this.game.items.add(item);
 
         item = this.game.physics.add.sprite(700, 600, 'feet').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
+        item.width = 50;
+        item.height = 50;
         item.itemConfig = lodash.cloneDeep(InventoryConfig.feet);
         this.game.items.add(item);
 

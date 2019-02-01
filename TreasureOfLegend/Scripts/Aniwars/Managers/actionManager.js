@@ -11,6 +11,8 @@ export const ActionManager = function (game) {
             this._interactWithDoor(object);
         } else if (object.objectConfig.id === EnumHelper.idEnum.lootbag.id) {
             this._interactWithLootbag(object);
+        } else if (Math.floor(object.objectConfig.id) === EnumHelper.idEnum.well.id) {
+            this._interactWithWell(object);
         }
     };
 
@@ -55,6 +57,20 @@ export const ActionManager = function (game) {
 
     this._interactWithLootbag = (object) => {
         this.game.events.emit('showDeadCharacterInventory', object);
+    };
+
+    this._interactWithWell = (object) => {
+        var activeCharacter = this.game.activeCharacter;
+        if (object.objectConfig.id === EnumHelper.idEnum.well.type.health) {
+            activeCharacter.characterConfig.health.current = activeCharacter.characterConfig.health.max;
+        } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.mana) {
+            activeCharacter.characterConfig.mana.spent = 0;
+        } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.movement) {
+            activeCharacter.characterConfig.movement.spent = 0;
+        } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.energy) {
+            activeCharacter.characterConfig.energy.spent = 0;
+        }
+        this.game.events.emit('activeCharacterActed', this.game.activeCharacter, this.game.characters);
     };
 
     //ENEMY INTERACTION --------------------------------------------------------------------------------------------------------------------
@@ -228,7 +244,7 @@ export const ActionManager = function (game) {
             charConfig = character.characterConfig;
         if (Math.abs(character.x - enemy.x) !== 0 || Math.abs(character.y - enemy.y) !== 0) {
             path = Pathfinder.getPathFromAToB(character, enemy, this.game.activeMap.levelMap);
-            if (charConfig.isPlayerControlled && path.length > 0) {
+            if (charConfig.isPlayerControlled && path) {
                 this.game.characters.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
             }
         }

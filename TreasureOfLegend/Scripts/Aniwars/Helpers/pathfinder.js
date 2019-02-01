@@ -36,6 +36,68 @@ export const Pathfinder = {
             }
         }
         map[destination.y / 50][posX / 50] = 0;
-        return Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map);
+        var paths = [],
+            auxPosY,
+            auxPosX;
+        paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
+        if (destination.height > 50 && destination.width > 50 && destination.height % 50 === 0 && destination.width % 50 === 0) {
+            auxPosY = posY;
+            auxPosX = posX;
+            posY += destination.height / 2;
+            paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
+            posY = auxPosY;
+            posY -= destination.height / 2;
+            paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
+            posX += destination.width / 2;
+            paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
+            posX = auxPosX;
+            posX -= destination.width / 2;
+            paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
+            posX = auxPosX;
+            posY = auxPosY;
+            posX += destination.width / 2;
+            posY += destination.height / 2;
+            paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
+            posX = auxPosX;
+            posY = auxPosY;
+            posX -= destination.width / 2;
+            posY -= destination.height / 2;
+            paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
+            posX = auxPosX;
+            posY = auxPosY;
+            posX += destination.width / 2;
+            posY -= destination.height / 2;
+            paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
+            posX = auxPosX;
+            posY = auxPosY;
+            posX -= destination.width / 2;
+            posY += destination.height / 2;
+            paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
+        } else if (destination.height > 50 && destination.height % 50 === 0) {
+            auxPosY = posY;
+            posY += destination.height / 2;
+            paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
+            posY = auxPosY;
+            posY -= destination.height / 2;
+            paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
+        } else if (destination.width > 50 && destination.width % 50 === 0) {
+            auxPosX = posX;
+            posX += destination.width / 2;
+            paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
+            posX = auxPosX;
+            posX -= destination.width / 2;
+            paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
+        }
+        return paths.sort(function(a, b) {
+            if (a.length < b.length) {
+                return -1;
+            } else if (a.length > b.length) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }).filter(function(val) {
+            return val.length > 0;
+        })[0];
     }
 };

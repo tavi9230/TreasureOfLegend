@@ -8,16 +8,12 @@
         game.load.image('tile3', AssetFolder + 'tile3.png');
         game.load.image('tile4', AssetFolder + 'tile4.png');
         game.load.image('tile5', AssetFolder + 'tile5.png');
-        game.load.image('wallTile', AssetFolder + 'wallTile.png');
-        game.load.image('wallTile2', AssetFolder + 'wallTile2.png');
-        game.load.image('wallTileVertical', AssetFolder + 'wallTileVertical.png');
-        game.load.image('doorUp', AssetFolder + 'doorUp.png');
-        game.load.image('doorDown', AssetFolder + 'doorDown.png');
         game.load.image('doorLeft', AssetFolder + 'doorLeft.png');
         game.load.image('doorRight', AssetFolder + 'doorRight.png');
         game.load.image('character', AssetFolder + 'character.png');
 
         game.load.image('castleDoor', AssetFolder + 'castledoors.png');
+        game.load.image('castleDoorVertical', AssetFolder + 'castledoorsVertical.png');
 
         game.load.image('character1', AssetFolder + 'char01_0000.png');
         game.load.image('character2', AssetFolder + 'char02_0000.png');

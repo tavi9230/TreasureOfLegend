@@ -74,6 +74,8 @@ export const Enemy = function(game) {
         var charConfig = character.characterConfig;
         charConfig.posX = x;
         charConfig.posY = y;
+        charConfig.height = 50;
+        charConfig.width = 50;
         charConfig.image = spriteName;
         charConfig.armor = charConfig.inventory.head.armor +
             charConfig.inventory.body.armor +
