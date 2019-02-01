@@ -63,19 +63,21 @@ export const BattleMap = function (game) {
         this.hideMovementGrid();
         var character = game.activeCharacter;
         this.isMovementGridShown = true;
-        // TODO: Optimize this to only get one object with sort
-        _.each(this.tiles.getChildren(), (tile) => {
-            if ((character.characterConfig.movement.max - character.characterConfig.movement.spent) * 50 >= Math.abs(tile.x - character.characterConfig.posX) &&
-                (character.characterConfig.movement.max - character.characterConfig.movement.spent) * 50 >= Math.abs(tile.y - character.characterConfig.posY)) {
-                var auxMap = this.addEnemiesToMap(this.game.enemies);
-                var pathWay = Pathfinder.findWay(character.x / 50, character.y / 50, tile.x / 50, tile.y / 50, auxMap);
-                if (pathWay.length > 0) {
-                    pathWay.shift();
-                    if (pathWay.length <= (character.characterConfig.movement.max - character.characterConfig.movement.spent)
-                        && auxMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile.id
-                        && (character.x !== tile.x || character.y !== tile.y)) {
-                        tile.setTint(0x990899);
-                    }
+        var moveableTiles = this.tiles.getChildren().filter(function(tile) {
+            return (character.characterConfig.movement.max - character.characterConfig.movement.spent) * 50 >=
+                Math.abs(tile.x - character.characterConfig.posX) &&
+                (character.characterConfig.movement.max - character.characterConfig.movement.spent) * 50 >=
+                Math.abs(tile.y - character.characterConfig.posY);
+        });
+        _.each(moveableTiles, (tile) => {
+            var auxMap = this.addEnemiesToMap(this.game.enemies);
+            var pathWay = Pathfinder.findWay(character.x / 50, character.y / 50, tile.x / 50, tile.y / 50, auxMap);
+            if (pathWay.length > 0) {
+                pathWay.shift();
+                if (pathWay.length <= (character.characterConfig.movement.max - character.characterConfig.movement.spent)
+                    && auxMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile.id
+                    && (character.x !== tile.x || character.y !== tile.y)) {
+                    tile.setTint(0x990899);
                 }
             }
         });
@@ -243,17 +245,24 @@ export const BattleMap = function (game) {
                 var pathWay = obj.isTile
                     ? this._getPathToTile(currentCharacter, obj.value)
                     : this._getPathToObject(currentCharacter, obj.value);
-                if (pathWay.length > 0 && pathWay.length <= (currentCharacter.characterConfig.movement.max - currentCharacter.characterConfig.movement.spent))
-                    // TODO: Optimize this to only get one object with sort
-                    _.each(this.tiles.getChildren(), function(tile) {
-                        for (let i = 0; i < pathWay.length; i++) {
-                            if (tile.x === pathWay[i][0] * 50 &&
-                                tile.y === pathWay[i][1] * 50 &&
-                                self.levelMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile.id) {
-                                tile.setTint(0x4693eb);
-                            }
+                if (pathWay.length > 0 && pathWay.length <= (currentCharacter.characterConfig.movement.max - currentCharacter.characterConfig.movement.spent)) {
+                    var highlightedPath = [];
+                    _.each(pathWay, function(path) {
+                        var filteredPathWay = self.tiles.getChildren().filter(function(tile) {
+                            return tile.x === path[0] * 50 &&
+                                tile.y === path[1] * 50 &&
+                                self.levelMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile.id;
+                        });
+                        if (filteredPathWay.length > 0) {
+                            _.each(filteredPathWay, function(tile) {
+                                highlightedPath.push(tile);
+                            });
                         }
                     });
+                    _.each(highlightedPath, function(tile) {
+                        tile.setTint(0x4693eb);
+                    });
+                }
             }
         }
     };

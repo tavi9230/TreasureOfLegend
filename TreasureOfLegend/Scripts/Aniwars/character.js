@@ -375,8 +375,6 @@ export const Character = function(game) {
     };
 
     this.addItemFromList = (item, lootbag) => {
-        // TODO: Add item to active character inventory and remove it from the lootbag
-        // and emit event to show changes in both char inventory and lootbag inventory
         var character = this.game.activeCharacter,
             charConfig = character.characterConfig;
         if (charConfig.minorActions.max - charConfig.minorActions.spent > 0
@@ -396,8 +394,6 @@ export const Character = function(game) {
                 this.game.activeMap.deadCharacters.remove(lootbag);
                 lootbag.destroy();
                 this.game.events.emit('closeLootbag');
-                // TODO: close lootbag and character config window
-                // TODO: don't let player click on the same item more than once
             }
             if (lootbagConfig.inventory.slots.items.length > 0) {
                 this.game.events.emit('showDeadCharacterInventory', lootbag);
@@ -540,32 +536,35 @@ export const Character = function(game) {
     };
 
     this._isTileOccupied = (posX, posY) => {
-        var isObstacleInTheWay = false;
-        // TODO: Optimize these to only get one object with sort
+        var isObstacleInTheWay;
         if (this.game.enemies) {
-            _.each(this.game.enemies.characters.getChildren(), function(enemy) {
-                if (enemy.x === posX && enemy.y === posY) {
-                    isObstacleInTheWay = true;
-                }
+            isObstacleInTheWay = this.game.enemies.characters.getChildren().filter(function(enemy) {
+                return enemy.x === posX && enemy.y === posY;
             });
-        }
-        _.each(this.game.characters.characters.getChildren(), function(character) {
-            if (character.x === posX && character.y === posY) {
-                isObstacleInTheWay = true;
+            if (isObstacleInTheWay.length > 0) {
+                return true;
             }
+        }
+        isObstacleInTheWay = this.game.characters.characters.getChildren().filter(function(character) {
+            return character.x === posX && character.y === posY;
         });
-        _.each(this.game.activeMap.objects.getChildren(), function(object) {
+        if (isObstacleInTheWay.length > 0) {
+            return true;
+        }
+        isObstacleInTheWay = this.game.activeMap.objects.getChildren().filter(function(object) {
             if (object.x === posX && object.y === posY) {
                 //if object is a door check if it is open/activated
                 if (Math.floor(object.objectConfig.id) === Math.floor(EnumHelper.idEnum.door.id) && !object.objectConfig.isActivated) {
-                    isObstacleInTheWay = true;
+                    return true;
                 } else if (Math.floor(object.objectConfig.id) !== Math.floor(EnumHelper.idEnum.door.id)) {
-                    isObstacleInTheWay = true;
+                    return true;
                 }
-                //return;
             }
         });
-        return isObstacleInTheWay;
+        if (isObstacleInTheWay.length > 0) {
+            return true;
+        }
+        return false;
     };
 
     this._checkIfObjectInteractionInProgress = (object) => {

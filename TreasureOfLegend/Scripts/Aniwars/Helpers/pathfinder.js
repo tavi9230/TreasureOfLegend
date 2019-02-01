@@ -6,7 +6,7 @@ var _cloneMap = (levelMap) => {
     for (let i = 0; i < levelMap.length; i++) {
         map[i] = [];
         for (let j = 0; j < levelMap[i].length; j++) {
-            map[i][j] = levelMap[i][j] > 0 ? 1 : 0;
+            map[i][j] = levelMap[i][j] > 0 ? 1 : levelMap[i][j] < 0 ? 1 : 0;
         }
     }
     return map;

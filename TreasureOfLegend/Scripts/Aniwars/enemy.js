@@ -265,30 +265,32 @@ export const Enemy = function(game) {
     };
 
     this._isTileOccupied = (posX, posY) => {
-        var isObstacleInTheWay = false;
-        // TODO: Optimize these to only get one object with sort
-        _.each(this.game.characters.characters.getChildren(), function(character) {
-            if (character.x === posX && character.y === posY) {
-                isObstacleInTheWay = true;
-            }
+        var isObstacleInTheWay = this.game.characters.characters.getChildren().filter(function(character) {
+            return character.x === posX && character.y === posY;
         });
-        _.each(this.game.enemies.characters.getChildren(), function(enemy) {
-            if (enemy.x === posX && enemy.y === posY) {
-                isObstacleInTheWay = true;
-            }
+        if (isObstacleInTheWay.length > 0) {
+            return true;
+        }
+        isObstacleInTheWay = this.game.enemies.characters.getChildren().filter(function(enemy) {
+            return enemy.x === posX && enemy.y === posY;
         });
-        _.each(this.game.activeMap.objects.getChildren(), function(object) {
+        if (isObstacleInTheWay.length > 0) {
+            return true;
+        }
+        isObstacleInTheWay = this.game.activeMap.objects.getChildren().filter(function(object) {
             if (object.x === posX && object.y === posY) {
                 //if object is a door check if it is open/activated
-                if ((Math.floor(object.objectConfig.id) === Math.floor(EnumHelper.idEnum.door.id)) && !object.objectConfig.isActivated) {
-                    isObstacleInTheWay = true;
+                if (Math.floor(object.objectConfig.id) === Math.floor(EnumHelper.idEnum.door.id) && !object.objectConfig.isActivated) {
+                    return true;
                 } else if (Math.floor(object.objectConfig.id) !== Math.floor(EnumHelper.idEnum.door.id)) {
-                    isObstacleInTheWay = true;
+                    return true;
                 }
-                //return;
             }
         });
-        return isObstacleInTheWay;
+        if (isObstacleInTheWay.length > 0) {
+            return true;
+        }
+        return false;
     };
 
     this._doStandardActions = (currentCharacter) => {

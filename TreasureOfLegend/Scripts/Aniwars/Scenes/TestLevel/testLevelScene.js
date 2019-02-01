@@ -103,8 +103,6 @@ export const TestLevelScene = function() {
             });
         },
         _moveCamera() {
-            // TODO: Stop following active character and follow back when you don't want to scroll anymore?
-            //this.cameras.main.stopFollow();
             if (this.cursors.left.isDown) {
                 this.cameras.main.scrollX -= 10;
             }

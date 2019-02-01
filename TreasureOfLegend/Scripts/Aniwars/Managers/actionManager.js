@@ -58,7 +58,6 @@ export const ActionManager = function (game) {
 
     //ENEMY INTERACTION --------------------------------------------------------------------------------------------------------------------
     this._attackWithMainHand = (character, enemy) => {
-        // TODO: check enemy vulerabilities, resistances and immunities and calculate life based on that
         var self = this,
             charConfig = character.characterConfig,
             enemyCharConfig = enemy.characterConfig,
@@ -167,7 +166,7 @@ export const ActionManager = function (game) {
     // PRIVATE -------------------------------------------------------------------------------------------------------------------------------
     this._checkProjectileSuccess = (character, enemy) => {
         // TODO: Check Bresenham's algorithm (https://www.redblobgames.com/grids/line-drawing.html)
-        // TODO: Maybe check from each corner of character to each corner of enemy to make sure it hits
+        // TODO: Check from each corner of character to each corner of enemy to make sure it hits
         var self = this,
             isNotBlocked = true,
             linePoints = this._supercoverLine(character, enemy);

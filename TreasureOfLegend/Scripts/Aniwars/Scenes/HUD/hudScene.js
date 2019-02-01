@@ -214,7 +214,6 @@ export const HUDScene = function(sceneName) {
             });
         },
         showDeadCharacterInventory: function(lootbag) {
-            // TODO: Show character inventory items as a list of icons
             this.closeLootbag();
             var activeCharacter = this.activeScene.activeCharacter,
                 lootbagConfig = lootbag.objectConfig,
