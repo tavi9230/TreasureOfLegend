@@ -35,8 +35,7 @@ export const TestLevelScene = function() {
                 if (charConfig.path.length === 0 &&
                     !charConfig.movement.isMoving) {
                     charConfig.movement.spent = 0;
-                    charConfig.minorActions.spent = 0;
-                    charConfig.actions.spent = 0;
+                    charConfig.energy.spent = 0;
                     // TODO: Fix initiative. When one or multiple enemies die, redo the initiative
                     self.initiativeIndex++;
                     if (self.initiativeIndex >= self.initiative.length) {
@@ -64,8 +63,8 @@ export const TestLevelScene = function() {
             });
             this.hudScene.events.on('spellSelected', function(spell) {
                 var charConfig = self.activeCharacter.characterConfig;
-                charConfig.actions.actionId = EnumHelper.actionEnum.attackSpell;
-                charConfig.actions.selectedAction = spell;
+                charConfig.energy.actionId = EnumHelper.actionEnum.attackSpell;
+                charConfig.energy.selectedAction = spell;
                 if (charConfig.isPlayerControlled) {
                     self.events.emit('activeCharacterActed', self.activeCharacter, self.characters);
                 }
@@ -95,8 +94,8 @@ export const TestLevelScene = function() {
             });
             this.hudScene.events.on('mainHandSelected', function(character) {
                 var charConfig = character.characterConfig;
-                charConfig.actions.actionId = EnumHelper.actionEnum.attackMainHand;
-                charConfig.actions.selectedAction = null;
+                charConfig.energy.actionId = EnumHelper.actionEnum.attackMainHand;
+                charConfig.energy.selectedAction = null;
                 if (charConfig.isPlayerControlled) {
                     self.events.emit('activeCharacterActed', self.activeCharacter, self.characters);
                 }

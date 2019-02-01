@@ -26,7 +26,6 @@ export const HUDCharacterStatus = function(scene) {
             self._createCharacterManaBar(character, x, y);
             self._createCharacterMovementBar(character, x, y);
             self._createCharacterArmorBox(character, x, y);
-            self._createCharacterActionBox(character, x, y);
             self._createCharacterMinorActionBox(character, x, y);
             self._createMainAttackImage(character, x, y);
             x += 100;
@@ -211,24 +210,12 @@ export const HUDCharacterStatus = function(scene) {
         this.characterBar.add(armorBox);
         this.characterBar.add(armorText);
     };
-    this._createCharacterActionBox = function(character, x, y) {
-        var charConfig = character.characterConfig,
-            actionsBox = this.scene.add.graphics(),
-            actionsText = this.scene.add.text(x + 75,
-                y + 25,
-                (charConfig.actions.max - charConfig.actions.spent),
-                { fill: '#FFF', fontSize: '18px' });
-        actionsBox.fillStyle(0xcccccc, 0.8);
-        actionsBox.fillRect(x + 75, y + 25, 25, 25);
-        this.characterBar.add(actionsBox);
-        this.characterBar.add(actionsText);
-    };
     this._createCharacterMinorActionBox = function(character, x, y) {
         var charConfig = character.characterConfig,
             minorActionsBox = this.scene.add.graphics(),
             minorActionsText = this.scene.add.text(x + 75,
                 y + 50,
-                (charConfig.minorActions.max - charConfig.minorActions.spent),
+                (charConfig.energy.max - charConfig.energy.spent),
                 { fill: '#FFF', fontSize: '18px' });
         minorActionsBox.fillStyle(0xcccccc, 0.8);
         minorActionsBox.fillRect(x + 75, y + 50, 25, 25);
@@ -237,8 +224,8 @@ export const HUDCharacterStatus = function(scene) {
     };
     this._createMainAttackImage = function(character, x, y) {
         var charConfig = character.characterConfig,
-            mainAttackImage = charConfig.actions.selectedAction
-                ? charConfig.actions.selectedAction.image
+            mainAttackImage = charConfig.energy.selectedAction
+                ? charConfig.energy.selectedAction.image
                 : charConfig.inventory.mainHand.image,
             mainAttack = this.scene.add.image(x + 75, y + 75, mainAttackImage).setOrigin(0, 0);
         mainAttack.displayWidth = 25;

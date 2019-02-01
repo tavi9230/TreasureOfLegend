@@ -1,6 +1,7 @@
 ﻿import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
 import {Pathfinder} from 'Aniwars/Helpers/pathfinder';
 import {InventoryConfig} from 'Aniwars/Configurations/inventoryConfig';
+import {EnergyConfig} from 'Aniwars/Configurations/energyConfig';
 
 export const ActionManager = function (game) {
     this.game = game;
@@ -17,9 +18,9 @@ export const ActionManager = function (game) {
         var character = this.game.activeCharacter,
             charConfig = character.characterConfig;
         if (!charConfig.movement.isMoving) {
-            if (charConfig.actions.actionId === EnumHelper.actionEnum.attackMainHand) {
+            if (charConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand) {
                 this._checkDefaultAction(character, enemy);
-            } else if (charConfig.actions.actionId === EnumHelper.actionEnum.attackSpell) {
+            } else if (charConfig.energy.actionId === EnumHelper.actionEnum.attackSpell) {
                 this._checkSpellAttack(character, enemy);
             } else {
                 this._checkDefaultAction(character, enemy);
@@ -32,7 +33,7 @@ export const ActionManager = function (game) {
         var charConfig = this.game.activeCharacter.characterConfig,
             x = object.x / 50,
             y = object.y / 50;
-        charConfig.minorActions.spent++;
+        charConfig.energy.spent += EnergyConfig.door.cost;
         this.game.activeMap.levelMap = this.game.activeMap.copyMap(this.game.activeMap.levelMap, this.game.activeMap.previousMap);
         //door animations would be nice
         if (!object.objectConfig.isActivated) {
@@ -101,9 +102,9 @@ export const ActionManager = function (game) {
             ? enemyCharConfig.inventory.offHand.armor
             : 0) + enemyCharConfig.naturalArmor;
 
-        charConfig.actions.spent++;
-        charConfig.actions.actionId = -1;
-        charConfig.actions.selectedAction = null;
+        charConfig.energy.spent += EnergyConfig.attackMainHand.cost;
+        charConfig.energy.actionId = -1;
+        charConfig.energy.selectedAction = null;
 
         this._checkInitiative(enemy);
         if (charConfig.isPlayerControlled) {
@@ -123,8 +124,8 @@ export const ActionManager = function (game) {
                 enemyCharConfig.naturalArmor--;
             }
         } else {
-            _.each(charConfig.actions.selectedAction.damage, function(damage) {
-                var attackDamage = Math.floor(Math.random() * damage.value * Math.ceil(charConfig.actions.selectedAction.level / 2)) + 1 + Math.floor(charConfig.attributes.intelligence / 2);
+            _.each(charConfig.energy.selectedAction.damage, function(damage) {
+                var attackDamage = Math.floor(Math.random() * damage.value * Math.ceil(charConfig.energy.selectedAction.level / 2)) + 1 + Math.floor(charConfig.attributes.intelligence / 2);
                 if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === - 1) {
                     if (enemyCharConfig.resistances.indexOf(damage.type) !== - 1) {
                         enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
@@ -152,10 +153,10 @@ export const ActionManager = function (game) {
             ? enemyCharConfig.inventory.offHand.armor
             : 0) + enemyCharConfig.naturalArmor;
 
-        charConfig.actions.spent++;
-        charConfig.actions.actionId = -1;
-        charConfig.mana.spent += charConfig.actions.selectedAction.cost;
-        charConfig.actions.selectedAction = null;
+        charConfig.energy.spent += EnergyConfig.attackSpell.cost;
+        charConfig.energy.actionId = -1;
+        charConfig.mana.spent += charConfig.energy.selectedAction.cost;
+        charConfig.energy.selectedAction = null;
 
         this._checkInitiative(enemy);
         if (charConfig.isPlayerControlled) {
@@ -300,7 +301,8 @@ export const ActionManager = function (game) {
             // if it is a melee weapon check if two handed skill is available or some skill
             // that allows character to use TH weapons as OH
             if (charConfig.inventory.mainHand.hold === 2 &&
-                charConfig.inventory.offHand.type === EnumHelper.inventoryEnum.defaultEquipment) {
+                charConfig.inventory.offHand.type === EnumHelper.inventoryEnum.defaultEquipment
+                || charConfig.inventory.mainHand.hold === 1) {
                 // If it is a ranged weapon check if projectile hits
                 if (charConfig.inventory.mainHand.range > 1) {
                     if (this._checkProjectileSuccess(character, enemy)) {
@@ -321,8 +323,8 @@ export const ActionManager = function (game) {
         // TODO: Check if offhand is empty?
         var charConfig = character.characterConfig;
         if (charConfig.mana.max - charConfig.mana.spent >= 0) {
-            if (Math.abs(character.x - enemy.x) <= 50 * charConfig.actions.selectedAction.range &&
-                Math.abs(character.y - enemy.y) <= 50 * charConfig.actions.selectedAction.range &&
+            if (Math.abs(character.x - enemy.x) <= 50 * charConfig.energy.selectedAction.range &&
+                Math.abs(character.y - enemy.y) <= 50 * charConfig.energy.selectedAction.range &&
                 (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)) {
                 if (this._checkProjectileSuccess(character, enemy)) {
                     this._attackWithSpell(character, enemy);

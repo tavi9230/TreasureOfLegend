@@ -26,15 +26,11 @@ export const Enemy = function(game) {
         posX: 0,
         posY: 0,
         path: [],
-        actions: {
-            max: 1,
+        energy: {
+            max: 3,
             spent: 0,
             actionId: -1,
-            selectedAction: null
-        },
-        minorActions: {
-            max: 1,
-            spent: 0,
+            selectedAction: null,
             inProgress: null
         },
         inventory: {
@@ -338,8 +334,8 @@ export const Enemy = function(game) {
 
         if (!charConfig.movement.isMoving) {
             var didSomething = false;
-            // If enemy cannot move, try doing an action or minor action
-            if (charConfig.actions.max - charConfig.actions.spent > 0) {
+            // If enemy cannot move, try attacking
+            if (charConfig.energy.max - charConfig.energy.spent > 1) {
                 var closestEnemy = enemies.getPathsToEnemies();
                 if (closestEnemy.length > 0) {
                     if (closestEnemy[0].path.length === charConfig.inventory.mainHand.range) {
@@ -348,8 +344,8 @@ export const Enemy = function(game) {
                     }
                 }
             }
-
-            if (charConfig.minorActions.max - charConfig.minorActions.spent > 0) {
+            // or opening a door
+            if (charConfig.energy.max - charConfig.energy.spent > 0) {
                 var closestDoor = enemies.getPathsToClosestDoor();
                 if (closestDoor.length > 0) {
                     if (closestDoor[0].path.length === 1) {
@@ -361,16 +357,14 @@ export const Enemy = function(game) {
 
             // If no action has been done it might mean we are out of movement and not near an enemy or object
             if (!didSomething) {
-                charConfig.minorActions.spent++;
-                charConfig.actions.spent++;
+                charConfig.energy.spent++;
                 charConfig.movement.spent++;
             }
         }
 
         if (charConfig.movement.max - charConfig.movement.spent <= 0 &&
             !charConfig.movement.isMoving && charConfig.path.length <= 0 &&
-            charConfig.actions.max - charConfig.actions.spent <= 0 &&
-            charConfig.minorActions.max - charConfig.minorActions.spent <= 0) {
+            charConfig.energy.max - charConfig.energy.spent <= 0) {
             this.game.events.emit('endEnemyTurn');
         }
     };

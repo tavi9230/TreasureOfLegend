@@ -283,6 +283,7 @@
     <Content Include=".eslintignore" />
     <Content Include=".eslintrc" />
     <Content Include="package.json" />
+    <Content Include="Scripts\Aniwars\Configurations\energyConfig.js" />
     <Content Include="Scripts\Aniwars\Helpers\assetLoader.js" />
     <Content Include="Scripts\Aniwars\enemy.js" />
     <Content Include="Scripts\Aniwars\Helpers\enumHelper.js" />

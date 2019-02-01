@@ -3,6 +3,7 @@ import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
 import {ActionManager} from 'Aniwars/Managers/actionManager';
 import {InventoryConfig} from 'Aniwars/Configurations/inventoryConfig';
 import {SpellsConfig} from 'Aniwars/Configurations/spellsConfig';
+import {EnergyConfig} from 'Aniwars/Configurations/energyConfig';
 
 export const Character = function(game) {
     var actionManager = new ActionManager(game);
@@ -27,15 +28,11 @@ export const Character = function(game) {
             spent: 0,
             isMoving: false
         },
-        actions: {
-            max: 2,
-            spent: 0,
-            actionId: -1,
-            selectedAction: null
-        },
-        minorActions: {
+        energy: {
             max: 10,
             spent: 0,
+            actionId: -1,
+            selectedAction: null,
             inProgress: null
         },
         inventory: {
@@ -127,7 +124,7 @@ export const Character = function(game) {
             if (charConfig.path.length === 0) {
                 this.game.events.emit('activeCharacterActed', currentCharacter, this.game.characters);
                 this.game.activeMap.showMovementGrid(currentCharacter);
-                this._checkIfObjectInteractionInProgress(charConfig.minorActions.inProgress);
+                this._checkIfObjectInteractionInProgress(charConfig.energy.inProgress);
             }
             charConfig.movement.isMoving = false;
         }
@@ -144,8 +141,8 @@ export const Character = function(game) {
     this.interactWithObject = (object) => {
         var character = this.game.activeCharacter,
             charConfig = character.characterConfig;
-        charConfig.minorActions.inProgress = null;
-        if (object.objectConfig.isInteractible && charConfig.minorActions.max - charConfig.minorActions.spent > 0) {
+        charConfig.energy.inProgress = null;
+        if (object.objectConfig.isInteractible && charConfig.energy.max - charConfig.energy.spent > 0) {
             var obj = this.game.activeMap.getObjRealCoords(object);
             // If object within reach try the interaction
             if (Math.abs(character.x - obj.x) <= 50 && Math.abs(character.y - obj.y) <= 50 &&
@@ -155,7 +152,7 @@ export const Character = function(game) {
                 actionManager.interactWithObject(object);
                 // Otherwise move near the object and try again
             } else if (Math.abs(character.x - obj.x) !== 0 || Math.abs(character.y - obj.y) !== 0) {
-                charConfig.minorActions.inProgress = object;
+                charConfig.energy.inProgress = object;
                 var path = Pathfinder.getPathFromAToB(character, object, this.game.activeMap.levelMap);
                 this.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
             }
@@ -165,8 +162,8 @@ export const Character = function(game) {
     this.interactWithEnemy = (enemy) => {
         var character = this.game.activeCharacter,
             charConfig = character.characterConfig;
-        charConfig.minorActions.inProgress = null;
-        if (charConfig.actions.max - charConfig.actions.spent > 0) {
+        charConfig.energy.inProgress = null;
+        if (charConfig.energy.max - charConfig.energy.spent > 0) {
             actionManager.interactWithEnemy(enemy);
         }
     };
@@ -187,9 +184,9 @@ export const Character = function(game) {
             charConfig = character.characterConfig;
         if (Math.abs(character.x - item.x) <= 50 && Math.abs(character.y - item.y) <= 50 &&
             (Math.abs(character.x - item.x) >= 0 || Math.abs(character.y - item.y) >= 0)) {
-            if (charConfig.minorActions.max - charConfig.minorActions.spent > 0
+            if (charConfig.energy.max - charConfig.energy.spent > 0
                 && this._addItemToInventory(charConfig, lodash.cloneDeep(item.itemConfig))) {
-                charConfig.minorActions.spent++;
+                charConfig.energy.spent += EnergyConfig.pickup.cost;
                 item.destroy();
                 this.game.items.remove(item);
                 this.game.events.emit('activeCharacterActed', character, this.game.characters);
@@ -249,7 +246,7 @@ export const Character = function(game) {
     this.replaceItem = (itemToReplace) => {
         var character = this.game.activeCharacter,
             charConfig = character.characterConfig;
-        if (charConfig.minorActions.max - charConfig.minorActions.spent > 0) {
+        if (charConfig.energy.max - charConfig.energy.spent > 0) {
             var index = charConfig.inventory.slots.items.indexOf(itemToReplace);
             if (itemToReplace.type === EnumHelper.inventoryEnum.mainHand) {
                 charConfig.inventory.mainHand.isEquipped = false;
@@ -320,7 +317,7 @@ export const Character = function(game) {
                 charConfig.inventory.feet = lodash.cloneDeep(itemToReplace);
                 charConfig.inventory.feet.isEquipped = true;
             }
-            charConfig.minorActions.spent++;
+            charConfig.energy.spent += EnergyConfig.pickup.cost;
             this.game.events.emit('activeCharacterActed', character, this.game.characters);
         }
     };
@@ -328,9 +325,9 @@ export const Character = function(game) {
     this.addItemFromList = (item, lootbag) => {
         var character = this.game.activeCharacter,
             charConfig = character.characterConfig;
-        if (charConfig.minorActions.max - charConfig.minorActions.spent > 0
+        if (charConfig.energy.max - charConfig.energy.spent > 0
             && this._addItemToInventory(charConfig, lodash.cloneDeep(item))) {
-            charConfig.minorActions.spent++;
+            charConfig.energy.spent += EnergyConfig.pickup.cost;
             var lootbagConfig = lootbag.objectConfig.belongsTo.characterConfig;
             var index = lootbagConfig.inventory.slots.items.indexOf(item);
             lootbagConfig.inventory.slots.items.splice(index, 1);
@@ -470,7 +467,7 @@ export const Character = function(game) {
                 if (pathWay.length > 0) {
                     charConfig.path.shift();
                     // if there was a click on an object close to the limit of movement, move near object
-                    if (charConfig.minorActions.inProgress && charConfig.path.length === charConfig.movement.max + 1) {
+                    if (charConfig.energy.inProgress && charConfig.path.length === charConfig.movement.max + 1) {
                         charConfig.path.pop();
                     }
 
@@ -479,7 +476,7 @@ export const Character = function(game) {
                         game.activeMap.hideMovementGrid();
                     } else if (charConfig.path.length > charConfig.movement.max - charConfig.movement.spent) {
                         charConfig.path = [];
-                        charConfig.minorActions.inProgress = null;
+                        charConfig.energy.inProgress = null;
                     }
                 }
             }
