@@ -50,6 +50,7 @@ export const SceneManager = function (game) {
     this.createCamera = () => {
         //main camera
         this.game.cameras.main.setBounds(0, -100, this.game.activeMap.levelMap[0].length * 50, this.game.activeMap.levelMap.length * 50 + 200);
+        this.game.cameras.main.setZoom(1.5);
         if (this.game.activeCharacter.characterConfig.isPlayerControlled) {
             //this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
         }
