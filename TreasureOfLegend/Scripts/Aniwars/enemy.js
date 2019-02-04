@@ -133,6 +133,7 @@ export const Enemy = function(game) {
         character.characterConfig.resistances = config.getRandomResistances(1);
         character.characterConfig.vulnerabilities = config.getRandomResistances(1);
         character.characterConfig.invulnerabilities = config.getRandomResistances(1);
+        return character;
     };
 
     this.moveActiveCharacterToPosition = (x, y) => {

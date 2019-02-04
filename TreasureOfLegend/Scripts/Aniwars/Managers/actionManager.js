@@ -2,6 +2,7 @@
 import {Pathfinder} from 'Aniwars/Helpers/pathfinder';
 import {InventoryConfig} from 'Aniwars/Configurations/inventoryConfig';
 import {EnergyConfig} from 'Aniwars/Configurations/energyConfig';
+import {EnemyConfig} from 'Aniwars/Configurations/enemyConfig';
 
 export const ActionManager = function (game) {
     this.game = game;
@@ -316,6 +317,32 @@ export const ActionManager = function (game) {
                 this.game.characters.characters.remove(enemy);
             } else {
                 this.game.enemies.characters.remove(enemy);
+                if (this.game.enemies.characters.getChildren().length === 0 && this.game.scene.key === 'TestLevelScene') {
+                    this.game.enemies.total++;
+                    for (let i = 0; i < this.game.enemies.total; i++) {
+                        var positionFound = false,
+                            enemy,
+                            x,
+                            y;
+                        while (!positionFound) {
+                            x = Math.floor(Math.random() * this.game.activeMap.levelMap[0].length) * 50,
+                            y = Math.floor(Math.random() * this.game.activeMap.levelMap.length) * 50;
+                            var tiles = this.game.activeMap.tiles.getChildren().filter(function(object) {
+                                return object.x === x && object.y === y;
+                            });
+                            if (tiles.length > 0) {
+                                positionFound = true;
+                            }
+                        }
+                        enemy = i % 5 === 0
+                            ? this.game.enemies.addNewRandomVulnerabilitiesCharacter(x, y, EnemyConfig.thug)
+                            : this.game.enemies.addNewCharacter(x, y, EnemyConfig.thug);
+                        this.game.input.setHitArea([enemy]);
+                        this.game.sceneManager.bindEnemyEvents(enemy);
+                    }
+                    this.game.initiative = null;
+                    this.game.initiativeIndex = -1;
+                }
             }
             this.game.initiative = this.game.sceneManager.getInitiativeArray([enemy]);
         }

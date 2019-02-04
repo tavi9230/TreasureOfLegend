@@ -6,27 +6,62 @@ import {EnemyConfig} from 'Aniwars/Configurations/enemyConfig';
 
 export const SceneManager = function (game) {
     this.game = game;
+    this.endTurn = () => {
+        var charConfig = this.game.activeCharacter.characterConfig;
+        var shouldChangeTurn = false;
+        if (charConfig.path.length === 0 &&
+            !charConfig.movement.isMoving) {
+            charConfig.movement.spent = 0;
+            charConfig.energy.spent = 0;
+            // TODO: Fix initiative!
+            this.game.initiativeIndex++;
+            if (this.game.initiativeIndex >= this.game.initiative.length || this.game.initiativeIndex === -1) {
+                this.game.initiativeIndex = 0;
+                shouldChangeTurn = true;
+            }
+            this.game.activeCharacter = this.game.initiative[this.game.initiativeIndex];
+
+            if (this.game.activeCharacter.characterConfig.isPlayerControlled) {
+                this.game.events.emit('activeCharacterChanged', this.game.activeCharacter, this.game.characters);
+                this.game.events.emit('activeCharacterPositionModified', this.game.activeCharacter);
+                this.game.activeMap.showMovementGrid();
+                //this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
+            } else {
+                this.game.activeMap.hideMovementGrid();
+            }
+            if (shouldChangeTurn) {
+                this.game.events.emit('changeTurnCounter');
+            }
+            this.checkObjectReset();
+        }
+    },
     this.createMap = () => {
         this.game.activeMap = new BattleMap(this.game);
         this.game.activeMap.generateMap();
         var self = this;
-        _.each(this.game.activeMap.tiles.getChildren(),
-            function(tile) {
-                //mouse input on clicking game tiles and hovering over them
-                tile.on('pointerdown', _.bind(self._moveCharacterOnClick, self, tile));
-                tile.on('pointerover', _.bind(self._hoverTile, self, tile));
-            });
-        _.each(this.game.activeMap.objects.getChildren(),
-            function(object) {
-                //mouse input on clicking game objects
-                object.on('pointerdown', _.bind(self._interactWithObject, self, object));
-                object.on('pointerover', _.bind(self._hoverObject, self, object));
-            });
+        _.each(this.game.activeMap.tiles.getChildren(), function(tile) {
+            //mouse input on clicking game tiles and hovering over them
+            self.bindTileEvents(tile);
+        });
+        _.each(this.game.activeMap.objects.getChildren(), function(object) {
+            //mouse input on clicking game objects
+            self.bindObjectEvents(object);
+        });
+    };
+
+    this.bindTileEvents = (tile) => {
+        tile.on('pointerdown', _.bind(this._moveCharacterOnClick, this, tile));
+        tile.on('pointerover', _.bind(this._hoverTile, this, tile));
     };
 
     this.bindObjectEvents = (object) => {
         object.on('pointerdown', _.bind(this._interactWithObject, this, object));
         object.on('pointerover', _.bind(this._hoverObject, this, object));
+    };
+
+    this.bindEnemyEvents = (enemy) => {
+        enemy.on('pointerdown', _.bind(this._interactWithEnemy, this, enemy));
+        enemy.on('pointerover', _.bind(this._hoverEnemy, this, enemy));
     };
 
     this.createCharacters = () => {
@@ -45,14 +80,14 @@ export const SceneManager = function (game) {
         var self = this;
         this.game.enemies = new Enemy(this.game);
         this.game.enemies.addNewCharacter(1000, 450, EnemyConfig.thug);
-        this.game.enemies.addNewRandomVulnerabilitiesCharacter(1000, 550, EnemyConfig.thug);
+        //this.game.enemies.addNewRandomVulnerabilitiesCharacter(1000, 550, EnemyConfig.thug);
+        this.game.enemies.total = this.game.enemies.characters.getChildren().length;
         //this.game.enemies.addNewCharacter(950, 450, 'character');
         //this.game.enemies.addNewCharacter(900, 450, 'character');
         this.game.input.setHitArea(this.game.enemies.characters.getChildren());
         _.each(this.game.enemies.characters.getChildren(), function(enemy) {
             //mouse input on clicking game objects
-            enemy.on('pointerdown', _.bind(self._interactWithEnemy, self, enemy));
-            enemy.on('pointerover', _.bind(self._hoverEnemy, self, enemy));
+            self.bindEnemyEvents(enemy);
         });
     };
 
@@ -101,10 +136,9 @@ export const SceneManager = function (game) {
                 }
                 return 0;
             });
-            _.each(preinitiative,
-                function(item) {
-                    initiative.push(item.character);
-                });
+            _.each(preinitiative, function(item) {
+                initiative.push(item.character);
+            });
             return initiative;
         } else {
             var self = this;

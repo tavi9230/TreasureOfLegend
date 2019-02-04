@@ -30,33 +30,7 @@ export const TestLevelScene = function() {
             this.hudScene = this.scene.get('HUDScene');
             this.hudScene.scene.bringToTop();
             this.hudScene.events.on('endTurn', function() {
-                var charConfig = self.activeCharacter.characterConfig;
-                var shouldChangeTurn = false;
-                if (charConfig.path.length === 0 &&
-                    !charConfig.movement.isMoving) {
-                    charConfig.movement.spent = 0;
-                    charConfig.energy.spent = 0;
-                    // TODO: Fix initiative. When one or multiple enemies die, redo the initiative
-                    self.initiativeIndex++;
-                    if (self.initiativeIndex >= self.initiative.length) {
-                        self.initiativeIndex = 0;
-                        shouldChangeTurn = true;
-                    }
-                    self.activeCharacter = self.initiative[self.initiativeIndex];
-
-                    if (self.activeCharacter.characterConfig.isPlayerControlled) {
-                        self.events.emit('activeCharacterChanged', self.activeCharacter, self.characters);
-                        self.events.emit('activeCharacterPositionModified', self.activeCharacter);
-                        self.activeMap.showMovementGrid();
-                        //self.cameras.main.startFollow(self.activeCharacter, true, 0.09, 0.09);
-                    } else {
-                        self.activeMap.hideMovementGrid();
-                    }
-                    if (shouldChangeTurn) {
-                        self.events.emit('changeTurnCounter');
-                    }
-                    self.sceneManager.checkObjectReset();
-                }
+                self.sceneManager.endTurn();
             });
             this.hudScene.events.on('getCharacterStartData', function() {
                 self.events.emit('activeCharacterChanged', self.activeCharacter, self.characters);
