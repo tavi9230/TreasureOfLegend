@@ -45,6 +45,7 @@ export const SceneManager = function (game) {
         var self = this;
         this.game.enemies = new Enemy(this.game);
         this.game.enemies.addNewCharacter(1000, 450, EnemyConfig.thug);
+        this.game.enemies.addNewRandomVulnerabilitiesCharacter(1000, 550, EnemyConfig.thug);
         //this.game.enemies.addNewCharacter(950, 450, 'character');
         //this.game.enemies.addNewCharacter(900, 450, 'character');
         this.game.input.setHitArea(this.game.enemies.characters.getChildren());

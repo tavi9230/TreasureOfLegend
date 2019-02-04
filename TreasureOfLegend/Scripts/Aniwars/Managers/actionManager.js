@@ -328,7 +328,8 @@ export const ActionManager = function (game) {
         var charConfig = character.characterConfig;
         if (Math.abs(character.x - enemy.x) <= 50 * charConfig.inventory.mainHand.range &&
            Math.abs(character.y - enemy.y) <= 50 * charConfig.inventory.mainHand.range &&
-           (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)) {
+           (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)
+            && charConfig.energy.max - EnergyConfig.attackMainHand.cost >= charConfig.energy.spent) {
             // If weapon is held with two hands check to have nothing in the offhand.
             // If it is a projectile weapon it can have projectiles in offhand
             // if it is a melee weapon check if two handed skill is available or some skill
@@ -358,7 +359,8 @@ export const ActionManager = function (game) {
         if (charConfig.mana.max - charConfig.mana.spent >= 0) {
             if (Math.abs(character.x - enemy.x) <= 50 * charConfig.energy.selectedAction.range &&
                 Math.abs(character.y - enemy.y) <= 50 * charConfig.energy.selectedAction.range &&
-                (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)) {
+                (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)
+                && charConfig.energy.max - EnergyConfig.attackSpell.cost >= charConfig.energy.spent) {
                 if (this._checkProjectileSuccess(character, enemy)) {
                     this._attackWithSpell(character, enemy);
                 }

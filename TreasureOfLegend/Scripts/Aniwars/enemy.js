@@ -131,8 +131,8 @@ export const Enemy = function(game) {
     this.addNewRandomVulnerabilitiesCharacter = (x, y, config) => {
         var character = this.addNewCharacter(x, y, config);
         character.characterConfig.resistances = config.getRandomResistances(1);
-        character.characterConfig.vulnerabilities = config.getRandomVulnerabilities(1);
-        character.characterConfig.invulnerabilities = config.getRandomInvulnerabilities(1);
+        character.characterConfig.vulnerabilities = config.getRandomResistances(1);
+        character.characterConfig.invulnerabilities = config.getRandomResistances(1);
     };
 
     this.moveActiveCharacterToPosition = (x, y) => {
