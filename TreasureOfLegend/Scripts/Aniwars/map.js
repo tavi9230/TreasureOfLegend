@@ -22,24 +22,29 @@ export const BattleMap = function (game) {
         isInteractible: false,
         id: -1,
         description: '',
+        previousDescription: '',
         isActivated: false,
-        belongsTo: null
+        belongsTo: null,
+        turnActivated: 0,
+        turnsToReset: 0,
+        image: '',
+        callback: null
     };
     var hitArea = new Phaser.Geom.Rectangle(0, 0, 50, 50);
     var hitAreaCallback = Phaser.Geom.Rectangle.Contains;
-    this.tiles = game.add.group({
+    this.tiles = this.game.add.group({
         hitArea: hitArea,
         hitAreaCallback: hitAreaCallback
     });
-    this.objects = game.add.group({
+    this.objects = this.game.add.group({
         hitArea: hitArea,
         hitAreaCallback: hitAreaCallback
     });
-    this.deadCharacters = game.add.group({
+    this.deadCharacters = this.game.add.group({
         hitArea: hitArea,
         hitAreaCallback: hitAreaCallback
     });
-    this.unreachableTiles = game.add.group();
+    this.unreachableTiles = this.game.add.group();
 
     this.isMovementGridShown = false;
 
@@ -62,13 +67,13 @@ export const BattleMap = function (game) {
                 }
             }
         }
-        game.input.setHitArea(this.tiles.getChildren());
-        game.input.setHitArea(this.objects.getChildren());
+        this.game.input.setHitArea(this.tiles.getChildren());
+        this.game.input.setHitArea(this.objects.getChildren());
     };
 
     this.showMovementGrid = () => {
         this.hideMovementGrid();
-        var character = game.activeCharacter;
+        var character = this.game.activeCharacter;
         this.isMovementGridShown = true;
         var moveableTiles = this.tiles.getChildren().filter(function(tile) {
             return (character.characterConfig.movement.max - character.characterConfig.movement.spent) * 50 >=
@@ -157,13 +162,86 @@ export const BattleMap = function (game) {
         }
     };
 
+    this.createReactivatingObject = (config) => {
+        var objectToCreate = config.object,
+            obj = this.game.add.sprite(objectToCreate.x, objectToCreate.y, config.image).setOrigin(0, 0),
+            self = this;
+        obj.objectConfig = lodash.cloneDeep(this.objConfig);
+        obj.objectConfig.description = config.description;
+        obj.objectConfig.previousDescription = objectToCreate.objectConfig.description;
+        obj.objectConfig.image = objectToCreate.objectConfig.image;
+        obj.displayWidth = config.displayWidth || 50;
+        obj.displayHeight = config.displayHeight || 50;
+        obj.width = config.width || 50;
+        obj.height = config.height || 50;
+        obj.objectConfig.id = objectToCreate.objectConfig.id;
+        obj.objectConfig.isInteractible = config.isInteractible;
+        if (config.turnsToReset !== 0) {
+            obj.objectConfig.turnActivated = this.game.hudScene.getTurn();
+            obj.objectConfig.turnsToReset = Math.floor(Math.random() * config.turnsToReset) + 1;
+            var previousObject = obj;
+            obj.objectConfig.callback = function() {
+                var currentTurn = self.game.hudScene.getTurn();
+                if (currentTurn - this.turnActivated >= this.turnsToReset) {
+                    self.createReactivatingObject({
+                        object: previousObject,
+                        image: this.image,
+                        description: this.previousDescription,
+                        displayWidth: 100,
+                        displayHeight: 100,
+                        width: 100,
+                        height: 100,
+                        isInteractible: true,
+                        turnsToReset: 0
+                    });
+                }
+            };
+        }
+        this.game.input.setHitArea([obj]);
+        this.game.sceneManager.bindObjectEvents(obj);
+        this.objects.add(obj);
+        objectToCreate.destroy();
+    };
+
+    this.createEmptyWell = (well) => {
+        // TODO: Create empty fountain
+        var obj = this.game.add.sprite(well.x, well.y, 'emptyWell').setOrigin(0, 0),
+            self = this;
+        obj.objectConfig = lodash.cloneDeep(this.objConfig);
+        obj.objectConfig.description = 'Empty well';
+        obj.objectConfig.previousDescription = well.objectConfig.description;
+        obj.objectConfig.image = well.objectConfig.image;
+        obj.objectConfig.turnActivated = this.game.hudScene.getTurn();
+        obj.objectConfig.turnsToReset = Math.floor(Math.random() * 5) + 1;
+        obj.displayWidth = 100;
+        obj.displayHeight = 100;
+        obj.width = 100;
+        obj.height = 100;
+        obj.objectConfig.id = well.objectConfig.id;
+        obj.objectConfig.isInteractible = true;
+        obj.objectConfig.callback = function() {
+            var currentTurn = self.game.hudScene.getTurn();
+            if (currentTurn - this.turnActivated >= this.turnsToReset) {
+                var obj = self.game.add.sprite(this.x, this.y, this.image).setOrigin(0, 0);
+                obj.objectConfig = lodash.cloneDeep(self.objConfig);
+                obj.objectConfig.description = this.previousDescription;
+                obj.objectConfig.image = this.image;
+                self.objects.add(obj);
+            }
+        };
+        this.game.input.setHitArea([obj]);
+        this.objects.add(obj);
+        well.destroy();
+    };
+
     // Private ----------------------------------------------------------------------
     this._addTile = (x, y, isUnreachable) => {
         var tileNumber = Math.floor(Math.random() * 5) + 1;
-        var obj = game.add.sprite(x, y, 'tile' + tileNumber).setOrigin(0, 0);
+        var obj = this.game.add.sprite(x, y, 'tile' + tileNumber).setOrigin(0, 0);
         obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.objectConfig.description = 'Stone tile';
         obj.objectConfig.id = EnumHelper.idEnum.tile.id;
+        obj.objectConfig.image = 'tile' + tileNumber;
         obj.height = 50;
         obj.width = 50;
         if (!isUnreachable) {
@@ -176,19 +254,30 @@ export const BattleMap = function (game) {
     this._addWall = (x, y, wallId) => {
         var obj;
         if (wallId === EnumHelper.idEnum.wall.type.top) {
-            obj = game.add.sprite(x, y, 'wallTest').setOrigin(0, 0);
+            obj = this.game.add.sprite(x, y, 'wallTest').setOrigin(0, 0);
+            obj.objectConfig = lodash.cloneDeep(this.objConfig);
+            obj.objectConfig.image = 'wallTest';
         } else if (wallId === EnumHelper.idEnum.wall.type.side) {
-            obj = game.add.sprite(x, y, 'wallVerticalTest').setOrigin(0, 0);
+            obj = this.game.add.sprite(x, y, 'wallVerticalTest').setOrigin(0, 0);
+            obj.objectConfig = lodash.cloneDeep(this.objConfig);
+            obj.objectConfig.image = 'wallVerticalTest';
         } else if (wallId === EnumHelper.idEnum.wall.type.bottomLeft) {
-            obj = game.add.sprite(x, y, 'wallBottomLeftTest').setOrigin(0, 0);
+            obj = this.game.add.sprite(x, y, 'wallBottomLeftTest').setOrigin(0, 0);
+            obj.objectConfig = lodash.cloneDeep(this.objConfig);
+            obj.objectConfig.image = 'wallBottomLeftTest';
         } else if (wallId === EnumHelper.idEnum.wall.type.bottomRight) {
-            obj = game.add.sprite(x, y, 'wallBottomRightTest').setOrigin(0, 0);
+            obj = this.game.add.sprite(x, y, 'wallBottomRightTest').setOrigin(0, 0);
+            obj.objectConfig = lodash.cloneDeep(this.objConfig);
+            obj.objectConfig.image = 'wallBottomRightTest';
         } else if (wallId === EnumHelper.idEnum.wall.type.topLeft) {
-            obj = game.add.sprite(x, y, 'wallTopLeftTest').setOrigin(0, 0);
+            obj = this.game.add.sprite(x, y, 'wallTopLeftTest').setOrigin(0, 0);
+            obj.objectConfig = lodash.cloneDeep(this.objConfig);
+            obj.objectConfig.image = 'wallTopLeftTest';
         } else if (wallId === EnumHelper.idEnum.wall.type.topRight) {
-            obj = game.add.sprite(x, y, 'wallTopRightTest').setOrigin(0, 0);
+            obj = this.game.add.sprite(x, y, 'wallTopRightTest').setOrigin(0, 0);
+            obj.objectConfig = lodash.cloneDeep(this.objConfig);
+            obj.objectConfig.image = 'wallTopRightTest';
         }
-        obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.displayWidth = 50;
         obj.displayHeight = 50;
         obj.width = 50;
@@ -208,20 +297,23 @@ export const BattleMap = function (game) {
 
     this._addDoor = (x, y, i, j, doorId) => {
         var obj;
-         if (doorId === EnumHelper.idEnum.door.type.right || doorId === EnumHelper.idEnum.door.type.left) {
-             obj = game.add.sprite(x, y, 'castleDoorVertical').setOrigin(0, 0);
-             obj.displayWidth = 50;
-             obj.displayHeight = 50;
-             obj.width = 50;
-             obj.height = 50;
+        if (doorId === EnumHelper.idEnum.door.type.right || doorId === EnumHelper.idEnum.door.type.left) {
+            obj = this.game.add.sprite(x, y, 'castleDoorVertical').setOrigin(0, 0);
+            obj.displayWidth = 50;
+            obj.displayHeight = 50;
+            obj.width = 50;
+            obj.height = 50;
+            obj.objectConfig = lodash.cloneDeep(this.objConfig);
+            obj.objectConfig.image = 'castleDoorVertical';
         } else if (doorId === EnumHelper.idEnum.door.type.up || doorId === EnumHelper.idEnum.door.type.down) {
-            obj = game.add.sprite(x, y, 'castleDoor').setOrigin(0, 0.25);
+            obj = this.game.add.sprite(x, y, 'castleDoor').setOrigin(0, 0.25);
             obj.displayWidth = 50;
             obj.displayHeight = 75;
             obj.width = 50;
             obj.height = 75;
+            obj.objectConfig = lodash.cloneDeep(this.objConfig);
+            obj.objectConfig.image = 'castleDoor';
         }
-        obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.objectConfig.description = 'Wooden door';
         obj.objectConfig.id = doorId;
         obj.objectConfig.isInteractible = true;
@@ -231,21 +323,25 @@ export const BattleMap = function (game) {
     this._addWell = (x, y, i, j, wellId) => {
         var obj;
         if (wellId === EnumHelper.idEnum.well.type.health) {
-            obj = game.add.sprite(x, y, 'healthWell').setOrigin(0, 0);
+            obj = this.game.add.sprite(x, y, 'healthWell').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.description = 'Restore Health';
+            obj.objectConfig.image = 'healthWell';
         } else if (wellId === EnumHelper.idEnum.well.type.mana) {
-            obj = game.add.sprite(x, y, 'manaWell').setOrigin(0, 0);
+            obj = this.game.add.sprite(x, y, 'manaWell').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.description = 'Restore Mana';
+            obj.objectConfig.image = 'manaWell';
         } else if (wellId === EnumHelper.idEnum.well.type.movement) {
-            obj = game.add.sprite(x, y, 'movementWell').setOrigin(0, 0);
+            obj = this.game.add.sprite(x, y, 'movementWell').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.description = 'Restore Movement';
+            obj.objectConfig.image = 'movementWell';
         } else if (wellId === EnumHelper.idEnum.well.type.energy) {
-            obj = game.add.sprite(x, y, 'energyWell').setOrigin(0, 0);
+            obj = this.game.add.sprite(x, y, 'energyWell').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.description = 'Restore Energy';
+            obj.objectConfig.image = 'energyWell';
         }
         obj.displayWidth = 100;
         obj.displayHeight = 100;
@@ -276,7 +372,7 @@ export const BattleMap = function (game) {
     };
 
     this._highlightPath = (tile, object) => {
-        var currentCharacter = game.activeCharacter;
+        var currentCharacter = this.game.activeCharacter;
         if (currentCharacter.characterConfig.isPlayerControlled) {
             var obj = {
                 isTile: tile ? true : false,

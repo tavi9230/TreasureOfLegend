@@ -60,17 +60,35 @@ export const ActionManager = function (game) {
     };
 
     this._interactWithWell = (object) => {
-        var activeCharacter = this.game.activeCharacter;
-        if (object.objectConfig.id === EnumHelper.idEnum.well.type.health) {
-            activeCharacter.characterConfig.life.current = activeCharacter.characterConfig.life.max;
-        } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.mana) {
-            activeCharacter.characterConfig.mana.spent = 0;
-        } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.movement) {
-            activeCharacter.characterConfig.movement.spent = 0;
-        } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.energy) {
-            activeCharacter.characterConfig.energy.spent = 0;
+        var currentTurn = this.game.hudScene.getTurn();
+        if (currentTurn - object.objectConfig.turnActivated >= object.objectConfig.turnsToReset) {
+            object.objectConfig.turnActivated = 0;
+            object.objectConfig.turnsToReset = 0;
+            var activeCharacter = this.game.activeCharacter;
+            if (object.objectConfig.id === EnumHelper.idEnum.well.type.health) {
+                activeCharacter.characterConfig.life.current = activeCharacter.characterConfig.life.max;
+            } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.mana) {
+                activeCharacter.characterConfig.mana.spent = 0;
+            } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.movement) {
+                activeCharacter.characterConfig.movement.spent = 0;
+                this.game.activeMap.showMovementGrid();
+            } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.energy) {
+                activeCharacter.characterConfig.energy.spent = 0;
+            }
+            //this.game.activeMap.createEmptyWell(object);
+            this.game.activeMap.createReactivatingObject({
+                object: object,
+                image: 'emptyWell',
+                description: 'Empty well',
+                displayWidth: 100,
+                displayHeight: 100,
+                width: 100,
+                height: 100,
+                isInteractible: true,
+                turnsToReset: Math.floor(Math.random() * 5) + 1
+            });
+            this.game.events.emit('activeCharacterActed', this.game.activeCharacter, this.game.characters);
         }
-        this.game.events.emit('activeCharacterActed', this.game.activeCharacter, this.game.characters);
     };
 
     //ENEMY INTERACTION --------------------------------------------------------------------------------------------------------------------

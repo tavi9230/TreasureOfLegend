@@ -23,6 +23,11 @@ export const SceneManager = function (game) {
             });
     };
 
+    this.bindObjectEvents = (object) => {
+        object.on('pointerdown', _.bind(this._interactWithObject, this, object));
+        object.on('pointerover', _.bind(this._hoverObject, this, object));
+    };
+
     this.createCharacters = () => {
         //party characters
         this.game.characters = new Character(this.game);
@@ -192,6 +197,15 @@ export const SceneManager = function (game) {
             //mouse input on clicking game objects
             item.on('pointerdown', _.bind(self._pickUpItem, self, item));
             item.on('pointerover', _.bind(self._hoverItem, self, item));
+        });
+    };
+
+    this.checkObjectReset = () => {
+        var callbackObjects = this.game.activeMap.objects.getChildren().filter(function(object) {
+            return object.objectConfig.callback !== null;
+        });
+        _.each(callbackObjects, function(object) {
+            object.objectConfig.callback();
         });
     };
 

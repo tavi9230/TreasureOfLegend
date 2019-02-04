@@ -22,6 +22,9 @@ export const HUDScene = function(sceneName) {
             this._addEvents();
             this.events.emit('getCharacterStartData');
         },
+        getTurn: function() {
+            return this.turn;
+        },
         createCloseButton: function(x, y, groupToDestroy) {
             var self = this,
                 closeButtonGroup = this.add.group();

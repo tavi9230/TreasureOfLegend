@@ -31,6 +31,7 @@
         game.load.image('healthWell', AssetFolder + 'objects/healthWell.png');
         game.load.image('manaWell', AssetFolder + 'objects/manaWell.png');
         game.load.image('energyWell', AssetFolder + 'objects/energyWell.png');
+        game.load.image('emptyWell', AssetFolder + 'objects/emptyWell.png');
 
         game.load.image('arrow', AssetFolder + 'items/arrow.png');
         game.load.image('punch', AssetFolder + 'items/punch.png');

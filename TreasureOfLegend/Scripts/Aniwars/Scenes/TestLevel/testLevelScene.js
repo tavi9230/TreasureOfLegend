@@ -55,6 +55,7 @@ export const TestLevelScene = function() {
                     if (shouldChangeTurn) {
                         self.events.emit('changeTurnCounter');
                     }
+                    self.sceneManager.checkObjectReset();
                 }
             });
             this.hudScene.events.on('getCharacterStartData', function() {
