@@ -75,7 +75,6 @@ export const ActionManager = function (game) {
             } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.energy) {
                 activeCharacter.characterConfig.energy.spent = 0;
             }
-            //this.game.activeMap.createEmptyWell(object);
             this.game.activeMap.createReactivatingObject({
                 object: object,
                 image: 'emptyWell',

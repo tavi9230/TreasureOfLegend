@@ -41,7 +41,6 @@ export const Enemy = function(game) {
             feet: lodash.cloneDeep(InventoryConfig.defaultFeet),
             hands: lodash.cloneDeep(InventoryConfig.defaultHands),
             slots: {
-                free: 2,
                 max: 2,
                 items: [lodash.cloneDeep(InventoryConfig.bow), lodash.cloneDeep(InventoryConfig.shortsword)]
             },
@@ -68,15 +67,52 @@ export const Enemy = function(game) {
     this.map = this.game.activeMap;
     this.characters = this.game.add.group();
 
-    this.addNewCharacter = (x, y, spriteName) => {
-        var character = this.game.physics.add.sprite(x, y, spriteName).setOrigin(0, 0);
+    this.addNewCharacter = (x, y, config) => {
+        var character = this.game.physics.add.sprite(x, y, config.image).setOrigin(0, 0);
         character.characterConfig = lodash.cloneDeep(this.characterConfig);
         var charConfig = character.characterConfig;
         charConfig.posX = x;
         charConfig.posY = y;
-        charConfig.height = 50;
-        charConfig.width = 50;
-        charConfig.image = spriteName;
+        charConfig.height = config.height;
+        charConfig.width = config.width;
+        charConfig.image = config.image;
+        charConfig.level = config.level;
+        charConfig.attributes.strength = Math.floor(Math.random() * config.attributes.strength) * (Math.floor(Math.random() * 2) === 1 ? 1 : -1);
+        charConfig.attributes.dexterity = Math.floor(Math.random() * config.attributes.dexterity) * (Math.floor(Math.random() * 2) === 1 ? 1 : -1);
+        charConfig.attributes.intelligence = Math.floor(Math.random() * config.attributes.intelligence) * (Math.floor(Math.random() * 2) === 1 ? 1 : -1);
+        charConfig.movement.max = config.movement;
+        charConfig.energy.max = config.energy;
+        var manaDice = config.mana.split('d'),
+            mana = parseInt(manaDice[0]) * (Math.floor(Math.random() * parseInt(manaDice[1])) + 1);
+        charConfig.mana.max = mana;
+        var lifeDice = config.life.split('d'),
+            life = parseInt(lifeDice[0]) * (Math.floor(Math.random() * parseInt(lifeDice[1])) + 1);
+        charConfig.life.max = life;
+        charConfig.life.current = life;
+        charConfig.naturalArmor = config.naturalArmor;
+        charConfig.traits = config.traits;
+        charConfig.experience = config.experience;
+        charConfig.souls = config.souls;
+        charConfig.inventory.mainHand = config.inventory.mainHand();
+        charConfig.inventory.offHand = config.inventory.offHand();
+        charConfig.inventory.head = config.inventory.head();
+        charConfig.inventory.body = config.inventory.body();
+        charConfig.inventory.hands = config.inventory.hands();
+        charConfig.inventory.feet = config.inventory.feet();
+        charConfig.inventory.slots.max = config.inventory.slots.max;
+        charConfig.inventory.money = config.inventory.getMoney();
+        if (config.inventory.slots.items.length > 0) {
+            charConfig.inventory.slots.items = config.inventory.slots.items;
+        } else {
+            charConfig.inventory.slots.items = [];
+            var item = config.getRandomInventoryItem();
+            if (item.type !== EnumHelper.inventoryEnum.defaultEquipment) {
+                charConfig.inventory.slots.items.push(item);
+            }
+        }
+        if (config.inventory.spells.length > 0) {
+            charConfig.inventory.spells = config.inventory.spells;
+        }
         charConfig.armor = charConfig.inventory.head.armor +
             charConfig.inventory.body.armor +
             charConfig.inventory.hands.armor +
@@ -84,7 +120,19 @@ export const Enemy = function(game) {
             (charConfig.inventory.offHand.armor
             ? charConfig.inventory.offHand.armor
             : 0) + charConfig.naturalArmor;
+
+        charConfig.resistances = config.resistances;
+        charConfig.vulnerabilities = config.vulnerabilities;
+        charConfig.invulnerabilities = config.invulnerabilities;
         this.characters.add(character);
+        return character;
+    };
+
+    this.addNewRandomVulnerabilitiesCharacter = (x, y, config) => {
+        var character = this.addNewCharacter(x, y, config);
+        character.characterConfig.resistances = config.getRandomResistances(1);
+        character.characterConfig.vulnerabilities = config.getRandomVulnerabilities(1);
+        character.characterConfig.invulnerabilities = config.getRandomInvulnerabilities(1);
     };
 
     this.moveActiveCharacterToPosition = (x, y) => {

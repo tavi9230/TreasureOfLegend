@@ -2,6 +2,7 @@
 import {Character} from 'Aniwars/character';
 import {Enemy} from 'Aniwars/enemy';
 import {InventoryConfig} from 'Aniwars/Configurations/inventoryConfig';
+import {EnemyConfig} from 'Aniwars/Configurations/enemyConfig';
 
 export const SceneManager = function (game) {
     this.game = game;
@@ -43,7 +44,7 @@ export const SceneManager = function (game) {
         //enemy characters
         var self = this;
         this.game.enemies = new Enemy(this.game);
-        this.game.enemies.addNewCharacter(1000, 450, 'character');
+        this.game.enemies.addNewCharacter(1000, 450, EnemyConfig.thug);
         //this.game.enemies.addNewCharacter(950, 450, 'character');
         //this.game.enemies.addNewCharacter(900, 450, 'character');
         this.game.input.setHitArea(this.game.enemies.characters.getChildren());

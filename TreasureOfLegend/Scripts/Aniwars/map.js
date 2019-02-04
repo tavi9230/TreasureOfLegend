@@ -203,37 +203,6 @@ export const BattleMap = function (game) {
         objectToCreate.destroy();
     };
 
-    this.createEmptyWell = (well) => {
-        // TODO: Create empty fountain
-        var obj = this.game.add.sprite(well.x, well.y, 'emptyWell').setOrigin(0, 0),
-            self = this;
-        obj.objectConfig = lodash.cloneDeep(this.objConfig);
-        obj.objectConfig.description = 'Empty well';
-        obj.objectConfig.previousDescription = well.objectConfig.description;
-        obj.objectConfig.image = well.objectConfig.image;
-        obj.objectConfig.turnActivated = this.game.hudScene.getTurn();
-        obj.objectConfig.turnsToReset = Math.floor(Math.random() * 5) + 1;
-        obj.displayWidth = 100;
-        obj.displayHeight = 100;
-        obj.width = 100;
-        obj.height = 100;
-        obj.objectConfig.id = well.objectConfig.id;
-        obj.objectConfig.isInteractible = true;
-        obj.objectConfig.callback = function() {
-            var currentTurn = self.game.hudScene.getTurn();
-            if (currentTurn - this.turnActivated >= this.turnsToReset) {
-                var obj = self.game.add.sprite(this.x, this.y, this.image).setOrigin(0, 0);
-                obj.objectConfig = lodash.cloneDeep(self.objConfig);
-                obj.objectConfig.description = this.previousDescription;
-                obj.objectConfig.image = this.image;
-                self.objects.add(obj);
-            }
-        };
-        this.game.input.setHitArea([obj]);
-        this.objects.add(obj);
-        well.destroy();
-    };
-
     // Private ----------------------------------------------------------------------
     this._addTile = (x, y, isUnreachable) => {
         var tileNumber = Math.floor(Math.random() * 5) + 1;
