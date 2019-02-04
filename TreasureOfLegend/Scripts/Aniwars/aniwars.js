@@ -25,6 +25,11 @@ export const Aniwars = {
             ]
         });
         //this.resize = () => {
+        //    self.game.width = window.innerWidth + 'px';
+        //    self.game.height = window.innerHeight + 'px';
+        //};
+        //window.addEventListener('resize', this.resize, false);
+        //this.resize = () => {
         //    var canvas = document.querySelector('canvas');
         //    var windowWidth = window.innerWidth;
         //    var windowHeight = window.innerHeight;

@@ -65,9 +65,9 @@ export const Character = function(game) {
         experience: {
             current: 0,
             nextLevel: 200,
-            attributePoints: 0
-        },
-        level: 1
+            attributePoints: 1,
+            level: 1
+        }
     };
     this.game = game;
     this.map = this.game.activeMap;

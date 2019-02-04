@@ -16,6 +16,13 @@ export const MainMenuScene = function() {
         },
 
         create() {
+            this.windowWidth = window.innerWidth;
+            this.windowHeight = window.innerHeight;
+            this.resize = function() {
+                self.windowWidth = window.innerWidth;
+                self.windowHeight = window.innerHeight;
+            };
+            window.addEventListener('resize', this.resize, false);
             // Find a way to do this without sending the context as a parameter
             this._createMenuLayout();
         },
@@ -25,8 +32,8 @@ export const MainMenuScene = function() {
             }
         },
         _createMenuLayout: function () {
-            this.testMapButton = this.add.image(450, 250, 'mainMenuButton').setOrigin(0, 0);
-            this.testMapButtonText = this.add.text(470, 270, 'Play Test Map', { fill: '#000' });
+            this.testMapButton = this.add.image((this.windowWidth / 2) - 150, (this.windowHeight / 2) - 50, 'mainMenuButton').setOrigin(0, 0);
+            this.testMapButtonText = this.add.text((this.windowWidth / 2) - 130, (this.windowHeight / 2) - 30, 'Play Test Map', { fill: '#000' });
             this.testMapButton.on('pointerdown', _.bind(this._startTestLevel, this));
             this.input.setHitArea(this.testMapButton);
         },

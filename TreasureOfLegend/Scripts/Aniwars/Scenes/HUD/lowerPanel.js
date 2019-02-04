@@ -9,11 +9,11 @@
         this.hudbuttons = this.scene.add.group();
         this.footerPanel = this.scene.add.graphics();
         this.footerPanel.fillStyle(0x111111, 0.8);
-        this.footerPanel.fillRect(0, 690, 1200, 110);
-        this.scene.descriptionsText = this.scene.add.text(410, 710, '', { fill: '#FFF' });
-        this.scene.soulsText = this.scene.add.text(410, 750, 'Souls: 0/5', { fill: '#FFF'});
-        this.scene.locationText = this.scene.add.text(1080, 780, 'X:0, Y:0', { fill: '#FFF' });
-        this.scene.turnText = this.scene.add.text(1150, 750, this.scene.turn, { fill: '#FFF' });
+        this.footerPanel.fillRect(0, this.scene.windowHeight - 110, this.scene.windowWidth, 110);
+        this.scene.descriptionsText = this.scene.add.text(this.scene.windowWidth - 790, this.scene.windowHeight - 90, '', { fill: '#FFF' });
+        this.scene.soulsText = this.scene.add.text(this.scene.windowWidth - 790, this.scene.windowHeight - 50, 'Souls: 0/5', { fill: '#FFF'});
+        this.scene.locationText = this.scene.add.text(this.scene.windowWidth - 120, this.scene.windowHeight - 20, 'X:0, Y:0', { fill: '#FFF' });
+        this.scene.turnText = this.scene.add.text(this.scene.windowWidth - 50, this.scene.windowHeight - 50, this.scene.turn, { fill: '#FFF' });
 
         this._createEndTurnButton();
         this._createMenuButton();
@@ -26,12 +26,12 @@
     };
 
     this._createEndTurnButton = function() {
-        var endTurnButton = this.scene.add.image(1100, 710, 'hourglass').setOrigin(0, 0);
+        var endTurnButton = this.scene.add.image(this.scene.windowWidth - 100, this.scene.windowHeight - 90, 'hourglass').setOrigin(0, 0);
         endTurnButton.on('pointerdown', _.bind(this.endTurn, this.scene));
         this.hudbuttons.add(endTurnButton);
     };
     this._createMenuButton = function() {
-        var openMenuButton = this.scene.add.image(1000, 710, 'openMenuButton').setOrigin(0, 0);
+        var openMenuButton = this.scene.add.image(this.scene.windowWidth - 200, this.scene.windowHeight - 90, 'openMenuButton').setOrigin(0, 0);
         openMenuButton.displayHeight = 50;
         openMenuButton.displayWidth = 50;
         openMenuButton.on('pointerdown', _.bind(this._openMainMenu, this.scene));
@@ -39,7 +39,7 @@
     };
     this._createSpellbookButton = function() {
         var self = this,
-            spellsButton = this.scene.add.image(900, 710, 'spells').setOrigin(0, 0);
+            spellsButton = this.scene.add.image(this.scene.windowWidth - 300, this.scene.windowHeight - 90, 'spells').setOrigin(0, 0);
         spellsButton.displayHeight = 50;
         spellsButton.displayWidth = 50;
         spellsButton.on('pointerdown', function() {
@@ -51,7 +51,7 @@
     };
     this._createSkillsButton = function() {
         var self = this,
-            skillsButton = this.scene.add.image(850, 710, 'skills').setOrigin(0, 0);
+            skillsButton = this.scene.add.image(this.scene.windowWidth - 350, this.scene.windowHeight - 90, 'skills').setOrigin(0, 0);
         skillsButton.displayHeight = 50;
         skillsButton.displayWidth = 50;
         skillsButton.on('pointerdown', function() {
@@ -81,10 +81,10 @@
         }
         var panel = self.scene.add.graphics();
         panel.fillStyle(0x111111, 0.8);
-        panel.fillRect(900, 0, 300, 700);
+        panel.fillRect(this.scene.windowWidth - 300, this.scene.windowHeight - 810, 300, 700);
         this.spellBook.add(panel);
-        var x = 920;
-        var y = 10;
+        var x = this.scene.windowWidth - 280;
+        var y = this.scene.windowHeight - 800;
         _.each(character.characterConfig.inventory.spells, function(spell) {
             var box = self.scene.add.graphics();
             box.fillStyle(0xded7c7, 0.8);
@@ -101,7 +101,7 @@
             x += 80;
         });
 
-        this.spellBook.closeButtonGroup = this.scene.createCloseButton(1180, 0, this.spellBook);
+        this.spellBook.closeButtonGroup = this.scene.createCloseButton(this.scene.windowWidth - 20, this.scene.windowHeight - 810, this.spellBook);
         this.scene.input.setHitArea(this.spellBook.getChildren());
         _.each(this.spellBook.getChildren(), function(item) {
             item.on('pointerdown', function() {
@@ -130,10 +130,10 @@
         }
         var panel = self.scene.add.graphics();
         panel.fillStyle(0x111111, 0.8);
-        panel.fillRect(900, 0, 300, 700);
+        panel.fillRect(this.scene.windowWidth - 300, this.scene.windowHeight - 810, 300, 700);
         this.skillTree.add(panel);
-        var x = 920;
-        var y = 10;
+        var x = this.scene.windowWidth - 280;
+        var y = this.scene.windowHeight - 800;
         _.each(character.characterConfig.skillsToBuy, function(skill) {
             var box = self.scene.add.graphics();
             box.fillStyle(0xded7c7, 0.8);
@@ -153,7 +153,7 @@
             x += 80;
         });
 
-        this.skillTree.closeButtonGroup = this.scene.createCloseButton(1180, 0, this.skillTree);
+        this.skillTree.closeButtonGroup = this.scene.createCloseButton(this.scene.windowWidth - 20, this.scene.windowHeight - 810, this.skillTree);
         if (this.scene.activeScene.characters.souls.skillPoints > 0) {
             this.scene.input.setHitArea(this.skillTree.getChildren());
             _.each(this.skillTree.getChildren(), function(item) {

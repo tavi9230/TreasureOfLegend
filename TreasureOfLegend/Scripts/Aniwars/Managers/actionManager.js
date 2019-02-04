@@ -297,7 +297,7 @@ export const ActionManager = function (game) {
                     var difference = Math.floor(character.characterConfig.experience.current - character.characterConfig.experience.nextLevel);
                     if (difference >= 0) {
                         character.characterConfig.experience.current = difference;
-                        character.characterConfig.level++;
+                        character.characterConfig.experience.level++;
                         character.characterConfig.experience.attributePoints++;
                         character.characterConfig.experience.nextLevel = Math.floor(character.characterConfig.experience.nextLevel * 1.3);
                     }

@@ -16,11 +16,20 @@ export const HUDScene = function(sceneName) {
             assetLoader.loadHUDImages();
         },
         create() {
+            var self = this;
+            this.windowWidth = window.innerWidth;
+            this.windowHeight = window.innerHeight;
             this.lowerPanel = new HUDLowerPanel(this);
             this.lowerPanel.createLowerPanel();
             this.characterStatus = new HUDCharacterStatus(this);
             this._addEvents();
             this.events.emit('getCharacterStartData');
+
+            this.resize = function() {
+                self.windowWidth = window.innerWidth;
+                self.windowHeight = window.innerHeight;
+            };
+            window.addEventListener('resize', this.resize, false);
         },
         getTurn: function() {
             return this.turn;

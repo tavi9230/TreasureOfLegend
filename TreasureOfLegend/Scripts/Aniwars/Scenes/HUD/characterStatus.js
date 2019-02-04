@@ -14,7 +14,7 @@ export const HUDCharacterStatus = function(scene) {
     this.showCharacterStatus = function(activeCharacter, characters) {
         var self = this,
             x = 0,
-            y = 690;
+            y = this.scene.windowHeight - 110;
 
         if (this.isCharacterInfoMenuOpen) {
             this.showCharacterInfo(activeCharacter);
@@ -56,17 +56,17 @@ export const HUDCharacterStatus = function(scene) {
             this.characterInfo = this.scene.add.group();
             var panel = this.scene.add.graphics();
             panel.fillStyle(0x111111, 0.8);
-            panel.fillRect(0, 290, 400, 400);
+            panel.fillRect(0, this.scene.windowHeight - 510, 400, 400);
             this.characterInfo.add(panel);
             // Equiped Inventory -----------------------------------------------------------------------------------------------------
-            this._createInventorySlot(75, 300, 50, 50, character, charConfig.inventory.head);
-            this._createInventorySlot(75, 355, 50, 50, character, charConfig.inventory.body);
-            this._createInventorySlot(20, 355, 50, 50, character, charConfig.inventory.mainHand);
-            this._createInventorySlot(130, 355, 50, 50, character, charConfig.inventory.offHand);
-            this._createInventorySlot(20, 410, 50, 50, character, charConfig.inventory.hands);
-            this._createInventorySlot(75, 410, 50, 50, character, charConfig.inventory.feet);
+            this._createInventorySlot(75, this.scene.windowHeight - 500, 50, 50, character, charConfig.inventory.head);
+            this._createInventorySlot(75, this.scene.windowHeight - 445, 50, 50, character, charConfig.inventory.body);
+            this._createInventorySlot(20, this.scene.windowHeight - 445, 50, 50, character, charConfig.inventory.mainHand);
+            this._createInventorySlot(130, this.scene.windowHeight - 445, 50, 50, character, charConfig.inventory.offHand);
+            this._createInventorySlot(20, this.scene.windowHeight - 390, 50, 50, character, charConfig.inventory.hands);
+            this._createInventorySlot(75, this.scene.windowHeight - 390, 50, 50, character, charConfig.inventory.feet);
             // Unequiped inventory ---------------------------------------------------------------------------------------------------
-            var y = 490;
+            var y = this.scene.windowHeight - 310;
             var x = 0;
             for (let i = 0; i < charConfig.inventory.slots.max; i++) {
                 this._createInventorySlot(x, y, 50, 50, character, charConfig.inventory.slots.items[i]);
@@ -77,12 +77,13 @@ export const HUDCharacterStatus = function(scene) {
                 }
             }
             this.characterInfo.name = 'characterInfo';
-            this.characterInfoCloseButtonGroup = this.scene.createCloseButton(380, 290, this.characterInfo);
+            this.characterInfoCloseButtonGroup = this.scene.createCloseButton(380, this.scene.windowHeight - 510, this.characterInfo);
 
-            var experienceText = this.scene.add.text(210, 330, 'Experience: ' + charConfig.experience.current + '/' + charConfig.experience.nextLevel, { fill: '#FFF'});
-            var strengthText = this.scene.add.text(210, 345, 'Strength: ' + charConfig.attributes.strength, { fill: '#FFF'});
-            var dexterityText = this.scene.add.text(210, 360, 'Dexterity: ' + charConfig.attributes.dexterity, { fill: '#FFF'});
-            var intelligenceText = this.scene.add.text(210, 375, 'Intelligence: ' + charConfig.attributes.intelligence, { fill: '#FFF'});
+            var experienceText = this.scene.add.text(220, this.scene.windowHeight - 470,
+                'Experience: ' + charConfig.experience.current + '/' + charConfig.experience.nextLevel, { fill: '#FFF'});
+            var strengthText = this.scene.add.text(220, this.scene.windowHeight - 455, 'Strength: ' + charConfig.attributes.strength, { fill: '#FFF'});
+            var dexterityText = this.scene.add.text(220, this.scene.windowHeight - 440, 'Dexterity: ' + charConfig.attributes.dexterity, { fill: '#FFF'});
+            var intelligenceText = this.scene.add.text(220, this.scene.windowHeight - 425, 'Intelligence: ' + charConfig.attributes.intelligence, { fill: '#FFF'});
             this.characterInfo.add(experienceText);
             this.characterInfo.add(strengthText);
             this.characterInfo.add(dexterityText);
@@ -110,14 +111,14 @@ export const HUDCharacterStatus = function(scene) {
             var self = this;
             this.attributesInfo = this.scene.add.group();
             this.attributesInfoBox = this.scene.add.group();
-            var attributePointsText = this.scene.add.text(210, 315, 'Attribute points: ' + charConfig.experience.attributePoints, { fill: '#FFF'});
+            var attributePointsText = this.scene.add.text(220, this.scene.windowHeight - 485, 'Attribute points: ' + charConfig.experience.attributePoints, { fill: '#FFF'});
             this.attributesInfo.add(attributePointsText);
             for (let i = 0; i < 3; i++) {
                 var attributeBox = this.scene.add.graphics();
                 attributeBox.fillStyle(0xFFD700, 0.8);
-                attributeBox.fillRect(190, 345 + (i * 15), 15, 15);
+                attributeBox.fillRect(200, this.scene.windowHeight - 455 + (i * 15), 15, 15);
                 attributeBox.objectToSend = i + 1;
-                var attributeButtonText = this.scene.add.text(193, 345 + (i * 15), '+', { fill: '#FFF'});
+                var attributeButtonText = this.scene.add.text(203, this.scene.windowHeight - 455 + (i * 15), '+', { fill: '#FFF'});
                 attributeButtonText.objectToSend = i + 1;
                 this.attributesInfoBox.add(attributeBox);
                 this.attributesInfoBox.add(attributeButtonText);
