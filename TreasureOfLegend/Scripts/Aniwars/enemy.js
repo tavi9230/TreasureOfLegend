@@ -390,9 +390,12 @@ export const Enemy = function(game) {
             if (charConfig.energy.max - charConfig.energy.spent > 1) {
                 var closestEnemy = enemies.getPathsToEnemies();
                 if (closestEnemy.length > 0) {
-                    if (closestEnemy[0].path.length === charConfig.inventory.mainHand.range) {
+                    if (closestEnemy[0].path.length <= charConfig.inventory.mainHand.range &&
+                        !charConfig.inventory.offHand.armor) {
                         enemies.interactWithEnemy(closestEnemy[0].enemy);
                         hasAttacked = true;
+                    } else {
+                        // TODO: Drop shield or put in inventory if you can and then attack
                     }
                 }
             }
