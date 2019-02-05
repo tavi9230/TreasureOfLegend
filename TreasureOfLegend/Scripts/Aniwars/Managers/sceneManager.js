@@ -6,6 +6,9 @@ import {EnemyConfig} from 'Aniwars/Configurations/enemyConfig';
 
 export const SceneManager = function (game) {
     this.game = game;
+    this.actions = {
+        inspect: false
+    };
     this.endTurn = () => {
         var charConfig = this.game.activeCharacter.characterConfig;
         var shouldChangeTurn = false;
@@ -252,10 +255,11 @@ export const SceneManager = function (game) {
     // PRIVATE
     // INTERACTION -------------------------------------------------------------------------------------
     this._moveCharacterOnClick = (tile, pointer) => {
-        if (pointer.leftButtonDown()) {
+        if (pointer.leftButtonDown() && !this.actions.inspect) {
             this.game.characters.moveActiveCharacterToTile(tile);
-        } else if (pointer.rightButtonDown()) {
+        } else if (pointer.leftButtonDown() && this.actions.inspect || pointer.rightButtonDown()) {
             this.game.events.emit('inspect', tile);
+            this.actions.inspect = !this.actions.inspect;
         }
     };
     this._hoverTile = (tile) => {
@@ -265,16 +269,16 @@ export const SceneManager = function (game) {
         this.game.activeMap.highlightPathToObject(object);
     };
     this._interactWithObject = (object, pointer) => {
-        if (pointer.leftButtonDown()) {
+        if (pointer.leftButtonDown() && !this.actions.inspect) {
             this.game.characters.interactWithObject(object);
-        } else if (pointer.rightButtonDown()) {
+        } else if (pointer.leftButtonDown() && this.actions.inspect || pointer.rightButtonDown()) {
             this.game.events.emit('inspect', object);
         }
     };
     this._interactWithEnemy = (enemy, pointer) => {
-        if (pointer.leftButtonDown()) {
+        if (pointer.leftButtonDown() && !this.actions.inspect) {
             this.game.characters.interactWithEnemy(enemy);
-        } else if (pointer.rightButtonDown()) {
+        } else if (pointer.leftButtonDown() && this.actions.inspect || pointer.rightButtonDown()) {
             // TODO: Show enemy inventory and stats
         }
     };
@@ -285,9 +289,9 @@ export const SceneManager = function (game) {
         this.game.activeMap.highlightPathToItem(item);
     };
     this._pickUpItem = (item, pointer) => {
-        if (pointer.leftButtonDown()) {
+        if (pointer.leftButtonDown() && !this.actions.inspect) {
             this.game.characters.pickUpItem(item);
-        } else if (pointer.rightButtonDown()) {
+        } else if (pointer.leftButtonDown() && this.actions.inspect || pointer.rightButtonDown()) {
             // TODO: Show item description
         }
     };

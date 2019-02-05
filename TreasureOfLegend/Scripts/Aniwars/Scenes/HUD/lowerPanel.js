@@ -23,13 +23,30 @@
         this.events.emit('endTurn');
     };
     this.useDash = function() {
-        this.events.emit('useDash');
+        this.scene.events.emit('useDash');
+    };
+    this.setInspectButtonTint = function() {
+        var inspectButton = this.hudbuttons.getChildren().filter(function(button) {
+            return button.name === 'inspectButton';
+        });
+        if (inspectButton.length > 0) {
+            if (inspectButton[0].isTinted) {
+                inspectButton[0].clearTint();
+            } else {
+                inspectButton[0].setTint(0xAA1111);
+            }
+        }
+    };
+    this.selectInspectAction = function() {
+        this.setInspectButtonTint();
+        this.scene.events.emit('inspectSelected');
     };
 
     this._createEndTurnButton = function() {
         var endTurnButton = this.scene.add.image(this.scene.windowWidth - 170, this.scene.windowHeight - 150, 'endTurnButton').setOrigin(0, 0);
         endTurnButton.displayWidth = 100;
         endTurnButton.displayHeight = 100;
+        endTurnButton.name = 'endTurnButton';
         endTurnButton.on('pointerdown', _.bind(this.endTurn, this.scene));
         endTurnButton.on('pointerover', _.bind(this._showTips, this.scene, endTurnButton.x, endTurnButton.y - 25, 87, 20, 'End Turn'));
         endTurnButton.on('pointerout', _.bind(this._hideTips, this.scene));
@@ -39,6 +56,7 @@
         var openMenuButton = this.scene.add.image(this.scene.windowWidth - 80, this.scene.windowHeight - 60, 'openMenuButton').setOrigin(0, 0);
         openMenuButton.displayHeight = 50;
         openMenuButton.displayWidth = 50;
+        openMenuButton.name = 'openMenuButton';
         openMenuButton.on('pointerdown', _.bind(this._openMainMenu, this.scene));
         openMenuButton.on('pointerover', _.bind(this._showTips, this.scene, openMenuButton.x - 50, openMenuButton.y - 25, 97, 20, 'Open Menu'));
         openMenuButton.on('pointerout', _.bind(this._hideTips, this.scene));
@@ -49,6 +67,7 @@
             spellsButton = this.scene.add.image(this.scene.windowWidth - 210, this.scene.windowHeight - 180, 'spellsButton').setOrigin(0, 0);
         spellsButton.displayHeight = 50;
         spellsButton.displayWidth = 50;
+        spellsButton.name = 'spellsButton';
         spellsButton.on('pointerdown', function() {
             if (self.scene.activeScene.activeCharacter.characterConfig.isPlayerControlled) {
                 self._openSpellBook(self.scene.activeScene.activeCharacter);
@@ -63,6 +82,7 @@
             skillsButton = this.scene.add.image(this.scene.windowWidth - 210, this.scene.windowHeight - 60, 'skillsButton').setOrigin(0, 0);
         skillsButton.displayHeight = 50;
         skillsButton.displayWidth = 50;
+        skillsButton.name = 'skillsButton';
         skillsButton.on('pointerdown', function() {
             if (self.scene.activeScene.activeCharacter.characterConfig.isPlayerControlled) {
                 self._openSkillTree(self.scene.activeScene.activeCharacter);
@@ -76,7 +96,8 @@
         var walkButton = this.scene.add.image(this.scene.windowWidth - 80, this.scene.windowHeight - 180, 'walkButton').setOrigin(0, 0);
         walkButton.displayHeight = 50;
         walkButton.displayWidth = 50;
-        walkButton.on('pointerdown', _.bind(this.useDash, this.scene));
+        walkButton.name = 'walkButton';
+        walkButton.on('pointerdown', this.useDash);
         walkButton.on('pointerover', _.bind(this._showTips, this.scene, walkButton.x, walkButton.y - 25, 48, 20, 'Dash'));
         walkButton.on('pointerout', _.bind(this._hideTips, this.scene));
         this.hudbuttons.add(walkButton);
@@ -85,6 +106,7 @@
         var useMainHandButton = this.scene.add.image(this.scene.windowWidth - 145, this.scene.windowHeight - 210, 'mainHandButton').setOrigin(0, 0);
         useMainHandButton.displayHeight = 50;
         useMainHandButton.displayWidth = 50;
+        useMainHandButton.name = 'useMainHandButton';
         //openMenuButton.on('pointerdown', _.bind(this._openMainMenu, this.scene));
         useMainHandButton.on('pointerover', _.bind(this._showTips, this.scene, useMainHandButton.x - 30, useMainHandButton.y - 25, 134, 20, 'Use Main Hand'));
         useMainHandButton.on('pointerout', _.bind(this._hideTips, this.scene));
@@ -94,6 +116,7 @@
         var useOffHandButton = this.scene.add.image(this.scene.windowWidth - 145, this.scene.windowHeight - 270, 'offHandButton').setOrigin(0, 0);
         useOffHandButton.displayHeight = 50;
         useOffHandButton.displayWidth = 50;
+        useOffHandButton.name = 'useOffHandButton';
         //useOffHandButtonButton.on('pointerdown', _.bind(this._openMainMenu, this.scene));
         useOffHandButton.on('pointerover', _.bind(this._showTips, this.scene, useOffHandButton.x - 25, useOffHandButton.y - 25, 117, 20, 'Use Offhand'));
         useOffHandButton.on('pointerout', _.bind(this._hideTips, this.scene));
@@ -103,6 +126,7 @@
         var inventoryButton = this.scene.add.image(this.scene.windowWidth - 230, this.scene.windowHeight - 120, 'inventoryButton').setOrigin(0, 0);
         inventoryButton.displayHeight = 50;
         inventoryButton.displayWidth = 50;
+        inventoryButton.name = 'inventoryButton';
         //inventoryButton.on('pointerdown', _.bind(this._openMainMenu, this.scene));
         inventoryButton.on('pointerover', _.bind(this._showTips, this.scene, inventoryButton.x - 30, inventoryButton.y - 25, 143, 20, 'Open Inventory'));
         inventoryButton.on('pointerout', _.bind(this._hideTips, this.scene));
@@ -112,7 +136,8 @@
         var inspectButton = this.scene.add.image(this.scene.windowWidth - 60, this.scene.windowHeight - 120, 'inspectButton').setOrigin(0, 0);
         inspectButton.displayHeight = 50;
         inspectButton.displayWidth = 50;
-        //inventoryButton.on('pointerdown', _.bind(this._openMainMenu, this.scene));
+        inspectButton.name = 'inspectButton';
+        inspectButton.on('pointerdown', this.selectInspectAction);
         inspectButton.on('pointerover', _.bind(this._showTips, this.scene, inspectButton.x - 20, inspectButton.y - 25, 75, 20, 'Inspect'));
         inspectButton.on('pointerout', _.bind(this._hideTips, this.scene));
         this.hudbuttons.add(inspectButton);

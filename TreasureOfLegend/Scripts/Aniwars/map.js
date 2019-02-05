@@ -115,7 +115,7 @@ export const BattleMap = function (game) {
     this.hideMovementGrid = () => {
         this.isMovementGridShown = false;
         _.each(this.tiles.getChildren(), (tile) => {
-            tile.setTint(0xffffff);
+            tile.clearTint();
         });
     };
 
@@ -158,7 +158,7 @@ export const BattleMap = function (game) {
             return tile.x === character.x && tile.y === character.y;
         });
         if (tile) {
-            tile.setTint(0xFFFFFF);
+            tile.clearTint();
         }
     };
 

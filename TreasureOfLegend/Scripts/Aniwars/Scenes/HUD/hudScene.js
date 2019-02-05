@@ -37,7 +37,8 @@ export const HUDScene = function(sceneName) {
         },
         createKeys: function() {
             this.keycodes = {
-                w: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
+                w: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+                i: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I)
             };
         },
         getTurn: function() {
@@ -313,6 +314,7 @@ export const HUDScene = function(sceneName) {
             textPanel = this.add.text(x + 2, y + 2, text, style);
             this.inspectionBox.add(panel);
             this.inspectionBox.add(textPanel);
+            this.lowerPanel.setInspectButtonTint();
         },
         closeInspect: function() {
             if (this.inspectionBox) {
@@ -363,8 +365,14 @@ export const HUDScene = function(sceneName) {
         },
         _checkShortcutKeys() {
             if (this.keycodes.w.isDown) {
-                var useDash = _.bind(this.lowerPanel.useDash, this);
-                useDash();
+                this.lowerPanel.useDash();
+            } else if (this.keycodes.i.isDown && !this.inspectButtonIsDown) {
+                this.inspectButtonIsDown = true;
+                this.lowerPanel.selectInspectAction();
+            }
+
+            if (this.keycodes.i.isUp) {
+                this.inspectButtonIsDown = false;
             }
         }
     });
