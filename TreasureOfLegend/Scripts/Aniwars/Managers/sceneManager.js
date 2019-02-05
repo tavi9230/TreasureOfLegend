@@ -254,6 +254,7 @@ export const SceneManager = function (game) {
 
     // PRIVATE
     // INTERACTION -------------------------------------------------------------------------------------
+    // TODO: If this.actions.inspect === true => show detailed view or something extra. Remove something from energy?
     this._moveCharacterOnClick = (tile, pointer) => {
         if (pointer.leftButtonDown() && !this.actions.inspect) {
             this.game.characters.moveActiveCharacterToTile(tile);

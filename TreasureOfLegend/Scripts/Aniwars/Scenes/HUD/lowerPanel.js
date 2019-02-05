@@ -25,21 +25,28 @@
     this.useDash = function() {
         this.scene.events.emit('useDash');
     };
-    this.setInspectButtonTint = function() {
-        var inspectButton = this.hudbuttons.getChildren().filter(function(button) {
-            return button.name === 'inspectButton';
+    this.setButtonTint = function (buttonName) {
+        var button = this.hudbuttons.getChildren().filter(function(button) {
+            return button.name === buttonName;
         });
-        if (inspectButton.length > 0) {
-            if (inspectButton[0].isTinted) {
-                inspectButton[0].clearTint();
+        if (button.length > 0) {
+            if (button[0].isTinted) {
+                button[0].clearTint();
             } else {
-                inspectButton[0].setTint(0xAA1111);
+                button[0].setTint(0xAA1111);
             }
         }
     };
     this.selectInspectAction = function() {
-        this.setInspectButtonTint();
+        this.setButtonTint('inspectButton');
         this.scene.events.emit('inspectSelected');
+    };
+    this.openSelectedCharacterInventory = function() {
+        // TODO: Clear tint when clicking close button
+        // TODO: Close inventory when pressing tab or button again
+        this.setButtonTint('inventoryButton');
+        // TODO: Change this.activeScene.activeCharacter to selectedCharacter
+        this.scene.characterStatus.showCharacterInfo(this.scene.activeScene.activeCharacter);
     };
 
     this._createEndTurnButton = function() {
@@ -127,7 +134,7 @@
         inventoryButton.displayHeight = 50;
         inventoryButton.displayWidth = 50;
         inventoryButton.name = 'inventoryButton';
-        //inventoryButton.on('pointerdown', _.bind(this._openMainMenu, this.scene));
+        inventoryButton.on('pointerdown', _.bind(this.openSelectedCharacterInventory, this));
         inventoryButton.on('pointerover', _.bind(this._showTips, this.scene, inventoryButton.x - 30, inventoryButton.y - 25, 143, 20, 'Open Inventory'));
         inventoryButton.on('pointerout', _.bind(this._hideTips, this.scene));
         this.hudbuttons.add(inventoryButton);

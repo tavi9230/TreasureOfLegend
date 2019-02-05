@@ -38,7 +38,13 @@ export const HUDScene = function(sceneName) {
         createKeys: function() {
             this.keycodes = {
                 w: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-                i: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I)
+                e: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
+                q: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
+                a: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+                s: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+                d: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+                tab: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TAB),
+                esc: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)
             };
         },
         getTurn: function() {
@@ -366,13 +372,49 @@ export const HUDScene = function(sceneName) {
         _checkShortcutKeys() {
             if (this.keycodes.w.isDown) {
                 this.lowerPanel.useDash();
-            } else if (this.keycodes.i.isDown && !this.inspectButtonIsDown) {
+            } else if (this.keycodes.e.isDown && !this.inspectButtonIsDown) {
                 this.inspectButtonIsDown = true;
                 this.lowerPanel.selectInspectAction();
+            } else if (this.keycodes.q.isDown && !this.skillsButtonIsDown) {
+                this.skillsButtonIsDown = true;
+                // TODO: Show skills menu
+            } else if (this.keycodes.a.isDown && !this.mainHandButtonIsDown) {
+                this.mainHandButtonIsDown = true;
+                // TODO: Select attack action
+            } else if (this.keycodes.s.isDown && !this.spellsButtonIsDown) {
+                this.spellsButtonIsDown = true;
+                // TODO: Show spell book
+            } else if (this.keycodes.d.isDown && !this.offhandButtonIsDown) {
+                this.offhandButtonIsDown = true;
+                // TODO: Select offHand action
+            } else if (this.keycodes.esc.isDown && !this.menuButtonIsDown) {
+                this.menuButtonIsDown = true;
+                // TODO: Show menu scene
+            } else if (this.keycodes.tab.isDown && !this.inventoryButtonIsDown) {
+                this.inventoryButtonIsDown = true;
+                this.lowerPanel.openSelectedCharacterInventory();
             }
 
-            if (this.keycodes.i.isUp) {
+            if (this.keycodes.e.isUp) {
                 this.inspectButtonIsDown = false;
+            }
+            if (this.keycodes.q.isUp) {
+                this.skillsButtonIsDown = false;
+            }
+            if (this.keycodes.a.isUp) {
+                this.mainHandButtonIsDown = false;
+            }
+            if (this.keycodes.s.isUp) {
+                this.spellsButtonIsDown = false;
+            }
+            if (this.keycodes.d.isUp) {
+                this.offhandButtonIsDown = false;
+            }
+            if (this.keycodes.esc.isUp) {
+                this.menuButtonIsDown = false;
+            }
+            if (this.keycodes.tab.isUp) {
+                this.inventoryButtonIsDown = false;
             }
         }
     });
