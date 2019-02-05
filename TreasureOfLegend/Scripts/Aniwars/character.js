@@ -26,7 +26,8 @@ export const Character = function(game) {
         movement: {
             max: 6,
             spent: 0,
-            isMoving: false
+            isMoving: false,
+            usedDash: false
         },
         energy: {
             max: 10,
@@ -418,6 +419,18 @@ export const Character = function(game) {
             }
         }
         this.souls.skillPoints--;
+    };
+
+    this.useDash = () => {
+        var activeCharacter = this.game.activeCharacter;
+        if (!activeCharacter.characterConfig.movement.usedDash &&
+            activeCharacter.characterConfig.energy.max - activeCharacter.characterConfig.energy.spent >= EnergyConfig.dash.cost
+            && activeCharacter.characterConfig.movement.max - activeCharacter.characterConfig.movement.spent === 0) {
+            activeCharacter.characterConfig.movement.usedDash = true;
+            activeCharacter.characterConfig.movement.spent = 0;
+            activeCharacter.characterConfig.energy.spent += 2;
+            this.game.activeMap.showMovementGrid();
+        }
     };
 
     // Private -----------------------------------------------------------------------------------------------------

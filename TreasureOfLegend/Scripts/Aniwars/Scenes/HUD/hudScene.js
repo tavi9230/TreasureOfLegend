@@ -15,6 +15,9 @@ export const HUDScene = function(sceneName) {
             var assetLoader = new AssetLoader(this);
             assetLoader.loadHUDImages();
         },
+        update() {
+            this._checkShortcutKeys();
+        },
         create() {
             var self = this;
             this.windowWidth = window.innerWidth;
@@ -30,6 +33,12 @@ export const HUDScene = function(sceneName) {
                 self.windowHeight = window.innerHeight;
             };
             window.addEventListener('resize', this.resize, false);
+            this.createKeys();
+        },
+        createKeys: function() {
+            this.keycodes = {
+                w: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
+            };
         },
         getTurn: function() {
             return this.turn;
@@ -286,7 +295,7 @@ export const HUDScene = function(sceneName) {
                 self.locationText.setText('X:' + Math.floor(character.x / 50) + ', Y:' + Math.floor(character.y / 50));
             });
             this.activeScene.events.on('updateSouls', function(souls) {
-                self.soulsText.setText('Souls: ' + souls.current + '/' + souls.nextLevel);
+                self.soulsText.setText(souls.current);
             });
             this.activeScene.events.on('showObjectDescription', function(object) {
                 self.descriptionsText.setText(object.objectConfig.description);
@@ -313,6 +322,12 @@ export const HUDScene = function(sceneName) {
                 y += 60;
             }
             return y;
+        },
+        _checkShortcutKeys() {
+            if (this.keycodes.w.isDown) {
+                var useDash = _.bind(this.lowerPanel.useDash, this);
+                useDash();
+            }
         }
     });
 };

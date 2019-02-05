@@ -13,6 +13,7 @@ export const SceneManager = function (game) {
             !charConfig.movement.isMoving) {
             charConfig.movement.spent = 0;
             charConfig.energy.spent = 0;
+            charConfig.movement.usedDash = false;
             // TODO: Fix initiative!
             this.game.initiativeIndex++;
             if (this.game.initiativeIndex >= this.game.initiative.length || this.game.initiativeIndex === -1) {
@@ -93,8 +94,8 @@ export const SceneManager = function (game) {
 
     this.createCamera = () => {
         //main camera
-        this.game.cameras.main.setBounds(0, -100, this.game.activeMap.levelMap[0].length * 50, this.game.activeMap.levelMap.length * 50 + 200);
-        this.game.cameras.main.setZoom(1.25);
+        this.game.cameras.main.setBounds(0, 0, this.game.activeMap.levelMap[0].length * 50, this.game.activeMap.levelMap.length * 50 + 230);
+        this.game.cameras.main.setZoom(1.5);
         if (this.game.activeCharacter.characterConfig.isPlayerControlled) {
             //this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
         }

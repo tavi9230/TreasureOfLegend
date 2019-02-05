@@ -75,6 +75,9 @@ export const TestLevelScene = function() {
                     self.events.emit('activeCharacterActed', self.activeCharacter, self.characters);
                 }
             });
+            this.hudScene.events.on('useDash', function() {
+                self.characters.useDash();
+            });
         },
         _moveCamera() {
             if (this.cursors.left.isDown) {

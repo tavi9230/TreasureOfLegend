@@ -303,6 +303,7 @@ export const ActionManager = function (game) {
                     }
                 });
                 this.game.characters.souls.current += enemy.characterConfig.souls;
+                // TODO: Attribute points cost 5 souls then 10 then 15 and so on. Change game logic to reflect this
                 var difference = this.game.characters.souls.current - this.game.characters.souls.nextLevel;
                 if (difference >= 0) {
                     this.game.characters.souls.current = difference;

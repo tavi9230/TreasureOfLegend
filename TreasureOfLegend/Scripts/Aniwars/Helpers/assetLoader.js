@@ -47,10 +47,15 @@
     };
 
     this.loadHUDImages = function() {
-        game.load.image('hourglass', AssetFolder + 'hourglass.png');
-        game.load.image('openMenuButton', AssetFolder + 'openMenuButton.png');
-        game.load.image('spells', AssetFolder + 'spells.png');
-        game.load.image('skills', AssetFolder + 'skills.png');
+        game.load.image('endTurnButton', AssetFolder + 'buttons/endTurnButton.png');
+        game.load.image('openMenuButton', AssetFolder + 'buttons/openMenuButton.png');
+        game.load.image('spellsButton', AssetFolder + 'buttons/spellsButton.png');
+        game.load.image('skillsButton', AssetFolder + 'buttons/skillsButton.png');
+        game.load.image('walkButton', AssetFolder + 'buttons/walkButton.png');
+        game.load.image('mainHandButton', AssetFolder + 'buttons/mainHandButton.png');
+        game.load.image('offHandButton', AssetFolder + 'buttons/offHandButton.png');
+        game.load.image('inventoryButton', AssetFolder + 'buttons/inventoryButton.png');
+        game.load.image('inspectButton', AssetFolder + 'buttons/inspectButton.png');
     };
 
     this.loadMainMenuImages = function() {

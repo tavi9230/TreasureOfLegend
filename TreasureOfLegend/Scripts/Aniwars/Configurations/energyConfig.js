@@ -13,5 +13,8 @@
     },
     attackSpell: {
         cost: 2
+    },
+    dash: {
+        cost: 2
     }
 };
