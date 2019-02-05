@@ -20,6 +20,7 @@ export const TestLevelScene = function() {
             this.activeCharacter = this.initiative[0];
             this.initiativeIndex = 0;
             this.sceneManager.createCamera();
+            this.input.mouse.capture = true;
         },
         update() {
             this.sceneManager.checkManager();

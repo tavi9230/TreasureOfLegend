@@ -53,16 +53,19 @@ export const SceneManager = function (game) {
     this.bindTileEvents = (tile) => {
         tile.on('pointerdown', _.bind(this._moveCharacterOnClick, this, tile));
         tile.on('pointerover', _.bind(this._hoverTile, this, tile));
+        tile.on('pointerout', _.bind(this._leaveTile, this, tile));
     };
 
     this.bindObjectEvents = (object) => {
         object.on('pointerdown', _.bind(this._interactWithObject, this, object));
         object.on('pointerover', _.bind(this._hoverObject, this, object));
+        object.on('pointerout', _.bind(this._leaveObject, this, object));
     };
 
     this.bindEnemyEvents = (enemy) => {
         enemy.on('pointerdown', _.bind(this._interactWithEnemy, this, enemy));
         enemy.on('pointerover', _.bind(this._hoverEnemy, this, enemy));
+        enemy.on('pointerout', _.bind(this._leaveEnemy, this, enemy));
     };
 
     this.createCharacters = () => {
@@ -248,25 +251,32 @@ export const SceneManager = function (game) {
 
     // PRIVATE
     // INTERACTION -------------------------------------------------------------------------------------
-    this._moveCharacterOnClick = (tile) => {
-        this.game.characters.moveActiveCharacterToTile(tile);
+    this._moveCharacterOnClick = (tile, pointer) => {
+        if (pointer.leftButtonDown()) {
+            this.game.characters.moveActiveCharacterToTile(tile);
+        } else if (pointer.rightButtonDown()) {
+            this.game.events.emit('inspect', tile);
+        }
     };
     this._hoverTile = (tile) => {
-        this._showDescription(tile);
         this.game.activeMap.highlightPathToTile(tile);
     };
     this._hoverObject = (object) => {
-        this._showDescription(object);
         this.game.activeMap.highlightPathToObject(object);
     };
-    this._interactWithObject = (object) => {
-        this.game.characters.interactWithObject(object);
+    this._interactWithObject = (object, pointer) => {
+        if (pointer.leftButtonDown()) {
+            this.game.characters.interactWithObject(object);
+        } else if (pointer.rightButtonDown()) {
+            this.game.events.emit('inspect', object);
+        }
     };
-    this._showDescription = (object) => {
-        this.game.events.emit('showObjectDescription', object);
-    };
-    this._interactWithEnemy = (enemy) => {
-        this.game.characters.interactWithEnemy(enemy);
+    this._interactWithEnemy = (enemy, pointer) => {
+        if (pointer.leftButtonDown()) {
+            this.game.characters.interactWithEnemy(enemy);
+        } else if (pointer.rightButtonDown()) {
+            // TODO: Show enemy inventory and stats
+        }
     };
     this._hoverEnemy = (enemy) => {
         this.game.activeMap.highlightPathToEnemy(enemy);
@@ -274,7 +284,20 @@ export const SceneManager = function (game) {
     this._hoverItem = (item) => {
         this.game.activeMap.highlightPathToItem(item);
     };
-    this._pickUpItem = (item) => {
-        this.game.characters.pickUpItem(item);
+    this._pickUpItem = (item, pointer) => {
+        if (pointer.leftButtonDown()) {
+            this.game.characters.pickUpItem(item);
+        } else if (pointer.rightButtonDown()) {
+            // TODO: Show item description
+        }
+    };
+    this._leaveTile = () => {
+        this.game.events.emit('closeInspect');
+    };
+    this._leaveObject = () => {
+        this.game.events.emit('closeInspect');
+    };
+    this._leaveEnemy = () => {
+        this.game.events.emit('closeInspect');
     };
 };

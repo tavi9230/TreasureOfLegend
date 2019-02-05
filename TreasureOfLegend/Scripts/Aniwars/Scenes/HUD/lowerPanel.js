@@ -118,7 +118,6 @@
         this.hudbuttons.add(inspectButton);
     };
     this._createTexts = function() {
-        this.scene.descriptionsText = this.scene.add.text(this.scene.windowWidth - 790, this.scene.windowHeight - 90, '', { fill: '#FFF' });
         this.scene.soulsText = this.scene.add.text(this.scene.windowWidth - 193, this.scene.windowHeight - 30, '0', { fill: '#D22' });
         this.scene.locationText = this.scene.add.text(this.scene.windowWidth - 160, this.scene.windowHeight - 20, 'X:0, Y:0', { fill: '#FFF' });
         this.scene.turnText = this.scene.add.text(this.scene.windowWidth - 125, this.scene.windowHeight - 92, this.scene.turn, { fill: '#FFF' });
