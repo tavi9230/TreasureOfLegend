@@ -237,6 +237,16 @@
     <Content Include="App_Data\Images\Tileset\tileset9.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\Aniwars\buttons\circle.png" />
+    <Content Include="Assets\Aniwars\buttons\endTurnButton.png" />
+    <Content Include="Assets\Aniwars\buttons\inspectButton.png" />
+    <Content Include="Assets\Aniwars\buttons\inventoryButton.png" />
+    <Content Include="Assets\Aniwars\buttons\mainHandButton.png" />
+    <Content Include="Assets\Aniwars\buttons\offHandButton.png" />
+    <Content Include="Assets\Aniwars\buttons\openMenuButton.png" />
+    <Content Include="Assets\Aniwars\buttons\skillsButton.png" />
+    <Content Include="Assets\Aniwars\buttons\spellsButton.png" />
+    <Content Include="Assets\Aniwars\buttons\walkButton.png" />
     <Content Include="Assets\Aniwars\castledoors.png" />
     <Content Include="Assets\Aniwars\castledoorsVertical.png" />
     <Content Include="Assets\Aniwars\char01_0000.png" />
@@ -259,13 +269,12 @@
     <Content Include="Assets\Aniwars\items\shield.jpg" />
     <Content Include="Assets\Aniwars\items\shortsword.png" />
     <Content Include="Assets\Aniwars\mainMenuButton.png" />
+    <Content Include="Assets\Aniwars\objects\emptyWell.png" />
     <Content Include="Assets\Aniwars\objects\energyWell.png" />
     <Content Include="Assets\Aniwars\objects\healthWell.png" />
     <Content Include="Assets\Aniwars\objects\manaWell.png" />
     <Content Include="Assets\Aniwars\objects\movementWell.png" />
-    <Content Include="Assets\Aniwars\openMenuButton.png" />
     <Content Include="Assets\Aniwars\skills.png" />
-    <Content Include="Assets\Aniwars\spells.png" />
     <Content Include="Assets\Aniwars\test.jpg" />
     <Content Include="Assets\Aniwars\tile1.png" />
     <Content Include="Assets\Aniwars\tile2.png" />

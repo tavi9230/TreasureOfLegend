@@ -28,10 +28,14 @@ export const MainMenuScene = function() {
         },
         update() {
             if (this.scene.get('TestLevelScene')) {
+                this.scene.bringToTop();
                 this._updateButtons();
             }
         },
         _createMenuLayout: function () {
+            this.menuBackground = this.add.graphics();
+            this.menuBackground.fillStyle(0x111111, 1);
+            this.menuBackground.fillRect(0, 0, this.windowWidth, this.windowHeight);
             this.testMapButton = this.add.image((this.windowWidth / 2) - 150, (this.windowHeight / 2) - 50, 'mainMenuButton').setOrigin(0, 0);
             this.testMapButtonText = this.add.text((this.windowWidth / 2) - 130, (this.windowHeight / 2) - 30, 'Play Test Map', { fill: '#000' });
             this.testMapButton.on('pointerdown', _.bind(this._startTestLevel, this));

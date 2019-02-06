@@ -18,6 +18,7 @@ export const TestLevelScene = function() {
             this.cursors = this.input.keyboard.createCursorKeys();
             this.initiative = this.sceneManager.getInitiativeArray();
             this.activeCharacter = this.initiative[0];
+            this.selectedCharacter = this.initiative[0];
             this.initiativeIndex = 0;
             this.sceneManager.createCamera();
             this.input.mouse.capture = true;
@@ -81,6 +82,17 @@ export const TestLevelScene = function() {
             });
             this.hudScene.events.on('inspectSelected', function() {
                 self.sceneManager.actions.inspect = !self.sceneManager.actions.inspect;
+            });
+            this.hudScene.events.on('setSelectedCharacter', function (character) {
+                self.selectedCharacter = character;
+                _.each(self.characters.characters.getChildren(), function (char) {
+                    char.clearTint();
+                });
+                _.each(self.enemies.characters.getChildren(), function (char) {
+                    char.clearTint();
+                });
+                character.setTint(0xFF0000);
+                self.events.emit('toggleActionButtons', self.activeCharacter.x === character.x && self.activeCharacter.y === character.y);
             });
         },
         _moveCamera() {

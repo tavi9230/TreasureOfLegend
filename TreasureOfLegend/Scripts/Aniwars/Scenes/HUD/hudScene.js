@@ -1,9 +1,9 @@
-﻿import {AssetLoader} from 'Aniwars/Helpers/assetLoader';
-import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
-import {HUDLowerPanel} from 'Aniwars/Scenes/HUD/lowerPanel';
-import {HUDCharacterStatus} from 'Aniwars/Scenes/HUD/characterStatus';
+﻿import { AssetLoader } from 'Aniwars/Helpers/assetLoader';
+import { EnumHelper } from 'Aniwars/Helpers/enumHelper';
+import { HUDLowerPanel } from 'Aniwars/Scenes/HUD/lowerPanel';
+import { HUDCharacterStatus } from 'Aniwars/Scenes/HUD/characterStatus';
 
-export const HUDScene = function(sceneName) {
+export const HUDScene = function (sceneName) {
     return new Phaser.Class({
         Extends: Phaser.Scene,
         initialize: function HUDScene() {
@@ -28,14 +28,14 @@ export const HUDScene = function(sceneName) {
             this._addEvents();
             this.events.emit('getCharacterStartData');
 
-            this.resize = function() {
+            this.resize = function () {
                 self.windowWidth = window.innerWidth;
                 self.windowHeight = window.innerHeight;
             };
             window.addEventListener('resize', this.resize, false);
             this.createKeys();
         },
-        createKeys: function() {
+        createKeys: function () {
             this.keycodes = {
                 w: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
                 e: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
@@ -47,10 +47,10 @@ export const HUDScene = function(sceneName) {
                 esc: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)
             };
         },
-        getTurn: function() {
+        getTurn: function () {
             return this.turn;
         },
-        createCloseButton: function(x, y, groupToDestroy) {
+        createCloseButton: function (x, y, groupToDestroy) {
             var self = this,
                 closeButtonGroup = this.add.group();
 
@@ -62,8 +62,8 @@ export const HUDScene = function(sceneName) {
             var closeText = this.add.text(x + 5, y + 2, 'X', { fill: '#FFF', fontSize: '18px' });
             closeButtonGroup.add(closeText);
             this.input.setHitArea(closeButtonGroup.getChildren());
-            _.each(closeButtonGroup.getChildren(), function(item) {
-                item.on('pointerdown', function() {
+            _.each(closeButtonGroup.getChildren(), function (item) {
+                item.on('pointerdown', function () {
                     groupToDestroy.destroy(true);
                     if (groupToDestroy.name === 'characterInfo') {
                         self.characterStatus.isCharacterInfoMenuOpen = false;
@@ -73,6 +73,13 @@ export const HUDScene = function(sceneName) {
                         if (self.characterStatus.attributesInfoBox) {
                             self.characterStatus.attributesInfoBox.destroy(true);
                         }
+                        self.lowerPanel.setButtonTint('inventoryButton');
+                    } else if (groupToDestroy.name === 'spellBook') {
+                        self.lowerPanel.setButtonTint('spellsButton');
+                        self.lowerPanel.spellBook = null;
+                    } else if (groupToDestroy.name === 'skillTree') {
+                        self.lowerPanel.setButtonTint('skillsButton');
+                        self.lowerPanel.skillTree = null;
                     }
                     if (self.enemyInventory) {
                         self.enemyInventory.destroy(true);
@@ -82,7 +89,7 @@ export const HUDScene = function(sceneName) {
             });
             return closeButtonGroup;
         },
-        showItemStats: function(config) {
+        showItemStats: function (config) {
             if (config.item.type !== EnumHelper.inventoryEnum.defaultEquipment) {
                 var item = config.item;
                 var characterConfig = config.character.characterConfig;
@@ -173,12 +180,12 @@ export const HUDScene = function(sceneName) {
                 }
             }
         },
-        hideItemStats: function() {
+        hideItemStats: function () {
             if (this.itemStats) {
                 this.itemStats.destroy(true);
             }
         },
-        showCharacterInitiative: function(characters) {
+        showCharacterInitiative: function (characters) {
             var self = this;
             var x = 0;
             var y = 0;
@@ -194,13 +201,14 @@ export const HUDScene = function(sceneName) {
                 this.initiativeTrackerImages.destroy(true);
                 this.initiativeTrackerImages = this.add.group();
             }
-            _.each(characters, function(character) {
+            _.each(characters, function (character) {
                 var charConfig = character.characterConfig;
                 var box = self.add.graphics();
                 charConfig.isPlayerControlled
-                    ? box.fillStyle(0x38b82c, 0.8)
-                    : box.fillStyle(0x3c60d6, 0.8);
+                    ? box.fillStyle(0x38b82c, 1)
+                    : box.fillStyle(0xd6603c, 1);
                 box.fillRect(x, y, 75, 75);
+                box.name = 'initiativeBox';
 
                 var characterImage = self.add.image(x, y, charConfig.image).setOrigin(0, 0);
                 characterImage.displayWidth = 75;
@@ -217,7 +225,7 @@ export const HUDScene = function(sceneName) {
                     manaWidth = (75 * percentageOfMana) / 100,
                     manaBar = self.add.graphics(),
                     manaText = self.add.text(x + 25, y + 75,
-                    ((charConfig.mana.max - charConfig.mana.spent) + '/' + charConfig.mana.max), { fill: '#FFF', fontSize: '9px' });
+                        ((charConfig.mana.max - charConfig.mana.spent) + '/' + charConfig.mana.max), { fill: '#FFF', fontSize: '9px' });
                 manaBar.fillStyle(0x000099, 0.8);
                 manaBar.fillRect(x, y + 75, manaWidth, 10);
 
@@ -232,16 +240,25 @@ export const HUDScene = function(sceneName) {
                 x += 80;
             });
             this.input.setHitArea(this.initiativeTrackerImages.getChildren());
-            _.each(this.initiativeTrackerImages.getChildren(), function(item) {
-                item.on('pointerover', function() {
+            _.each(this.initiativeTrackerImages.getChildren(), function (item) {
+                item.on('pointerover', function () {
                     self.events.emit('highlightCharacter', item.objectToSend);
                 });
-                item.on('pointerout', function() {
+                item.on('pointerout', function () {
                     self.events.emit('dehighlightCharacter', item.objectToSend);
+                });
+                item.on('pointerdown', function () {
+                    self.events.emit('setSelectedCharacter', item.objectToSend);
+                    if (self.selectedBox) {
+                        self.selectedBox.destroy(true);
+                    }
+                    self.selectedBox = self.add.graphics();
+                    self.selectedBox.fillStyle(0x0000FF, 0.5);
+                    self.selectedBox.fillRect(item.x, item.y, 75, 75);
                 });
             });
         },
-        showDeadCharacterInventory: function(lootbag) {
+        showDeadCharacterInventory: function (lootbag) {
             this.closeLootbag();
             var activeCharacter = this.activeScene.activeCharacter,
                 lootbagConfig = lootbag.objectConfig,
@@ -263,7 +280,7 @@ export const HUDScene = function(sceneName) {
             y = this._addToEnemyInventory('hands', characterBelonging, x, y);
             y = this._addToEnemyInventory('feet', characterBelonging, x, y);
             if (characterBelonging.inventory.slots.items.length > 0) {
-                _.each(characterBelonging.inventory.slots.items, function(item) {
+                _.each(characterBelonging.inventory.slots.items, function (item) {
                     image = self.add.image(x, y, item.image).setOrigin(0, 0);
                     image.displayWidth = 50;
                     image.displayHeight = 50;
@@ -273,15 +290,15 @@ export const HUDScene = function(sceneName) {
                 });
             }
             this.input.setHitArea(this.enemyInventory.getChildren());
-            _.each(this.enemyInventory.getChildren(), function(item) {
-                item.on('pointerdown', function() {
+            _.each(this.enemyInventory.getChildren(), function (item) {
+                item.on('pointerdown', function () {
                     self.events.emit('getItemFromLootBag', { item: item.objectToSend, lootbag: lootbag });
                 });
                 item.on('pointerover', _.bind(self.showItemStats, self, { x: item.x, y: item.y, item: item.objectToSend, character: activeCharacter }));
                 item.on('pointerout', _.bind(self.hideItemStats, self));
             });
         },
-        closeLootbag: function() {
+        closeLootbag: function () {
             if (this.enemyInventory) {
                 this.enemyInventory.destroy(true);
                 this.hideItemStats();
@@ -322,43 +339,44 @@ export const HUDScene = function(sceneName) {
             this.inspectionBox.add(textPanel);
             this.lowerPanel.setButtonTint('inspectButton');
         },
-        closeInspect: function() {
+        closeInspect: function () {
             if (this.inspectionBox) {
                 this.inspectionBox.destroy(true);
             }
         },
         // PRIVATE ---------------------------------------------------------------------------------------------------------------------------------------
-        _addEvents: function() {
+        _addEvents: function () {
             var self = this;
             this.activeScene = this.scene.get(this.sceneName);
 
-            this.activeScene.events.on('activeCharacterChanged', function(activeCharacter, characters) {
+            this.activeScene.events.on('activeCharacterChanged', function (activeCharacter, characters) {
                 self.characterStatus.showCharacterStatus(activeCharacter, characters);
             });
-            this.activeScene.events.on('activeCharacterActed', function(activeCharacter, characters) {
+            this.activeScene.events.on('activeCharacterActed', function (activeCharacter, characters) {
                 self.characterStatus.showCharacterStatus(activeCharacter, characters);
             });
-            this.activeScene.events.on('activeCharacterPositionModified', function(character) {
+            this.activeScene.events.on('activeCharacterPositionModified', function (character) {
                 self.locationText.setText('X:' + Math.floor(character.x / 50) + ', Y:' + Math.floor(character.y / 50));
             });
-            this.activeScene.events.on('updateSouls', function(souls) {
+            this.activeScene.events.on('updateSouls', function (souls) {
                 self.soulsText.setText(souls.current);
             });
             this.activeScene.events.on('showCharacterInitiative', _.bind(this.showCharacterInitiative, this));
             this.activeScene.events.on('endEnemyTurn', _.bind(this.lowerPanel.endTurn, this));
             this.activeScene.events.on('showDeadCharacterInventory', _.bind(this.showDeadCharacterInventory, this));
             this.activeScene.events.on('closeLootbag', _.bind(this.closeLootbag, this));
-            this.activeScene.events.on('updateAttributePointsPanel', function(character) {
+            this.activeScene.events.on('updateAttributePointsPanel', function (character) {
                 self.characterStatus.showAttributePointSelection(character);
             });
-            this.activeScene.events.on('changeTurnCounter', function() {
+            this.activeScene.events.on('changeTurnCounter', function () {
                 self.turn++;
                 self.turnText.setText(self.turn);
             });
             this.activeScene.events.on('inspect', _.bind(this.inspect, this));
             this.activeScene.events.on('closeInspect', _.bind(this.closeInspect, this));
+            this.activeScene.events.on('toggleActionButtons', _.bind(this.lowerPanel.toggleActionButtons, this.lowerPanel));
         },
-        _addToEnemyInventory: function(location, characterBelonging, x, y) {
+        _addToEnemyInventory: function (location, characterBelonging, x, y) {
             if (characterBelonging.inventory[location].type !== EnumHelper.inventoryEnum.defaultEquipment) {
                 var image = this.add.image(x, y, characterBelonging.inventory[location].image).setOrigin(0, 0);
                 image.displayWidth = 50;
@@ -378,18 +396,21 @@ export const HUDScene = function(sceneName) {
             } else if (this.keycodes.q.isDown && !this.skillsButtonIsDown) {
                 this.skillsButtonIsDown = true;
                 // TODO: Show skills menu
+                //TODO: Change this to selected character?
+                this.lowerPanel.openSkillTree(this.activeScene.activeCharacter);
             } else if (this.keycodes.a.isDown && !this.mainHandButtonIsDown) {
                 this.mainHandButtonIsDown = true;
                 // TODO: Select attack action
             } else if (this.keycodes.s.isDown && !this.spellsButtonIsDown) {
+                //TODO: Change this to selected character?
                 this.spellsButtonIsDown = true;
-                // TODO: Show spell book
+                this.lowerPanel.openSpellBook(this.activeScene.activeCharacter);
             } else if (this.keycodes.d.isDown && !this.offhandButtonIsDown) {
                 this.offhandButtonIsDown = true;
                 // TODO: Select offHand action
-            } else if (this.keycodes.esc.isDown && !this.menuButtonIsDown) {
-                this.menuButtonIsDown = true;
-                // TODO: Show menu scene
+            } else if (this.keycodes.esc.isDown) {
+                this.keycodes.esc.isDown = false;
+                this.lowerPanel.openMainMenu();
             } else if (this.keycodes.tab.isDown && !this.inventoryButtonIsDown) {
                 this.inventoryButtonIsDown = true;
                 this.lowerPanel.openSelectedCharacterInventory();
@@ -409,9 +430,6 @@ export const HUDScene = function(sceneName) {
             }
             if (this.keycodes.d.isUp) {
                 this.offhandButtonIsDown = false;
-            }
-            if (this.keycodes.esc.isUp) {
-                this.menuButtonIsDown = false;
             }
             if (this.keycodes.tab.isUp) {
                 this.inventoryButtonIsDown = false;

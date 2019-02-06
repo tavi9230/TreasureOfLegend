@@ -1,6 +1,6 @@
-﻿import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
+﻿import { EnumHelper } from 'Aniwars/Helpers/enumHelper';
 
-export const HUDCharacterStatus = function(scene) {
+export const HUDCharacterStatus = function (scene) {
     this.scene = scene;
     this.isCharacterInfoMenuOpen = null;
     this.characterBarImages = null;
@@ -11,7 +11,7 @@ export const HUDCharacterStatus = function(scene) {
     this.attributesInfoBox = null;
     this.characterBar = null;
 
-    this.showCharacterStatus = function(activeCharacter, characters) {
+    this.showCharacterStatus = function (activeCharacter, characters) {
         var self = this,
             x = 0,
             y = this.scene.windowHeight - 110;
@@ -20,7 +20,7 @@ export const HUDCharacterStatus = function(scene) {
             this.showCharacterInfo(activeCharacter);
         }
         this._addCharacterStatusGroups();
-        _.each(characters.characters.getChildren(), function(character) {
+        _.each(characters.characters.getChildren(), function (character) {
             self._createCharacterImage(character, x, y);
             self._createCharacterLifeBar(character, x, y);
             self._createCharacterManaBar(character, x, y);
@@ -32,18 +32,18 @@ export const HUDCharacterStatus = function(scene) {
         });
 
         this.scene.input.setHitArea(this.characterBarImages.getChildren());
-        _.each(this.characterBarImages.getChildren(), function(item) {
+        _.each(this.characterBarImages.getChildren(), function (item) {
             item.on('pointerdown', _.bind(self.showCharacterInfo, self, item.objectToSend));
-            item.on('pointerover', function() {
+            item.on('pointerover', function () {
                 self.scene.events.emit('highlightCharacter', item.objectToSend);
             });
-            item.on('pointerout', function() {
+            item.on('pointerout', function () {
                 self.scene.events.emit('dehighlightCharacter', item.objectToSend);
             });
         });
         this.scene.input.setHitArea(this.characterMainAttack.getChildren());
-        _.each(this.characterMainAttack.getChildren(), function(item) {
-            item.on('pointerdown', function() {
+        _.each(this.characterMainAttack.getChildren(), function (item) {
+            item.on('pointerdown', function () {
                 self.scene.events.emit('mainHandSelected', item.objectToSend);
             });
         });
@@ -80,10 +80,10 @@ export const HUDCharacterStatus = function(scene) {
             this.characterInfoCloseButtonGroup = this.scene.createCloseButton(380, this.scene.windowHeight - 510, this.characterInfo);
 
             var experienceText = this.scene.add.text(220, this.scene.windowHeight - 470,
-                'Experience: ' + charConfig.experience.current + '/' + charConfig.experience.nextLevel, { fill: '#FFF'});
-            var strengthText = this.scene.add.text(220, this.scene.windowHeight - 455, 'Strength: ' + charConfig.attributes.strength, { fill: '#FFF'});
-            var dexterityText = this.scene.add.text(220, this.scene.windowHeight - 440, 'Dexterity: ' + charConfig.attributes.dexterity, { fill: '#FFF'});
-            var intelligenceText = this.scene.add.text(220, this.scene.windowHeight - 425, 'Intelligence: ' + charConfig.attributes.intelligence, { fill: '#FFF'});
+                'Experience: ' + charConfig.experience.current + '/' + charConfig.experience.nextLevel, { fill: '#FFF' });
+            var strengthText = this.scene.add.text(220, this.scene.windowHeight - 455, 'Strength: ' + charConfig.attributes.strength, { fill: '#FFF' });
+            var dexterityText = this.scene.add.text(220, this.scene.windowHeight - 440, 'Dexterity: ' + charConfig.attributes.dexterity, { fill: '#FFF' });
+            var intelligenceText = this.scene.add.text(220, this.scene.windowHeight - 425, 'Intelligence: ' + charConfig.attributes.intelligence, { fill: '#FFF' });
             this.characterInfo.add(experienceText);
             this.characterInfo.add(strengthText);
             this.characterInfo.add(dexterityText);
@@ -91,13 +91,16 @@ export const HUDCharacterStatus = function(scene) {
 
             this.showAttributePointSelection(character);
         } else {
+            if (this.attributesInfo) {
+                this.attributesInfo.destroy(true);
+                this.attributesInfoBox.destroy(true);
+            }
             this.isCharacterInfoMenuOpen = false;
             this.characterInfo.destroy(true);
             this.characterInfoCloseButtonGroup.destroy(true);
-            this.showCharacterInfo(character);
         }
     };
-    this.showAttributePointSelection = function(character) {
+    this.showAttributePointSelection = function (character) {
         var charConfig = character.characterConfig;
         if (this.attributesInfo) {
             this.attributesInfo.destroy(true);
@@ -111,28 +114,28 @@ export const HUDCharacterStatus = function(scene) {
             var self = this;
             this.attributesInfo = this.scene.add.group();
             this.attributesInfoBox = this.scene.add.group();
-            var attributePointsText = this.scene.add.text(220, this.scene.windowHeight - 485, 'Attribute points: ' + charConfig.experience.attributePoints, { fill: '#FFF'});
+            var attributePointsText = this.scene.add.text(220, this.scene.windowHeight - 485, 'Attribute points: ' + charConfig.experience.attributePoints, { fill: '#FFF' });
             this.attributesInfo.add(attributePointsText);
             for (let i = 0; i < 3; i++) {
                 var attributeBox = this.scene.add.graphics();
                 attributeBox.fillStyle(0xFFD700, 0.8);
                 attributeBox.fillRect(200, this.scene.windowHeight - 455 + (i * 15), 15, 15);
                 attributeBox.objectToSend = i + 1;
-                var attributeButtonText = this.scene.add.text(203, this.scene.windowHeight - 455 + (i * 15), '+', { fill: '#FFF'});
+                var attributeButtonText = this.scene.add.text(203, this.scene.windowHeight - 455 + (i * 15), '+', { fill: '#FFF' });
                 attributeButtonText.objectToSend = i + 1;
                 this.attributesInfoBox.add(attributeBox);
                 this.attributesInfoBox.add(attributeButtonText);
             }
             this.scene.input.setHitArea(this.attributesInfoBox.getChildren());
             _.each(this.attributesInfoBox.getChildren(), function (item) {
-                item.on('pointerdown', function() {
+                item.on('pointerdown', function () {
                     self.scene.events.emit('addAttributePoint', item.objectToSend);
                 });
             });
         }
     };
 
-    this._addCharacterStatusGroups = function() {
+    this._addCharacterStatusGroups = function () {
         if (!this.characterBar) {
             this.characterBar = this.scene.add.group();
         } else {
@@ -152,14 +155,14 @@ export const HUDCharacterStatus = function(scene) {
             this.characterMainAttack = this.scene.add.group();
         }
     };
-    this._createCharacterImage = function(character, x, y) {
+    this._createCharacterImage = function (character, x, y) {
         var characterImage = this.scene.add.image(x, y, character.characterConfig.image).setOrigin(0, 0);
         characterImage.displayWidth = 75;
         characterImage.displayHeight = 75;
         characterImage.objectToSend = character;
         this.characterBarImages.add(characterImage);
     };
-    this._createCharacterLifeBar = function(character, x, y) {
+    this._createCharacterLifeBar = function (character, x, y) {
         var charConfig = character.characterConfig,
             percentageOfLife = (100 * charConfig.life.current) / charConfig.life.max,
             lifeWidth = (75 * percentageOfLife) / 100,
@@ -173,7 +176,7 @@ export const HUDCharacterStatus = function(scene) {
         this.characterBar.add(lifeBar);
         this.characterBar.add(lifeText);
     };
-    this._createCharacterManaBar = function(character, x, y) {
+    this._createCharacterManaBar = function (character, x, y) {
         var charConfig = character.characterConfig,
             percentageOfMana = (100 * (charConfig.mana.max - charConfig.mana.spent)) / charConfig.mana.max,
             manaWidth = (75 * percentageOfMana) / 100,
@@ -187,7 +190,7 @@ export const HUDCharacterStatus = function(scene) {
         this.characterBar.add(manaBar);
         this.characterBar.add(manaText);
     };
-    this._createCharacterMovementBar = function(character, x, y) {
+    this._createCharacterMovementBar = function (character, x, y) {
         var charConfig = character.characterConfig,
             percentageOfMovement = (100 * (charConfig.movement.max - charConfig.movement.spent)) /
                 charConfig.movement.max,
@@ -202,7 +205,7 @@ export const HUDCharacterStatus = function(scene) {
         this.characterBar.add(movementBar);
         this.characterBar.add(movementText);
     };
-    this._createCharacterArmorBox = function(character, x, y) {
+    this._createCharacterArmorBox = function (character, x, y) {
         var charConfig = character.characterConfig,
             armorBox = this.scene.add.graphics(),
             armorText = this.scene.add.text(x + 75, y, charConfig.armor, { fill: '#FFF', fontSize: '18px' });
@@ -211,7 +214,7 @@ export const HUDCharacterStatus = function(scene) {
         this.characterBar.add(armorBox);
         this.characterBar.add(armorText);
     };
-    this._createCharacterMinorActionBox = function(character, x, y) {
+    this._createCharacterMinorActionBox = function (character, x, y) {
         var charConfig = character.characterConfig,
             minorActionsBox = this.scene.add.graphics(),
             minorActionsText = this.scene.add.text(x + 75,
@@ -223,7 +226,7 @@ export const HUDCharacterStatus = function(scene) {
         this.characterBar.add(minorActionsBox);
         this.characterBar.add(minorActionsText);
     };
-    this._createMainAttackImage = function(character, x, y) {
+    this._createMainAttackImage = function (character, x, y) {
         var charConfig = character.characterConfig,
             mainAttackImage = charConfig.energy.selectedAction
                 ? charConfig.energy.selectedAction.image
@@ -234,7 +237,7 @@ export const HUDCharacterStatus = function(scene) {
         mainAttack.objectToSend = character;
         this.characterMainAttack.add(mainAttack);
     };
-    this._createInventorySlot = function(x, y, w, h, character, item) {
+    this._createInventorySlot = function (x, y, w, h, character, item) {
         var image = null,
             box = this.scene.add.graphics(),
             self = this;
@@ -254,20 +257,20 @@ export const HUDCharacterStatus = function(scene) {
         }
         var dropButtonGroup = this._createDropButton(x + 40, y, character, item);
         if (dropButtonGroup) {
-            _.each(dropButtonGroup.getChildren(), function(item) {
+            _.each(dropButtonGroup.getChildren(), function (item) {
                 self.characterInfo.add(item);
             });
         }
         if (_.isObject(item) && !item.isEquipped) {
             var replaceButtonGroup = this._createReplaceButton(x, y, character, item);
             if (replaceButtonGroup) {
-                _.each(replaceButtonGroup.getChildren(), function(item) {
+                _.each(replaceButtonGroup.getChildren(), function (item) {
                     self.characterInfo.add(item);
                 });
             }
         }
     };
-    this._createDropButton = function(x, y, character, itemToDrop) {
+    this._createDropButton = function (x, y, character, itemToDrop) {
         if (itemToDrop &&
             itemToDrop.type !== EnumHelper.inventoryEnum.defaultEquipment &&
             character.x === this.scene.activeScene.activeCharacter.x &&
@@ -283,15 +286,15 @@ export const HUDCharacterStatus = function(scene) {
             var dropText = this.scene.add.text(x + 2, y, 'X', { fill: '#FFF', fontSize: '10px' });
             dropButtonGroup.add(dropText);
             this.scene.input.setHitArea(dropButtonGroup.getChildren());
-            _.each(dropButtonGroup.getChildren(), function(item) {
-                item.on('pointerdown', function() {
+            _.each(dropButtonGroup.getChildren(), function (item) {
+                item.on('pointerdown', function () {
                     self.scene.events.emit('dropItem', itemToDrop);
                 });
             });
             return dropButtonGroup;
         }
     };
-    this._createReplaceButton = function(x, y, character, itemToReplace) {
+    this._createReplaceButton = function (x, y, character, itemToReplace) {
         if (itemToReplace &&
             itemToReplace.type !== EnumHelper.inventoryEnum.defaultEquipment &&
             character.x === this.scene.activeScene.activeCharacter.x &&
@@ -307,8 +310,8 @@ export const HUDCharacterStatus = function(scene) {
             var replaceText = this.scene.add.text(x + 2, y, 'R', { fill: '#FFF', fontSize: '10px' });
             replaceButtonGroup.add(replaceText);
             this.scene.input.setHitArea(replaceButtonGroup.getChildren());
-            _.each(replaceButtonGroup.getChildren(), function(item) {
-                item.on('pointerdown', function() {
+            _.each(replaceButtonGroup.getChildren(), function (item) {
+                item.on('pointerdown', function () {
                     self.scene.events.emit('replaceItem', itemToReplace);
                 });
             });
