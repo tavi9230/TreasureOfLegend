@@ -23,7 +23,10 @@ export const SceneManager = function (game) {
                 this.game.initiativeIndex = 0;
                 shouldChangeTurn = true;
             }
-            this.game.activeCharacter = this.game.initiative[this.game.initiativeIndex];
+            var first = this.game.initiative.shift();
+            this.game.initiative.push(first);
+            this.game.events.emit('showCharacterInitiative', this.game.initiative);
+            this.game.activeCharacter = this.game.initiative[0];
             this.game.currentCharacter = this.game.activeCharacter;
 
             if (this.game.activeCharacter.characterConfig.isPlayerControlled) {
