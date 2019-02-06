@@ -65,7 +65,7 @@ export const Character = function(game) {
         invulnerabilities: [],
         experience: {
             current: 0,
-            nextLevel: 200,
+            nextLevel: 12,
             attributePoints: 1,
             level: 1
         }
@@ -75,8 +75,8 @@ export const Character = function(game) {
     this.characters = this.game.add.group();
     this.souls = {
         current: 0,
-        nextLevel: 5,
-        skillPoints: 0
+        nextLevel: 1,
+        skillPoints: 1
     };
 
     this.addNewCharacter = (x, y, spriteName) => {

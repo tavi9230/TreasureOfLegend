@@ -27,7 +27,7 @@
     };
     this.useMainHand = function () {
         this.scene.events.emit('useMainHand');
-        this.setButtonTint('useMainHandButton');
+        //this.setButtonTint('useMainHandButton');
     };
     this.toggleActionButtons = function (isVisible) {
         var buttons = this.hudbuttons.getChildren().filter(function (btn) {
@@ -68,7 +68,7 @@
         }
     };
     this.selectInspectAction = function () {
-        this.setButtonTint('inspectButton');
+        //this.setButtonTint('inspectButton');
         this.scene.events.emit('inspectSelected');
     };
     this.openMainMenu = function () {
@@ -82,7 +82,7 @@
     };
     this.openSpellBook = function (character) {
         if (character.characterConfig.isPlayerControlled) {
-            this.setButtonTint('spellsButton');
+            //this.setButtonTint('spellsButton');
             var self = this;
             if (this.spellBook) {
                 this.spellBook.closeButtonGroup.destroy(true);
@@ -131,7 +131,7 @@
     };
     this.openSkillTree = function (character) {
         if (character.characterConfig.isPlayerControlled) {
-            this.setButtonTint('skillsButton');
+            //this.setButtonTint('skillsButton');
             var self = this;
             if (this.skillTree) {
                 this.skillTree.closeButtonGroup.destroy(true);

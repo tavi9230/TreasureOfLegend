@@ -75,10 +75,10 @@ export const HUDScene = function (sceneName) {
                         }
                         //self.lowerPanel.setButtonTint('inventoryButton');
                     } else if (groupToDestroy.name === 'spellBook') {
-                        self.lowerPanel.setButtonTint('spellsButton');
+                        //self.lowerPanel.setButtonTint('spellsButton');
                         self.lowerPanel.spellBook = null;
                     } else if (groupToDestroy.name === 'skillTree') {
-                        self.lowerPanel.setButtonTint('skillsButton');
+                        //self.lowerPanel.setButtonTint('skillsButton');
                         self.lowerPanel.skillTree = null;
                     }
                     if (self.enemyInventory) {
@@ -316,7 +316,7 @@ export const HUDScene = function (sceneName) {
             textPanel = this.add.text(x + 2, y + 2, text, style);
             this.inspectionBox.add(panel);
             this.inspectionBox.add(textPanel);
-            this.lowerPanel.setButtonTint('inspectButton');
+            //this.lowerPanel.setButtonTint('inspectButton');
         },
         closeInspect: function () {
             if (this.inspectionBox) {
