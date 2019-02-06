@@ -135,8 +135,6 @@ export const ActionManager = function (game) {
             : 0) + enemyCharConfig.naturalArmor;
 
         charConfig.energy.spent += EnergyConfig.attackMainHand.cost;
-        charConfig.energy.actionId = -1;
-        charConfig.energy.selectedAction = null;
 
         this._checkInitiative(enemy);
     };
@@ -183,9 +181,7 @@ export const ActionManager = function (game) {
             : 0) + enemyCharConfig.naturalArmor;
 
         charConfig.energy.spent += EnergyConfig.attackSpell.cost;
-        charConfig.energy.actionId = -1;
         charConfig.mana.spent += charConfig.energy.selectedAction.cost;
-        charConfig.energy.selectedAction = null;
 
         this._checkInitiative(enemy);
     };

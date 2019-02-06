@@ -25,6 +25,10 @@
     this.useDash = function () {
         this.scene.events.emit('useDash');
     };
+    this.useMainHand = function () {
+        this.scene.events.emit('useMainHand');
+        this.setButtonTint('useMainHandButton');
+    };
     this.toggleActionButtons = function (isVisible) {
         var buttons = this.hudbuttons.getChildren().filter(function (btn) {
             return btn.name === 'useMainHandButton'
@@ -46,15 +50,21 @@
         this.scene.soulsText.visible = isVisible;
     };
     this.setButtonTint = function (buttonName) {
-        var button = this.hudbuttons.getChildren().filter(function (button) {
-            return button.name === buttonName;
-        });
-        if (button.length > 0) {
-            if (button[0].isTinted) {
-                button[0].clearTint();
-            } else {
-                button[0].setTint(0xAA1111);
+        if (buttonName) {
+            var button = this.hudbuttons.getChildren().filter(function (button) {
+                return button.name === buttonName;
+            });
+            if (button.length > 0) {
+                if (button[0].isTinted) {
+                    button[0].clearTint();
+                } else {
+                    button[0].setTint(0xAA1111);
+                }
             }
+        } else {
+            _.each(this.hudbuttons.getChildren(), function (button) {
+                button.clearTint();
+            });
         }
     };
     this.selectInspectAction = function () {
@@ -67,11 +77,7 @@
         this.scene.scene.wake('MainMenuScene');
     };
     this.openCharacterInventory = function (character) {
-        // TODO: Move this to character status and rework the closing of the inventory
         var char = character && character.type === 'Sprite' ? character : this.scene.activeScene.activeCharacter;
-        //if (character && character.type !== 'Sprite' || !character) {
-        //    this.setButtonTint('inventoryButton');
-        //}
         this.scene.characterStatus.showCharacterInfo(char);
     };
     this.openSpellBook = function (character) {
@@ -226,7 +232,7 @@
         walkButton.displayHeight = 50;
         walkButton.displayWidth = 50;
         walkButton.name = 'walkButton';
-        walkButton.on('pointerdown', this.useDash);
+        walkButton.on('pointerdown', _.bind(this.useDash, this));
         walkButton.on('pointerover', _.bind(this._showTips, this.scene, walkButton.x, walkButton.y - 25, 48, 20, 'Dash'));
         walkButton.on('pointerout', _.bind(this._hideTips, this.scene));
         this.hudbuttons.add(walkButton);
@@ -236,7 +242,7 @@
         useMainHandButton.displayHeight = 50;
         useMainHandButton.displayWidth = 50;
         useMainHandButton.name = 'useMainHandButton';
-        //openMenuButton.on('pointerdown', _.bind(this._openMainMenu, this.scene));
+        useMainHandButton.on('pointerdown', _.bind(this.useMainHand, this));
         useMainHandButton.on('pointerover', _.bind(this._showTips, this.scene, useMainHandButton.x - 30, useMainHandButton.y - 25, 134, 20, 'Use Main Hand'));
         useMainHandButton.on('pointerout', _.bind(this._hideTips, this.scene));
         this.hudbuttons.add(useMainHandButton);
@@ -266,7 +272,7 @@
         inspectButton.displayHeight = 50;
         inspectButton.displayWidth = 50;
         inspectButton.name = 'inspectButton';
-        inspectButton.on('pointerdown', this.selectInspectAction);
+        inspectButton.on('pointerdown', _.bind(this.selectInspectAction, this));
         inspectButton.on('pointerover', _.bind(this._showTips, this.scene, inspectButton.x - 20, inspectButton.y - 25, 75, 20, 'Inspect'));
         inspectButton.on('pointerout', _.bind(this._hideTips, this.scene));
         this.hudbuttons.add(inspectButton);

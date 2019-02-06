@@ -3,12 +3,10 @@ import { Character } from 'Aniwars/character';
 import { Enemy } from 'Aniwars/enemy';
 import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
 import { EnemyConfig } from 'Aniwars/Configurations/enemyConfig';
+import { EnumHelper } from 'Aniwars/Helpers/enumHelper';
 
 export const SceneManager = function (game) {
     this.game = game;
-    this.actions = {
-        inspect: false
-    };
     this.endTurn = () => {
         var charConfig = this.game.activeCharacter.characterConfig;
         var shouldChangeTurn = false;
@@ -17,7 +15,6 @@ export const SceneManager = function (game) {
             charConfig.movement.spent = 0;
             charConfig.energy.spent = 0;
             charConfig.movement.usedDash = false;
-            // TODO: Fix initiative!
             this.game.initiativeIndex++;
             if (this.game.initiativeIndex >= this.game.initiative.length || this.game.initiativeIndex === -1) {
                 this.game.initiativeIndex = 0;
@@ -29,13 +26,15 @@ export const SceneManager = function (game) {
                 char.clearTint();
             });
             this.game.events.emit('showCharacterInitiative', this.game.initiative);
+            this.game.activeCharacter.characterConfig.energy.selectedAction = null;
+            this.game.activeCharacter.characterConfig.energy.actionId = -1;
+            this.game.events.emit('clearButtonTint');
             this.game.activeCharacter = this.game.initiative[0];
 
             if (this.game.activeCharacter.characterConfig.isPlayerControlled) {
                 this.game.events.emit('toggleActionButtons', true);
                 this.game.events.emit('activeCharacterPositionModified', this.game.activeCharacter);
                 this.game.activeMap.showMovementGrid();
-                //this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
             } else {
                 this.game.events.emit('toggleActionButtons', false);
                 this.game.activeMap.hideMovementGrid();
@@ -102,7 +101,7 @@ export const SceneManager = function (game) {
     this.createEnemies = () => {
         var self = this;
         this.game.enemies = new Enemy(this.game);
-        this.game.enemies.addNewCharacter(1000, 450, EnemyConfig.thug);
+        this.game.enemies.addNewCharacter(800, 450, EnemyConfig.thug);
         this.game.enemies.total = this.game.enemies.characters.getChildren().length;
         this.game.input.setHitArea(this.game.enemies.characters.getChildren());
         _.each(this.game.enemies.characters.getChildren(), function (enemy) {
@@ -266,13 +265,12 @@ export const SceneManager = function (game) {
 
     // PRIVATE
     // INTERACTION -------------------------------------------------------------------------------------
-    // TODO: If this.actions.inspect === true => show detailed view or something extra. Remove something from energy?
     this._moveCharacterOnClick = (tile, pointer) => {
-        if (pointer.leftButtonDown() && !this.actions.inspect) {
+        var actionId = this.game.activeCharacter.characterConfig.energy.actionId;
+        if (pointer.leftButtonDown() && actionId !== EnumHelper.actionEnum.inspect) {
             this.game.characters.moveActiveCharacterToTile(tile);
-        } else if (pointer.leftButtonDown() && this.actions.inspect || pointer.rightButtonDown()) {
+        } else if (pointer.leftButtonDown() && actionId === EnumHelper.actionEnum.inspect || pointer.rightButtonDown()) {
             this.game.events.emit('inspect', tile);
-            this.actions.inspect = !this.actions.inspect;
         }
     };
     this._hoverTile = (tile) => {
@@ -282,18 +280,22 @@ export const SceneManager = function (game) {
         this.game.activeMap.highlightPathToObject(object);
     };
     this._interactWithObject = (object, pointer) => {
-        if (pointer.leftButtonDown() && !this.actions.inspect) {
+        var actionId = this.game.activeCharacter.characterConfig.energy.actionId;
+        if (pointer.leftButtonDown() && actionId !== EnumHelper.actionEnum.inspect) {
             this.game.characters.interactWithObject(object);
-        } else if (pointer.leftButtonDown() && this.actions.inspect || pointer.rightButtonDown()) {
+        } else if (pointer.leftButtonDown() && actionId === EnumHelper.actionEnum.inspect || pointer.rightButtonDown()) {
             this.game.events.emit('inspect', object);
         }
     };
     this._interactWithEnemy = (enemy, pointer) => {
-        if (pointer.leftButtonDown() && !this.actions.inspect) {
+        var actionId = this.game.activeCharacter.characterConfig.energy.actionId;
+        if (pointer.leftButtonDown() && actionId === EnumHelper.actionEnum.attackMainHand) {
+            this.game.characters.interactWithEnemy(enemy);
+            // TODO: Emit event to dehilight button
+        } else if (pointer.leftButtonDown() && actionId === EnumHelper.actionEnum.inspect || pointer.rightButtonDown()) {
+            // TODO: Show enemy description?
+        } else if (pointer.leftButtonDown()) {
             this._showCharacterInventory(enemy);
-            //this.game.characters.interactWithEnemy(enemy);
-        } else if (pointer.leftButtonDown() && this.actions.inspect || pointer.rightButtonDown()) {
-            // TODO: Show enemy inventory and stats
         }
     };
     this._hoverCharacter = (character) => {
@@ -306,9 +308,10 @@ export const SceneManager = function (game) {
         this.game.activeMap.highlightPathToItem(item);
     };
     this._pickUpItem = (item, pointer) => {
-        if (pointer.leftButtonDown() && !this.actions.inspect) {
+        var actionId = this.game.activeCharacter.characterConfig.energy.actionId;
+        if (pointer.leftButtonDown() && actionId !== EnumHelper.actionEnum.inspect) {
             this.game.characters.pickUpItem(item);
-        } else if (pointer.leftButtonDown() && this.actions.inspect || pointer.rightButtonDown()) {
+        } else if (pointer.leftButtonDown() && actionId === EnumHelper.actionEnum.inspect || pointer.rightButtonDown()) {
             // TODO: Show item description
         }
     };

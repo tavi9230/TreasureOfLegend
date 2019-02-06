@@ -349,6 +349,7 @@ export const HUDScene = function (sceneName) {
             this.activeScene.events.on('closeInspect', _.bind(this.closeInspect, this));
             this.activeScene.events.on('showCharacterInventory', _.bind(this.lowerPanel.openCharacterInventory, this.lowerPanel));
             this.activeScene.events.on('toggleActionButtons', _.bind(this.lowerPanel.toggleActionButtons, this.lowerPanel));
+            this.activeScene.events.on('clearButtonTint', _.bind(this.lowerPanel.setButtonTint, this.lowerPanel));
         },
         _addToEnemyInventory: function (location, characterBelonging, x, y) {
             if (characterBelonging.inventory[location].type !== EnumHelper.inventoryEnum.defaultEquipment) {
@@ -375,6 +376,7 @@ export const HUDScene = function (sceneName) {
                     this.lowerPanel.openSkillTree(this.activeScene.activeCharacter);
                 } else if (this.keycodes.a.isDown && !this.mainHandButtonIsDown) {
                     this.mainHandButtonIsDown = true;
+                    this.lowerPanel.useMainHand();
                     // TODO: Select attack action
                 } else if (this.keycodes.s.isDown && !this.spellsButtonIsDown) {
                     //TODO: Change this to selected character?

@@ -54,7 +54,8 @@
     },
     actionEnum: {
         attackMainHand: 1,
-        attackSpell: 2
+        attackSpell: 2,
+        inspect: 3
     },
     inventoryEnum: {
         defaultEquipment: 0,
