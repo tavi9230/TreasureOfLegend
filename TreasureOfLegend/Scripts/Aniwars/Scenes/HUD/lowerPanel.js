@@ -42,11 +42,18 @@
         this.scene.events.emit('inspectSelected');
     };
     this.openSelectedCharacterInventory = function() {
-        // TODO: Clear tint when clicking close button
-        // TODO: Close inventory when pressing tab or button again
+        // TODO: Move this to character status and rework the closing of the inventory
         this.setButtonTint('inventoryButton');
         // TODO: Change this.activeScene.activeCharacter to selectedCharacter
-        this.scene.characterStatus.showCharacterInfo(this.scene.activeScene.activeCharacter);
+        if (!this.scene.characterStatus.isCharacterInfoMenuOpen) {
+            this.scene.characterStatus.showCharacterInfo(this.scene.activeScene.activeCharacter);
+        } else {
+            this.scene.characterStatus.isCharacterInfoMenuOpen = false;
+            this.scene.characterStatus.characterInfo.destroy(true);
+            this.scene.characterStatus.characterInfoCloseButtonGroup.destroy(true);
+            this.scene.characterStatus.attributesInfo.destroy(true);
+            this.scene.characterStatus.attributesInfoBox.destroy(true);
+        }
     };
 
     this._createEndTurnButton = function() {

@@ -67,15 +67,15 @@ export const HUDScene = function(sceneName) {
                     groupToDestroy.destroy(true);
                     if (groupToDestroy.name === 'characterInfo') {
                         self.characterStatus.isCharacterInfoMenuOpen = false;
+                        if (self.characterStatus.attributesInfo) {
+                            self.characterStatus.attributesInfo.destroy(true);
+                        }
+                        if (self.characterStatus.attributesInfoBox) {
+                            self.characterStatus.attributesInfoBox.destroy(true);
+                        }
                     }
                     if (self.enemyInventory) {
                         self.enemyInventory.destroy(true);
-                    }
-                    if (self.characterStatus.attributesInfo) {
-                        self.characterStatus.attributesInfo.destroy(true);
-                    }
-                    if (self.characterStatus.attributesInfoBox) {
-                        self.characterStatus.attributesInfoBox.destroy(true);
                     }
                     closeButtonGroup.destroy(true);
                 });
@@ -320,7 +320,7 @@ export const HUDScene = function(sceneName) {
             textPanel = this.add.text(x + 2, y + 2, text, style);
             this.inspectionBox.add(panel);
             this.inspectionBox.add(textPanel);
-            this.lowerPanel.setInspectButtonTint();
+            this.lowerPanel.setButtonTint('inspectButton');
         },
         closeInspect: function() {
             if (this.inspectionBox) {

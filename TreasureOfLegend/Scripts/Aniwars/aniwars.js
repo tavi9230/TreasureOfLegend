@@ -4,6 +4,9 @@ import {MainMenuScene} from 'Aniwars/Scenes/Menu/mainMenuScene';
 export const Aniwars = {
     template: '<div class="aniwars"></div>',
     mounted: function () {
+        $('body').on('contextmenu', 'canvas', function() {
+            return false;
+        });
         $('.btnLogin').addClass('hidden');
         var bootScene = new BootScene();
         var mainMenuScene = new MainMenuScene();
