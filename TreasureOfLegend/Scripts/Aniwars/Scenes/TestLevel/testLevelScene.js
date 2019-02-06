@@ -35,16 +35,12 @@ export const TestLevelScene = function() {
                 self.sceneManager.endTurn();
             });
             this.hudScene.events.on('getCharacterStartData', function() {
-                self.events.emit('activeCharacterChanged', self.activeCharacter, self.characters);
                 self.events.emit('showCharacterInitiative', self.initiative);
             });
             this.hudScene.events.on('spellSelected', function(spell) {
                 var charConfig = self.activeCharacter.characterConfig;
                 charConfig.energy.actionId = EnumHelper.actionEnum.attackSpell;
                 charConfig.energy.selectedAction = spell;
-                if (charConfig.isPlayerControlled) {
-                    self.events.emit('activeCharacterActed', self.activeCharacter, self.characters);
-                }
             });
             this.hudScene.events.on('highlightCharacter', function(character) {
                 self.activeMap.highlightCharacter(character);
@@ -73,9 +69,6 @@ export const TestLevelScene = function() {
                 var charConfig = character.characterConfig;
                 charConfig.energy.actionId = EnumHelper.actionEnum.attackMainHand;
                 charConfig.energy.selectedAction = null;
-                if (charConfig.isPlayerControlled) {
-                    self.events.emit('activeCharacterActed', self.activeCharacter, self.characters);
-                }
             });
             this.hudScene.events.on('useDash', function() {
                 self.characters.useDash();
@@ -92,7 +85,9 @@ export const TestLevelScene = function() {
                     char.clearTint();
                 });
                 character.setTint(0xFF0000);
-                self.events.emit('toggleActionButtons', self.activeCharacter.x === character.x && self.activeCharacter.y === character.y);
+                self.events.emit('toggleActionButtons',
+                    self.activeCharacter.x === character.x && self.activeCharacter.y === character.y,
+                    character.characterConfig.isPlayerControlled);
             });
         },
         _moveCamera() {

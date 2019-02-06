@@ -49,8 +49,7 @@
     this.openSelectedCharacterInventory = function () {
         // TODO: Move this to character status and rework the closing of the inventory
         this.setButtonTint('inventoryButton');
-        // TODO: Change this.activeScene.activeCharacter to selectedCharacter
-        this.scene.characterStatus.showCharacterInfo(this.scene.activeScene.activeCharacter);
+        this.scene.characterStatus.showCharacterInfo(this.scene.activeScene.selectedCharacter);
     };
     this.openSpellBook = function (character) {
         if (character.characterConfig.isPlayerControlled) {
@@ -152,7 +151,7 @@
             }
         }
     };
-    this.toggleActionButtons = function (isVisible) {
+    this.toggleActionButtons = function (isVisible, isPlayerControlled) {
         var buttons = this.hudbuttons.getChildren().filter(function (btn) {
             return btn.name === 'useMainHandButton'
                 || btn.name === 'useOffHandButton'
@@ -162,6 +161,12 @@
         _.each(buttons, function (button) {
             button.visible = isVisible;
         });
+
+        buttons = this.hudbuttons.getChildren().filter(function (btn) {
+            return btn.name === 'skillsButton';
+        });
+        buttons[0].visible = isPlayerControlled;
+        this.scene.soulsText.visible = isPlayerControlled;
     };
 
     this._createEndTurnButton = function () {
@@ -191,8 +196,7 @@
         spellsButton.displayWidth = 50;
         spellsButton.name = 'spellsButton';
         spellsButton.on('pointerdown', function () {
-            // TODO: Change this to selected character
-            self.openSpellBook(self.scene.activeScene.activeCharacter);
+            self.openSpellBook(self.scene.activeScene.selectedCharacter);
         });
         spellsButton.on('pointerover', _.bind(this._showTips, this.scene, spellsButton.x - 45, spellsButton.y - 25, 148, 20, 'Open Spell Book'));
         spellsButton.on('pointerout', _.bind(this._hideTips, this.scene));
@@ -205,9 +209,7 @@
         skillsButton.displayWidth = 50;
         skillsButton.name = 'skillsButton';
         skillsButton.on('pointerdown', function () {
-            if (self.scene.activeScene.activeCharacter.characterConfig.isPlayerControlled) {
-                self.openSkillTree(self.scene.activeScene.activeCharacter);
-            }
+            self.openSkillTree(self.scene.activeScene.selectedCharacter);
         });
         skillsButton.on('pointerover', _.bind(this._showTips, this.scene, skillsButton.x - 45, skillsButton.y - 25, 152, 20, 'Open Skill List'));
         skillsButton.on('pointerout', _.bind(this._hideTips, this.scene));

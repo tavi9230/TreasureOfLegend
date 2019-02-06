@@ -188,7 +188,7 @@ export const HUDScene = function (sceneName) {
         showCharacterInitiative: function (characters) {
             var self = this;
             var x = 0;
-            var y = 0;
+            var y = this.windowHeight - 75;
             if (!this.initiativeTracker) {
                 this.initiativeTracker = this.add.group();
             } else {
@@ -214,28 +214,9 @@ export const HUDScene = function (sceneName) {
                 characterImage.displayWidth = 75;
                 characterImage.displayHeight = 75;
 
-                var percentageOfLife = (100 * charConfig.life.current) / charConfig.life.max,
-                    lifeWidth = (75 * percentageOfLife) / 100,
-                    lifeBar = self.add.graphics(),
-                    lifeText = self.add.text(x + 25, y, (charConfig.life.current + '/' + charConfig.life.max), { fill: '#FFF', fontSize: '9px' });
-                lifeBar.fillStyle(0x990000, 0.8);
-                lifeBar.fillRect(x, y, lifeWidth, 10);
-
-                var percentageOfMana = (100 * (charConfig.mana.max - charConfig.mana.spent)) / charConfig.mana.max,
-                    manaWidth = (75 * percentageOfMana) / 100,
-                    manaBar = self.add.graphics(),
-                    manaText = self.add.text(x + 25, y + 75,
-                        ((charConfig.mana.max - charConfig.mana.spent) + '/' + charConfig.mana.max), { fill: '#FFF', fontSize: '9px' });
-                manaBar.fillStyle(0x000099, 0.8);
-                manaBar.fillRect(x, y + 75, manaWidth, 10);
-
                 characterImage.objectToSend = character;
 
                 self.initiativeTracker.add(box);
-                self.initiativeTracker.add(lifeBar);
-                self.initiativeTracker.add(lifeText);
-                self.initiativeTracker.add(manaBar);
-                self.initiativeTracker.add(manaText);
                 self.initiativeTrackerImages.add(characterImage);
                 x += 80;
             });
@@ -255,6 +236,10 @@ export const HUDScene = function (sceneName) {
                     self.selectedBox = self.add.graphics();
                     self.selectedBox.fillStyle(0x0000FF, 0.5);
                     self.selectedBox.fillRect(item.x, item.y, 75, 75);
+                    if (self.characterStatus.isCharacterInfoMenuOpen) {
+                        self.characterStatus.showCharacterInfo(item.objectToSend);
+                        self.characterStatus.showCharacterInfo(item.objectToSend);
+                    }
                 });
             });
         },
@@ -349,12 +334,6 @@ export const HUDScene = function (sceneName) {
             var self = this;
             this.activeScene = this.scene.get(this.sceneName);
 
-            this.activeScene.events.on('activeCharacterChanged', function (activeCharacter, characters) {
-                self.characterStatus.showCharacterStatus(activeCharacter, characters);
-            });
-            this.activeScene.events.on('activeCharacterActed', function (activeCharacter, characters) {
-                self.characterStatus.showCharacterStatus(activeCharacter, characters);
-            });
             this.activeScene.events.on('activeCharacterPositionModified', function (character) {
                 self.locationText.setText('X:' + Math.floor(character.x / 50) + ', Y:' + Math.floor(character.y / 50));
             });

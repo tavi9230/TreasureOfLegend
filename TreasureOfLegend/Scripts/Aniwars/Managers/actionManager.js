@@ -51,7 +51,6 @@ export const ActionManager = function (game) {
         }
         object.objectConfig.isActivated = !object.objectConfig.isActivated;
         if (charConfig.isPlayerControlled) {
-            this.game.events.emit('activeCharacterActed', this.game.activeCharacter, this.game.characters);
             this.game.activeMap.showMovementGrid();
         }
     };
@@ -87,7 +86,6 @@ export const ActionManager = function (game) {
                 isInteractible: true,
                 turnsToReset: Math.floor(Math.random() * 5) + 1
             });
-            this.game.events.emit('activeCharacterActed', this.game.activeCharacter, this.game.characters);
         }
     };
 
@@ -141,9 +139,6 @@ export const ActionManager = function (game) {
         charConfig.energy.selectedAction = null;
 
         this._checkInitiative(enemy);
-        if (charConfig.isPlayerControlled) {
-            this.game.events.emit('activeCharacterActed', this.game.activeCharacter, this.game.characters);
-        }
     };
 
     this._attackWithSpell = (character, enemy) => {
@@ -193,9 +188,6 @@ export const ActionManager = function (game) {
         charConfig.energy.selectedAction = null;
 
         this._checkInitiative(enemy);
-        if (charConfig.isPlayerControlled) {
-            this.game.events.emit('activeCharacterActed', this.game.activeCharacter, this.game.characters);
-        }
     };
 
     // PRIVATE -------------------------------------------------------------------------------------------------------------------------------

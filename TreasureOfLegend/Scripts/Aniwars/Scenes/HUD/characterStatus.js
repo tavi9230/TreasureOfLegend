@@ -11,43 +11,6 @@ export const HUDCharacterStatus = function (scene) {
     this.attributesInfoBox = null;
     this.characterBar = null;
 
-    this.showCharacterStatus = function (activeCharacter, characters) {
-        var self = this,
-            x = 0,
-            y = this.scene.windowHeight - 110;
-
-        if (this.isCharacterInfoMenuOpen) {
-            this.showCharacterInfo(activeCharacter);
-        }
-        this._addCharacterStatusGroups();
-        _.each(characters.characters.getChildren(), function (character) {
-            self._createCharacterImage(character, x, y);
-            self._createCharacterLifeBar(character, x, y);
-            self._createCharacterManaBar(character, x, y);
-            self._createCharacterMovementBar(character, x, y);
-            self._createCharacterArmorBox(character, x, y);
-            self._createCharacterMinorActionBox(character, x, y);
-            self._createMainAttackImage(character, x, y);
-            x += 100;
-        });
-
-        this.scene.input.setHitArea(this.characterBarImages.getChildren());
-        _.each(this.characterBarImages.getChildren(), function (item) {
-            item.on('pointerdown', _.bind(self.showCharacterInfo, self, item.objectToSend));
-            item.on('pointerover', function () {
-                self.scene.events.emit('highlightCharacter', item.objectToSend);
-            });
-            item.on('pointerout', function () {
-                self.scene.events.emit('dehighlightCharacter', item.objectToSend);
-            });
-        });
-        this.scene.input.setHitArea(this.characterMainAttack.getChildren());
-        _.each(this.characterMainAttack.getChildren(), function (item) {
-            item.on('pointerdown', function () {
-                self.scene.events.emit('mainHandSelected', item.objectToSend);
-            });
-        });
-    };
     this.showCharacterInfo = function (character) {
         // TODO: Show character inventory if player controlled otherwise show enemy info
         if (!this.isCharacterInfoMenuOpen) {

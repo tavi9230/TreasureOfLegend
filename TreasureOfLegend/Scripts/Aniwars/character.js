@@ -123,7 +123,6 @@ export const Character = function(game) {
         if (currentCharacter.x === charConfig.posX &&
             currentCharacter.y === charConfig.posY && !this.game.activeMap.isMovementGridShown) {
             if (charConfig.path.length === 0) {
-                this.game.events.emit('activeCharacterActed', currentCharacter, this.game.characters);
                 this.game.activeMap.showMovementGrid(currentCharacter);
                 this._checkIfObjectInteractionInProgress(charConfig.energy.inProgress);
             }
@@ -229,7 +228,6 @@ export const Character = function(game) {
                 charConfig.energy.spent += EnergyConfig.pickup.cost;
                 item.destroy();
                 this.game.items.remove(item);
-                this.game.events.emit('activeCharacterActed', character, this.game.characters);
             }
         } else {
             charConfig.energy.inProgress = item;
@@ -278,7 +276,6 @@ export const Character = function(game) {
         item.itemConfig = lodash.cloneDeep(itemToDrop);
         this.game.items.add(item);
         character.setDepth(1);
-        this.game.events.emit('activeCharacterActed', character, this.game.characters);
         this.game.input.setHitArea([item]);
         item.on('pointerdown', _.bind(self.game.characters.pickUpItem, self, item));
         item.on('pointerover', _.bind(self.game.activeMap.highlightPathToItem, self, item));
@@ -359,7 +356,6 @@ export const Character = function(game) {
                 charConfig.inventory.feet.isEquipped = true;
             }
             charConfig.energy.spent += EnergyConfig.pickup.cost;
-            this.game.events.emit('activeCharacterActed', character, this.game.characters);
         }
     };
 
@@ -386,7 +382,6 @@ export const Character = function(game) {
             if (lootbagConfig.inventory.slots.items.length > 0) {
                 this.game.events.emit('showDeadCharacterInventory', lootbag);
             }
-            this.game.events.emit('activeCharacterActed', character, this.game.characters);
         }
     };
 
@@ -400,7 +395,6 @@ export const Character = function(game) {
             activeCharacter.characterConfig.attributes.intelligence++;
         }
         activeCharacter.characterConfig.experience.attributePoints--;
-        this.game.events.emit('activeCharacterActed', activeCharacter, this.game.characters);
     };
 
     this.buySkill = (skill) => {
@@ -458,7 +452,6 @@ export const Character = function(game) {
         } else if (charConfig.posY < currentCharacter.y) {
             currentCharacter.setVelocityY(-1 * charConfig.velocity);
         }
-        this.game.events.emit('activeCharacterActed', currentCharacter, this.game.characters);
     };
 
     this._reduceSpeedX = function(currentCharacter) {

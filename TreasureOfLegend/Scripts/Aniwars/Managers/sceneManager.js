@@ -27,7 +27,6 @@ export const SceneManager = function (game) {
             this.game.currentCharacter = this.game.activeCharacter;
 
             if (this.game.activeCharacter.characterConfig.isPlayerControlled) {
-                this.game.events.emit('activeCharacterChanged', this.game.activeCharacter, this.game.characters);
                 this.game.events.emit('activeCharacterPositionModified', this.game.activeCharacter);
                 this.game.activeMap.showMovementGrid();
                 //this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
