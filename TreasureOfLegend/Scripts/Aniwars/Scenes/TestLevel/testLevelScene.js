@@ -36,11 +36,6 @@ export const TestLevelScene = function () {
             this.hudScene.events.on('getCharacterStartData', function () {
                 self.events.emit('showCharacterInitiative', self.initiative);
             });
-            this.hudScene.events.on('spellSelected', function (spell) {
-                var charConfig = self.activeCharacter.characterConfig;
-                charConfig.energy.actionId = EnumHelper.actionEnum.attackSpell;
-                charConfig.energy.selectedAction = spell;
-            });
             this.hudScene.events.on('highlightCharacter', function (character) {
                 self.activeMap.highlightCharacter(character);
             });
@@ -66,6 +61,11 @@ export const TestLevelScene = function () {
             });
             this.hudScene.events.on('useDash', function () {
                 self.characters.useDash();
+            });
+            this.hudScene.events.on('spellSelected', function (spell) {
+                var charConfig = self.activeCharacter.characterConfig;
+                charConfig.energy.actionId = EnumHelper.actionEnum.attackSpell;
+                charConfig.energy.selectedAction = spell;
             });
             this.hudScene.events.on('inspectSelected', function () {
                 if (self.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.inspect) {

@@ -396,6 +396,7 @@ export const Character = function(game) {
             activeCharacter.characterConfig.attributes.intelligence++;
         }
         activeCharacter.characterConfig.experience.attributePoints--;
+        this.game.events.emit('updateStats', activeCharacter);
     };
 
     this.buySkill = (skill) => {

@@ -294,7 +294,7 @@ export const SceneManager = function (game) {
     this._interactWithEnemy = (enemy) => {
         // TODO: Move to action manager?
         var actionId = this.game.activeCharacter.characterConfig.energy.actionId;
-        if (actionId === EnumHelper.actionEnum.attackMainHand) {
+        if (actionId === EnumHelper.actionEnum.attackMainHand || actionId === EnumHelper.actionEnum.attackSpell) {
             this.game.characters.interactWithEnemy(enemy);
         } else if (actionId === EnumHelper.actionEnum.inspect) {
             this.game.activeCharacter.characterConfig.energy.actionId = -1;

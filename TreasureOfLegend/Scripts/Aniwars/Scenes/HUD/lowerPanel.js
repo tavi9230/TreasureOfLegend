@@ -121,9 +121,6 @@
                         self.spellBook.destroy(true);
                         self.spellBook.closeButtonGroup.destroy(true);
                         panel.destroy();
-                        // Get main attack icon
-                        // TODO Change this to call a separate function
-                        self.scene.events.emit('getCharacterStartData');
                     });
                 });
             }

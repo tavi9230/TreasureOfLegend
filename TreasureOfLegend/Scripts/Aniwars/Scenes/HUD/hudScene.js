@@ -341,6 +341,9 @@ export const HUDScene = function (sceneName) {
             this.activeScene.events.on('updateAttributePointsPanel', function (character) {
                 self.characterStatus.showAttributePointSelection(character);
             });
+            this.activeScene.events.on('updateStats', function (character) {
+                self.characterStatus.toggleCharacterInfo(character, true);
+            });
             this.activeScene.events.on('changeTurnCounter', function () {
                 self.turn++;
                 self.turnText.setText(self.turn);
