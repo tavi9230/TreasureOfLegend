@@ -25,6 +25,26 @@
     this.useDash = function () {
         this.scene.events.emit('useDash');
     };
+    this.toggleActionButtons = function (isVisible) {
+        var buttons = this.hudbuttons.getChildren().filter(function (btn) {
+            return btn.name === 'useMainHandButton'
+                || btn.name === 'useOffHandButton'
+                || btn.name === 'inspectButton'
+                || btn.name === 'walkButton'
+                || btn.name === 'skillsButton'
+                || btn.name === 'spellsButton'
+                || btn.name === 'inventoryButton';
+        });
+        _.each(buttons, function (button) {
+            button.visible = isVisible;
+        });
+
+        buttons = this.hudbuttons.getChildren().filter(function (btn) {
+            return btn.name === 'skillsButton';
+        });
+        buttons[0].visible = isVisible;
+        this.scene.soulsText.visible = isVisible;
+    };
     this.setButtonTint = function (buttonName) {
         var button = this.hudbuttons.getChildren().filter(function (button) {
             return button.name === buttonName;
@@ -46,10 +66,13 @@
         this.scene.scene.sleep(this.scene.sceneName);
         this.scene.scene.wake('MainMenuScene');
     };
-    this.openSelectedCharacterInventory = function () {
+    this.openCharacterInventory = function (character) {
         // TODO: Move this to character status and rework the closing of the inventory
-        this.setButtonTint('inventoryButton');
-        this.scene.characterStatus.showCharacterInfo(this.scene.activeScene.selectedCharacter);
+        var char = character && character.type === 'Sprite' ? character : this.scene.activeScene.activeCharacter;
+        //if (character && character.type !== 'Sprite' || !character) {
+        //    this.setButtonTint('inventoryButton');
+        //}
+        this.scene.characterStatus.showCharacterInfo(char);
     };
     this.openSpellBook = function (character) {
         if (character.characterConfig.isPlayerControlled) {
@@ -151,23 +174,6 @@
             }
         }
     };
-    this.toggleActionButtons = function (isVisible, isPlayerControlled) {
-        var buttons = this.hudbuttons.getChildren().filter(function (btn) {
-            return btn.name === 'useMainHandButton'
-                || btn.name === 'useOffHandButton'
-                || btn.name === 'inspectButton'
-                || btn.name === 'walkButton';
-        });
-        _.each(buttons, function (button) {
-            button.visible = isVisible;
-        });
-
-        buttons = this.hudbuttons.getChildren().filter(function (btn) {
-            return btn.name === 'skillsButton';
-        });
-        buttons[0].visible = isPlayerControlled;
-        this.scene.soulsText.visible = isPlayerControlled;
-    };
 
     this._createEndTurnButton = function () {
         var endTurnButton = this.scene.add.image(this.scene.windowWidth - 170, this.scene.windowHeight - 150, 'endTurnButton').setOrigin(0, 0);
@@ -196,7 +202,7 @@
         spellsButton.displayWidth = 50;
         spellsButton.name = 'spellsButton';
         spellsButton.on('pointerdown', function () {
-            self.openSpellBook(self.scene.activeScene.selectedCharacter);
+            self.openSpellBook(self.scene.activeScene.activeCharacter);
         });
         spellsButton.on('pointerover', _.bind(this._showTips, this.scene, spellsButton.x - 45, spellsButton.y - 25, 148, 20, 'Open Spell Book'));
         spellsButton.on('pointerout', _.bind(this._hideTips, this.scene));
@@ -209,7 +215,7 @@
         skillsButton.displayWidth = 50;
         skillsButton.name = 'skillsButton';
         skillsButton.on('pointerdown', function () {
-            self.openSkillTree(self.scene.activeScene.selectedCharacter);
+            self.openSkillTree(self.scene.activeScene.activeCharacter);
         });
         skillsButton.on('pointerover', _.bind(this._showTips, this.scene, skillsButton.x - 45, skillsButton.y - 25, 152, 20, 'Open Skill List'));
         skillsButton.on('pointerout', _.bind(this._hideTips, this.scene));
@@ -250,7 +256,7 @@
         inventoryButton.displayHeight = 50;
         inventoryButton.displayWidth = 50;
         inventoryButton.name = 'inventoryButton';
-        inventoryButton.on('pointerdown', _.bind(this.openSelectedCharacterInventory, this));
+        inventoryButton.on('pointerdown', _.bind(this.openCharacterInventory, this));
         inventoryButton.on('pointerover', _.bind(this._showTips, this.scene, inventoryButton.x - 30, inventoryButton.y - 25, 143, 20, 'Open Inventory'));
         inventoryButton.on('pointerout', _.bind(this._hideTips, this.scene));
         this.hudbuttons.add(inventoryButton);

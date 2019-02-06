@@ -25,15 +25,19 @@ export const SceneManager = function (game) {
             }
             var first = this.game.initiative.shift();
             this.game.initiative.push(first);
+            _.each(this.game.initiative, function (char) {
+                char.clearTint();
+            });
             this.game.events.emit('showCharacterInitiative', this.game.initiative);
             this.game.activeCharacter = this.game.initiative[0];
-            this.game.currentCharacter = this.game.activeCharacter;
 
             if (this.game.activeCharacter.characterConfig.isPlayerControlled) {
+                this.game.events.emit('toggleActionButtons', true);
                 this.game.events.emit('activeCharacterPositionModified', this.game.activeCharacter);
                 this.game.activeMap.showMovementGrid();
                 //this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
             } else {
+                this.game.events.emit('toggleActionButtons', false);
                 this.game.activeMap.hideMovementGrid();
             }
             if (shouldChangeTurn) {
@@ -77,6 +81,7 @@ export const SceneManager = function (game) {
     this.bindCharacterEvents = (character) => {
         character.on('pointerover', _.bind(this._hoverCharacter, this, character));
         character.on('pointerout', _.bind(this._unhoverCharacter, this, character));
+        character.on('pointerdown', _.bind(this._showCharacterInventory, this, character));
     };
 
     this.createCharacters = () => {
@@ -285,7 +290,8 @@ export const SceneManager = function (game) {
     };
     this._interactWithEnemy = (enemy, pointer) => {
         if (pointer.leftButtonDown() && !this.actions.inspect) {
-            this.game.characters.interactWithEnemy(enemy);
+            this._showCharacterInventory(enemy);
+            //this.game.characters.interactWithEnemy(enemy);
         } else if (pointer.leftButtonDown() && this.actions.inspect || pointer.rightButtonDown()) {
             // TODO: Show enemy inventory and stats
         }
@@ -346,5 +352,9 @@ export const SceneManager = function (game) {
         image.displayWidth = 30;
         this.characterQuickStats.add(image);
         this.characterQuickStats.add(text);
+    };
+
+    this._showCharacterInventory = (character) => {
+        this.game.events.emit('showCharacterInventory', character);
     };
 };

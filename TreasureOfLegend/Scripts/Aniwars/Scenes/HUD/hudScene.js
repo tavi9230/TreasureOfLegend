@@ -73,7 +73,7 @@ export const HUDScene = function (sceneName) {
                         if (self.characterStatus.attributesInfoBox) {
                             self.characterStatus.attributesInfoBox.destroy(true);
                         }
-                        self.lowerPanel.setButtonTint('inventoryButton');
+                        //self.lowerPanel.setButtonTint('inventoryButton');
                     } else if (groupToDestroy.name === 'spellBook') {
                         self.lowerPanel.setButtonTint('spellsButton');
                         self.lowerPanel.spellBook = null;
@@ -188,7 +188,7 @@ export const HUDScene = function (sceneName) {
         showCharacterInitiative: function (characters) {
             var self = this;
             var x = 0;
-            var y = this.windowHeight - 75;
+            var y = this.windowHeight - 200;
             if (!this.initiativeTracker) {
                 this.initiativeTracker = this.add.group();
             } else {
@@ -201,24 +201,31 @@ export const HUDScene = function (sceneName) {
                 this.initiativeTrackerImages.destroy(true);
                 this.initiativeTrackerImages = this.add.group();
             }
+            var index = 0;
             _.each(characters, function (character) {
                 var charConfig = character.characterConfig;
                 var box = self.add.graphics();
                 charConfig.isPlayerControlled
                     ? box.fillStyle(0x38b82c, 1)
                     : box.fillStyle(0xd6603c, 1);
-                box.fillRect(x, y, 75, 75);
+                index === 0
+                    ? box.fillRect(x, y, 200, 200)
+                    : box.fillRect(x, y, 100, 100);
                 box.name = 'initiativeBox';
 
                 var characterImage = self.add.image(x, y, charConfig.image).setOrigin(0, 0);
-                characterImage.displayWidth = 75;
-                characterImage.displayHeight = 75;
+                characterImage.displayWidth = index === 0 ? 200 : 100;
+                characterImage.displayHeight = index === 0 ? 200 : 100;
 
                 characterImage.objectToSend = character;
 
                 self.initiativeTracker.add(box);
                 self.initiativeTrackerImages.add(characterImage);
-                x += 80;
+                x += index === 0 ? 205 : 105;
+                if (index === 0) {
+                    y += 100;
+                }
+                index++;
             });
             this.input.setHitArea(this.initiativeTrackerImages.getChildren());
             _.each(this.initiativeTrackerImages.getChildren(), function (item) {
@@ -227,19 +234,6 @@ export const HUDScene = function (sceneName) {
                 });
                 item.on('pointerout', function () {
                     self.events.emit('dehighlightCharacter', item.objectToSend);
-                });
-                item.on('pointerdown', function () {
-                    self.events.emit('setSelectedCharacter', item.objectToSend);
-                    if (self.selectedBox) {
-                        self.selectedBox.destroy(true);
-                    }
-                    self.selectedBox = self.add.graphics();
-                    self.selectedBox.fillStyle(0x0000FF, 0.5);
-                    self.selectedBox.fillRect(item.x, item.y, 75, 75);
-                    if (self.characterStatus.isCharacterInfoMenuOpen) {
-                        self.characterStatus.showCharacterInfo(item.objectToSend);
-                        self.characterStatus.showCharacterInfo(item.objectToSend);
-                    }
                 });
             });
         },
@@ -353,6 +347,7 @@ export const HUDScene = function (sceneName) {
             });
             this.activeScene.events.on('inspect', _.bind(this.inspect, this));
             this.activeScene.events.on('closeInspect', _.bind(this.closeInspect, this));
+            this.activeScene.events.on('showCharacterInventory', _.bind(this.lowerPanel.openCharacterInventory, this.lowerPanel));
             this.activeScene.events.on('toggleActionButtons', _.bind(this.lowerPanel.toggleActionButtons, this.lowerPanel));
         },
         _addToEnemyInventory: function (location, characterBelonging, x, y) {
@@ -367,32 +362,34 @@ export const HUDScene = function (sceneName) {
             return y;
         },
         _checkShortcutKeys() {
-            if (this.keycodes.w.isDown) {
-                this.lowerPanel.useDash();
-            } else if (this.keycodes.e.isDown && !this.inspectButtonIsDown) {
-                this.inspectButtonIsDown = true;
-                this.lowerPanel.selectInspectAction();
-            } else if (this.keycodes.q.isDown && !this.skillsButtonIsDown) {
-                this.skillsButtonIsDown = true;
-                // TODO: Show skills menu
-                //TODO: Change this to selected character?
-                this.lowerPanel.openSkillTree(this.activeScene.activeCharacter);
-            } else if (this.keycodes.a.isDown && !this.mainHandButtonIsDown) {
-                this.mainHandButtonIsDown = true;
-                // TODO: Select attack action
-            } else if (this.keycodes.s.isDown && !this.spellsButtonIsDown) {
-                //TODO: Change this to selected character?
-                this.spellsButtonIsDown = true;
-                this.lowerPanel.openSpellBook(this.activeScene.activeCharacter);
-            } else if (this.keycodes.d.isDown && !this.offhandButtonIsDown) {
-                this.offhandButtonIsDown = true;
-                // TODO: Select offHand action
-            } else if (this.keycodes.esc.isDown) {
-                this.keycodes.esc.isDown = false;
-                this.lowerPanel.openMainMenu();
-            } else if (this.keycodes.tab.isDown && !this.inventoryButtonIsDown) {
-                this.inventoryButtonIsDown = true;
-                this.lowerPanel.openSelectedCharacterInventory();
+            if (this.activeScene.activeCharacter.characterConfig.isPlayerControlled) {
+                if (this.keycodes.w.isDown) {
+                    this.lowerPanel.useDash();
+                } else if (this.keycodes.e.isDown && !this.inspectButtonIsDown) {
+                    this.inspectButtonIsDown = true;
+                    this.lowerPanel.selectInspectAction();
+                } else if (this.keycodes.q.isDown && !this.skillsButtonIsDown) {
+                    this.skillsButtonIsDown = true;
+                    // TODO: Show skills menu
+                    //TODO: Change this to selected character?
+                    this.lowerPanel.openSkillTree(this.activeScene.activeCharacter);
+                } else if (this.keycodes.a.isDown && !this.mainHandButtonIsDown) {
+                    this.mainHandButtonIsDown = true;
+                    // TODO: Select attack action
+                } else if (this.keycodes.s.isDown && !this.spellsButtonIsDown) {
+                    //TODO: Change this to selected character?
+                    this.spellsButtonIsDown = true;
+                    this.lowerPanel.openSpellBook(this.activeScene.activeCharacter);
+                } else if (this.keycodes.d.isDown && !this.offhandButtonIsDown) {
+                    this.offhandButtonIsDown = true;
+                    // TODO: Select offHand action
+                } else if (this.keycodes.esc.isDown) {
+                    this.keycodes.esc.isDown = false;
+                    this.lowerPanel.openMainMenu();
+                } else if (this.keycodes.tab.isDown && !this.inventoryButtonIsDown) {
+                    this.inventoryButtonIsDown = true;
+                    this.lowerPanel.openCharacterInventory();
+                }
             }
 
             if (this.keycodes.e.isUp) {
