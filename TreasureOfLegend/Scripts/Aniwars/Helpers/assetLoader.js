@@ -44,6 +44,12 @@
         game.load.image('hand', AssetFolder + 'items/hand.jpg');
         game.load.image('feet', AssetFolder + 'items/feet.jpg');
         game.load.image('lootbag', AssetFolder + 'items/lootbag.png');
+
+        game.load.image('healthIcon', AssetFolder + 'characters/health.png');
+        game.load.image('manaIcon', AssetFolder + 'characters/mana.png');
+        game.load.image('movementIcon', AssetFolder + 'characters/movement.png');
+        game.load.image('energyIcon', AssetFolder + 'characters/energy.png');
+        game.load.image('armorIcon', AssetFolder + 'characters/armor.png');
     };
 
     this.loadHUDImages = function() {
@@ -56,12 +62,6 @@
         game.load.image('offHandButton', AssetFolder + 'buttons/offHandButton.png');
         game.load.image('inventoryButton', AssetFolder + 'buttons/inventoryButton.png');
         game.load.image('inspectButton', AssetFolder + 'buttons/inspectButton.png');
-
-        game.load.image('healthIcon', AssetFolder + 'characters/health.png');
-        game.load.image('manaIcon', AssetFolder + 'characters/mana.png');
-        game.load.image('movementIcon', AssetFolder + 'characters/movement.png');
-        game.load.image('energyIcon', AssetFolder + 'characters/energy.png');
-        game.load.image('armorIcon', AssetFolder + 'characters/armor.png');
     };
 
     this.loadMainMenuImages = function() {

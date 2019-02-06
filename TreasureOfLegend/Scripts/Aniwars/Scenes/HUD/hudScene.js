@@ -247,7 +247,7 @@ export const HUDScene = function (sceneName) {
             panel.fillStyle(0x111111, 0.8);
             panel.fillRect(400, 290, 200, 400);
             this.enemyInventory.add(panel);
-            this.characterStatus.showCharacterInfo(activeCharacter);
+            this.characterStatus.toggleCharacterInfo(activeCharacter, true);
             var x = 410;
             var y = 300;
             var image;

@@ -78,7 +78,7 @@
     };
     this.openCharacterInventory = function (character) {
         var char = character && character.type === 'Sprite' ? character : this.scene.activeScene.activeCharacter;
-        this.scene.characterStatus.showCharacterInfo(char);
+        this.scene.characterStatus.toggleCharacterInfo(char);
     };
     this.openSpellBook = function (character) {
         if (character.characterConfig.isPlayerControlled) {

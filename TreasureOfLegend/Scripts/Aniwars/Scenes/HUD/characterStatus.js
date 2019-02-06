@@ -10,10 +10,12 @@ export const HUDCharacterStatus = function (scene) {
     this.attributesInfo = null;
     this.attributesInfoBox = null;
     this.characterBar = null;
+    this.whosInventory = null;
 
-    this.showCharacterInfo = function (character) {
+    this.toggleCharacterInfo = function (character, forceRemainOpen) {
         // TODO: Show character inventory if player controlled otherwise show enemy info
         if (!this.isCharacterInfoMenuOpen) {
+            this.whosInventory = character;
             var charConfig = character.characterConfig;
             this.isCharacterInfoMenuOpen = true;
             this.characterInfo = this.scene.add.group();
@@ -61,6 +63,9 @@ export const HUDCharacterStatus = function (scene) {
             this.isCharacterInfoMenuOpen = false;
             this.characterInfo.destroy(true);
             this.characterInfoCloseButtonGroup.destroy(true);
+            if ((this.whosInventory && (this.whosInventory.x !== character.x || this.whosInventory.y !== character.y)) || forceRemainOpen) {
+                this.toggleCharacterInfo(character);
+            }
         }
     };
     this.showAttributePointSelection = function (character) {
@@ -98,108 +103,6 @@ export const HUDCharacterStatus = function (scene) {
         }
     };
 
-    this._addCharacterStatusGroups = function () {
-        if (!this.characterBar) {
-            this.characterBar = this.scene.add.group();
-        } else {
-            this.characterBar.destroy(true);
-            this.characterBar = this.scene.add.group();
-        }
-        if (!this.characterBarImages) {
-            this.characterBarImages = this.scene.add.group();
-        } else {
-            this.characterBarImages.destroy(true);
-            this.characterBarImages = this.scene.add.group();
-        }
-        if (!this.characterMainAttack) {
-            this.characterMainAttack = this.scene.add.group();
-        } else {
-            this.characterMainAttack.destroy(true);
-            this.characterMainAttack = this.scene.add.group();
-        }
-    };
-    this._createCharacterImage = function (character, x, y) {
-        var characterImage = this.scene.add.image(x, y, character.characterConfig.image).setOrigin(0, 0);
-        characterImage.displayWidth = 75;
-        characterImage.displayHeight = 75;
-        characterImage.objectToSend = character;
-        this.characterBarImages.add(characterImage);
-    };
-    this._createCharacterLifeBar = function (character, x, y) {
-        var charConfig = character.characterConfig,
-            percentageOfLife = (100 * charConfig.life.current) / charConfig.life.max,
-            lifeWidth = (75 * percentageOfLife) / 100,
-            lifeBar = this.scene.add.graphics(),
-            lifeText = this.scene.add.text(x + 35,
-                y + 75,
-                (charConfig.life.current + '/' + charConfig.life.max),
-                { fill: '#FFF', fontSize: '9px' });
-        lifeBar.fillStyle(0x990000, 0.8);
-        lifeBar.fillRect(x, y + 75, lifeWidth, 10);
-        this.characterBar.add(lifeBar);
-        this.characterBar.add(lifeText);
-    };
-    this._createCharacterManaBar = function (character, x, y) {
-        var charConfig = character.characterConfig,
-            percentageOfMana = (100 * (charConfig.mana.max - charConfig.mana.spent)) / charConfig.mana.max,
-            manaWidth = (75 * percentageOfMana) / 100,
-            manaBar = this.scene.add.graphics(),
-            manaText = this.scene.add.text(x + 35,
-                y + 85,
-                ((charConfig.mana.max - charConfig.mana.spent) + '/' + charConfig.mana.max),
-                { fill: '#FFF', fontSize: '9px' });
-        manaBar.fillStyle(0x000099, 0.8);
-        manaBar.fillRect(x, y + 85, manaWidth, 10);
-        this.characterBar.add(manaBar);
-        this.characterBar.add(manaText);
-    };
-    this._createCharacterMovementBar = function (character, x, y) {
-        var charConfig = character.characterConfig,
-            percentageOfMovement = (100 * (charConfig.movement.max - charConfig.movement.spent)) /
-                charConfig.movement.max,
-            movementWidth = (75 * percentageOfMovement) / 100,
-            movementBar = this.scene.add.graphics(),
-            movementText = this.scene.add.text(x + 35,
-                y + 95,
-                ((charConfig.movement.max - charConfig.movement.spent) + '/' + charConfig.movement.max),
-                { fill: '#FFF', fontSize: '9px' });
-        movementBar.fillStyle(0x999900, 0.8);
-        movementBar.fillRect(x, y + 95, movementWidth, 10);
-        this.characterBar.add(movementBar);
-        this.characterBar.add(movementText);
-    };
-    this._createCharacterArmorBox = function (character, x, y) {
-        var charConfig = character.characterConfig,
-            armorBox = this.scene.add.graphics(),
-            armorText = this.scene.add.text(x + 75, y, charConfig.armor, { fill: '#FFF', fontSize: '18px' });
-        armorBox.fillStyle(0xcccccc, 0.8);
-        armorBox.fillRect(x + 75, y, 25, 25);
-        this.characterBar.add(armorBox);
-        this.characterBar.add(armorText);
-    };
-    this._createCharacterMinorActionBox = function (character, x, y) {
-        var charConfig = character.characterConfig,
-            minorActionsBox = this.scene.add.graphics(),
-            minorActionsText = this.scene.add.text(x + 75,
-                y + 50,
-                (charConfig.energy.max - charConfig.energy.spent),
-                { fill: '#FFF', fontSize: '18px' });
-        minorActionsBox.fillStyle(0xcccccc, 0.8);
-        minorActionsBox.fillRect(x + 75, y + 50, 25, 25);
-        this.characterBar.add(minorActionsBox);
-        this.characterBar.add(minorActionsText);
-    };
-    this._createMainAttackImage = function (character, x, y) {
-        var charConfig = character.characterConfig,
-            mainAttackImage = charConfig.energy.selectedAction
-                ? charConfig.energy.selectedAction.image
-                : charConfig.inventory.mainHand.image,
-            mainAttack = this.scene.add.image(x + 75, y + 75, mainAttackImage).setOrigin(0, 0);
-        mainAttack.displayWidth = 25;
-        mainAttack.displayHeight = 25;
-        mainAttack.objectToSend = character;
-        this.characterMainAttack.add(mainAttack);
-    };
     this._createInventorySlot = function (x, y, w, h, character, item) {
         var image = null,
             box = this.scene.add.graphics(),

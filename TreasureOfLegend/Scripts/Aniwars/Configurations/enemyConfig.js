@@ -67,7 +67,7 @@ export const EnemyConfig = {
         width: 50,
         level: 1,
         naturalArmor: 2,
-        life: '2d6',
+        life: '2d1',
         energy: 3,
         mana: '0d4',
         movement: 6,

@@ -377,6 +377,7 @@ export const Character = function(game) {
                 && lootbagConfig.inventory.feet.type === EnumHelper.inventoryEnum.defaultEquipment) {
                 this.game.activeMap.deadCharacters.remove(lootbag);
                 lootbag.destroy();
+                this.game.events.emit('showDeadCharacterInventory', lootbag);
                 this.game.events.emit('closeLootbag');
             }
             if (lootbagConfig.inventory.slots.items.length > 0) {

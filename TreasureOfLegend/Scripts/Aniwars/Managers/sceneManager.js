@@ -265,12 +265,14 @@ export const SceneManager = function (game) {
 
     // PRIVATE
     // INTERACTION -------------------------------------------------------------------------------------
-    this._moveCharacterOnClick = (tile, pointer) => {
+    this._moveCharacterOnClick = (tile) => {
         var actionId = this.game.activeCharacter.characterConfig.energy.actionId;
-        if (pointer.leftButtonDown() && actionId !== EnumHelper.actionEnum.inspect) {
-            this.game.characters.moveActiveCharacterToTile(tile);
-        } else if (pointer.leftButtonDown() && actionId === EnumHelper.actionEnum.inspect || pointer.rightButtonDown()) {
+        if (actionId === EnumHelper.actionEnum.inspect) {
+            this.game.activeCharacter.characterConfig.energy.actionId = -1;
+            this.game.activeCharacter.characterConfig.energy.selectedAction = null;
             this.game.events.emit('inspect', tile);
+        } else {
+            this.game.characters.moveActiveCharacterToTile(tile);
         }
     };
     this._hoverTile = (tile) => {
@@ -279,22 +281,26 @@ export const SceneManager = function (game) {
     this._hoverObject = (object) => {
         this.game.activeMap.highlightPathToObject(object);
     };
-    this._interactWithObject = (object, pointer) => {
+    this._interactWithObject = (object) => {
         var actionId = this.game.activeCharacter.characterConfig.energy.actionId;
-        if (pointer.leftButtonDown() && actionId !== EnumHelper.actionEnum.inspect) {
-            this.game.characters.interactWithObject(object);
-        } else if (pointer.leftButtonDown() && actionId === EnumHelper.actionEnum.inspect || pointer.rightButtonDown()) {
+        if (actionId === EnumHelper.actionEnum.inspect) {
+            this.game.activeCharacter.characterConfig.energy.actionId = -1;
+            this.game.activeCharacter.characterConfig.energy.selectedAction = null;
             this.game.events.emit('inspect', object);
+        } else {
+            this.game.characters.interactWithObject(object);
         }
     };
-    this._interactWithEnemy = (enemy, pointer) => {
+    this._interactWithEnemy = (enemy) => {
+        // TODO: Move to action manager?
         var actionId = this.game.activeCharacter.characterConfig.energy.actionId;
-        if (pointer.leftButtonDown() && actionId === EnumHelper.actionEnum.attackMainHand) {
+        if (actionId === EnumHelper.actionEnum.attackMainHand) {
             this.game.characters.interactWithEnemy(enemy);
-            // TODO: Emit event to dehilight button
-        } else if (pointer.leftButtonDown() && actionId === EnumHelper.actionEnum.inspect || pointer.rightButtonDown()) {
+        } else if (actionId === EnumHelper.actionEnum.inspect) {
+            this.game.activeCharacter.characterConfig.energy.actionId = -1;
+            this.game.activeCharacter.characterConfig.energy.selectedAction = null;
             // TODO: Show enemy description?
-        } else if (pointer.leftButtonDown()) {
+        } else {
             this._showCharacterInventory(enemy);
         }
     };
@@ -307,12 +313,12 @@ export const SceneManager = function (game) {
     this._hoverItem = (item) => {
         this.game.activeMap.highlightPathToItem(item);
     };
-    this._pickUpItem = (item, pointer) => {
+    this._pickUpItem = (item) => {
         var actionId = this.game.activeCharacter.characterConfig.energy.actionId;
-        if (pointer.leftButtonDown() && actionId !== EnumHelper.actionEnum.inspect) {
-            this.game.characters.pickUpItem(item);
-        } else if (pointer.leftButtonDown() && actionId === EnumHelper.actionEnum.inspect || pointer.rightButtonDown()) {
+        if (actionId === EnumHelper.actionEnum.inspect) {
             // TODO: Show item description
+        } else {
+            this.game.characters.pickUpItem(item);
         }
     };
     this._leaveTile = () => {
