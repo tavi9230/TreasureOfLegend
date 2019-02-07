@@ -15,6 +15,7 @@
         game.load.image('castleDoor', AssetFolder + 'castledoors.png');
         game.load.image('castleDoorVertical', AssetFolder + 'castledoorsVertical.png');
 
+        game.load.image('characterFrame', AssetFolder + 'frame.png');
         game.load.image('character1', AssetFolder + 'char01_0000.png');
         game.load.image('character2', AssetFolder + 'char02_0000.png');
         game.load.image('character3', AssetFolder + 'char03_0000.png');

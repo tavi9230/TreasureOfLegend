@@ -1,9 +1,9 @@
-﻿import {Pathfinder} from 'Aniwars/Helpers/pathfinder';
-import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
-import {ActionManager} from 'Aniwars/Managers/actionManager';
-import {InventoryConfig} from 'Aniwars/Configurations/inventoryConfig';
+﻿import { Pathfinder } from 'Aniwars/Helpers/pathfinder';
+import { EnumHelper } from 'Aniwars/Helpers/enumHelper';
+import { ActionManager } from 'Aniwars/Managers/actionManager';
+import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
 
-export const Enemy = function(game) {
+export const Enemy = function (game) {
     var actionManager = new ActionManager(game);
 
     this.characterConfig = {
@@ -118,8 +118,8 @@ export const Enemy = function(game) {
             charConfig.inventory.hands.armor +
             charConfig.inventory.feet.armor +
             (charConfig.inventory.offHand.armor
-            ? charConfig.inventory.offHand.armor
-            : 0) + charConfig.naturalArmor;
+                ? charConfig.inventory.offHand.armor
+                : 0) + charConfig.naturalArmor;
 
         charConfig.resistances = config.resistances;
         charConfig.vulnerabilities = config.vulnerabilities;
@@ -138,50 +138,25 @@ export const Enemy = function(game) {
 
     this.moveActiveCharacterToPosition = (x, y) => {
         var currentCharacter = this.game.activeCharacter,
-            charConfig = currentCharacter.characterConfig;
+            charConfig = currentCharacter.characterConfig,
+            self = this;
         if (!charConfig.movement.isMoving && (currentCharacter.x !== x || currentCharacter.y !== y)) {
             // Move if tile is unoccupied
             if (!this._isTileOccupied(x, y)) {
                 charConfig.movement.spent++;
                 charConfig.movement.isMoving = true;
-                if (x > currentCharacter.x && y > currentCharacter.y) {
-                    currentCharacter.setVelocity(charConfig.velocity,
-                        charConfig.velocity);
-                } else if (x < currentCharacter.x && y < currentCharacter.y) {
-                    currentCharacter.setVelocity(-1 * charConfig.velocity,
-                        -1 * charConfig.velocity);
-                } else if (x < currentCharacter.x && y > currentCharacter.y) {
-                    currentCharacter.setVelocity(-1 * charConfig.velocity,
-                        charConfig.velocity);
-                } else if (x > currentCharacter.x && y < currentCharacter.y) {
-                    currentCharacter.setVelocity(charConfig.velocity,
-                        -1 * charConfig.velocity);
-                } else if (x > currentCharacter.x) {
-                    currentCharacter.setVelocityX(charConfig.velocity);
-                } else if (x < currentCharacter.x) {
-                    currentCharacter.setVelocityX(-1 * charConfig.velocity);
-                } else if (y > currentCharacter.y) {
-                    currentCharacter.setVelocityY(charConfig.velocity);
-                } else if (y < currentCharacter.y) {
-                    currentCharacter.setVelocityY(-1 * charConfig.velocity);
-                }
+                var tile = this.game.activeMap.tiles.getChildren().find(function (tile) {
+                    return tile.x === x && tile.y === y;
+                });
+                this.game.physics.moveToObject(currentCharacter, tile, 100);
+                setTimeout(function () {
+                    charConfig.movement.isMoving = false;
+                    currentCharacter.setVelocity(0, 0);
+                    currentCharacter.x = x;
+                    currentCharacter.y = y;
+                    self.game.events.emit('showCharacterInitiative', self.game.initiative);
+                }, 500);
             }
-        }
-    };
-
-    this.stopActiveCharacter = () => {
-        var currentCharacter = this.game.activeCharacter,
-            charConfig = currentCharacter.characterConfig;
-        //reduce speed on X
-        this._reduceSpeedX(currentCharacter);
-
-        //reduce speed on Y
-        this._reduceSpeedY(currentCharacter);
-
-        if (currentCharacter.x === charConfig.posX &&
-            currentCharacter.y === charConfig.posY ) {
-            charConfig.movement.isMoving = false;
-            charConfig.path.shift();
         }
     };
 
@@ -189,7 +164,7 @@ export const Enemy = function(game) {
         var currentCharacter = this.game.activeCharacter;
         var paths = [];
         var auxMap = this.game.activeMap.addEnemiesToMap(this.game.characters);
-        _.each(this.game.characters.characters.getChildren(), function(character) {
+        _.each(this.game.characters.characters.getChildren(), function (character) {
             auxMap[character.y / 50][character.x / 50] = 0;
             var path = Pathfinder.findWay(currentCharacter.x / 50,
                 currentCharacter.y / 50,
@@ -203,7 +178,7 @@ export const Enemy = function(game) {
                 }
             }
         });
-        paths.sort(function(a, b) {
+        paths.sort(function (a, b) {
             if (a.path.length > b.path.length) {
                 return 1;
             } else if (a.path.length < b.path.length) {
@@ -218,7 +193,7 @@ export const Enemy = function(game) {
         var currentCharacter = this.game.activeCharacter;
         var paths = [];
         var auxMap = this.game.activeMap.addEnemiesToMap(this.game.characters);
-        _.each(this.game.activeMap.objects.getChildren(), function(object) {
+        _.each(this.game.activeMap.objects.getChildren(), function (object) {
             if (Math.floor(object.objectConfig.id) === Math.floor(EnumHelper.idEnum.door.id)) {
                 if (!object.objectConfig.isActivated) {
                     auxMap[object.y / 50][object.x / 50] = 0;
@@ -236,7 +211,7 @@ export const Enemy = function(game) {
                 }
             }
         });
-        paths.sort(function(a, b) {
+        paths.sort(function (a, b) {
             if (a.path.length > b.path.length) {
                 return 1;
             } else if (a.path.length < b.path.length) {
@@ -265,66 +240,20 @@ export const Enemy = function(game) {
     };
 
     // Private -----------------------------------------------------------------------------------------------------
-    this._reduceSpeedX = function(currentCharacter) {
-        var charConfig = currentCharacter.characterConfig;
-        if (Math.abs(currentCharacter.x - charConfig.posX) <= 100 &&
-            Math.abs(currentCharacter.x - charConfig.posX) > 30) {
-            currentCharacter.x > charConfig.posX
-                ? currentCharacter.setVelocityX(-150)
-                : currentCharacter.setVelocityX(150);
-        } else if (Math.abs(currentCharacter.x - charConfig.posX) <= 30 &&
-            Math.abs(currentCharacter.x - charConfig.posX) > 5) {
-            currentCharacter.x > charConfig.posX
-                ? currentCharacter.setVelocityX(-90)
-                : currentCharacter.setVelocityX(90);
-        } else if (Math.abs(currentCharacter.x - charConfig.posX) <= 5 &&
-            Math.abs(currentCharacter.x - charConfig.posX) > 1) {
-            currentCharacter.x > charConfig.posX
-                ? currentCharacter.setVelocityX(-45)
-                : currentCharacter.setVelocityX(45);
-        } else if (Math.abs(currentCharacter.x - charConfig.posX) < 1) {
-            currentCharacter.setVelocityX(0);
-            currentCharacter.x = charConfig.posX;
-        }
-    };
-
-    this._reduceSpeedY = function(currentCharacter) {
-        var charConfig = currentCharacter.characterConfig;
-        if (Math.abs(currentCharacter.y - charConfig.posY) <= 100 &&
-            Math.abs(currentCharacter.y - charConfig.posY) > 30) {
-            currentCharacter.y > charConfig.posY
-                ? currentCharacter.setVelocityY(-150)
-                : currentCharacter.setVelocityY(150);
-        } else if (Math.abs(currentCharacter.y - charConfig.posY) <= 30 &&
-            Math.abs(currentCharacter.y - charConfig.posY) > 10) {
-            currentCharacter.y > charConfig.posY
-                ? currentCharacter.setVelocityY(-90)
-                : currentCharacter.setVelocityY(90);
-        } else if (Math.abs(currentCharacter.y - charConfig.posY) <= 10 &&
-            Math.abs(currentCharacter.y - charConfig.posY) > 1) {
-            currentCharacter.y > charConfig.posY
-                ? currentCharacter.setVelocityY(-45)
-                : currentCharacter.setVelocityY(45);
-        } else if (Math.abs(currentCharacter.y - charConfig.posY) < 1) {
-            currentCharacter.setVelocityY(0);
-            currentCharacter.y = charConfig.posY;
-        }
-    };
-
     this._isTileOccupied = (posX, posY) => {
-        var isObstacleInTheWay = this.game.characters.characters.getChildren().filter(function(character) {
+        var isObstacleInTheWay = this.game.characters.characters.getChildren().filter(function (character) {
             return character.x === posX && character.y === posY;
         });
         if (isObstacleInTheWay.length > 0) {
             return true;
         }
-        isObstacleInTheWay = this.game.enemies.characters.getChildren().filter(function(enemy) {
+        isObstacleInTheWay = this.game.enemies.characters.getChildren().filter(function (enemy) {
             return enemy.x === posX && enemy.y === posY;
         });
         if (isObstacleInTheWay.length > 0) {
             return true;
         }
-        isObstacleInTheWay = this.game.activeMap.objects.getChildren().filter(function(object) {
+        isObstacleInTheWay = this.game.activeMap.objects.getChildren().filter(function (object) {
             if (object.x === posX && object.y === posY) {
                 //if object is a door check if it is open/activated
                 if (Math.floor(object.objectConfig.id) === Math.floor(EnumHelper.idEnum.door.id) && !object.objectConfig.isActivated) {
@@ -345,42 +274,41 @@ export const Enemy = function(game) {
             enemies = this.game.enemies;
         // If enemy has movement left
         if (charConfig.movement.max - charConfig.movement.spent > 0) {
-            if (charConfig.movement.isMoving) {
-                enemies.stopActiveCharacter();
-            }
-            // If it does not have a path
-            if (charConfig.path.length === 0) {
-                var paths = enemies.getPathsToEnemies();
-                if (paths.length > 0 && paths[0].path.length > 0) {
-                    // Get the path to the closest character
-                    charConfig.path = paths[0].path;
-                    charConfig.posX = charConfig.path[0][0] * 50;
-                    charConfig.posY = charConfig.path[0][1] * 50;
-                    // And move
-                    enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
-                } else {
-                    // If no path is found to a character it might mean we are stuck in a room
-                    paths = enemies.getPathsToClosestDoor();
+            if (!charConfig.movement.isMoving) {
+                // If it does not have a path
+                if (charConfig.path.length === 0) {
+                    var paths = enemies.getPathsToEnemies();
                     if (paths.length > 0 && paths[0].path.length > 0) {
+                        // Get the path to the closest character
                         charConfig.path = paths[0].path;
                         charConfig.posX = charConfig.path[0][0] * 50;
                         charConfig.posY = charConfig.path[0][1] * 50;
+                        charConfig.path.shift();
+                        // And move
                         enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
+                    } else {
+                        // If no path is found to a character it might mean we are stuck in a room
+                        paths = enemies.getPathsToClosestDoor();
+                        if (paths.length > 0 && paths[0].path.length > 0) {
+                            charConfig.path = paths[0].path;
+                            charConfig.posX = charConfig.path[0][0] * 50;
+                            charConfig.posY = charConfig.path[0][1] * 50;
+                            charConfig.path.shift();
+                            enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
+                        }
                     }
+                } else {
+                    // Move on the path
+                    var path = charConfig.path;
+                    charConfig.posX = charConfig.path[0][0] * 50;
+                    charConfig.posY = charConfig.path[0][1] * 50;
+                    charConfig.path.shift();
+                    enemies.moveActiveCharacterToPosition(path[0][0] * 50, path[0][1] * 50);
                 }
-            } else {
-                // Move on the path
-                var path = charConfig.path;
-                charConfig.posX = charConfig.path[0][0] * 50;
-                charConfig.posY = charConfig.path[0][1] * 50;
-                enemies.moveActiveCharacterToPosition(path[0][0] * 50, path[0][1] * 50);
             }
         } else {
             // If no more movement, remove path in case player characters move
             charConfig.path = [];
-            if (charConfig.movement.isMoving) {
-                enemies.stopActiveCharacter();
-            }
         }
 
         if (!charConfig.movement.isMoving) {
@@ -389,14 +317,25 @@ export const Enemy = function(game) {
             // If enemy cannot move, try attacking
             if (charConfig.energy.max - charConfig.energy.spent > 1) {
                 var closestEnemy = enemies.getPathsToEnemies();
-                if (closestEnemy.length > 0) {
-                    if (closestEnemy[0].path.length <= charConfig.inventory.mainHand.range &&
-                        !charConfig.inventory.offHand.armor) {
-                        enemies.interactWithEnemy(closestEnemy[0].enemy);
-                        hasAttacked = true;
-                    } else {
-                        // TODO: Drop shield or put in inventory if you can and then attack
+                if (closestEnemy.length > 0 && closestEnemy[0].path.length <= charConfig.inventory.mainHand.range) {
+                    if (charConfig.inventory.mainHand.hold === 2 && charConfig.inventory.offHand.armor) {
+                        // TODO: Drop offhand if it is an armor (or put in inventory if you can?) and then attack
+                        var item = charConfig.inventory.offHand,
+                            itemImage = this.game.physics.add.sprite(currentCharacter.x, currentCharacter.y, item.image).setOrigin(0, 0);
+                        itemImage.displayWidth = 50;
+                        itemImage.displayHeight = 50;
+                        itemImage.width = 50;
+                        itemImage.height = 50;
+                        this.game.input.setHitArea([itemImage]);
+                        itemImage.on('pointerdown', _.bind(this.game.sceneManager._pickUpItem, self, itemImage));
+                        itemImage.on('pointerover', _.bind(this.game.sceneManager._hoverItem, self, itemImage));
+                        itemImage.itemConfig = lodash.cloneDeep(item);
+                        this.game.items.add(itemImage);
+                        charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
+                        currentCharacter.setDepth(1);
                     }
+                    this.interactWithEnemy(closestEnemy[0].enemy);
+                    hasAttacked = true;
                 }
             }
             // or opening a door
@@ -404,7 +343,7 @@ export const Enemy = function(game) {
                 var closestDoor = enemies.getPathsToClosestDoor();
                 if (closestDoor.length > 0) {
                     if (closestDoor[0].path.length === 1) {
-                        enemies.interactWithObject(closestDoor[0].object);
+                        this.interactWithObject(closestDoor[0].object);
                         hasInteracted = true;
                     }
                 }

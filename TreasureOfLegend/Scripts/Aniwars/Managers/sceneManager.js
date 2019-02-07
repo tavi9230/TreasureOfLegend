@@ -308,7 +308,6 @@ export const SceneManager = function (game) {
         if (!character.characterConfig.isPlayerControlled) {
             this.game.activeMap.highlightPathToEnemy(character);
         }
-        this._showQuickStats(character);
     };
     this._hoverItem = (item) => {
         this.game.activeMap.highlightPathToItem(item);
@@ -329,38 +328,6 @@ export const SceneManager = function (game) {
     };
     this._unhoverCharacter = () => {
         this.game.events.emit('closeInspect');
-        this._hideQuickStats();
-    };
-    this._showQuickStats = (character) => {
-        if (this.characterQuickStats) {
-            this.characterQuickStats.destroy(true);
-            this.characterQuickStats = null;
-        }
-        this.characterQuickStats = this.game.add.group();
-        var textStyle = {
-            fontSize: 20,
-            wordWrap: { width: 96, useAdvancedWrap: true }
-        },
-            charConfig = character.characterConfig;
-        this._createQuickStatIcon(character.x - 15, character.y - 35, 'healthIcon', charConfig.life.current, textStyle);
-        this._createQuickStatIcon(character.x + 20, character.y - 35, 'manaIcon', (charConfig.mana.max - charConfig.mana.spent), textStyle);
-        this._createQuickStatIcon(character.x + 55, character.y - 35, 'armorIcon', charConfig.armor, textStyle);
-        this._createQuickStatIcon(character.x, character.y + 55, 'movementIcon', (charConfig.movement.max - charConfig.movement.spent), textStyle);
-        this._createQuickStatIcon(character.x + 35, character.y + 55, 'energyIcon', (charConfig.energy.max - charConfig.energy.spent), textStyle);
-    };
-    this._hideQuickStats = () => {
-        if (this.characterQuickStats) {
-            this.characterQuickStats.destroy(true);
-            this.characterQuickStats = null;
-        }
-    };
-    this._createQuickStatIcon = (x, y, imageName, value, style) => {
-        var image = this.game.add.image(x, y, imageName).setOrigin(0, 0),
-            text = this.game.add.text(value < 10 && value > -10 ? x + 10 : x + 3, y + 7, value, style);
-        image.displayHeight = 30;
-        image.displayWidth = 30;
-        this.characterQuickStats.add(image);
-        this.characterQuickStats.add(text);
     };
 
     this._showCharacterInventory = (character) => {

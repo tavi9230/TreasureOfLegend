@@ -1,8 +1,8 @@
-﻿import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
-import {Pathfinder} from 'Aniwars/Helpers/pathfinder';
-import {InventoryConfig} from 'Aniwars/Configurations/inventoryConfig';
-import {EnergyConfig} from 'Aniwars/Configurations/energyConfig';
-import {EnemyConfig} from 'Aniwars/Configurations/enemyConfig';
+﻿import { EnumHelper } from 'Aniwars/Helpers/enumHelper';
+import { Pathfinder } from 'Aniwars/Helpers/pathfinder';
+import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
+import { EnergyConfig } from 'Aniwars/Configurations/energyConfig';
+import { EnemyConfig } from 'Aniwars/Configurations/enemyConfig';
 
 export const ActionManager = function (game) {
     this.game = game;
@@ -104,8 +104,9 @@ export const ActionManager = function (game) {
             } else if (enemyCharConfig.naturalArmor > 0) {
                 enemyCharConfig.naturalArmor--;
             }
+            this._showBrokenArmor(enemy, 1);
         } else {
-            _.each(charConfig.inventory.mainHand.damage, function(damage) {
+            _.each(charConfig.inventory.mainHand.damage, function (damage) {
                 var attackDamage = Math.floor(Math.random() * damage.value) + 1 + Math.floor(attackAttribute / 2);
                 if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === - 1) {
                     if (enemyCharConfig.resistances.indexOf(damage.type) !== - 1) {
@@ -118,8 +119,10 @@ export const ActionManager = function (game) {
                 }
                 if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                     self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2));
+                    self._showBrokenArmor(enemy, Math.ceil(attackDamage / 2));
                 } else if (enemyCharConfig.naturalArmor > 0) {
                     enemyCharConfig.naturalArmor -= Math.ceil(attackDamage / 2);
+                    self._showBrokenArmor(enemy, Math.ceil(attackDamage / 2));
                     if (enemyCharConfig.naturalArmor < 0) {
                         enemyCharConfig.naturalArmor = 0;
                     }
@@ -131,8 +134,8 @@ export const ActionManager = function (game) {
             enemyCharConfig.inventory.hands.armor +
             enemyCharConfig.inventory.feet.armor +
             (enemyCharConfig.inventory.offHand.armor
-            ? enemyCharConfig.inventory.offHand.armor
-            : 0) + enemyCharConfig.naturalArmor;
+                ? enemyCharConfig.inventory.offHand.armor
+                : 0) + enemyCharConfig.naturalArmor;
 
         charConfig.energy.spent += EnergyConfig.attackMainHand.cost;
 
@@ -145,13 +148,13 @@ export const ActionManager = function (game) {
             enemyCharConfig = enemy.characterConfig,
             d20 = Math.floor(Math.random() * 20) + 1 + charConfig.attributes.intelligence;
         if (d20 <= enemyCharConfig.armor) {
-            if (enemyCharConfig.armor - enemyCharConfig.naturalArmor> 0) {
+            if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                 this._removeArmorPointsFromEquippedInventory(enemy, 1);
             } else if (enemyCharConfig.naturalArmor > 0) {
                 enemyCharConfig.naturalArmor--;
             }
         } else {
-            _.each(charConfig.energy.selectedAction.damage, function(damage) {
+            _.each(charConfig.energy.selectedAction.damage, function (damage) {
                 var attackDamage = Math.floor(Math.random() * damage.value * Math.ceil(charConfig.energy.selectedAction.level / 2)) + 1 + Math.floor(charConfig.attributes.intelligence / 2);
                 if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === - 1) {
                     if (enemyCharConfig.resistances.indexOf(damage.type) !== - 1) {
@@ -177,8 +180,8 @@ export const ActionManager = function (game) {
             enemyCharConfig.inventory.hands.armor +
             enemyCharConfig.inventory.feet.armor +
             (enemyCharConfig.inventory.offHand.armor
-            ? enemyCharConfig.inventory.offHand.armor
-            : 0) + enemyCharConfig.naturalArmor;
+                ? enemyCharConfig.inventory.offHand.armor
+                : 0) + enemyCharConfig.naturalArmor;
 
         charConfig.energy.spent += EnergyConfig.attackSpell.cost;
         charConfig.mana.spent += charConfig.energy.selectedAction.cost;
@@ -193,7 +196,7 @@ export const ActionManager = function (game) {
         var self = this,
             isNotBlocked = true,
             linePoints = this._supercoverLine(character, enemy);
-        _.each(linePoints, function(point) {
+        _.each(linePoints, function (point) {
             if (self.game.activeMap.levelMap[point.y / 50][point.x / 50] !== 0) {
                 isNotBlocked = false;
             }
@@ -202,7 +205,7 @@ export const ActionManager = function (game) {
         return isNotBlocked;
     };
 
-    this._supercoverLine = function(character, enemy) {
+    this._supercoverLine = function (character, enemy) {
         var dx = enemy.x - character.x,
             dy = enemy.y - character.y,
             nx = Math.abs(dx),
@@ -231,7 +234,7 @@ export const ActionManager = function (game) {
                 iy++;
             }
             if (p.x % 10 === 0 && p.y % 10 === 0) {
-                if (!points.find( function(point) {
+                if (!points.find(function (point) {
                     return point.x === Math.floor(p.x / 50) * 50 &&
                         point.y === Math.floor(p.y / 50) * 50;
                 })) {
@@ -273,14 +276,14 @@ export const ActionManager = function (game) {
                 this.game.activeMap.deadCharacters.add(lootbag);
                 // TODO: Check if this is overridden with each killed enemy
                 this.game.input.setHitArea(this.game.activeMap.deadCharacters.getChildren());
-                lootbag.on('pointerdown', function() {
+                lootbag.on('pointerdown', function () {
                     if (self.game.activeCharacter.characterConfig.isPlayerControlled) {
                         self.game.characters.interactWithObject(lootbag);
                     }
                 });
             }
             if (!charConfig.isPlayerControlled) {
-                _.each(this.game.characters.characters.getChildren(), function(character) {
+                _.each(this.game.characters.characters.getChildren(), function (character) {
                     character.characterConfig.experience.current += Math.floor(enemy.characterConfig.experience / self.game.characters.characters.getChildren().length);
                     var difference = Math.floor(character.characterConfig.experience.current - character.characterConfig.experience.nextLevel);
                     if (difference >= 0) {
@@ -315,8 +318,8 @@ export const ActionManager = function (game) {
                             y;
                         while (!positionFound) {
                             x = Math.floor(Math.random() * this.game.activeMap.levelMap[0].length) * 50,
-                            y = Math.floor(Math.random() * this.game.activeMap.levelMap.length) * 50;
-                            var tiles = this.game.activeMap.tiles.getChildren().filter(function(object) {
+                                y = Math.floor(Math.random() * this.game.activeMap.levelMap.length) * 50;
+                            var tiles = this.game.activeMap.tiles.getChildren().filter(function (object) {
                                 return object.x === x && object.y === y;
                             });
                             if (tiles.length > 0) {
@@ -343,8 +346,8 @@ export const ActionManager = function (game) {
         // Check if in range
         var charConfig = character.characterConfig;
         if (Math.abs(character.x - enemy.x) <= 50 * charConfig.inventory.mainHand.range &&
-           Math.abs(character.y - enemy.y) <= 50 * charConfig.inventory.mainHand.range &&
-           (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)
+            Math.abs(character.y - enemy.y) <= 50 * charConfig.inventory.mainHand.range &&
+            (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)
             && charConfig.energy.max - EnergyConfig.attackMainHand.cost >= charConfig.energy.spent) {
             // If weapon is held with two hands check to have nothing in the offhand.
             // If it is a projectile weapon it can have projectiles in offhand
@@ -363,7 +366,7 @@ export const ActionManager = function (game) {
                 }
             }
         }
-            // Otherwise move near the object and try again
+        // Otherwise move near the object and try again
         else {
             this._tryMovingCharacter(character, enemy);
         }
@@ -467,5 +470,21 @@ export const ActionManager = function (game) {
             character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(character.characterConfig.inventory.feet));
             character.characterConfig.inventory.feet = lodash.cloneDeep(InventoryConfig.defaultFeet);
         }
+    };
+
+    this._showBrokenArmor = (enemy, text) => {
+        var textStyle = {
+            fontSize: 20,
+            wordWrap: { width: 96, useAdvancedWrap: true }
+        },
+            armorIcon = this.game.physics.add.sprite(enemy.x + 17, enemy.y - 20, 'armorIcon').setOrigin(0, 0),
+            armorText = this.game.add.text(armorIcon.x + 7, armorIcon.y + 3, -text, textStyle);
+        armorIcon.displayHeight = 30;
+        armorIcon.displayWidth = 30;
+        //this.game.physics.moveTo(armorIcon, enemy.x + 17, enemy.y - 80, 2, 2000);
+        setTimeout(function () {
+            armorIcon.destroy();
+            armorText.destroy();
+        }, 850);
     };
 };

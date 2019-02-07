@@ -1,11 +1,11 @@
-﻿import {Pathfinder} from 'Aniwars/Helpers/pathfinder';
-import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
-import {ActionManager} from 'Aniwars/Managers/actionManager';
-import {InventoryConfig} from 'Aniwars/Configurations/inventoryConfig';
-import {SpellsConfig} from 'Aniwars/Configurations/spellsConfig';
-import {EnergyConfig} from 'Aniwars/Configurations/energyConfig';
+﻿import { Pathfinder } from 'Aniwars/Helpers/pathfinder';
+import { EnumHelper } from 'Aniwars/Helpers/enumHelper';
+import { ActionManager } from 'Aniwars/Managers/actionManager';
+import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
+import { SpellsConfig } from 'Aniwars/Configurations/spellsConfig';
+import { EnergyConfig } from 'Aniwars/Configurations/energyConfig';
 
-export const Character = function(game) {
+export const Character = function (game) {
     var actionManager = new ActionManager(game);
 
     this.characterConfig = {
@@ -93,8 +93,8 @@ export const Character = function(game) {
             charConfig.inventory.hands.armor +
             charConfig.inventory.feet.armor +
             (charConfig.inventory.offHand.armor
-            ? charConfig.inventory.offHand.armor
-            : 0) + charConfig.naturalArmor;
+                ? charConfig.inventory.offHand.armor
+                : 0) + charConfig.naturalArmor;
         this.characters.add(character);
     };
 
@@ -108,34 +108,6 @@ export const Character = function(game) {
         var posX = object ? object.x : pathX * 50,
             posY = object ? object.y : pathY * 50;
         this._moveActiveCharacter(posX, posY);
-    };
-
-    this.stopActiveCharacter = () => {
-        var currentCharacter = this.game.activeCharacter,
-            charConfig = currentCharacter.characterConfig;
-        //reduce speed on X
-        this._reduceSpeedX(currentCharacter);
-
-        //reduce speed on Y
-        this._reduceSpeedY(currentCharacter);
-
-        //show grid if stopped
-        if (currentCharacter.x === charConfig.posX &&
-            currentCharacter.y === charConfig.posY && !this.game.activeMap.isMovementGridShown) {
-            if (charConfig.path.length === 0) {
-                this.game.activeMap.showMovementGrid(currentCharacter);
-                this._checkIfObjectInteractionInProgress(charConfig.energy.inProgress);
-            }
-            charConfig.movement.isMoving = false;
-        }
-    };
-
-    this.keepMovingActiveCharacter = () => {
-        var currentCharacter = this.game.activeCharacter,
-            charConfig = currentCharacter.characterConfig;
-        if (!charConfig.movement.isMoving && charConfig.path.length > 0) {
-            this._moveCharacter(currentCharacter);
-        }
     };
 
     this.interactWithObject = (object) => {
@@ -158,10 +130,10 @@ export const Character = function(game) {
                 }
             } else if (Math.floor(object.objectConfig.id) === EnumHelper.idEnum.well.id) {
                 var XY = Math.abs(character.x - object.x) <= 50 &&
-                        Math.abs(character.y - object.y) <= 50 &&
-                        (Math.abs(character.x - object.x) > 0 || Math.abs(character.y - object.y) > 0),
+                    Math.abs(character.y - object.y) <= 50 &&
+                    (Math.abs(character.x - object.x) > 0 || Math.abs(character.y - object.y) > 0),
                     plusXY = Math.abs(character.x - (object.x + (object.width / 2))) <= 50 && Math.abs(character.y - object.y) <= 50 &&
-                    (Math.abs(character.x - (object.x + (object.width / 2))) > 0 || Math.abs(character.y - object.y)) > 0,
+                        (Math.abs(character.x - (object.x + (object.width / 2))) > 0 || Math.abs(character.y - object.y)) > 0,
                     XplusY = Math.abs(character.x - object.x) <= 50 && Math.abs(character.y - (object.y + (object.height / 2))) <= 50 &&
                         (Math.abs(character.x - object.x) > 0 || Math.abs(character.y - (object.y + (object.height / 2)))) > 0,
                     plusXplusY = Math.abs(character.x - (object.x + (object.width / 2))) <= 50 && Math.abs(character.y - (object.y + (object.height / 2))) <= 50 &&
@@ -209,13 +181,10 @@ export const Character = function(game) {
     };
 
     this.check = () => {
-        var charConfig = this.game.activeCharacter.characterConfig;
-        if (charConfig.movement.isMoving) {
-            this.game.events.emit('activeCharacterPositionModified', this.game.activeCharacter);
-            this.game.characters.stopActiveCharacter();
-        } else if (!charConfig.movement.isMoving &&
-            charConfig.path.length > 0) {
-            this.game.characters.keepMovingActiveCharacter();
+        var currentCharacter = this.game.activeCharacter,
+            charConfig = currentCharacter.characterConfig;
+        if (!charConfig.movement.isMoving && charConfig.path.length > 0) {
+            this._moveCharacter(currentCharacter);
         }
     };
 
@@ -430,75 +399,30 @@ export const Character = function(game) {
     };
 
     // Private -----------------------------------------------------------------------------------------------------
-    this._moveCharacter = function(currentCharacter) {
-        var charConfig = currentCharacter.characterConfig;
+    this._moveCharacter = function (currentCharacter) {
+        var charConfig = currentCharacter.characterConfig,
+            self = this;
         charConfig.movement.spent++;
         charConfig.movement.isMoving = true;
         charConfig.posX = charConfig.path[0][0] * 50;
         charConfig.posY = charConfig.path[0][1] * 50;
         charConfig.path.shift();
-        if (charConfig.posX > currentCharacter.x && charConfig.posY > currentCharacter.y) {
-            currentCharacter.setVelocity(charConfig.velocity, charConfig.velocity);
-        } else if (charConfig.posX < currentCharacter.x && charConfig.posY < currentCharacter.y) {
-            currentCharacter.setVelocity(-1 * charConfig.velocity, -1 * charConfig.velocity);
-        } else if (charConfig.posX < currentCharacter.x && charConfig.posY > currentCharacter.y) {
-            currentCharacter.setVelocity(-1 * charConfig.velocity, charConfig.velocity);
-        } else if (charConfig.posX > currentCharacter.x && charConfig.posY < currentCharacter.y) {
-            currentCharacter.setVelocity(charConfig.velocity, -1 * charConfig.velocity);
-        } else if (charConfig.posX > currentCharacter.x) {
-            currentCharacter.setVelocityX(charConfig.velocity);
-        } else if (charConfig.posX < currentCharacter.x) {
-            currentCharacter.setVelocityX(-1 * charConfig.velocity);
-        } else if (charConfig.posY > currentCharacter.y) {
-            currentCharacter.setVelocityY(charConfig.velocity);
-        } else if (charConfig.posY < currentCharacter.y) {
-            currentCharacter.setVelocityY(-1 * charConfig.velocity);
-        }
-    };
-
-    this._reduceSpeedX = function(currentCharacter) {
-        var charConfig = currentCharacter.characterConfig;
-        if (Math.abs(currentCharacter.x - charConfig.posX) <= 100 &&
-            Math.abs(currentCharacter.x - charConfig.posX) > 30) {
-            currentCharacter.x > charConfig.posX
-                ? currentCharacter.setVelocityX(-150)
-                : currentCharacter.setVelocityX(150);
-        } else if (Math.abs(currentCharacter.x - charConfig.posX) <= 30 &&
-            Math.abs(currentCharacter.x - charConfig.posX) > 5) {
-            currentCharacter.x > charConfig.posX
-                ? currentCharacter.setVelocityX(-90)
-                : currentCharacter.setVelocityX(90);
-        } else if (Math.abs(currentCharacter.x - charConfig.posX) <= 5 &&
-            Math.abs(currentCharacter.x - charConfig.posX) > 1) {
-            currentCharacter.x > charConfig.posX
-                ? currentCharacter.setVelocityX(-45)
-                : currentCharacter.setVelocityX(45);
-        } else if (Math.abs(currentCharacter.x - charConfig.posX) < 1) {
-            currentCharacter.setVelocityX(0);
-            currentCharacter.x = charConfig.posX;
-        }
-    };
-
-    this._reduceSpeedY = function(currentCharacter) {
-        var charConfig = currentCharacter.characterConfig;
-        if (Math.abs(currentCharacter.y - charConfig.posY) <= 100 &&
-            Math.abs(currentCharacter.y - charConfig.posY) > 30) {
-            currentCharacter.y > charConfig.posY
-                ? currentCharacter.setVelocityY(-150)
-                : currentCharacter.setVelocityY(150);
-        } else if (Math.abs(currentCharacter.y - charConfig.posY) <= 30 &&
-            Math.abs(currentCharacter.y - charConfig.posY) > 10) {
-            currentCharacter.y > charConfig.posY
-                ? currentCharacter.setVelocityY(-90)
-                : currentCharacter.setVelocityY(90);
-        } else if (Math.abs(currentCharacter.y - charConfig.posY) <= 10 &&
-            Math.abs(currentCharacter.y - charConfig.posY) > 1) {
-            currentCharacter.y > charConfig.posY
-                ? currentCharacter.setVelocityY(-45)
-                : currentCharacter.setVelocityY(45);
-        } else if (Math.abs(currentCharacter.y - charConfig.posY) < 1) {
-            currentCharacter.setVelocityY(0);
-            currentCharacter.y = charConfig.posY;
+        var tile = this.game.activeMap.tiles.getChildren().find(function (tile) {
+            return tile.x === charConfig.posX && tile.y === charConfig.posY;
+        });
+        if (tile) {
+            this.game.physics.moveToObject(currentCharacter, tile, 100);
+            setTimeout(function () {
+                charConfig.movement.isMoving = false;
+                currentCharacter.setVelocity(0, 0);
+                currentCharacter.x = charConfig.posX;
+                currentCharacter.y = charConfig.posY;
+                if (charConfig.path.length === 0) {
+                    self.game.activeMap.showMovementGrid(currentCharacter);
+                    self._checkIfObjectInteractionInProgress(charConfig.energy.inProgress);
+                }
+                self.game.events.emit('showCharacterInitiative', self.game.initiative);
+            }, 500);
         }
     };
 
@@ -533,20 +457,20 @@ export const Character = function(game) {
     this._isTileOccupied = (posX, posY) => {
         var isObstacleInTheWay;
         if (this.game.enemies) {
-            isObstacleInTheWay = this.game.enemies.characters.getChildren().filter(function(enemy) {
+            isObstacleInTheWay = this.game.enemies.characters.getChildren().filter(function (enemy) {
                 return enemy.x === posX && enemy.y === posY;
             });
             if (isObstacleInTheWay.length > 0) {
                 return true;
             }
         }
-        isObstacleInTheWay = this.game.characters.characters.getChildren().filter(function(character) {
+        isObstacleInTheWay = this.game.characters.characters.getChildren().filter(function (character) {
             return character.x === posX && character.y === posY;
         });
         if (isObstacleInTheWay.length > 0) {
             return true;
         }
-        isObstacleInTheWay = this.game.activeMap.objects.getChildren().filter(function(object) {
+        isObstacleInTheWay = this.game.activeMap.objects.getChildren().filter(function (object) {
             if (object.x === posX && object.y === posY) {
                 //if object is a door check if it is open/activated
                 if (Math.floor(object.objectConfig.id) === Math.floor(EnumHelper.idEnum.door.id) && !object.objectConfig.isActivated) {

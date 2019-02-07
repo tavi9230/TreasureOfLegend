@@ -188,7 +188,7 @@ export const HUDScene = function (sceneName) {
         showCharacterInitiative: function (characters) {
             var self = this;
             var x = 0;
-            var y = this.windowHeight - 200;
+            var y = this.windowHeight - 280;
             if (!this.initiativeTracker) {
                 this.initiativeTracker = this.add.group();
             } else {
@@ -209,21 +209,27 @@ export const HUDScene = function (sceneName) {
                     ? box.fillStyle(0x38b82c, 1)
                     : box.fillStyle(0xd6603c, 1);
                 index === 0
-                    ? box.fillRect(x, y, 200, 200)
-                    : box.fillRect(x, y, 100, 100);
+                    ? box.fillRect(x, y, 280, 280)
+                    : box.fillRect(x, y, 140, 140);
                 box.name = 'initiativeBox';
 
-                var characterImage = self.add.image(x, y, charConfig.image).setOrigin(0, 0);
-                characterImage.displayWidth = index === 0 ? 200 : 100;
-                characterImage.displayHeight = index === 0 ? 200 : 100;
+                var frameImage = self.add.image(x, y, 'characterFrame').setOrigin(0, 0);
+                frameImage.displayWidth = index === 0 ? 280 : 140;
+                frameImage.displayHeight = index === 0 ? 280 : 140;
+                var characterImage = self.add.image(x, y + 20, charConfig.image).setOrigin(0, 0);
+                characterImage.displayHeight = index === 0 ? 250 : 100;
+                characterImage.displayWidth = character.displayWidth * (characterImage.displayHeight / characterImage.height);
+                characterImage.setX(characterImage.x + (((index === 0 ? 280 : 140) - characterImage.displayWidth) / 2));
 
                 characterImage.objectToSend = character;
+                self._showQuickStats(character, frameImage, index);
 
+                self.initiativeTracker.add(frameImage);
                 self.initiativeTracker.add(box);
                 self.initiativeTrackerImages.add(characterImage);
-                x += index === 0 ? 205 : 105;
+                x += index === 0 ? 285 : 145;
                 if (index === 0) {
-                    y += 100;
+                    y += 140;
                 }
                 index++;
             });
@@ -364,6 +370,34 @@ export const HUDScene = function (sceneName) {
                 y += 60;
             }
             return y;
+        },
+        _showQuickStats: function (character, frameImage, index) {
+            var textStyle = {
+                fontSize: index === 0 ? 40 : 20,
+                wordWrap: { width: 96, useAdvancedWrap: true }
+            },
+                charConfig = character.characterConfig,
+                offset = index === 0 ? 20 : 10,
+                iconDimensions = index === 0 ? 50 : 30;
+            this._createQuickStatIcon(frameImage.x + offset, frameImage.y + ((frameImage.displayHeight / 3) * 0) + offset,
+                'healthIcon', charConfig.life.current, textStyle, iconDimensions);
+            this._createQuickStatIcon(frameImage.x + offset, frameImage.y + ((frameImage.displayHeight / 3) * 1) + offset,
+                'manaIcon', (charConfig.mana.max - charConfig.mana.spent), textStyle, iconDimensions);
+            this._createQuickStatIcon(frameImage.x + offset, frameImage.y + ((frameImage.displayHeight / 3) * 2) + offset,
+                'armorIcon', charConfig.armor, textStyle, iconDimensions);
+            this._createQuickStatIcon(frameImage.x + frameImage.displayWidth - offset - iconDimensions, frameImage.y + ((frameImage.displayHeight / 3) * 0) + offset,
+                'movementIcon', (charConfig.movement.max - charConfig.movement.spent), textStyle, iconDimensions);
+            this._createQuickStatIcon(frameImage.x + frameImage.displayWidth - offset - iconDimensions, frameImage.y + ((frameImage.displayHeight / 3) * 1) + offset,
+                'energyIcon', (charConfig.energy.max - charConfig.energy.spent), textStyle, iconDimensions);
+        },
+        _createQuickStatIcon: function (x, y, imageName, value, style, iconDimensions) {
+            var image = this.add.image(x, y, imageName).setOrigin(0, 0),
+                text = this.add.text(value < 10 && value > 0 ? x + (iconDimensions === 30 ? 10 : 12) : x + (iconDimensions === 30 ? 3 : 5),
+                    y + (iconDimensions === 30 ? 7 : 10), value, style);
+            image.displayHeight = iconDimensions;
+            image.displayWidth = iconDimensions;
+            this.initiativeTracker.add(image);
+            this.initiativeTracker.add(text);
         },
         _checkShortcutKeys() {
             if (this.activeScene.activeCharacter.characterConfig.isPlayerControlled) {
