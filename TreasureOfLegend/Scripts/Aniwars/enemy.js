@@ -2,6 +2,7 @@
 import { EnumHelper } from 'Aniwars/Helpers/enumHelper';
 import { ActionManager } from 'Aniwars/Managers/actionManager';
 import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
+import { StatusIconConfig } from 'Aniwars/Configurations/statusIconConfig';
 
 export const Enemy = function (game) {
     var actionManager = new ActionManager(game);
@@ -144,7 +145,7 @@ export const Enemy = function (game) {
             // Move if tile is unoccupied
             if (!this._isTileOccupied(x, y)) {
                 charConfig.movement.spent++;
-                this._showMovementIcon(currentCharacter, 1);
+                StatusIconConfig.showMovementIcon(this.game, currentCharacter, 1);
                 charConfig.movement.isMoving = true;
                 var tile = this.game.activeMap.tiles.getChildren().find(function (tile) {
                     return tile.x === x && tile.y === y;
@@ -362,20 +363,5 @@ export const Enemy = function (game) {
             charConfig.energy.max - charConfig.energy.spent <= 0) {
             this.game.events.emit('endEnemyTurn');
         }
-    };
-
-    this._showMovementIcon = (enemy, text) => {
-        var textStyle = {
-            fontSize: 20,
-            wordWrap: { width: 96, useAdvancedWrap: true }
-        },
-            movementIcon = this.game.physics.add.sprite(enemy.x + 17, enemy.y - 35, 'movementIcon').setOrigin(0, 0),
-            movementText = this.game.add.text(movementIcon.x + 7, movementIcon.y + 3, -text, textStyle);
-        movementIcon.displayHeight = 30;
-        movementIcon.displayWidth = 30;
-        setTimeout(function () {
-            movementIcon.destroy();
-            movementText.destroy();
-        }, 850);
     };
 };

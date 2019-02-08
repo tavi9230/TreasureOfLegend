@@ -12,6 +12,7 @@ export const SceneManager = function (game) {
         var shouldChangeTurn = false;
         if (charConfig.path.length === 0 &&
             !charConfig.movement.isMoving) {
+            // TODO: Refresh movement, energy, etc on turn counter change
             charConfig.movement.spent = 0;
             charConfig.energy.spent = 0;
             charConfig.movement.usedDash = false;

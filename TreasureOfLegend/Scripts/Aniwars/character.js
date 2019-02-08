@@ -4,6 +4,7 @@ import { ActionManager } from 'Aniwars/Managers/actionManager';
 import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
 import { SpellsConfig } from 'Aniwars/Configurations/spellsConfig';
 import { EnergyConfig } from 'Aniwars/Configurations/energyConfig';
+import { StatusIconConfig } from 'Aniwars/Configurations/statusIconConfig';
 
 export const Character = function (game) {
     var actionManager = new ActionManager(game);
@@ -195,6 +196,8 @@ export const Character = function (game) {
             (Math.abs(character.x - item.x) >= 0 || Math.abs(character.y - item.y) >= 0)) {
             if (charConfig.energy.max - charConfig.energy.spent > 0 && this._addItemToInventory(charConfig, item.itemConfig)) {
                 charConfig.energy.spent += EnergyConfig.pickup.cost;
+                StatusIconConfig.showEnergyIcon(this.game, character, EnergyConfig.pickup.cost);
+                this.game.events.emit('showCharacterInitiative', this.game.initiative);
                 item.destroy();
                 this.game.items.remove(item);
             }
@@ -325,6 +328,8 @@ export const Character = function (game) {
                 charConfig.inventory.feet.isEquipped = true;
             }
             charConfig.energy.spent += EnergyConfig.pickup.cost;
+            StatusIconConfig.showEnergyIcon(this.game, character, EnergyConfig.pickup.cost);
+            this.game.events.emit('showCharacterInitiative', this.game.initiative);
         }
     };
 
@@ -333,6 +338,7 @@ export const Character = function (game) {
             charConfig = character.characterConfig;
         if (charConfig.energy.max - charConfig.energy.spent > 0 && this._addItemToInventory(charConfig, item)) {
             charConfig.energy.spent += EnergyConfig.pickup.cost;
+            StatusIconConfig.showEnergyIcon(this.game, activeCharacter, EnergyConfig.pickup.cost);
             var lootbagConfig = lootbag.objectConfig.belongsTo.characterConfig;
             var index = lootbagConfig.inventory.slots.items.indexOf(item);
             lootbagConfig.inventory.slots.items.splice(index, 1);
@@ -352,6 +358,7 @@ export const Character = function (game) {
             if (lootbagConfig.inventory.slots.items.length > 0) {
                 this.game.events.emit('showDeadCharacterInventory', lootbag);
             }
+            this.game.events.emit('showCharacterInitiative', this.game.initiative);
         }
     };
 
@@ -392,9 +399,12 @@ export const Character = function (game) {
             activeCharacter.characterConfig.energy.max - activeCharacter.characterConfig.energy.spent >= EnergyConfig.dash.cost
             && activeCharacter.characterConfig.movement.max - activeCharacter.characterConfig.movement.spent === 0) {
             activeCharacter.characterConfig.movement.usedDash = true;
+            StatusIconConfig.showMovementIcon(this.game, activeCharacter, -activeCharacter.characterConfig.movement.spent);
             activeCharacter.characterConfig.movement.spent = 0;
-            activeCharacter.characterConfig.energy.spent += 2;
+            activeCharacter.characterConfig.energy.spent += EnergyConfig.dash.cost;
+            StatusIconConfig.showEnergyIcon(this.game, activeCharacter, EnergyConfig.dash.cost);
             this.game.activeMap.showMovementGrid();
+            this.game.events.emit('showCharacterInitiative', this.game.initiative);
         }
     };
 
@@ -404,7 +414,8 @@ export const Character = function (game) {
             self = this;
         charConfig.movement.spent++;
         charConfig.movement.isMoving = true;
-        this._showMovementIcon(currentCharacter, 1);
+        StatusIconConfig.showMovementIcon(this.game, currentCharacter, 1);
+        this.game.events.emit('showCharacterInitiative', this.game.initiative);
         charConfig.posX = charConfig.path[0][0] * 50;
         charConfig.posY = charConfig.path[0][1] * 50;
         charConfig.path.shift();
@@ -528,20 +539,5 @@ export const Character = function (game) {
             itemAdded = true;
         }
         return itemAdded;
-    };
-
-    this._showMovementIcon = (enemy, text) => {
-        var textStyle = {
-            fontSize: 20,
-            wordWrap: { width: 96, useAdvancedWrap: true }
-        },
-            movementIcon = this.game.physics.add.sprite(enemy.x + 17, enemy.y - 35, 'movementIcon').setOrigin(0, 0),
-            movementText = this.game.add.text(movementIcon.x + 7, movementIcon.y + 3, -text, textStyle);
-        movementIcon.displayHeight = 30;
-        movementIcon.displayWidth = 30;
-        setTimeout(function () {
-            movementIcon.destroy();
-            movementText.destroy();
-        }, 850);
     };
 };

@@ -3,6 +3,7 @@ import { Pathfinder } from 'Aniwars/Helpers/pathfinder';
 import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
 import { EnergyConfig } from 'Aniwars/Configurations/energyConfig';
 import { EnemyConfig } from 'Aniwars/Configurations/enemyConfig';
+import { StatusIconConfig } from 'Aniwars/Configurations/statusIconConfig';
 
 export const ActionManager = function (game) {
     this.game = game;
@@ -37,6 +38,8 @@ export const ActionManager = function (game) {
             x = object.x / 50,
             y = object.y / 50;
         charConfig.energy.spent += EnergyConfig.door.cost;
+        StatusIconConfig.showEnergyIcon(this.game, this.game.activeCharacter, EnergyConfig.door.cost);
+        this.game.events.emit('showCharacterInitiative', this.game.initiative);
         this.game.activeMap.levelMap = this.game.activeMap.copyMap(this.game.activeMap.levelMap, this.game.activeMap.previousMap);
         //door animations would be nice
         if (!object.objectConfig.isActivated) {
@@ -66,13 +69,17 @@ export const ActionManager = function (game) {
             object.objectConfig.turnsToReset = 0;
             var activeCharacter = this.game.activeCharacter;
             if (object.objectConfig.id === EnumHelper.idEnum.well.type.health) {
+                StatusIconConfig.showManaIcon(this.game, activeCharacter, -(activeCharacter.characterConfig.life.max - activeCharacter.characterConfig.life.spent));
                 activeCharacter.characterConfig.life.current = activeCharacter.characterConfig.life.max;
             } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.mana) {
+                StatusIconConfig.showManaIcon(this.game, activeCharacter, -activeCharacter.characterConfig.mana.spent);
                 activeCharacter.characterConfig.mana.spent = 0;
             } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.movement) {
+                StatusIconConfig.showMovementIcon(this.game, activeCharacter, -activeCharacter.characterConfig.movement.spent);
                 activeCharacter.characterConfig.movement.spent = 0;
                 this.game.activeMap.showMovementGrid();
             } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.energy) {
+                StatusIconConfig.showEnergyIcon(this.game, activeCharacter, -activeCharacter.characterConfig.energy.spent);
                 activeCharacter.characterConfig.energy.spent = 0;
             }
             this.game.activeMap.createReactivatingObject({
@@ -86,6 +93,7 @@ export const ActionManager = function (game) {
                 isInteractible: true,
                 turnsToReset: Math.floor(Math.random() * 5) + 1
             });
+            this.game.events.emit('showCharacterInitiative', this.game.initiative);
         }
     };
 
@@ -101,11 +109,11 @@ export const ActionManager = function (game) {
         if (d20 <= enemyCharConfig.armor) {
             if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                 if (this._removeArmorPointsFromEquippedInventory(enemy, 1)) {
-                    this._showArmorIcon(enemy, 1);
+                    StatusIconConfig.showArmorIcon(this.game, enemy, 1);
                 }
             } else if (enemyCharConfig.naturalArmor > 0) {
                 enemyCharConfig.naturalArmor--;
-                this._showArmorIcon(enemy, 1);
+                StatusIconConfig.showArmorIcon(this.game, enemy, 1);
             }
         } else {
             _.each(charConfig.inventory.mainHand.damage, function (damage) {
@@ -113,22 +121,22 @@ export const ActionManager = function (game) {
                 if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === -1) {
                     if (enemyCharConfig.resistances.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
-                        self._showLifeIcon(enemy, Math.ceil(attackDamage / 2));
+                        StatusIconConfig.showLifeIcon(self.game, enemy, Math.ceil(attackDamage / 2));
                     } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= (attackDamage * 2);
-                        self._showLifeIcon(enemy, attackDamage * 2);
+                        StatusIconConfig.showLifeIcon(self.game, enemy, attackDamage * 2);
                     } else {
                         enemyCharConfig.life.current -= attackDamage;
-                        self._showLifeIcon(enemy, attackDamage);
+                        StatusIconConfig.showLifeIcon(self.game, enemy, attackDamage);
                     }
                 }
                 if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                     if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
-                        self._showArmorIcon(enemy, Math.ceil(attackDamage / 2));
+                        StatusIconConfig.showArmorIcon(self.game, enemy, Math.ceil(attackDamage / 2));
                     }
                 } else if (enemyCharConfig.naturalArmor > 0) {
                     enemyCharConfig.naturalArmor -= Math.ceil(attackDamage / 2);
-                    self._showArmorIcon(enemy, Math.ceil(attackDamage / 2));
+                    StatusIconConfig.showArmorIcon(self.game, enemy, Math.ceil(attackDamage / 2));
                     if (enemyCharConfig.naturalArmor < 0) {
                         enemyCharConfig.naturalArmor = 0;
                     }
@@ -144,6 +152,7 @@ export const ActionManager = function (game) {
                 : 0) + enemyCharConfig.naturalArmor;
 
         charConfig.energy.spent += EnergyConfig.attackMainHand.cost;
+        StatusIconConfig.showEnergyIcon(this.game, character, EnergyConfig.attackMainHand.cost);
 
         this._checkInitiative(enemy);
     };
@@ -156,11 +165,11 @@ export const ActionManager = function (game) {
         if (d20 <= enemyCharConfig.armor) {
             if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                 if (this._removeArmorPointsFromEquippedInventory(enemy, 1)) {
-                    this._showArmorIcon(enemy, 1);
+                    StatusIconConfig.showArmorIcon(this.game, enemy, 1);
                 }
             } else if (enemyCharConfig.naturalArmor > 0) {
                 enemyCharConfig.naturalArmor--;
-                this._showArmorIcon(enemy, 1);
+                StatusIconConfig.showArmorIcon(this.game, enemy, 1);
             }
         } else {
             _.each(charConfig.energy.selectedAction.damage, function (damage) {
@@ -168,22 +177,22 @@ export const ActionManager = function (game) {
                 if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === -1) {
                     if (enemyCharConfig.resistances.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
-                        self._showLifeIcon(enemy, Math.ceil(attackDamage / 2));
+                        StatusIconConfig.showLifeIcon(this.game, enemy, Math.ceil(attackDamage / 2));
                     } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= (attackDamage * 2);
-                        self._showLifeIcon(enemy, attackDamage * 2);
+                        StatusIconConfig.showLifeIcon(this.game, enemy, attackDamage * 2);
                     } else {
                         enemyCharConfig.life.current -= attackDamage;
-                        self._showLifeIcon(enemy, attackDamage);
+                        StatusIconConfig.showLifeIcon(this.game, enemy, attackDamage);
                     }
                 }
                 if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                     if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
-                        self._showArmorIcon(enemy, Math.ceil(attackDamage / 2));
+                        StatusIconConfig.showArmorIcon(this.game, enemy, Math.ceil(attackDamage / 2));
                     }
                 } else if (enemyCharConfig.naturalArmor > 0) {
                     enemyCharConfig.naturalArmor -= Math.ceil(attackDamage / 2);
-                    self._showArmorIcon(enemy, Math.ceil(attackDamage / 2));
+                    StatusIconConfig.showArmorIcon(this.game, enemy, Math.ceil(attackDamage / 2));
                     if (enemyCharConfig.naturalArmor < 0) {
                         enemyCharConfig.naturalArmor = 0;
                     }
@@ -200,6 +209,8 @@ export const ActionManager = function (game) {
 
         charConfig.energy.spent += EnergyConfig.attackSpell.cost;
         charConfig.mana.spent += charConfig.energy.selectedAction.cost;
+        StatusIconConfig.showManaIcon(this.game, character, charConfig.energy.selectedAction.cost);
+        StatusIconConfig.showEnergyIcon(this.game, character, EnergyConfig.attackSpell.cost);
 
         this._checkInitiative(enemy);
     };
@@ -324,32 +335,7 @@ export const ActionManager = function (game) {
                 this.game.characters.characters.remove(enemy);
             } else {
                 this.game.enemies.characters.remove(enemy);
-                if (this.game.enemies.characters.getChildren().length === 0 && this.game.scene.key === 'TestLevelScene') {
-                    this.game.enemies.total++;
-                    for (let i = 0; i < this.game.enemies.total; i++) {
-                        var positionFound = false,
-                            enemy,
-                            x,
-                            y;
-                        while (!positionFound) {
-                            x = Math.floor(Math.random() * this.game.activeMap.levelMap[0].length) * 50,
-                                y = Math.floor(Math.random() * this.game.activeMap.levelMap.length) * 50;
-                            var tiles = this.game.activeMap.tiles.getChildren().filter(function (object) {
-                                return object.x === x && object.y === y;
-                            });
-                            if (tiles.length > 0) {
-                                positionFound = true;
-                            }
-                        }
-                        enemy = i % 5 === 0
-                            ? this.game.enemies.addNewRandomVulnerabilitiesCharacter(x, y, EnemyConfig.thug)
-                            : this.game.enemies.addNewCharacter(x, y, EnemyConfig.thug);
-                        this.game.input.setHitArea([enemy]);
-                        this.game.sceneManager.bindEnemyEvents(enemy);
-                    }
-                    this.game.initiative = null;
-                    this.game.initiativeIndex = -1;
-                }
+                this._createNewEnemies();
             }
             this.game.initiative = this.game.sceneManager.getInitiativeArray([enemy]);
         }
@@ -493,34 +479,32 @@ export const ActionManager = function (game) {
             character.characterConfig.inventory.feet = lodash.cloneDeep(InventoryConfig.defaultFeet);
         }
     };
-
-    this._showArmorIcon = (enemy, text) => {
-        var textStyle = {
-            fontSize: 20,
-            wordWrap: { width: 96, useAdvancedWrap: true }
-        },
-            armorIcon = this.game.physics.add.sprite(enemy.x + 17, enemy.y - 35, 'armorIcon').setOrigin(0, 0),
-            armorText = this.game.add.text(armorIcon.x + 7, armorIcon.y + 3, -text, textStyle);
-        armorIcon.displayHeight = 30;
-        armorIcon.displayWidth = 30;
-        //this.game.physics.moveTo(armorIcon, enemy.x + 17, enemy.y - 80, 2, 2000);
-        setTimeout(function () {
-            armorIcon.destroy();
-            armorText.destroy();
-        }, 850);
-    };
-    this._showLifeIcon = (enemy, text) => {
-        var textStyle = {
-            fontSize: 20,
-            wordWrap: { width: 96, useAdvancedWrap: true }
-        },
-            healthIcon = this.game.physics.add.sprite(enemy.x + 50, enemy.y - 35, 'healthIcon').setOrigin(0, 0),
-            healthText = this.game.add.text(healthIcon.x + 7, healthIcon.y + 3, -text, textStyle);
-        healthIcon.displayHeight = 30;
-        healthIcon.displayWidth = 30;
-        setTimeout(function () {
-            healthIcon.destroy();
-            healthText.destroy();
-        }, 850);
+    this._createNewEnemies = () => {
+        if (this.game.enemies.characters.getChildren().length === 0 && this.game.scene.key === 'TestLevelScene') {
+            this.game.enemies.total++;
+            for (let i = 0; i < this.game.enemies.total; i++) {
+                var positionFound = false,
+                    enemy,
+                    x,
+                    y;
+                while (!positionFound) {
+                    x = Math.floor(Math.random() * this.game.activeMap.levelMap[0].length) * 50,
+                        y = Math.floor(Math.random() * this.game.activeMap.levelMap.length) * 50;
+                    var tiles = this.game.activeMap.tiles.getChildren().filter(function (object) {
+                        return object.x === x && object.y === y;
+                    });
+                    if (tiles.length > 0) {
+                        positionFound = true;
+                    }
+                }
+                enemy = i % 5 === 0
+                    ? this.game.enemies.addNewRandomVulnerabilitiesCharacter(x, y, EnemyConfig.thug)
+                    : this.game.enemies.addNewCharacter(x, y, EnemyConfig.thug);
+                this.game.input.setHitArea([enemy]);
+                this.game.sceneManager.bindEnemyEvents(enemy);
+            }
+            this.game.initiative = null;
+            this.game.initiativeIndex = -1;
+        }
     };
 };
