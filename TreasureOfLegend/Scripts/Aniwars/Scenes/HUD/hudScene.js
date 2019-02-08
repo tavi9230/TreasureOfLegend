@@ -334,9 +334,6 @@ export const HUDScene = function (sceneName) {
             var self = this;
             this.activeScene = this.scene.get(this.sceneName);
 
-            this.activeScene.events.on('activeCharacterPositionModified', function (character) {
-                self.locationText.setText('X:' + Math.floor(character.x / 50) + ', Y:' + Math.floor(character.y / 50));
-            });
             this.activeScene.events.on('updateSouls', function (souls) {
                 self.soulsText.setText(souls.current);
             });
@@ -389,6 +386,12 @@ export const HUDScene = function (sceneName) {
                 'movementIcon', (charConfig.movement.max - charConfig.movement.spent), textStyle, iconDimensions);
             this._createQuickStatIcon(frameImage.x + frameImage.displayWidth - offset - iconDimensions, frameImage.y + ((frameImage.displayHeight / 3) * 1) + offset,
                 'energyIcon', (charConfig.energy.max - charConfig.energy.spent), textStyle, iconDimensions);
+            var locationXText = this.add.text(frameImage.x + (index === 0 ? 80 : 60), frameImage.y + ((frameImage.displayHeight / 3) * 2) + offset,
+                'X:' + (character.x / 50), { fontSize: index === 0 ? 30 : 15, color: '#000000' });
+            var locationYText = this.add.text(frameImage.x + (index === 0 ? 80 : 60), frameImage.y + ((frameImage.displayHeight / 3) * 2) + offset + (index === 0 ? 30 : 15),
+                'Y:' + (character.y / 50), { fontSize: index === 0 ? 30 : 15, color: '#000000' });
+            this.initiativeTracker.add(locationXText);
+            this.initiativeTracker.add(locationYText);
         },
         _createQuickStatIcon: function (x, y, imageName, value, style, iconDimensions) {
             var image = this.add.image(x, y, imageName).setOrigin(0, 0),

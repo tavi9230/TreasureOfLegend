@@ -301,7 +301,7 @@ export const Enemy = function (game) {
                     }
                 } else {
                     // Move on the path
-                    var path = charConfig.path;
+                    var path = lodash.cloneDeep(charConfig.path);
                     charConfig.posX = charConfig.path[0][0] * 50;
                     charConfig.posY = charConfig.path[0][1] * 50;
                     charConfig.path.shift();

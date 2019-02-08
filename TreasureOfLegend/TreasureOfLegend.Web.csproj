@@ -254,8 +254,14 @@
     <Content Include="Assets\Aniwars\char03_0000.png" />
     <Content Include="Assets\Aniwars\char04_0000.png" />
     <Content Include="Assets\Aniwars\character.png" />
+    <Content Include="Assets\Aniwars\characters\armor.png" />
+    <Content Include="Assets\Aniwars\characters\energy.png" />
+    <Content Include="Assets\Aniwars\characters\health.png" />
+    <Content Include="Assets\Aniwars\characters\mana.png" />
+    <Content Include="Assets\Aniwars\characters\movement.png" />
     <Content Include="Assets\Aniwars\doorLeft.png" />
     <Content Include="Assets\Aniwars\doorRight.png" />
+    <Content Include="Assets\Aniwars\frame.png" />
     <Content Include="Assets\Aniwars\hourglass.png" />
     <Content Include="Assets\Aniwars\items\arrow.png" />
     <Content Include="Assets\Aniwars\items\bow.png" />

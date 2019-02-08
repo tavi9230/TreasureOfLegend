@@ -12,7 +12,7 @@ export const SceneManager = function (game) {
         var shouldChangeTurn = false;
         if (charConfig.path.length === 0 &&
             !charConfig.movement.isMoving) {
-            // TODO: Refresh movement, energy, etc on turn counter change
+            // TODO: Refresh movement, energy, etc only on turn counter change
             charConfig.movement.spent = 0;
             charConfig.energy.spent = 0;
             charConfig.movement.usedDash = false;
@@ -34,7 +34,6 @@ export const SceneManager = function (game) {
 
             if (this.game.activeCharacter.characterConfig.isPlayerControlled) {
                 this.game.events.emit('toggleActionButtons', true);
-                this.game.events.emit('activeCharacterPositionModified', this.game.activeCharacter);
                 this.game.activeMap.showMovementGrid();
             } else {
                 this.game.events.emit('toggleActionButtons', false);
