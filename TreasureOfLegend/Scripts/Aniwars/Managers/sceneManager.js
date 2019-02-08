@@ -291,7 +291,7 @@ export const SceneManager = function (game) {
             this.game.characters.interactWithObject(object);
         }
     };
-    this._interactWithEnemy = (enemy) => {
+    this._interactWithEnemy = (enemy, pointer) => {
         // TODO: Move to action manager?
         var actionId = this.game.activeCharacter.characterConfig.energy.actionId;
         if (actionId === EnumHelper.actionEnum.attackMainHand || actionId === EnumHelper.actionEnum.attackSpell) {
@@ -301,7 +301,7 @@ export const SceneManager = function (game) {
             this.game.activeCharacter.characterConfig.energy.selectedAction = null;
             // TODO: Show enemy description?
         } else {
-            this._showCharacterInventory(enemy);
+            this._showCharacterInventory(enemy, pointer);
         }
     };
     this._hoverCharacter = (character) => {
@@ -330,7 +330,9 @@ export const SceneManager = function (game) {
         this.game.events.emit('closeInspect');
     };
 
-    this._showCharacterInventory = (character) => {
-        this.game.events.emit('showCharacterInventory', character);
+    this._showCharacterInventory = (character, pointer) => {
+        if (pointer.rightButtonDown()) {
+            this.game.events.emit('showCharacterInventory', character);
+        }
     };
 };

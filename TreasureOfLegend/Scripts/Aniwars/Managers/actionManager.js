@@ -100,29 +100,35 @@ export const ActionManager = function (game) {
             d20 = Math.floor(Math.random() * 20) + 1 + attackAttribute;
         if (d20 <= enemyCharConfig.armor) {
             if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
-                this._removeArmorPointsFromEquippedInventory(enemy, 1);
+                if (this._removeArmorPointsFromEquippedInventory(enemy, 1)) {
+                    this._showArmorIcon(enemy, 1);
+                }
             } else if (enemyCharConfig.naturalArmor > 0) {
                 enemyCharConfig.naturalArmor--;
+                this._showArmorIcon(enemy, 1);
             }
-            this._showBrokenArmor(enemy, 1);
         } else {
             _.each(charConfig.inventory.mainHand.damage, function (damage) {
                 var attackDamage = Math.floor(Math.random() * damage.value) + 1 + Math.floor(attackAttribute / 2);
-                if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === - 1) {
-                    if (enemyCharConfig.resistances.indexOf(damage.type) !== - 1) {
+                if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === -1) {
+                    if (enemyCharConfig.resistances.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
-                    } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== - 1) {
+                        self._showLifeIcon(enemy, Math.ceil(attackDamage / 2));
+                    } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= (attackDamage * 2);
+                        self._showLifeIcon(enemy, attackDamage * 2);
                     } else {
                         enemyCharConfig.life.current -= attackDamage;
+                        self._showLifeIcon(enemy, attackDamage);
                     }
                 }
                 if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
-                    self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2));
-                    self._showBrokenArmor(enemy, Math.ceil(attackDamage / 2));
+                    if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
+                        self._showArmorIcon(enemy, Math.ceil(attackDamage / 2));
+                    }
                 } else if (enemyCharConfig.naturalArmor > 0) {
                     enemyCharConfig.naturalArmor -= Math.ceil(attackDamage / 2);
-                    self._showBrokenArmor(enemy, Math.ceil(attackDamage / 2));
+                    self._showArmorIcon(enemy, Math.ceil(attackDamage / 2));
                     if (enemyCharConfig.naturalArmor < 0) {
                         enemyCharConfig.naturalArmor = 0;
                     }
@@ -149,26 +155,35 @@ export const ActionManager = function (game) {
             d20 = Math.floor(Math.random() * 20) + 1 + charConfig.attributes.intelligence;
         if (d20 <= enemyCharConfig.armor) {
             if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
-                this._removeArmorPointsFromEquippedInventory(enemy, 1);
+                if (this._removeArmorPointsFromEquippedInventory(enemy, 1)) {
+                    this._showArmorIcon(enemy, 1);
+                }
             } else if (enemyCharConfig.naturalArmor > 0) {
                 enemyCharConfig.naturalArmor--;
+                this._showArmorIcon(enemy, 1);
             }
         } else {
             _.each(charConfig.energy.selectedAction.damage, function (damage) {
                 var attackDamage = Math.floor(Math.random() * damage.value * Math.ceil(charConfig.energy.selectedAction.level / 2)) + 1 + Math.floor(charConfig.attributes.intelligence / 2);
-                if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === - 1) {
-                    if (enemyCharConfig.resistances.indexOf(damage.type) !== - 1) {
+                if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === -1) {
+                    if (enemyCharConfig.resistances.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
-                    } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== - 1) {
+                        self._showLifeIcon(enemy, Math.ceil(attackDamage / 2));
+                    } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= (attackDamage * 2);
+                        self._showLifeIcon(enemy, attackDamage * 2);
                     } else {
                         enemyCharConfig.life.current -= attackDamage;
+                        self._showLifeIcon(enemy, attackDamage);
                     }
                 }
                 if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
-                    self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2));
+                    if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
+                        self._showArmorIcon(enemy, Math.ceil(attackDamage / 2));
+                    }
                 } else if (enemyCharConfig.naturalArmor > 0) {
                     enemyCharConfig.naturalArmor -= Math.ceil(attackDamage / 2);
+                    self._showArmorIcon(enemy, Math.ceil(attackDamage / 2));
                     if (enemyCharConfig.naturalArmor < 0) {
                         enemyCharConfig.naturalArmor = 0;
                     }
@@ -391,7 +406,8 @@ export const ActionManager = function (game) {
 
     this._removeArmorPointsFromEquippedInventory = (enemy, value) => {
         var pieceHit = Math.floor(Math.random() * 6) + 1,
-            inventory = enemy.characterConfig.inventory;
+            inventory = enemy.characterConfig.inventory,
+            hasHit = false;
         switch (pieceHit) {
             case EnumHelper.inventoryEnum.offHand:
                 if (inventory.offHand.type !== InventoryConfig.defaultMainHand.type && inventory.offHand.armor) {
@@ -400,6 +416,7 @@ export const ActionManager = function (game) {
                     } else {
                         inventory.offHand.armor -= value;
                     }
+                    hasHit = true;
                 }
                 break;
             case EnumHelper.inventoryEnum.head:
@@ -409,6 +426,7 @@ export const ActionManager = function (game) {
                     } else {
                         inventory.head.armor -= value;
                     }
+                    hasHit = true;
                 }
                 break;
             case EnumHelper.inventoryEnum.body:
@@ -418,6 +436,7 @@ export const ActionManager = function (game) {
                     } else {
                         inventory.body.armor -= value;
                     }
+                    hasHit = true;
                 }
                 break;
             case EnumHelper.inventoryEnum.hands:
@@ -427,6 +446,7 @@ export const ActionManager = function (game) {
                     } else {
                         inventory.hands.armor -= value;
                     }
+                    hasHit = true;
                 }
                 break;
             case EnumHelper.inventoryEnum.feet:
@@ -436,11 +456,13 @@ export const ActionManager = function (game) {
                     } else {
                         inventory.feet.armor -= value;
                     }
+                    hasHit = true;
                 }
                 break;
             default:
                 break;
         }
+        return hasHit;
     };
 
     this._addItemsFromBodyToInventory = (character) => {
@@ -472,12 +494,12 @@ export const ActionManager = function (game) {
         }
     };
 
-    this._showBrokenArmor = (enemy, text) => {
+    this._showArmorIcon = (enemy, text) => {
         var textStyle = {
             fontSize: 20,
             wordWrap: { width: 96, useAdvancedWrap: true }
         },
-            armorIcon = this.game.physics.add.sprite(enemy.x + 17, enemy.y - 20, 'armorIcon').setOrigin(0, 0),
+            armorIcon = this.game.physics.add.sprite(enemy.x + 17, enemy.y - 35, 'armorIcon').setOrigin(0, 0),
             armorText = this.game.add.text(armorIcon.x + 7, armorIcon.y + 3, -text, textStyle);
         armorIcon.displayHeight = 30;
         armorIcon.displayWidth = 30;
@@ -485,6 +507,20 @@ export const ActionManager = function (game) {
         setTimeout(function () {
             armorIcon.destroy();
             armorText.destroy();
+        }, 850);
+    };
+    this._showLifeIcon = (enemy, text) => {
+        var textStyle = {
+            fontSize: 20,
+            wordWrap: { width: 96, useAdvancedWrap: true }
+        },
+            healthIcon = this.game.physics.add.sprite(enemy.x + 50, enemy.y - 35, 'healthIcon').setOrigin(0, 0),
+            healthText = this.game.add.text(healthIcon.x + 7, healthIcon.y + 3, -text, textStyle);
+        healthIcon.displayHeight = 30;
+        healthIcon.displayWidth = 30;
+        setTimeout(function () {
+            healthIcon.destroy();
+            healthText.destroy();
         }, 850);
     };
 };

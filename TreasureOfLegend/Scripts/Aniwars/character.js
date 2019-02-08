@@ -404,6 +404,7 @@ export const Character = function (game) {
             self = this;
         charConfig.movement.spent++;
         charConfig.movement.isMoving = true;
+        this._showMovementIcon(currentCharacter, 1);
         charConfig.posX = charConfig.path[0][0] * 50;
         charConfig.posY = charConfig.path[0][1] * 50;
         charConfig.path.shift();
@@ -527,5 +528,20 @@ export const Character = function (game) {
             itemAdded = true;
         }
         return itemAdded;
+    };
+
+    this._showMovementIcon = (enemy, text) => {
+        var textStyle = {
+            fontSize: 20,
+            wordWrap: { width: 96, useAdvancedWrap: true }
+        },
+            movementIcon = this.game.physics.add.sprite(enemy.x + 17, enemy.y - 35, 'movementIcon').setOrigin(0, 0),
+            movementText = this.game.add.text(movementIcon.x + 7, movementIcon.y + 3, -text, textStyle);
+        movementIcon.displayHeight = 30;
+        movementIcon.displayWidth = 30;
+        setTimeout(function () {
+            movementIcon.destroy();
+            movementText.destroy();
+        }, 850);
     };
 };
