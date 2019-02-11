@@ -16,7 +16,6 @@ export const HUDCharacterStatus = function (scene) {
     this.abilityStats = null;
 
     this.toggleCharacterInfo = function (character, forceRemainOpen) {
-        // TODO: Show character inventory if player controlled otherwise show enemy info
         if (!this.isCharacterInfoMenuOpen) {
             var x = character.characterConfig.isPlayerControlled ? 0 : this.scene.windowWidth - 440,
                 y = 0;
@@ -25,8 +24,7 @@ export const HUDCharacterStatus = function (scene) {
         } else {
             this._closeCharacterInfo();
             this._hideAbilityStats();
-            var hideTips = _.bind(this.scene.lowerPanel.hideTips, this.scene);
-            hideTips();
+            this.scene.tipsModal.hideTips();
             if ((this.whosInventory && (this.whosInventory.x !== character.x || this.whosInventory.y !== character.y)) || forceRemainOpen) {
                 this.toggleCharacterInfo(character);
             }
@@ -96,8 +94,7 @@ export const HUDCharacterStatus = function (scene) {
         x = isPlayerControlled ? 0 : this.scene.windowWidth - 440;
         y = 0;
         var callback = function () {
-            var hideTips = _.bind(self.scene.lowerPanel.hideTips, self.scene);
-            hideTips();
+            this.scene.tipsModal.hideTips();
             self._showCharacterAbilities(character, x, y);
         };
         this._createAbilitiesTabButton(character, x, y, 'spellsButton', 'Abilities', callback);
@@ -231,12 +228,10 @@ export const HUDCharacterStatus = function (scene) {
         this.scene.input.setHitArea([this.abilitiesImage]);
         this.abilitiesImage.on('pointerdown', callback);
         this.abilitiesImage.on('pointerover', function () {
-            var showTips = _.bind(self.scene.lowerPanel.showTips, self.scene);
-            showTips(startX + 30, y + 20, 100, 20, text);
+            self.scene.tipsModal.showTips(startX + 30, y + 20, 100, 20, text);
         });
         this.abilitiesImage.on('pointerout', function () {
-            var hideTips = _.bind(self.scene.lowerPanel.hideTips, self.scene);
-            hideTips();
+            self.scene.tipsModal.hideTips();
         });
     };
     this._showCharacterAbilities = function (character, x, y) {
@@ -253,8 +248,7 @@ export const HUDCharacterStatus = function (scene) {
         this.characterInfo.name = 'characterInfo';
         this.characterInfoCloseButtonGroup = this.scene.createCloseButton(x + 420, y, this.characterInfo);
         var callback = function () {
-            var hideTips = _.bind(self.scene.lowerPanel.hideTips, self.scene);
-            hideTips();
+            self.scene.tipsModal.hideTips();
             self.toggleCharacterInfo(character, true);
         };
         this._createAbilitiesTabButton(character, x, y, 'inventoryButton', 'Inventory', callback);

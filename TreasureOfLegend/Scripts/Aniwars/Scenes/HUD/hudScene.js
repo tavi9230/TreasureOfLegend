@@ -2,6 +2,7 @@
 import { EnumHelper } from 'Aniwars/Helpers/enumHelper';
 import { HUDLowerPanel } from 'Aniwars/Scenes/HUD/lowerPanel';
 import { HUDCharacterStatus } from 'Aniwars/Scenes/HUD/characterStatus';
+import { TipsModal } from 'Aniwars/Scenes/HUD/Helpers/tipsModal';
 
 export const HUDScene = function (sceneName) {
     return new Phaser.Class({
@@ -25,6 +26,7 @@ export const HUDScene = function (sceneName) {
             this.lowerPanel = new HUDLowerPanel(this);
             this.lowerPanel.createLowerPanel();
             this.characterStatus = new HUDCharacterStatus(this);
+            this.tipsModal = new TipsModal(this);
             this._addEvents();
             this.events.emit('getCharacterStartData');
 
@@ -47,7 +49,7 @@ export const HUDScene = function (sceneName) {
             };
         },
         getTurn: function () {
-            return this.turn;
+            return this.lowerPanel.turn;
         },
         createCloseButton: function (x, y, groupToDestroy) {
             var self = this,
@@ -84,14 +86,10 @@ export const HUDScene = function (sceneName) {
                             self.characterStatus.abilityGroup.destroy(true);
                         }
                         self.characterStatus._hideAbilityStats();
-                        var hideTips = _.bind(self.lowerPanel.hideTips, self);
-                        hideTips();
-                        //self.lowerPanel.setButtonTint('inventoryButton');
+                        self.tipsModal.hideTips();
                     } else if (groupToDestroy.name === 'spellBook') {
-                        //self.lowerPanel.setButtonTint('spellsButton');
                         self.lowerPanel.spellBook = null;
                     } else if (groupToDestroy.name === 'skillTree') {
-                        //self.lowerPanel.setButtonTint('skillsButton');
                         self.lowerPanel.skillTree = null;
                     }
                     if (self.enemyInventory) {
@@ -270,7 +268,6 @@ export const HUDScene = function (sceneName) {
             textPanel = this.add.text(x + 2, y + 2, text, style);
             this.inspectionBox.add(panel);
             this.inspectionBox.add(textPanel);
-            //this.lowerPanel.setButtonTint('inspectButton');
         },
         closeInspect: function () {
             if (this.inspectionBox) {
@@ -296,8 +293,7 @@ export const HUDScene = function (sceneName) {
                 self.characterStatus.toggleCharacterInfo(character, true);
             });
             this.activeScene.events.on('changeTurnCounter', function () {
-                self.turn++;
-                self.turnText.setText(self.turn);
+                self.lowerPanel.changeTurn();
             });
             this.activeScene.events.on('inspect', _.bind(this.inspect, this));
             this.activeScene.events.on('closeInspect', _.bind(this.closeInspect, this));
