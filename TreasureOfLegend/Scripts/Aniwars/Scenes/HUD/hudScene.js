@@ -39,7 +39,6 @@ export const HUDScene = function (sceneName) {
             this.keycodes = {
                 w: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
                 e: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
-                q: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
                 a: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
                 s: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
                 d: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
@@ -80,6 +79,9 @@ export const HUDScene = function (sceneName) {
                         if (self.characterStatus.abilitiesImage) {
                             self.characterStatus.abilitiesImage.destroy(true);
                             self.characterStatus.abilitiesImage = null;
+                        }
+                        if (self.characterStatus.abilityGroup) {
+                            self.characterStatus.abilityGroup.destroy();
                         }
                         //self.lowerPanel.setButtonTint('inventoryButton');
                     } else if (groupToDestroy.name === 'spellBook') {
@@ -420,11 +422,6 @@ export const HUDScene = function (sceneName) {
                 } else if (this.keycodes.e.isDown && !this.inspectButtonIsDown) {
                     this.inspectButtonIsDown = true;
                     this.lowerPanel.selectInspectAction();
-                } else if (this.keycodes.q.isDown && !this.skillsButtonIsDown) {
-                    this.skillsButtonIsDown = true;
-                    // TODO: Show skills menu
-                    //TODO: Change this to selected character?
-                    this.lowerPanel.openSkillTree(this.activeScene.activeCharacter);
                 } else if (this.keycodes.a.isDown && !this.mainHandButtonIsDown) {
                     this.mainHandButtonIsDown = true;
                     this.lowerPanel.useMainHand();
@@ -447,9 +444,6 @@ export const HUDScene = function (sceneName) {
 
             if (this.keycodes.e.isUp) {
                 this.inspectButtonIsDown = false;
-            }
-            if (this.keycodes.q.isUp) {
-                this.skillsButtonIsDown = false;
             }
             if (this.keycodes.a.isUp) {
                 this.mainHandButtonIsDown = false;

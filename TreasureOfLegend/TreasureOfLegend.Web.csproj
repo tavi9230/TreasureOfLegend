@@ -244,8 +244,11 @@
     <Content Include="Assets\Aniwars\buttons\mainHandButton.png" />
     <Content Include="Assets\Aniwars\buttons\offHandButton.png" />
     <Content Include="Assets\Aniwars\buttons\openMenuButton.png" />
-    <Content Include="Assets\Aniwars\buttons\skillsButton.png" />
+    <Content Include="Assets\Aniwars\buttons\plusButton.png" />
+    <Content Include="Assets\Aniwars\buttons\soulsButton.png" />
     <Content Include="Assets\Aniwars\buttons\spellsButton.png" />
+    <Content Include="Assets\Aniwars\buttons\spellsButton2.png" />
+    <Content Include="Assets\Aniwars\buttons\upgradeButton.png" />
     <Content Include="Assets\Aniwars\buttons\walkButton.png" />
     <Content Include="Assets\Aniwars\castledoors.png" />
     <Content Include="Assets\Aniwars\castledoorsVertical.png" />

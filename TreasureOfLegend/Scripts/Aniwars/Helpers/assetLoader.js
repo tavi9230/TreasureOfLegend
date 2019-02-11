@@ -57,13 +57,14 @@
         game.load.image('endTurnButton', AssetFolder + 'buttons/endTurnButton.png');
         game.load.image('openMenuButton', AssetFolder + 'buttons/openMenuButton.png');
         game.load.image('spellsButton', AssetFolder + 'buttons/spellsButton.png');
-        game.load.image('skillsButton', AssetFolder + 'buttons/skillsButton.png');
+        game.load.image('soulsButton', AssetFolder + 'buttons/soulsButton.png');
         game.load.image('walkButton', AssetFolder + 'buttons/walkButton.png');
         game.load.image('mainHandButton', AssetFolder + 'buttons/mainHandButton.png');
         game.load.image('offHandButton', AssetFolder + 'buttons/offHandButton.png');
         game.load.image('inventoryButton', AssetFolder + 'buttons/inventoryButton.png');
         game.load.image('inspectButton', AssetFolder + 'buttons/inspectButton.png');
         game.load.image('plusButton', AssetFolder + 'buttons/plusButton.png');
+        game.load.image('upgradeButton', AssetFolder + 'buttons/upgradeButton.png');
     };
 
     this.loadMainMenuImages = function() {

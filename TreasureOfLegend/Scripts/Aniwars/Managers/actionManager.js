@@ -177,22 +177,22 @@ export const ActionManager = function (game) {
                 if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === -1) {
                     if (enemyCharConfig.resistances.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
-                        StatusIconConfig.showLifeIcon(this.game, enemy, Math.ceil(attackDamage / 2));
+                        StatusIconConfig.showLifeIcon(self.game, enemy, Math.ceil(attackDamage / 2));
                     } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= (attackDamage * 2);
-                        StatusIconConfig.showLifeIcon(this.game, enemy, attackDamage * 2);
+                        StatusIconConfig.showLifeIcon(self.game, enemy, attackDamage * 2);
                     } else {
                         enemyCharConfig.life.current -= attackDamage;
-                        StatusIconConfig.showLifeIcon(this.game, enemy, attackDamage);
+                        StatusIconConfig.showLifeIcon(self.game, enemy, attackDamage);
                     }
                 }
                 if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                     if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
-                        StatusIconConfig.showArmorIcon(this.game, enemy, Math.ceil(attackDamage / 2));
+                        StatusIconConfig.showArmorIcon(self.game, enemy, Math.ceil(attackDamage / 2));
                     }
                 } else if (enemyCharConfig.naturalArmor > 0) {
                     enemyCharConfig.naturalArmor -= Math.ceil(attackDamage / 2);
-                    StatusIconConfig.showArmorIcon(this.game, enemy, Math.ceil(attackDamage / 2));
+                    StatusIconConfig.showArmorIcon(self.game, enemy, Math.ceil(attackDamage / 2));
                     if (enemyCharConfig.naturalArmor < 0) {
                         enemyCharConfig.naturalArmor = 0;
                     }

@@ -10,7 +10,7 @@
         this._createEndTurnButton();
         this._createMenuButton();
         this._createSpellbookButton();
-        this._createSkillsButton();
+        this._createSoulsButton();
         this._createWalkButton();
         this._createUseMainHandButton();
         this._createUseOffHandButton();
@@ -35,7 +35,7 @@
                 || btn.name === 'useOffHandButton'
                 || btn.name === 'inspectButton'
                 || btn.name === 'walkButton'
-                || btn.name === 'skillsButton'
+                || btn.name === 'soulsButton'
                 || btn.name === 'spellsButton'
                 || btn.name === 'inventoryButton';
         });
@@ -44,7 +44,7 @@
         });
 
         buttons = this.hudbuttons.getChildren().filter(function (btn) {
-            return btn.name === 'skillsButton';
+            return btn.name === 'soulsButton';
         });
         buttons[0].visible = isVisible;
         this.scene.soulsText.visible = isVisible;
@@ -81,103 +81,9 @@
         this.scene.characterStatus.toggleCharacterInfo(char);
     };
     this.openSpellBook = function (character) {
-        // TODO: Beautify the UI for this. Functional wise: show all spells, can select spells with level > 0, can upgrade any spell if you have enough souls
-        if (character.characterConfig.isPlayerControlled) {
-            //this.setButtonTint('spellsButton');
-            var self = this;
-            if (this.spellBook) {
-                this.spellBook.closeButtonGroup.destroy(true);
-                this.spellBook.destroy(true);
-                this.spellBook = null;
-            } else {
-                this.spellBook = this.scene.add.group();
-                var panel = self.scene.add.graphics();
-                panel.fillStyle(0x111111, 0.8);
-                panel.fillRect(this.scene.windowWidth - 300, this.scene.windowHeight - 810, 300, 700);
-                this.spellBook.add(panel);
-                var x = this.scene.windowWidth - 280;
-                var y = this.scene.windowHeight - 800;
-                _.each(character.characterConfig.inventory.spells, function (spell) {
-                    var box = self.scene.add.graphics();
-                    box.fillStyle(0xded7c7, 0.8);
-                    box.fillRect(x - 10, y, 70, 70);
-                    var spellImage = self.scene.add.image(x, y + 10, spell.image).setOrigin(0, 0);
-                    spellImage.displayWidth = 50;
-                    spellImage.displayHeight = 50;
-
-                    box.objectToSend = spell;
-                    spellImage.objectToSend = spell;
-
-                    self.spellBook.add(box);
-                    self.spellBook.add(spellImage);
-                    x += 80;
-                });
-
-                this.spellBook.name = 'spellBook';
-                this.spellBook.closeButtonGroup = this.scene.createCloseButton(this.scene.windowWidth - 20, this.scene.windowHeight - 810, this.spellBook);
-                this.scene.input.setHitArea(this.spellBook.getChildren());
-                _.each(this.spellBook.getChildren(), function (item) {
-                    item.on('pointerdown', function () {
-                        self.scene.events.emit('spellSelected', item.objectToSend);
-                        self.spellBook.destroy(true);
-                        self.spellBook.closeButtonGroup.destroy(true);
-                        panel.destroy();
-                    });
-                });
-            }
-        }
-    };
-    this.openSkillTree = function (character) {
-        // TODO: Remove this and have only the spell book?
-        if (character.characterConfig.isPlayerControlled) {
-            //this.setButtonTint('skillsButton');
-            var self = this;
-            if (this.skillTree) {
-                this.skillTree.closeButtonGroup.destroy(true);
-                this.skillTree.destroy(true);
-                this.skillTree = null;
-            } else {
-                this.skillTree = this.scene.add.group();
-                var panel = self.scene.add.graphics();
-                panel.fillStyle(0x111111, 0.8);
-                panel.fillRect(this.scene.windowWidth - 300, this.scene.windowHeight - 810, 300, 700);
-                this.skillTree.add(panel);
-                var x = this.scene.windowWidth - 280;
-                var y = this.scene.windowHeight - 800;
-                _.each(character.characterConfig.skillsToBuy, function (skill) {
-                    var box = self.scene.add.graphics();
-                    box.fillStyle(0xded7c7, 0.8);
-                    box.fillRect(x - 10, y, 70, 70);
-                    var skillImage = self.scene.add.image(x, y + 10, skill.image).setOrigin(0, 0);
-                    skillImage.displayWidth = 50;
-                    skillImage.displayHeight = 50;
-                    var skillLevelText = self.scene.add.text(x + 22, y + 60, skill.level, { fill: '#FFF' });
-
-                    box.objectToSend = skill;
-                    skillImage.objectToSend = skill;
-                    skillLevelText.objectToSend = skill;
-
-                    self.skillTree.add(box);
-                    self.skillTree.add(skillImage);
-                    self.skillTree.add(skillLevelText);
-                    x += 80;
-                });
-
-                this.skillTree.name = 'skillTree';
-                this.skillTree.closeButtonGroup = this.scene.createCloseButton(this.scene.windowWidth - 20, this.scene.windowHeight - 810, this.skillTree);
-                if (this.scene.activeScene.characters.souls.skillPoints > 0) {
-                    this.scene.input.setHitArea(this.skillTree.getChildren());
-                    _.each(this.skillTree.getChildren(), function (item) {
-                        item.on('pointerdown', function () {
-                            self.scene.events.emit('boughtSkill', item.objectToSend);
-                            self.skillTree.closeButtonGroup.destroy(true);
-                            panel.destroy();
-                            self.openSkillTree(character);
-                        });
-                    });
-                }
-            }
-        }
+        var x = character.characterConfig.isPlayerControlled ? 0 : this.scene.windowWidth - 440,
+            y = 0;
+        this.scene.characterStatus._showCharacterAbilities(character, x, y);
     };
     this.showTips = function (x, y, width, height, textToShow) {
         this.tipsPanel = this.add.graphics();
@@ -223,18 +129,19 @@
         spellsButton.on('pointerout', _.bind(this.hideTips, this.scene));
         this.hudbuttons.add(spellsButton);
     };
-    this._createSkillsButton = function () {
+    this._createSoulsButton = function () {
         var self = this,
-            skillsButton = this.scene.add.image(this.scene.windowWidth - 210, this.scene.windowHeight - 60, 'skillsButton').setOrigin(0, 0);
-        skillsButton.displayHeight = 50;
-        skillsButton.displayWidth = 50;
-        skillsButton.name = 'skillsButton';
-        skillsButton.on('pointerdown', function () {
+            soulsButton = this.scene.add.image(this.scene.windowWidth - 210, this.scene.windowHeight - 60, 'soulsButton').setOrigin(0, 0);
+        soulsButton.displayHeight = 50;
+        soulsButton.displayWidth = 50;
+        soulsButton.name = 'soulsButton';
+        soulsButton.on('pointerdown', function () {
             self.openSkillTree(self.scene.activeScene.activeCharacter);
         });
-        skillsButton.on('pointerover', _.bind(this.showTips, this.scene, skillsButton.x - 45, skillsButton.y - 25, 152, 20, 'Open Skill List'));
-        skillsButton.on('pointerout', _.bind(this.hideTips, this.scene));
-        this.hudbuttons.add(skillsButton);
+        soulsButton.on('pointerover', _.bind(this.showTips, this.scene, soulsButton.x - 45, soulsButton.y - 25, 152, 20, 'Open Skill List'));
+        soulsButton.on('pointerout', _.bind(this.hideTips, this.scene));
+        this.hudbuttons.add(soulsButton);
+        this.scene.soulsText = this.scene.add.text(this.scene.windowWidth - 193, this.scene.windowHeight - 30, '0', { fill: '#D22' });
     };
     this._createWalkButton = function () {
         var walkButton = this.scene.add.image(this.scene.windowWidth - 80, this.scene.windowHeight - 180, 'walkButton').setOrigin(0, 0);
@@ -287,7 +194,6 @@
         this.hudbuttons.add(inspectButton);
     };
     this._createTexts = function () {
-        this.scene.soulsText = this.scene.add.text(this.scene.windowWidth - 193, this.scene.windowHeight - 30, '0', { fill: '#D22' });
         this.scene.turnText = this.scene.add.text(this.scene.windowWidth - 125, this.scene.windowHeight - 92, this.scene.turn, { fill: '#FFF' });
     };
 };

@@ -263,6 +263,19 @@ export const HUDCharacterStatus = function (scene) {
             spellImage.displayWidth = 50;
             spellImage.displayHeight = 50;
             spellImage.objectToSend = spell;
+            if (character.characterConfig.isPlayerControlled && self.scene.activeScene.characters.souls.skillPoints > 0
+                && self.scene.activeScene.activeCharacter.x === character.x
+                && self.scene.activeScene.activeCharacter.y === character.y
+                && spell.level < spell.maxLevel) {
+                var upgradeButton = self.scene.add.image(x, y + 60, 'upgradeButton').setOrigin(0, 0);
+                upgradeButton.displayWidth = 70;
+                upgradeButton.displayHeight = 10;
+                self.characterInfo.add(upgradeButton);
+                self.scene.input.setHitArea([upgradeButton]);
+                upgradeButton.on('pointerdown', function () {
+                    self.scene.events.emit('boughtSkill', spell);
+                });
+            }
 
             self.characterInfo.add(box);
             self.abilityGroup.add(spellImage);
@@ -279,6 +292,14 @@ export const HUDCharacterStatus = function (scene) {
                 self._showAbilityStats(abilityImage, abilityImage.objectToSend);
             });
             abilityImage.on('pointerout', _.bind(self._hideAbilityStats, self));
+            abilityImage.on('pointerdown', function () {
+                if (abilityImage.objectToSend.level > 0) {
+                    var hideAbilityStats = _.bind(self._hideAbilityStats, self);
+                    hideAbilityStats();
+                    self.scene.events.emit('spellSelected', abilityImage.objectToSend);
+                    self._closeCharacterInfo();
+                }
+            });
         });
     };
     this._showAbilityStats = function (image, ability) {
@@ -337,9 +358,11 @@ export const HUDCharacterStatus = function (scene) {
             this.abilitiesImage.destroy(true);
             this.abilitiesImage = null;
         }
-        this.isCharacterInfoMenuOpen = false;
-        this.characterInfo.destroy(true);
-        this.characterInfoCloseButtonGroup.destroy(true);
+        if (this.characterInfo) {
+            this.isCharacterInfoMenuOpen = false;
+            this.characterInfo.destroy(true);
+            this.characterInfoCloseButtonGroup.destroy(true);
+        }
     };
     this._createDropButton = function (x, y, character, itemToDrop) {
         if (itemToDrop &&
