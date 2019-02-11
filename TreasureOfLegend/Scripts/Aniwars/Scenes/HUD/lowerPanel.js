@@ -83,6 +83,7 @@
     this.openSpellBook = function (character) {
         var x = character.characterConfig.isPlayerControlled ? 0 : this.scene.windowWidth - 440,
             y = 0;
+        // TODO: Implement a toggle system
         this.scene.characterStatus._showCharacterAbilities(character, x, y);
     };
     this.showTips = function (x, y, width, height, textToShow) {

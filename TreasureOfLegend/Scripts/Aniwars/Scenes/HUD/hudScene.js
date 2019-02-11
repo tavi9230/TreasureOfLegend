@@ -81,8 +81,11 @@ export const HUDScene = function (sceneName) {
                             self.characterStatus.abilitiesImage = null;
                         }
                         if (self.characterStatus.abilityGroup) {
-                            self.characterStatus.abilityGroup.destroy();
+                            self.characterStatus.abilityGroup.destroy(true);
                         }
+                        self.characterStatus._hideAbilityStats();
+                        var hideTips = _.bind(self.lowerPanel.hideTips, self);
+                        hideTips();
                         //self.lowerPanel.setButtonTint('inventoryButton');
                     } else if (groupToDestroy.name === 'spellBook') {
                         //self.lowerPanel.setButtonTint('spellsButton');

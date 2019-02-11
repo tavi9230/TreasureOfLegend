@@ -24,6 +24,9 @@ export const HUDCharacterStatus = function (scene) {
             this._createCharacterInfoScreen(character, x, y);
         } else {
             this._closeCharacterInfo();
+            this._hideAbilityStats();
+            var hideTips = _.bind(this.scene.lowerPanel.hideTips, this.scene);
+            hideTips();
             if ((this.whosInventory && (this.whosInventory.x !== character.x || this.whosInventory.y !== character.y)) || forceRemainOpen) {
                 this.toggleCharacterInfo(character);
             }
