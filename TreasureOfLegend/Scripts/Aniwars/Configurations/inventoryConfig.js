@@ -45,6 +45,7 @@ export const InventoryConfig = {
         armor: 0
     },
     bow: {
+        name: 'Crude bow',
         type: EnumHelper.inventoryEnum.mainHand,
         damage: [
             {
@@ -60,6 +61,7 @@ export const InventoryConfig = {
         slots: 1
     },
     shortsword: {
+        name: 'Shortsword',
         type: EnumHelper.inventoryEnum.mainHand,
         damage: [
             {
@@ -75,6 +77,7 @@ export const InventoryConfig = {
         slots: 1
     },
     head: {
+        name: 'Helmet',
         type: EnumHelper.inventoryEnum.head,
         image: 'head',
         description: 'Head item',
@@ -82,6 +85,7 @@ export const InventoryConfig = {
         armor: 2
     },
     shield: {
+        name: 'Shield',
         type: EnumHelper.inventoryEnum.offHand,
         image: 'shield',
         description: 'Shield item',
@@ -89,6 +93,7 @@ export const InventoryConfig = {
         armor: 2
     },
     chainmail: {
+        name: 'Chainmail',
         type: EnumHelper.inventoryEnum.body,
         image: 'chainmail',
         description: 'Chainmail item',
@@ -96,6 +101,7 @@ export const InventoryConfig = {
         armor: 4
     },
     hand: {
+        name: 'Gloves',
         type: EnumHelper.inventoryEnum.hands,
         image: 'hand',
         description: 'Hand item',
@@ -103,6 +109,7 @@ export const InventoryConfig = {
         armor: 1
     },
     feet: {
+        name: 'Boots',
         type: EnumHelper.inventoryEnum.feet,
         image: 'feet',
         description: 'Feet item',

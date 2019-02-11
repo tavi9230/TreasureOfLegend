@@ -95,11 +95,17 @@ export const Enemy = function (game) {
         charConfig.experience = config.experience;
         charConfig.souls = config.souls;
         charConfig.inventory.mainHand = config.inventory.mainHand();
+        charConfig.inventory.mainHand.isEquipped = true;
         charConfig.inventory.offHand = config.inventory.offHand();
+        charConfig.inventory.offHand.isEquipped = true;
         charConfig.inventory.head = config.inventory.head();
+        charConfig.inventory.head.isEquipped = true;
         charConfig.inventory.body = config.inventory.body();
+        charConfig.inventory.body.isEquipped = true;
         charConfig.inventory.hands = config.inventory.hands();
+        charConfig.inventory.hands.isEquipped = true;
         charConfig.inventory.feet = config.inventory.feet();
+        charConfig.inventory.feet.isEquipped = true;
         charConfig.inventory.slots.max = config.inventory.slots.max;
         charConfig.inventory.money = config.inventory.getMoney();
         if (config.inventory.slots.items.length > 0) {

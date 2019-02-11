@@ -15,54 +15,10 @@ export const HUDCharacterStatus = function (scene) {
     this.toggleCharacterInfo = function (character, forceRemainOpen) {
         // TODO: Show character inventory if player controlled otherwise show enemy info
         if (!this.isCharacterInfoMenuOpen) {
-            var charConfig = character.characterConfig,
-                isPlayerControlled = character.characterConfig.isPlayerControlled,
-                panel = this.scene.add.graphics(),
-                x = isPlayerControlled ? 0 : this.scene.windowWidth - 440,
-                startX = x,
+            var x = character.characterConfig.isPlayerControlled ? 0 : this.scene.windowWidth - 440,
                 y = 0;
-            this.whosInventory = character;
-            this.isCharacterInfoMenuOpen = true;
-            this.characterInfo = this.scene.add.group();
-            panel.fillStyle(0x111111, 1);
-            panel.fillRect(x, y, 440, 440);
-            this.characterInfo.add(panel);
-            // Equiped Inventory -----------------------------------------------------------------------------------------------------
-            this._createInventorySlot(x + 75, y + 10, 50, 50, character, charConfig.inventory.head);
-            this._createInventorySlot(x + 75, y + 65, 50, 50, character, charConfig.inventory.body);
-            this._createInventorySlot(x + 20, y + 65, 50, 50, character, charConfig.inventory.mainHand);
-            this._createInventorySlot(x + 130, y + 65, 50, 50, character, charConfig.inventory.offHand);
-            this._createInventorySlot(x + 20, y + 120, 50, 50, character, charConfig.inventory.hands);
-            this._createInventorySlot(x + 130, y + 120, 50, 50, character, charConfig.inventory.feet);
-            // Unequiped inventory ---------------------------------------------------------------------------------------------------
-            y += 220;
-            for (let i = 0; i < charConfig.inventory.slots.max; i++) {
-                this._createInventorySlot(x, y, 50, 50, character, charConfig.inventory.slots.items[i]);
-                x += 55;
-                if (x >= startX + 440) {
-                    x = isPlayerControlled ? 0 : this.scene.windowWidth - 440;
-                    y += 55;
-                }
-            }
-            x = isPlayerControlled ? 0 : this.scene.windowWidth - 440;
-            y = 0;
-            this.characterInfo.name = 'characterInfo';
-            this.characterInfoCloseButtonGroup = this.scene.createCloseButton(x + 420, y, this.characterInfo);
-
-            var text = isPlayerControlled
-                ? 'Experience: ' + charConfig.experience.current + '/' + charConfig.experience.nextLevel
-                : 'Experience: ' + charConfig.experience;
-            var experienceText = this.scene.add.text(x + 220, y + 25, text, { fill: '#FFF' });
-            var strengthText = this.scene.add.text(x + 220, y + 40, 'Strength: ' + charConfig.attributes.strength, { fill: '#FFF' });
-            var dexterityText = this.scene.add.text(x + 220, y + 55, 'Dexterity: ' + charConfig.attributes.dexterity, { fill: '#FFF' });
-            var intelligenceText = this.scene.add.text(x + 220, y + 70, 'Intelligence: ' + charConfig.attributes.intelligence, { fill: '#FFF' });
-            this.characterInfo.add(experienceText);
-            this.characterInfo.add(strengthText);
-            this.characterInfo.add(dexterityText);
-            this.characterInfo.add(intelligenceText);
-            if (isPlayerControlled) {
-                this.showAttributePointSelection(character, x, y);
-            }
+            this._createInventory(character, x, y);
+            this._createCharacterInfoScreen(character, x, y);
         } else {
             if (this.attributesInfo) {
                 this.attributesInfo.destroy(true);
@@ -108,6 +64,41 @@ export const HUDCharacterStatus = function (scene) {
         }
     };
 
+    this._createInventory = function (character, x, y) {
+        var charConfig = character.characterConfig,
+            isPlayerControlled = character.characterConfig.isPlayerControlled,
+            panel = this.scene.add.graphics(),
+            startX = x;
+        this.whosInventory = character;
+        this.isCharacterInfoMenuOpen = true;
+        this.characterInfo = this.scene.add.group();
+        panel.fillStyle(0x111111, 1);
+        panel.fillRect(x, y, 440, 440);
+        this.characterInfo.add(panel);
+        // Equiped Inventory -----------------------------------------------------------------------------------------------------
+        this._createInventorySlot(x + 75, y + 10, 50, 50, character, charConfig.inventory.head);
+        this._createInventorySlot(x + 75, y + 65, 50, 50, character, charConfig.inventory.body);
+        this._createInventorySlot(x + 20, y + 65, 50, 50, character, charConfig.inventory.mainHand);
+        this._createInventorySlot(x + 130, y + 65, 50, 50, character, charConfig.inventory.offHand);
+        this._createInventorySlot(x + 20, y + 120, 50, 50, character, charConfig.inventory.hands);
+        this._createInventorySlot(x + 130, y + 120, 50, 50, character, charConfig.inventory.feet);
+        // Unequiped inventory ---------------------------------------------------------------------------------------------------
+        if (isPlayerControlled) {
+            y += 220;
+            for (let i = 0; i < charConfig.inventory.slots.max; i++) {
+                this._createInventorySlot(x, y, 50, 50, character, charConfig.inventory.slots.items[i]);
+                x += 55;
+                if (x >= startX + 440) {
+                    x = isPlayerControlled ? 0 : this.scene.windowWidth - 440;
+                    y += 55;
+                }
+            }
+        }
+        x = isPlayerControlled ? 0 : this.scene.windowWidth - 440;
+        y = 0;
+        this.characterInfo.name = 'characterInfo';
+        this.characterInfoCloseButtonGroup = this.scene.createCloseButton(x + 420, y, this.characterInfo);
+    };
     this._createInventorySlot = function (x, y, w, h, character, item) {
         var image = null,
             box = this.scene.add.graphics(),
@@ -139,6 +130,44 @@ export const HUDCharacterStatus = function (scene) {
                     self.characterInfo.add(item);
                 });
             }
+        }
+    };
+    this._createCharacterInfoScreen = function (character, x, y) {
+        var isPlayerControlled = character.characterConfig.isPlayerControlled,
+            charConfig = character.characterConfig,
+            text = isPlayerControlled
+                ? 'Experience: ' + charConfig.experience.current + '/' + charConfig.experience.nextLevel
+                : 'Experience: ' + charConfig.experience,
+            textStyle = {
+                fill: '#FFF'
+            };
+        var experienceText = this.scene.add.text(x + 220, y + 25, text, { fill: '#FFF' });
+        var strengthText = this.scene.add.text(x + 220, y + 40, 'Strength: ' + charConfig.attributes.strength, textStyle);
+        var dexterityText = this.scene.add.text(x + 220, y + 55, 'Dexterity: ' + charConfig.attributes.dexterity, textStyle);
+        var intelligenceText = this.scene.add.text(x + 220, y + 70, 'Intelligence: ' + charConfig.attributes.intelligence, textStyle);
+
+        var armorText = this.scene.add.text(x + 220, y + 100, 'Armor total: ' + charConfig.armor, textStyle);
+        var naturalArmorText = this.scene.add.text(x + 220, y + 115, 'Natural Armor: ' + charConfig.naturalArmor, textStyle);
+        var lifeText = this.scene.add.text(x + 220, y + 130, 'Health: ' + charConfig.life.current + '/' + charConfig.life.max, textStyle);
+        var manaText = this.scene.add.text(x + 220, y + 145, 'Mana: ' + (charConfig.mana.max - charConfig.mana.spent) + '/' + charConfig.mana.max, textStyle);
+        var movementText = this.scene.add.text(x + 220, y + 160, 'Movement: ' + (charConfig.movement.max - charConfig.movement.spent) + '/' + charConfig.movement.max, textStyle);
+        var energyText = this.scene.add.text(x + 220, y + 175, 'Energy: ' + (charConfig.energy.max - charConfig.energy.spent) + '/' + charConfig.energy.max, textStyle);
+
+        var moneyText = this.scene.add.text(x + 220, y + 205, 'Money: ' + charConfig.inventory.money, textStyle);
+
+        this.characterInfo.add(experienceText);
+        this.characterInfo.add(strengthText);
+        this.characterInfo.add(dexterityText);
+        this.characterInfo.add(intelligenceText);
+        this.characterInfo.add(armorText);
+        this.characterInfo.add(naturalArmorText);
+        this.characterInfo.add(lifeText);
+        this.characterInfo.add(manaText);
+        this.characterInfo.add(movementText);
+        this.characterInfo.add(energyText);
+        this.characterInfo.add(moneyText);
+        if (isPlayerControlled) {
+            this.showAttributePointSelection(character, x, y);
         }
     };
     this._createDropButton = function (x, y, character, itemToDrop) {
