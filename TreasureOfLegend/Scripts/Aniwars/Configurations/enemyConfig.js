@@ -63,6 +63,7 @@ var inventoryGetter = {
 
 export const EnemyConfig = {
     thug: {
+        name: 'Thug',
         height: 50,
         width: 50,
         level: 1,

@@ -11,6 +11,9 @@ export const HUDCharacterStatus = function (scene) {
     this.attributesInfoBox = null;
     this.characterBar = null;
     this.whosInventory = null;
+    this.abilityGroup = null;
+    this.abilitiesImage = null;
+    this.abilityStats = null;
 
     this.toggleCharacterInfo = function (character, forceRemainOpen) {
         // TODO: Show character inventory if player controlled otherwise show enemy info
@@ -20,13 +23,7 @@ export const HUDCharacterStatus = function (scene) {
             this._createInventory(character, x, y);
             this._createCharacterInfoScreen(character, x, y);
         } else {
-            if (this.attributesInfo) {
-                this.attributesInfo.destroy(true);
-                this.attributesInfoBox.destroy(true);
-            }
-            this.isCharacterInfoMenuOpen = false;
-            this.characterInfo.destroy(true);
-            this.characterInfoCloseButtonGroup.destroy(true);
+            this._closeCharacterInfo();
             if ((this.whosInventory && (this.whosInventory.x !== character.x || this.whosInventory.y !== character.y)) || forceRemainOpen) {
                 this.toggleCharacterInfo(character);
             }
@@ -49,7 +46,7 @@ export const HUDCharacterStatus = function (scene) {
             var attributePointsText = this.scene.add.text(x + 220, y + 10, 'Attribute points: ' + charConfig.experience.attributePoints, { fill: '#FFF' });
             this.attributesInfo.add(attributePointsText);
             for (let i = 0; i < 3; i++) {
-                var attributeButton = this.scene.add.image(x + 200, y + 50 + (i * 15), 'plusButton');
+                var attributeButton = this.scene.add.image(x + 200, y + 40 + (i * 15), 'plusButton').setOrigin(0, 0);
                 attributeButton.displayHeight = 14;
                 attributeButton.displayWidth = 14;
                 attributeButton.objectToSend = i + 1;
@@ -68,7 +65,8 @@ export const HUDCharacterStatus = function (scene) {
         var charConfig = character.characterConfig,
             isPlayerControlled = character.characterConfig.isPlayerControlled,
             panel = this.scene.add.graphics(),
-            startX = x;
+            startX = x,
+            self = this;
         this.whosInventory = character;
         this.isCharacterInfoMenuOpen = true;
         this.characterInfo = this.scene.add.group();
@@ -83,19 +81,23 @@ export const HUDCharacterStatus = function (scene) {
         this._createInventorySlot(x + 20, y + 120, 50, 50, character, charConfig.inventory.hands);
         this._createInventorySlot(x + 130, y + 120, 50, 50, character, charConfig.inventory.feet);
         // Unequiped inventory ---------------------------------------------------------------------------------------------------
-        if (isPlayerControlled) {
-            y += 220;
-            for (let i = 0; i < charConfig.inventory.slots.max; i++) {
-                this._createInventorySlot(x, y, 50, 50, character, charConfig.inventory.slots.items[i]);
-                x += 55;
-                if (x >= startX + 440) {
-                    x = isPlayerControlled ? 0 : this.scene.windowWidth - 440;
-                    y += 55;
-                }
+        y += 220;
+        for (let i = 0; i < charConfig.inventory.slots.max; i++) {
+            this._createInventorySlot(x, y, 50, 50, character, charConfig.inventory.slots.items[i]);
+            x += 55;
+            if (x >= startX + 440) {
+                x = isPlayerControlled ? 0 : this.scene.windowWidth - 440;
+                y += 55;
             }
         }
         x = isPlayerControlled ? 0 : this.scene.windowWidth - 440;
         y = 0;
+        var callback = function () {
+            var hideTips = _.bind(self.scene.lowerPanel.hideTips, self.scene);
+            hideTips();
+            self._showCharacterAbilities(character, x, y);
+        };
+        this._createAbilitiesTabButton(character, x, y, 'spellsButton', 'Abilities', callback);
         this.characterInfo.name = 'characterInfo';
         this.characterInfoCloseButtonGroup = this.scene.createCloseButton(x + 420, y, this.characterInfo);
     };
@@ -139,8 +141,12 @@ export const HUDCharacterStatus = function (scene) {
                 ? 'Experience: ' + charConfig.experience.current + '/' + charConfig.experience.nextLevel
                 : 'Experience: ' + charConfig.experience,
             textStyle = {
-                fill: '#FFF'
-            };
+                fill: '#FFF',
+                wordWrap: {
+                    width: 220
+                }
+            },
+            damageArray = ['slashing', 'piercing', 'bludgeoning', 'fire'];
         var experienceText = this.scene.add.text(x + 220, y + 25, text, { fill: '#FFF' });
         var strengthText = this.scene.add.text(x + 220, y + 40, 'Strength: ' + charConfig.attributes.strength, textStyle);
         var dexterityText = this.scene.add.text(x + 220, y + 55, 'Dexterity: ' + charConfig.attributes.dexterity, textStyle);
@@ -155,6 +161,29 @@ export const HUDCharacterStatus = function (scene) {
 
         var moneyText = this.scene.add.text(x + 220, y + 205, 'Money: ' + charConfig.inventory.money, textStyle);
 
+        var invulnerabilities = '', resistances = '', vulnerabilities = '';
+        for (let i = 0; i < charConfig.invulnerabilities.length; i++) {
+            if (i !== charConfig.invulnerabilities.length - 1) {
+                invulnerabilities += damageArray[charConfig.invulnerabilities[i]] + ', ';
+            } else {
+                invulnerabilities += damageArray[charConfig.invulnerabilities[i]];
+            }
+        }
+        for (let i = 0; i < charConfig.resistances.length; i++) {
+            if (i !== charConfig.resistances.length - 1) {
+                resistances += damageArray[charConfig.resistances[i]] + ', ';
+            } else {
+                resistances += damageArray[charConfig.resistances[i]];
+            }
+        }
+        for (let i = 0; i < charConfig.vulnerabilities.length; i++) {
+            if (i !== charConfig.vulnerabilities.length - 1) {
+                vulnerabilities += damageArray[charConfig.vulnerabilities[i]] + ', ';
+            } else {
+                vulnerabilities += damageArray[charConfig.vulnerabilities[i]];
+            }
+        }
+
         this.characterInfo.add(experienceText);
         this.characterInfo.add(strengthText);
         this.characterInfo.add(dexterityText);
@@ -166,9 +195,151 @@ export const HUDCharacterStatus = function (scene) {
         this.characterInfo.add(movementText);
         this.characterInfo.add(energyText);
         this.characterInfo.add(moneyText);
+        if (invulnerabilities) {
+            var invulnerabilitiesText = this.scene.add.text(x + 220, y + 220, 'Invulnerable: ' + invulnerabilities, textStyle);
+            this.characterInfo.add(invulnerabilitiesText);
+        }
+        if (resistances) {
+            var resistancesText = this.scene.add.text(x + 220, y + 250, 'Resistant: ' + resistances, textStyle);
+            this.characterInfo.add(resistancesText);
+        }
+        if (vulnerabilities) {
+            var vulnerabilitiesText = this.scene.add.text(x + 220, y + 280, 'Vulnerable: ' + vulnerabilities, textStyle);
+            this.characterInfo.add(vulnerabilitiesText);
+        }
         if (isPlayerControlled) {
             this.showAttributePointSelection(character, x, y);
         }
+    };
+    this._createAbilitiesTabButton = function (character, x, y, buttonImage, text, callback) {
+        var button = this.scene.add.graphics(),
+            self = this,
+            startX = character.characterConfig.isPlayerControlled ? x + 440 : x - 30;
+        button.fillStyle(0x111111, 1);
+        button.fillRect(startX, y + 20, 30, 30);
+        if (this.abilitiesImage) {
+            this.abilitiesImage.destroy(true);
+            this.abilitiesImage = null;
+        }
+        this.abilitiesImage = this.scene.add.image(startX, y + 20, buttonImage).setOrigin(0, 0);
+        this.abilitiesImage.displayWidth = 30;
+        this.abilitiesImage.displayHeight = 30;
+        this.characterInfo.add(button);
+        this.scene.input.setHitArea([this.abilitiesImage]);
+        this.abilitiesImage.on('pointerdown', callback);
+        this.abilitiesImage.on('pointerover', function () {
+            var showTips = _.bind(self.scene.lowerPanel.showTips, self.scene);
+            showTips(startX + 30, y + 20, 100, 20, text);
+        });
+        this.abilitiesImage.on('pointerout', function () {
+            var hideTips = _.bind(self.scene.lowerPanel.hideTips, self.scene);
+            hideTips();
+        });
+    };
+    this._showCharacterAbilities = function (character, x, y) {
+        this._closeCharacterInfo();
+        this.isCharacterInfoMenuOpen = true;
+        var self = this,
+            startX = x;
+        this.characterInfo = this.scene.add.group();
+        this.abilityGroup = this.scene.add.group();
+        var panel = this.scene.add.graphics();
+        panel.fillStyle(0x111111, 1);
+        panel.fillRect(x, y, 440, 440);
+        this.characterInfo.add(panel);
+        this.characterInfo.name = 'characterInfo';
+        this.characterInfoCloseButtonGroup = this.scene.createCloseButton(x + 420, y, this.characterInfo);
+        var callback = function () {
+            var hideTips = _.bind(self.scene.lowerPanel.hideTips, self.scene);
+            hideTips();
+            self.toggleCharacterInfo(character, true);
+        };
+        this._createAbilitiesTabButton(character, x, y, 'inventoryButton', 'Inventory', callback);
+        _.each(character.characterConfig.inventory.spells, function (spell) {
+            var box = self.scene.add.graphics();
+            box.fillStyle(0xded7c7, 1);
+            box.fillRect(x, y, 70, 70);
+            var spellImage = self.scene.add.image(x + 10, y + 10, spell.image).setOrigin(0, 0);
+            spellImage.displayWidth = 50;
+            spellImage.displayHeight = 50;
+            spellImage.objectToSend = spell;
+
+            self.characterInfo.add(box);
+            self.abilityGroup.add(spellImage);
+            x += 80;
+            if (x >= startX + 440) {
+                x = startX;
+                y += 80;
+            }
+        });
+
+        this.scene.input.setHitArea(this.abilityGroup.getChildren());
+        _.each(this.abilityGroup.getChildren(), function (abilityImage) {
+            abilityImage.on('pointerover', function () {
+                self._showAbilityStats(abilityImage, abilityImage.objectToSend);
+            });
+            abilityImage.on('pointerout', _.bind(self._hideAbilityStats, self));
+        });
+    };
+    this._showAbilityStats = function (image, ability) {
+        var panel = this.scene.add.graphics(),
+            nameText, descriptionText, damageText, rangeText, costText, levelText, isPassiveText,
+            damageArray = ['slashing', 'piercing', 'bludgeoning', 'fire'],
+            damage = '',
+            textStyle = {
+                fill: '#FFF',
+                wordWrap: {
+                    width: 145
+                }
+            };
+        panel.fillStyle(0x111111, 1);
+        panel.fillRect(image.x + 50, image.y, 150, 150);
+        this.abilityStats = this.scene.add.group();
+        this.abilityStats.add(panel);
+        nameText = this.scene.add.text(image.x + 55, image.y, ability.name, textStyle);
+        this.abilityStats.add(nameText);
+        descriptionText = this.scene.add.text(image.x + 55, image.y + 30, ability.description, textStyle);
+        this.abilityStats.add(descriptionText);
+        for (let i = 0; i < ability.damage.length; i++) {
+            if (i !== ability.damage.length - 1) {
+                damage += ability.damage[0].value + ' ' + damageArray[ability.damage[0].type - 1] + ', ';
+            } else {
+                damage += ability.damage[0].value + ' ' + damageArray[ability.damage[0].type - 1];
+            }
+        }
+        damageText = this.scene.add.text(image.x + 55, image.y + 60, 'Damage: ' + damage, textStyle);
+        this.abilityStats.add(damageText);
+        rangeText = this.scene.add.text(image.x + 55, image.y + 75, 'Range: ' + ability.range, textStyle);
+        this.abilityStats.add(rangeText);
+        costText = this.scene.add.text(image.x + 55, image.y + 90, 'Cost: ' + ability.cost, textStyle);
+        this.abilityStats.add(costText);
+        levelText = this.scene.add.text(image.x + 55, image.y + 105, 'Level: ' + ability.level, textStyle);
+        this.abilityStats.add(levelText);
+        isPassiveText = this.scene.add.text(image.x + 55, image.y + 120, ability.isPassive ? 'Passive' : 'Active', textStyle);
+        this.abilityStats.add(isPassiveText);
+    };
+    this._hideAbilityStats = function () {
+        if (this.abilityStats) {
+            this.abilityStats.destroy(true);
+            this.abilityStats = null;
+        }
+    };
+    this._closeCharacterInfo = function () {
+        // TODO: Hide tips in case player presses TAB
+        if (this.attributesInfo) {
+            this.attributesInfo.destroy(true);
+            this.attributesInfoBox.destroy(true);
+        }
+        if (this.abilityGroup) {
+            this.abilityGroup.destroy(true);
+        }
+        if (this.abilitiesImage) {
+            this.abilitiesImage.destroy(true);
+            this.abilitiesImage = null;
+        }
+        this.isCharacterInfoMenuOpen = false;
+        this.characterInfo.destroy(true);
+        this.characterInfoCloseButtonGroup.destroy(true);
     };
     this._createDropButton = function (x, y, character, itemToDrop) {
         if (itemToDrop &&

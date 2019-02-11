@@ -64,6 +64,7 @@ export const HUDScene = function (sceneName) {
             this.input.setHitArea(closeButtonGroup.getChildren());
             _.each(closeButtonGroup.getChildren(), function (item) {
                 item.on('pointerdown', function () {
+                    // TODO: Rework this
                     groupToDestroy.destroy(true);
                     if (groupToDestroy.name === 'characterInfo') {
                         self.characterStatus.isCharacterInfoMenuOpen = false;
@@ -72,6 +73,13 @@ export const HUDScene = function (sceneName) {
                         }
                         if (self.characterStatus.attributesInfoBox) {
                             self.characterStatus.attributesInfoBox.destroy(true);
+                        }
+                        if (self.characterStatus.attributesInfoBox) {
+                            self.characterStatus.attributesInfoBox.destroy(true);
+                        }
+                        if (self.characterStatus.abilitiesImage) {
+                            self.characterStatus.abilitiesImage.destroy(true);
+                            self.characterStatus.abilitiesImage = null;
                         }
                         //self.lowerPanel.setButtonTint('inventoryButton');
                     } else if (groupToDestroy.name === 'spellBook') {

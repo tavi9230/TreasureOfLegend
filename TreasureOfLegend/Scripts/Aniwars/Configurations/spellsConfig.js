@@ -2,6 +2,7 @@
 
 export const SpellsConfig = {
     firebolt: {
+        name: 'Firebolt',
         damage: [
             {
                 type: EnumHelper.damageTypeEnum.fire,
