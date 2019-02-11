@@ -294,14 +294,15 @@ export const SceneManager = function (game) {
     this._interactWithEnemy = (enemy, pointer) => {
         // TODO: Move to action manager?
         var actionId = this.game.activeCharacter.characterConfig.energy.actionId;
-        if (actionId === EnumHelper.actionEnum.attackMainHand || actionId === EnumHelper.actionEnum.attackSpell) {
+        if (pointer.rightButtonDown()) {
+            this._showCharacterInventory(enemy, pointer);
+        }
+        else if (actionId === EnumHelper.actionEnum.attackMainHand || actionId === EnumHelper.actionEnum.attackSpell) {
             this.game.characters.interactWithEnemy(enemy);
         } else if (actionId === EnumHelper.actionEnum.inspect) {
             this.game.activeCharacter.characterConfig.energy.actionId = -1;
             this.game.activeCharacter.characterConfig.energy.selectedAction = null;
             // TODO: Show enemy description?
-        } else {
-            this._showCharacterInventory(enemy, pointer);
         }
     };
     this._hoverCharacter = (character) => {

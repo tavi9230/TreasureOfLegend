@@ -198,11 +198,11 @@ export const HUDScene = function (sceneName) {
             this.enemyInventory = this.add.group();
             var panel = this.add.graphics();
             panel.fillStyle(0x111111, 0.8);
-            panel.fillRect(400, 290, 200, 400);
+            panel.fillRect(470, 0, 220, 440);
             this.enemyInventory.add(panel);
             this.characterStatus.toggleCharacterInfo(activeCharacter, true);
-            var x = 410;
-            var y = 300;
+            var x = 480;
+            var y = 10;
             var image;
             var self = this;
             y = this._addToEnemyInventory('mainHand', characterBelonging, x, y);
@@ -213,6 +213,7 @@ export const HUDScene = function (sceneName) {
             y = this._addToEnemyInventory('feet', characterBelonging, x, y);
             if (characterBelonging.inventory.slots.items.length > 0) {
                 _.each(characterBelonging.inventory.slots.items, function (item) {
+                    item.isEquipped = false;
                     image = self.add.image(x, y, item.image).setOrigin(0, 0);
                     image.displayWidth = 50;
                     image.displayHeight = 50;
@@ -306,6 +307,7 @@ export const HUDScene = function (sceneName) {
         },
         _addToEnemyInventory: function (location, characterBelonging, x, y) {
             if (characterBelonging.inventory[location].type !== EnumHelper.inventoryEnum.defaultEquipment) {
+                characterBelonging.inventory[location].isEquipped = false;
                 var image = this.add.image(x, y, characterBelonging.inventory[location].image).setOrigin(0, 0);
                 image.displayWidth = 50;
                 image.displayHeight = 50;
@@ -389,7 +391,7 @@ export const HUDScene = function (sceneName) {
             if (characterConfig.inventory[location].type !== EnumHelper.inventoryEnum.defaultEquipment && !item.isEquipped) {
                 equippedBox = this.add.graphics();
                 equippedBox.fillStyle(0x222222, 1);
-                equippedBox.fillRect(x + 150, y, 100, 100);
+                equippedBox.fillRect(x + 200, y, 150, 150);
                 equippedHasDamage = characterConfig.inventory[location].damage;
                 if (equippedHasDamage) {
                     damage = '';
