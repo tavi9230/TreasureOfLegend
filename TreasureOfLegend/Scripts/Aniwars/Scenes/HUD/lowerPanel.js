@@ -81,6 +81,7 @@
         this.scene.characterStatus.toggleCharacterInfo(char);
     };
     this.openSpellBook = function (character) {
+        // TODO: Beautify the UI for this. Functional wise: show all spells, can select spells with level > 0, can upgrade any spell if you have enough souls
         if (character.characterConfig.isPlayerControlled) {
             //this.setButtonTint('spellsButton');
             var self = this;
@@ -127,6 +128,7 @@
         }
     };
     this.openSkillTree = function (character) {
+        // TODO: Remove this and have only the spell book?
         if (character.characterConfig.isPlayerControlled) {
             //this.setButtonTint('skillsButton');
             var self = this;
