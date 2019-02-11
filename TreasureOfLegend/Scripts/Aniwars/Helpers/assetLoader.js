@@ -63,6 +63,7 @@
         game.load.image('offHandButton', AssetFolder + 'buttons/offHandButton.png');
         game.load.image('inventoryButton', AssetFolder + 'buttons/inventoryButton.png');
         game.load.image('inspectButton', AssetFolder + 'buttons/inspectButton.png');
+        game.load.image('plusButton', AssetFolder + 'buttons/plusButton.png');
     };
 
     this.loadMainMenuImages = function() {

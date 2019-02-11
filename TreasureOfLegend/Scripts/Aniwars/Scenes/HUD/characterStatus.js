@@ -15,46 +15,54 @@ export const HUDCharacterStatus = function (scene) {
     this.toggleCharacterInfo = function (character, forceRemainOpen) {
         // TODO: Show character inventory if player controlled otherwise show enemy info
         if (!this.isCharacterInfoMenuOpen) {
+            var charConfig = character.characterConfig,
+                isPlayerControlled = character.characterConfig.isPlayerControlled,
+                panel = this.scene.add.graphics(),
+                x = isPlayerControlled ? 0 : this.scene.windowWidth - 440,
+                startX = x,
+                y = 0;
             this.whosInventory = character;
-            var charConfig = character.characterConfig;
             this.isCharacterInfoMenuOpen = true;
             this.characterInfo = this.scene.add.group();
-            var panel = this.scene.add.graphics();
-            panel.fillStyle(0x111111, 0.8);
-            panel.fillRect(0, this.scene.windowHeight - 510, 400, 400);
+            panel.fillStyle(0x111111, 1);
+            panel.fillRect(x, y, 440, 440);
             this.characterInfo.add(panel);
             // Equiped Inventory -----------------------------------------------------------------------------------------------------
-            this._createInventorySlot(75, this.scene.windowHeight - 500, 50, 50, character, charConfig.inventory.head);
-            this._createInventorySlot(75, this.scene.windowHeight - 445, 50, 50, character, charConfig.inventory.body);
-            this._createInventorySlot(20, this.scene.windowHeight - 445, 50, 50, character, charConfig.inventory.mainHand);
-            this._createInventorySlot(130, this.scene.windowHeight - 445, 50, 50, character, charConfig.inventory.offHand);
-            this._createInventorySlot(20, this.scene.windowHeight - 390, 50, 50, character, charConfig.inventory.hands);
-            this._createInventorySlot(75, this.scene.windowHeight - 390, 50, 50, character, charConfig.inventory.feet);
+            this._createInventorySlot(x + 75, y + 10, 50, 50, character, charConfig.inventory.head);
+            this._createInventorySlot(x + 75, y + 65, 50, 50, character, charConfig.inventory.body);
+            this._createInventorySlot(x + 20, y + 65, 50, 50, character, charConfig.inventory.mainHand);
+            this._createInventorySlot(x + 130, y + 65, 50, 50, character, charConfig.inventory.offHand);
+            this._createInventorySlot(x + 20, y + 120, 50, 50, character, charConfig.inventory.hands);
+            this._createInventorySlot(x + 130, y + 120, 50, 50, character, charConfig.inventory.feet);
             // Unequiped inventory ---------------------------------------------------------------------------------------------------
-            var y = this.scene.windowHeight - 310;
-            var x = 0;
+            y += 220;
             for (let i = 0; i < charConfig.inventory.slots.max; i++) {
                 this._createInventorySlot(x, y, 50, 50, character, charConfig.inventory.slots.items[i]);
-                x += 50;
-                if (x >= 400) {
-                    x = 0;
-                    y += 50;
+                x += 55;
+                if (x >= startX + 440) {
+                    x = isPlayerControlled ? 0 : this.scene.windowWidth - 440;
+                    y += 55;
                 }
             }
+            x = isPlayerControlled ? 0 : this.scene.windowWidth - 440;
+            y = 0;
             this.characterInfo.name = 'characterInfo';
-            this.characterInfoCloseButtonGroup = this.scene.createCloseButton(380, this.scene.windowHeight - 510, this.characterInfo);
+            this.characterInfoCloseButtonGroup = this.scene.createCloseButton(x + 420, y, this.characterInfo);
 
-            var experienceText = this.scene.add.text(220, this.scene.windowHeight - 470,
-                'Experience: ' + charConfig.experience.current + '/' + charConfig.experience.nextLevel, { fill: '#FFF' });
-            var strengthText = this.scene.add.text(220, this.scene.windowHeight - 455, 'Strength: ' + charConfig.attributes.strength, { fill: '#FFF' });
-            var dexterityText = this.scene.add.text(220, this.scene.windowHeight - 440, 'Dexterity: ' + charConfig.attributes.dexterity, { fill: '#FFF' });
-            var intelligenceText = this.scene.add.text(220, this.scene.windowHeight - 425, 'Intelligence: ' + charConfig.attributes.intelligence, { fill: '#FFF' });
+            var text = isPlayerControlled
+                ? 'Experience: ' + charConfig.experience.current + '/' + charConfig.experience.nextLevel
+                : 'Experience: ' + charConfig.experience;
+            var experienceText = this.scene.add.text(x + 220, y + 25, text, { fill: '#FFF' });
+            var strengthText = this.scene.add.text(x + 220, y + 40, 'Strength: ' + charConfig.attributes.strength, { fill: '#FFF' });
+            var dexterityText = this.scene.add.text(x + 220, y + 55, 'Dexterity: ' + charConfig.attributes.dexterity, { fill: '#FFF' });
+            var intelligenceText = this.scene.add.text(x + 220, y + 70, 'Intelligence: ' + charConfig.attributes.intelligence, { fill: '#FFF' });
             this.characterInfo.add(experienceText);
             this.characterInfo.add(strengthText);
             this.characterInfo.add(dexterityText);
             this.characterInfo.add(intelligenceText);
-
-            this.showAttributePointSelection(character);
+            if (isPlayerControlled) {
+                this.showAttributePointSelection(character, x, y);
+            }
         } else {
             if (this.attributesInfo) {
                 this.attributesInfo.destroy(true);
@@ -68,7 +76,7 @@ export const HUDCharacterStatus = function (scene) {
             }
         }
     };
-    this.showAttributePointSelection = function (character) {
+    this.showAttributePointSelection = function (character, x, y) {
         var charConfig = character.characterConfig;
         if (this.attributesInfo) {
             this.attributesInfo.destroy(true);
@@ -82,17 +90,14 @@ export const HUDCharacterStatus = function (scene) {
             var self = this;
             this.attributesInfo = this.scene.add.group();
             this.attributesInfoBox = this.scene.add.group();
-            var attributePointsText = this.scene.add.text(220, this.scene.windowHeight - 485, 'Attribute points: ' + charConfig.experience.attributePoints, { fill: '#FFF' });
+            var attributePointsText = this.scene.add.text(x + 220, y + 10, 'Attribute points: ' + charConfig.experience.attributePoints, { fill: '#FFF' });
             this.attributesInfo.add(attributePointsText);
             for (let i = 0; i < 3; i++) {
-                var attributeBox = this.scene.add.graphics();
-                attributeBox.fillStyle(0xFFD700, 0.8);
-                attributeBox.fillRect(200, this.scene.windowHeight - 455 + (i * 15), 15, 15);
-                attributeBox.objectToSend = i + 1;
-                var attributeButtonText = this.scene.add.text(203, this.scene.windowHeight - 455 + (i * 15), '+', { fill: '#FFF' });
-                attributeButtonText.objectToSend = i + 1;
-                this.attributesInfoBox.add(attributeBox);
-                this.attributesInfoBox.add(attributeButtonText);
+                var attributeButton = this.scene.add.image(x + 200, y + 50 + (i * 15), 'plusButton');
+                attributeButton.displayHeight = 14;
+                attributeButton.displayWidth = 14;
+                attributeButton.objectToSend = i + 1;
+                this.attributesInfoBox.add(attributeButton);
             }
             this.scene.input.setHitArea(this.attributesInfoBox.getChildren());
             _.each(this.attributesInfoBox.getChildren(), function (item) {

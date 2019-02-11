@@ -338,7 +338,7 @@ export const Character = function (game) {
             charConfig = character.characterConfig;
         if (charConfig.energy.max - charConfig.energy.spent > 0 && this._addItemToInventory(charConfig, item)) {
             charConfig.energy.spent += EnergyConfig.pickup.cost;
-            StatusIconConfig.showEnergyIcon(this.game, activeCharacter, EnergyConfig.pickup.cost);
+            StatusIconConfig.showEnergyIcon(this.game, character, EnergyConfig.pickup.cost);
             var lootbagConfig = lootbag.objectConfig.belongsTo.characterConfig;
             var index = lootbagConfig.inventory.slots.items.indexOf(item);
             lootbagConfig.inventory.slots.items.splice(index, 1);
