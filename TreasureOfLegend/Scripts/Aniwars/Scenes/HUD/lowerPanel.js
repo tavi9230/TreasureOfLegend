@@ -93,8 +93,10 @@
         this.tipsText = this.add.text(x + 5, y + 2, textToShow, { fill: '#FFF' });
     };
     this.hideTips = function () {
-        this.tipsText.destroy();
-        this.tipsPanel.destroy();
+        if (this.tipsText) {
+            this.tipsText.destroy();
+            this.tipsPanel.destroy();
+        }
     };
 
     this._createEndTurnButton = function () {
