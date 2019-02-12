@@ -51,55 +51,6 @@ export const HUDScene = function (sceneName) {
         getTurn: function () {
             return this.lowerPanel.turn;
         },
-        createCloseButton: function (x, y, groupToDestroy) {
-            var self = this,
-                closeButtonGroup = this.add.group();
-
-            var closeButton = this.add.graphics();
-            closeButton.fillStyle(0x990000, 0.8);
-            closeButton.fillRect(x, y, 20, 20);
-            closeButtonGroup.add(closeButton);
-
-            var closeText = this.add.text(x + 5, y + 2, 'X', { fill: '#FFF', fontSize: '18px' });
-            closeButtonGroup.add(closeText);
-            this.input.setHitArea(closeButtonGroup.getChildren());
-            _.each(closeButtonGroup.getChildren(), function (item) {
-                item.on('pointerdown', function () {
-                    // TODO: Rework this
-                    groupToDestroy.destroy(true);
-                    if (groupToDestroy.name === 'characterInfo') {
-                        self.characterStatus.isCharacterInfoMenuOpen = false;
-                        if (self.characterStatus.attributesInfo) {
-                            self.characterStatus.attributesInfo.destroy(true);
-                        }
-                        if (self.characterStatus.attributesInfoBox) {
-                            self.characterStatus.attributesInfoBox.destroy(true);
-                        }
-                        if (self.characterStatus.attributesInfoBox) {
-                            self.characterStatus.attributesInfoBox.destroy(true);
-                        }
-                        if (self.characterStatus.abilitiesImage) {
-                            self.characterStatus.abilitiesImage.destroy(true);
-                            self.characterStatus.abilitiesImage = null;
-                        }
-                        if (self.characterStatus.abilityGroup) {
-                            self.characterStatus.abilityGroup.destroy(true);
-                        }
-                        self.characterStatus._hideAbilityStats();
-                        self.tipsModal.hideTips();
-                    } else if (groupToDestroy.name === 'spellBook') {
-                        self.lowerPanel.spellBook = null;
-                    } else if (groupToDestroy.name === 'skillTree') {
-                        self.lowerPanel.skillTree = null;
-                    }
-                    if (self.enemyInventory) {
-                        self.enemyInventory.destroy(true);
-                    }
-                    closeButtonGroup.destroy(true);
-                });
-            });
-            return closeButtonGroup;
-        },
         showItemStats: function (config) {
             if (config.item.type !== EnumHelper.inventoryEnum.defaultEquipment) {
                 var item = config.item,
@@ -198,7 +149,7 @@ export const HUDScene = function (sceneName) {
             panel.fillStyle(0x111111, 0.8);
             panel.fillRect(470, 0, 220, 440);
             this.enemyInventory.add(panel);
-            this.characterStatus.toggleCharacterInfo(activeCharacter, true);
+            this.characterStatus.toggleCharacterInventory(activeCharacter, true);
             var x = 480;
             var y = 10;
             var image;
@@ -290,7 +241,7 @@ export const HUDScene = function (sceneName) {
                 self.characterStatus.showAttributePointSelection(character);
             });
             this.activeScene.events.on('updateStats', function (character) {
-                self.characterStatus.toggleCharacterInfo(character, true);
+                self.characterStatus.toggleCharacterInventory(character, true);
             });
             this.activeScene.events.on('changeTurnCounter', function () {
                 self.lowerPanel.changeTurn();

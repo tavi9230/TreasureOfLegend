@@ -65,6 +65,8 @@
         game.load.image('inspectButton', AssetFolder + 'buttons/inspectButton.png');
         game.load.image('plusButton', AssetFolder + 'buttons/plusButton.png');
         game.load.image('upgradeButton', AssetFolder + 'buttons/upgradeButton.png');
+        game.load.image('closeButton', AssetFolder + 'buttons/closeButton.png');
+        game.load.image('replaceButton', AssetFolder + 'buttons/replaceButton.png');
     };
 
     this.loadMainMenuImages = function() {

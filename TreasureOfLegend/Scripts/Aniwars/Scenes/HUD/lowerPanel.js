@@ -229,7 +229,7 @@
     this.openCharacterInventory = function (character) {
         // TODO: Split this method into two: one for clicking the button, the other for clicking a character
         var char = character && character.type === 'Sprite' ? character : game.activeScene.activeCharacter;
-        game.characterStatus.toggleCharacterInfo(char);
+        game.characterStatus.toggleCharacterInventory(char);
     };
     this.openSpellBook = function (character) {
         var x = character.characterConfig.isPlayerControlled ? 0 : game.windowWidth - 440,
