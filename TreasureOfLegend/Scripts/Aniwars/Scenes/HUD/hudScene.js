@@ -143,13 +143,13 @@ export const HUDScene = function (sceneName) {
             this.closeLootbag();
             var activeCharacter = this.activeScene.activeCharacter,
                 lootbagConfig = lootbag.objectConfig,
-                characterBelonging = lootbagConfig.belongsTo.characterConfig;
+                characterBelonging = lootbagConfig.belongsTo.characterConfig,
+                panel = this.add.graphics();
             this.enemyInventory = this.add.group();
-            var panel = this.add.graphics();
             panel.fillStyle(0x111111, 0.8);
             panel.fillRect(470, 0, 220, 440);
             this.enemyInventory.add(panel);
-            this.characterStatus.toggleCharacterInventory(activeCharacter, true);
+            this.characterStatus.openInventoryTab(activeCharacter);
             var x = 480;
             var y = 10;
             var image;
@@ -238,17 +238,19 @@ export const HUDScene = function (sceneName) {
             this.activeScene.events.on('showDeadCharacterInventory', _.bind(this.showDeadCharacterInventory, this));
             this.activeScene.events.on('closeLootbag', _.bind(this.closeLootbag, this));
             this.activeScene.events.on('updateAttributePointsPanel', function (character) {
-                self.characterStatus.showAttributePointSelection(character);
+                self.characterStatus.openDescriptionTab(character);
             });
             this.activeScene.events.on('updateStats', function (character) {
-                self.characterStatus.toggleCharacterInventory(character, true);
+                self.characterStatus.openDescriptionTab(character);
             });
             this.activeScene.events.on('changeTurnCounter', function () {
                 self.lowerPanel.changeTurn();
             });
             this.activeScene.events.on('inspect', _.bind(this.inspect, this));
             this.activeScene.events.on('closeInspect', _.bind(this.closeInspect, this));
-            this.activeScene.events.on('showCharacterInventory', _.bind(this.lowerPanel.openCharacterInventory, this.lowerPanel));
+            this.activeScene.events.on('showCharacterInventory', function (character) {
+                self.characterStatus.openInventoryTab(character);
+            });
             this.activeScene.events.on('toggleActionButtons', _.bind(this.lowerPanel.toggleActionButtons, this.lowerPanel));
             this.activeScene.events.on('clearButtonTint', _.bind(this.lowerPanel.setButtonTint, this.lowerPanel));
         },

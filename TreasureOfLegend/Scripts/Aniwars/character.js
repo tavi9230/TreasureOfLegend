@@ -195,9 +195,10 @@ export const Character = function (game) {
             if (charConfig.energy.max - charConfig.energy.spent > 0 && this._addItemToInventory(charConfig, item.itemConfig)) {
                 charConfig.energy.spent += EnergyConfig.pickup.cost;
                 StatusIconConfig.showEnergyIcon(this.game, character, EnergyConfig.pickup.cost);
-                this.game.events.emit('showCharacterInitiative', this.game.initiative);
                 item.destroy();
                 this.game.items.remove(item);
+                this.game.events.emit('showCharacterInitiative', this.game.initiative);
+                this.game.events.emit('showCharacterInventory', character);
             }
         } else {
             charConfig.energy.inProgress = item;
@@ -249,6 +250,7 @@ export const Character = function (game) {
         this.game.input.setHitArea([item]);
         item.on('pointerdown', _.bind(self.game.characters.pickUpItem, self, item));
         item.on('pointerover', _.bind(self.game.activeMap.highlightPathToItem, self, item));
+        this.game.events.emit('showCharacterInventory', character);
     };
 
     this.replaceItem = (itemToReplace) => {
@@ -328,6 +330,7 @@ export const Character = function (game) {
             charConfig.energy.spent += EnergyConfig.pickup.cost;
             StatusIconConfig.showEnergyIcon(this.game, character, EnergyConfig.pickup.cost);
             this.game.events.emit('showCharacterInitiative', this.game.initiative);
+            this.game.events.emit('showCharacterInventory', character);
         }
     };
 

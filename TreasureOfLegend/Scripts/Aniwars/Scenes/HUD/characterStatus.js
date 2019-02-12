@@ -10,25 +10,33 @@ export const HUDCharacterStatus = function (scene) {
         attributesInfoBox = null,
         abilityGroup = null,
         damageArray = ['slashing', 'piercing', 'bludgeoning', 'fire'],
-        abilitiesCallback = _.bind(function (character, x, y) {
+        inventoryCallback = _.bind(function (character) {
             game.tipsModal.hideTips();
-            this._showCharacterAbilities(character, x, y);
+            this.toggleInventoryTab(character);
         }, this),
-        inventoryCallback = _.bind(function (character, x, y) {
+        descriptionCallback = _.bind(function (character) {
             game.tipsModal.hideTips();
-            this.toggleCharacterInventory(character, x, y);
+            this.toggleDescriptionTab(character);
         }, this),
-        descriptionCallback = _.bind(function (character, x, y) {
+        abilitiesCallback = _.bind(function (character) {
             game.tipsModal.hideTips();
-            this._createDescriptionsTab(character, x, y);
+            this.toggleAbilitiesTab(character);
         }, this);
 
-    this.toggleCharacterInventory = function (character) {
+    // Inventory TAB ------------------------------------------------------------------------------------------------------------------------
+    this.openInventoryTab = function (character) {
+        if (characterInventoryTabGroup) {
+            this.destroyAllCharacterGroups();
+            this.toggleInventoryTab(character);
+        }
+    };
+    this.toggleInventoryTab = function (character) {
         if (!characterInventoryTabGroup) {
             this.destroyAllCharacterGroups();
-            var x = character.characterConfig.isPlayerControlled ? 0 : game.windowWidth - 440,
-                y = 0;
-            var charConfig = character.characterConfig,
+            var coords = this._getCoordsForTabs(character),
+                x = coords.x,
+                y = coords.y,
+                charConfig = character.characterConfig,
                 panel = game.add.graphics();
             characterInventoryTabGroup = game.add.group();
             panel.fillStyle(0x111111, 1);
@@ -43,41 +51,15 @@ export const HUDCharacterStatus = function (scene) {
             this._createInventorySlot(x + 130, y + 120, character, charConfig.inventory.feet);
             // Unequiped inventory ---------------------------------------------------------------------------------------------------
             this._createUnequippedInventorySlots(character, x, y + 220);
-            this._createInventoryTabButton(character, x, y, 'inventoryButton', 'Inventory', inventoryCallback, characterInventoryTabGroup);
-            this._createDescriptionTabButton(character, x, y, 'spellsButton', 'Description', descriptionCallback, characterInventoryTabGroup);
-            this._createAbilitiesTabButton(character, x, y, 'spellsButton', 'Abilities', abilitiesCallback, characterInventoryTabGroup);
+            this._createTabButton(character, x, y + 20, 'inventoryButton', 'Inventory', inventoryCallback, characterInventoryTabGroup);
+            this._createTabButton(character, x, y + 50, 'spellsButton', 'Description', descriptionCallback, characterInventoryTabGroup);
+            this._createTabButton(character, x, y + 80, 'spellsButton', 'Abilities', abilitiesCallback, characterInventoryTabGroup);
             this._createCloseButton(x + 420, y, characterInventoryTabGroup);
         } else {
             this.destroyAllCharacterGroups();
             game.tipsModal.hideTips();
         }
     };
-    this.showAttributePointSelection = function (character, x, y) {
-        var charConfig = character.characterConfig;
-        this._destroyAttributesInfo();
-        if (charConfig.experience.attributePoints > 0
-            && character.x === game.activeScene.activeCharacter.x
-            && character.y === game.activeScene.activeCharacter.y) {
-            attributesInfo = game.add.group();
-            attributesInfoBox = game.add.group();
-            var attributePointsText = game.add.text(x + 220, y + 10, 'Attribute points: ' + charConfig.experience.attributePoints, { fill: '#FFF' });
-            attributesInfo.add(attributePointsText);
-            for (let i = 0; i < 3; i++) {
-                var attributeButton = game.add.image(x + 200, y + 40 + (i * 15), 'plusButton').setOrigin(0, 0);
-                attributeButton.displayHeight = 14;
-                attributeButton.displayWidth = 14;
-                attributeButton.objectToSend = i + 1;
-                attributesInfoBox.add(attributeButton);
-            }
-            game.input.setHitArea(attributesInfoBox.getChildren());
-            _.each(attributesInfoBox.getChildren(), function (item) {
-                item.on('pointerdown', function () {
-                    game.events.emit('addAttributePoint', item.objectToSend);
-                });
-            });
-        }
-    };
-
     this._createInventorySlot = function (x, y, character, item) {
         var image = null,
             box = game.add.graphics();
@@ -118,11 +100,22 @@ export const HUDCharacterStatus = function (scene) {
             }
         }
     };
-    this._createDescriptionsTab = function (character, x, y) {
+
+    // Description TAB ------------------------------------------------------------------------------------------------------------------------
+    this.openDescriptionTab = function (character) {
+        if (characterDescriptionTabGroup) {
+            this.destroyAllCharacterGroups();
+            this.toggleDescriptionTab(character);
+        }
+    };
+    this.toggleDescriptionTab = function (character) {
         if (!characterDescriptionTabGroup) {
             this.destroyAllCharacterGroups();
             characterDescriptionTabGroup = game.add.group();
-            var isPlayerControlled = character.characterConfig.isPlayerControlled,
+            var coords = this._getCoordsForTabs(character),
+                x = coords.x,
+                y = coords.y,
+                isPlayerControlled = character.characterConfig.isPlayerControlled,
                 charConfig = character.characterConfig,
                 text = isPlayerControlled
                     ? 'Experience: ' + charConfig.experience.current + '/' + charConfig.experience.nextLevel
@@ -167,11 +160,11 @@ export const HUDCharacterStatus = function (scene) {
             this._addVulnerabilities('resistances', charConfig, x + 10, y + 250, 'Resistant: ', textStyle, characterDescriptionTabGroup);
             this._addVulnerabilities('vulnerabilities', charConfig, x + 10, y + 280, 'Vulnerable: ', textStyle, characterDescriptionTabGroup);
             if (isPlayerControlled) {
-                this.showAttributePointSelection(character, x, y);
+                this.showAttributePointSelection(character);
             }
-            this._createInventoryTabButton(character, x, y, 'inventoryButton', 'Inventory', inventoryCallback, characterDescriptionTabGroup);
-            this._createDescriptionTabButton(character, x, y, 'spellsButton', 'Description', descriptionCallback, characterDescriptionTabGroup);
-            this._createAbilitiesTabButton(character, x, y, 'spellsButton', 'Abilities', abilitiesCallback, characterDescriptionTabGroup);
+            this._createTabButton(character, x, y + 20, 'inventoryButton', 'Inventory', inventoryCallback, characterDescriptionTabGroup);
+            this._createTabButton(character, x, y + 50, 'spellsButton', 'Description', descriptionCallback, characterDescriptionTabGroup);
+            this._createTabButton(character, x, y + 80, 'spellsButton', 'Abilities', abilitiesCallback, characterDescriptionTabGroup);
             this._createCloseButton(x + 420, y, characterDescriptionTabGroup);
         } else {
             this.destroyAllCharacterGroups();
@@ -190,15 +183,51 @@ export const HUDCharacterStatus = function (scene) {
         text = game.add.text(x, y, textToShow + vulnerabilities, textStyle);
         group.add(text);
     };
-    this._showCharacterAbilities = function (character, x, y) {
+    this.showAttributePointSelection = function (character) {
+        var coords = this._getCoordsForTabs(character),
+            x = coords.x,
+            y = coords.y,
+            charConfig = character.characterConfig;
+        this._destroyAttributesInfo();
+        if (charConfig.experience.attributePoints > 0
+            && character.x === game.activeScene.activeCharacter.x
+            && character.y === game.activeScene.activeCharacter.y
+            && characterDescriptionTabGroup !== null) {
+            attributesInfo = game.add.group();
+            attributesInfoBox = game.add.group();
+            var attributePointsText = game.add.text(x + 220, y + 10, 'Attribute points: ' + charConfig.experience.attributePoints, { fill: '#FFF' });
+            attributesInfo.add(attributePointsText);
+            for (let i = 0; i < 3; i++) {
+                var attributeButton = game.add.image(x + 200, y + 40 + (i * 15), 'plusButton').setOrigin(0, 0);
+                attributeButton.displayHeight = 14;
+                attributeButton.displayWidth = 14;
+                attributeButton.objectToSend = i + 1;
+                attributesInfoBox.add(attributeButton);
+            }
+            game.input.setHitArea(attributesInfoBox.getChildren());
+            _.each(attributesInfoBox.getChildren(), function (item) {
+                item.on('pointerdown', function () {
+                    game.events.emit('addAttributePoint', item.objectToSend);
+                });
+            });
+        }
+    };
+
+    // Abilities TAB ------------------------------------------------------------------------------------------------------------------------
+    this.openAbilitiesTab = function (character) {
+        if (characterAbilitiesTabGroup) {
+            this.destroyAllCharacterGroups();
+            this.toggleAbilitiesTab(character);
+        }
+    };
+    this.toggleAbilitiesTab = function (character) {
         if (!characterAbilitiesTabGroup) {
             this.destroyAllCharacterGroups();
-            var self = this,
-                startX = x,
-                inventoryCallback = function () {
-                    game.tipsModal.hideTips();
-                    self.toggleCharacterInventory(character, true);
-                };
+            var coords = this._getCoordsForTabs(character),
+                x = coords.x,
+                y = coords.y,
+                self = this,
+                startX = coords.x;
             characterAbilitiesTabGroup = game.add.group();
             abilityGroup = game.add.group();
             var panel = game.add.graphics();
@@ -206,9 +235,9 @@ export const HUDCharacterStatus = function (scene) {
             panel.fillRect(x, y, 440, 440);
             characterAbilitiesTabGroup.add(panel);
             this._createCloseButton(x + 420, y, characterAbilitiesTabGroup);
-            this._createInventoryTabButton(character, x, y, 'inventoryButton', 'Inventory', inventoryCallback, characterAbilitiesTabGroup);
-            this._createDescriptionTabButton(character, x, y, 'spellsButton', 'Description', descriptionCallback, characterAbilitiesTabGroup);
-            this._createAbilitiesTabButton(character, x, y, 'spellsButton', 'Abilities', abilitiesCallback, characterAbilitiesTabGroup);
+            this._createTabButton(character, x, y + 20, 'inventoryButton', 'Inventory', inventoryCallback, characterAbilitiesTabGroup);
+            this._createTabButton(character, x, y + 50, 'spellsButton', 'Description', descriptionCallback, characterAbilitiesTabGroup);
+            this._createTabButton(character, x, y + 80, 'spellsButton', 'Abilities', abilitiesCallback, characterAbilitiesTabGroup);
             _.each(character.characterConfig.inventory.spells, function (spell) {
                 var box = game.add.graphics(),
                     spellImage;
@@ -290,13 +319,15 @@ export const HUDCharacterStatus = function (scene) {
             && game.activeScene.activeCharacter.x === character.x
             && game.activeScene.activeCharacter.y === character.y
             && spell.level < spell.maxLevel) {
-            var upgradeButton = game.add.image(x, y + 60, 'upgradeButton').setOrigin(0, 0);
+            var self = this,
+                upgradeButton = game.add.image(x, y + 60, 'upgradeButton').setOrigin(0, 0);
             upgradeButton.displayWidth = 70;
             upgradeButton.displayHeight = 10;
             group.add(upgradeButton);
             game.input.setHitArea([upgradeButton]);
             upgradeButton.on('pointerdown', function () {
                 game.events.emit('boughtSkill', spell);
+                self.openAbilitiesTab(character);
             });
         }
     };
@@ -352,12 +383,12 @@ export const HUDCharacterStatus = function (scene) {
     };
 
     // BUTTONS --------------------------------------------------------------------------------------------------------------------------------------------
-    this._createInventoryTabButton = function (character, x, y, buttonImage, text, callback, group) {
+    this._createTabButton = function (character, x, y, buttonImage, text, callback, group) {
         var button = game.add.graphics(),
             startX = character.characterConfig.isPlayerControlled ? x + 440 : x - 30,
-            tabImage = game.add.image(startX, y + 20, buttonImage).setOrigin(0, 0);
+            tabImage = game.add.image(startX, y, buttonImage).setOrigin(0, 0);
         button.fillStyle(0x111111, 1);
-        button.fillRect(startX, y + 20, 30, 30);
+        button.fillRect(startX, y, 30, 30);
         group.add(button);
         tabImage.displayWidth = 30;
         tabImage.displayHeight = 30;
@@ -365,54 +396,10 @@ export const HUDCharacterStatus = function (scene) {
 
         game.input.setHitArea([tabImage]);
         tabImage.on('pointerdown', function () {
-            callback(character, x, y);
+            callback(character, x);
         });
         tabImage.on('pointerover', function () {
-            game.tipsModal.showTips(startX + 30, y + 20, 100, 20, text);
-        });
-        tabImage.on('pointerout', function () {
-            game.tipsModal.hideTips();
-        });
-    };
-    this._createDescriptionTabButton = function (character, x, y, buttonImage, text, callback, group) {
-        var button = game.add.graphics(),
-            startX = character.characterConfig.isPlayerControlled ? x + 440 : x - 30,
-            tabImage = game.add.image(startX, y + 50, buttonImage).setOrigin(0, 0);
-        button.fillStyle(0x111111, 1);
-        button.fillRect(startX, y + 50, 30, 30);
-        group.add(button);
-        tabImage.displayWidth = 30;
-        tabImage.displayHeight = 30;
-        group.add(tabImage);
-
-        game.input.setHitArea([tabImage]);
-        tabImage.on('pointerdown', function () {
-            callback(character, x, y);
-        });
-        tabImage.on('pointerover', function () {
-            game.tipsModal.showTips(startX + 30, y + 50, 100, 20, text);
-        });
-        tabImage.on('pointerout', function () {
-            game.tipsModal.hideTips();
-        });
-    };
-    this._createAbilitiesTabButton = function (character, x, y, buttonImage, text, callback, group) {
-        var button = game.add.graphics(),
-            startX = character.characterConfig.isPlayerControlled ? x + 440 : x - 30,
-            tabImage = game.add.image(startX, y + 80, buttonImage).setOrigin(0, 0);
-        button.fillStyle(0x111111, 1);
-        button.fillRect(startX, y + 80, 30, 30);
-        group.add(button);
-        tabImage.displayWidth = 30;
-        tabImage.displayHeight = 30;
-        group.add(tabImage);
-
-        game.input.setHitArea([tabImage]);
-        tabImage.on('pointerdown', function () {
-            callback(character, x, y);
-        });
-        tabImage.on('pointerover', function () {
-            game.tipsModal.showTips(startX + 30, y + 80, 100, 20, text);
+            game.tipsModal.showTips(startX + 30, y, 100, 20, text);
         });
         tabImage.on('pointerout', function () {
             game.tipsModal.hideTips();
@@ -449,5 +436,14 @@ export const HUDCharacterStatus = function (scene) {
         closeButton.on('pointerdown', function () {
             self.destroyAllCharacterGroups();
         });
+    };
+
+    this._getCoordsForTabs = function (character) {
+        var x = character.characterConfig.isPlayerControlled ? 0 : game.windowWidth - 440,
+            y = 0;
+        return {
+            x: x,
+            y: y
+        };
     };
 };

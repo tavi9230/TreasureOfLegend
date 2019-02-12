@@ -338,6 +338,7 @@ export const ActionManager = function (game) {
                 this._createNewEnemies();
             }
             this.game.initiative = this.game.sceneManager.getInitiativeArray([enemy]);
+            this.game.events.emit('updateAttributePointsPanel', this.game.activeCharacter);
         }
         this.game.events.emit('showCharacterInitiative', this.game.initiative);
     };
