@@ -223,7 +223,7 @@ export const ActionManager = function (game) {
             isNotBlocked = true,
             linePoints = this._supercoverLine(character, enemy);
         _.each(linePoints, function (point) {
-            if (self.game.activeMap.levelMap[point.y / 50][point.x / 50] !== 0) {
+            if (Math.floor(self.game.activeMap.levelMap[point.y / 50][point.x / 50]) !== 0) {
                 isNotBlocked = false;
             }
         });
@@ -321,6 +321,7 @@ export const ActionManager = function (game) {
                 });
                 this.game.characters.souls.current += enemy.characterConfig.souls;
                 // TODO: Attribute points cost 5 souls then 10 then 15 and so on. Change game logic to reflect this
+                // TODO: Skills cost X souls instead of ^ so we won't need skill points
                 var difference = this.game.characters.souls.current - this.game.characters.souls.nextLevel;
                 if (difference >= 0) {
                     this.game.characters.souls.current = difference;
