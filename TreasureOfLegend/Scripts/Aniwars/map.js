@@ -73,7 +73,8 @@ export const BattleMap = function (game) {
 
     this.showMovementGrid = () => {
         this.hideMovementGrid();
-        var character = this.game.activeCharacter;
+        var character = this.game.activeCharacter,
+            self = this;
         this.isMovementGridShown = true;
         var moveableTiles = this.tiles.getChildren().filter(function(tile) {
             return (character.characterConfig.movement.max - character.characterConfig.movement.spent) * 50 >=
@@ -88,7 +89,7 @@ export const BattleMap = function (game) {
                 pathWay.shift();
                 if (pathWay.length <= (character.characterConfig.movement.max - character.characterConfig.movement.spent)
                     && auxMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile.id
-                    && (character.x !== tile.x || character.y !== tile.y)) {
+                    && (character.x !== tile.x || character.y !== tile.y) && !self._isPartyMemberOnTile(tile)) {
                     // TODO: Don't highlight if another character or enemy is on the tile
                     tile.setTint(0x990899);
                 }
@@ -128,6 +129,16 @@ export const BattleMap = function (game) {
             });
         }
         return auxMap;
+    };
+
+    this._isPartyMemberOnTile = (tile) => {
+        var isFound = false;
+        _.each(this.game.characters.characters.getChildren(), function (character) {
+            if (character.x === tile.x && character.y === tile.y) {
+                isFound = true;
+            }
+        });
+        return isFound;
     };
 
     this.getObjRealCoords = (object) => {
@@ -351,7 +362,8 @@ export const BattleMap = function (game) {
             // If character is not moving
             if (currentCharacter.characterConfig.path.length === 0 &&
                 currentCharacter.x === currentCharacter.characterConfig.posX &&
-                currentCharacter.y === currentCharacter.characterConfig.posY) {
+                currentCharacter.y === currentCharacter.characterConfig.posY &&
+                (tile && !this._isPartyMemberOnTile(tile))) {
                 this.showMovementGrid();
                 var pathWay = obj.isTile
                     ? this._getPathToTile(currentCharacter, obj.value)
