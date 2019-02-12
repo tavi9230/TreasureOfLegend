@@ -57,12 +57,18 @@
         game.load.image('endTurnButton', AssetFolder + 'buttons/endTurnButton.png');
         game.load.image('openMenuButton', AssetFolder + 'buttons/openMenuButton.png');
         game.load.image('spellsButton', AssetFolder + 'buttons/spellsButton.png');
+        game.load.image('spellsButtonActivated', AssetFolder + 'buttons/spellsButtonActivated.png');
         game.load.image('soulsButton', AssetFolder + 'buttons/soulsButton.png');
         game.load.image('walkButton', AssetFolder + 'buttons/walkButton.png');
+        game.load.image('walkButtonActivated', AssetFolder + 'buttons/walkButtonActivated.png');
         game.load.image('mainHandButton', AssetFolder + 'buttons/mainHandButton.png');
+        game.load.image('mainHandButtonActivated', AssetFolder + 'buttons/mainHandButtonActivated.png');
         game.load.image('offHandButton', AssetFolder + 'buttons/offHandButton.png');
+        game.load.image('offHandButtonActivated', AssetFolder + 'buttons/offHandButtonActivated.png');
         game.load.image('inventoryButton', AssetFolder + 'buttons/inventoryButton.png');
+        game.load.image('inventoryButtonActivated', AssetFolder + 'buttons/inventoryButtonActivated.png');
         game.load.image('inspectButton', AssetFolder + 'buttons/inspectButton.png');
+        game.load.image('inspectButtonActivated', AssetFolder + 'buttons/inspectButtonActivated.png');
         game.load.image('plusButton', AssetFolder + 'buttons/plusButton.png');
         game.load.image('upgradeButton', AssetFolder + 'buttons/upgradeButton.png');
         game.load.image('closeButton', AssetFolder + 'buttons/closeButton.png');

@@ -29,7 +29,7 @@ export const SceneManager = function (game) {
             this.game.events.emit('showCharacterInitiative', this.game.initiative);
             this.game.activeCharacter.characterConfig.energy.selectedAction = null;
             this.game.activeCharacter.characterConfig.energy.actionId = -1;
-            this.game.events.emit('clearButtonTint');
+            this.game.events.emit('deselectAllButtons');
             this.game.activeCharacter = this.game.initiative[0];
 
             if (this.game.activeCharacter.characterConfig.isPlayerControlled) {

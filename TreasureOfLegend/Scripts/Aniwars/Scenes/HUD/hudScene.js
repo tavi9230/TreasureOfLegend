@@ -133,7 +133,7 @@ export const HUDScene = function (sceneName) {
                 self.characterStatus.openInventoryTab(character);
             });
             this.activeScene.events.on('toggleActionButtons', _.bind(this.lowerPanel.toggleActionButtons, this.lowerPanel));
-            this.activeScene.events.on('clearButtonTint', _.bind(this.lowerPanel.setButtonTint, this.lowerPanel));
+            this.activeScene.events.on('deselectButtons', _.bind(this.lowerPanel.deselectAllButtons, this.lowerPanel));
         },
         _showQuickStats: function (character, frameImage, index) {
             var textStyle = {
@@ -179,14 +179,12 @@ export const HUDScene = function (sceneName) {
                 } else if (this.keycodes.a.isDown && !this.mainHandButtonIsDown) {
                     this.mainHandButtonIsDown = true;
                     this.lowerPanel.useMainHand();
-                    // TODO: Select attack action
                 } else if (this.keycodes.s.isDown && !this.spellsButtonIsDown) {
-                    //TODO: Change this to selected character?
                     this.spellsButtonIsDown = true;
                     this.lowerPanel.openSpellBook(this.activeScene.activeCharacter);
                 } else if (this.keycodes.d.isDown && !this.offhandButtonIsDown) {
                     this.offhandButtonIsDown = true;
-                    // TODO: Select offHand action
+                    this.lowerPanel.useMainHand();
                 } else if (this.keycodes.esc.isDown) {
                     this.keycodes.esc.isDown = false;
                     this.lowerPanel.openMainMenu();

@@ -1,6 +1,7 @@
 ﻿export const HUDLowerPanel = function (scene) {
     var game = scene,
         hudbuttons = null,
+        selectedButton = '',
         _createButton = function (coords, imageName, displayDimensions, callbacks) {
             var button = game.add.image(coords.x, coords.y, imageName).setOrigin(0, 0);
             button.displayHeight = displayDimensions.height;
@@ -171,15 +172,6 @@
         this.turn++;
         this.turnText.setText(this.turn);
     };
-    this.endTurn = function () {
-        game.events.emit('endTurn');
-    };
-    this.useDash = function () {
-        game.events.emit('useDash');
-    };
-    this.useMainHand = function () {
-        game.events.emit('useMainHand');
-    };
     this.toggleActionButtons = function (isVisible) {
         var buttons = hudbuttons.getChildren().filter(function (btn) {
             return btn.name === 'mainHandButton'
@@ -200,25 +192,64 @@
         buttons[0].visible = isVisible;
         this.soulsText.visible = isVisible;
     };
-    this.setButtonTint = function (buttonName) {
-        if (buttonName) {
-            var button = hudbuttons.getChildren().filter(function (button) {
-                return button.name === buttonName;
+    this.deselectAllButtons = function () {
+        var buttons = hudbuttons.getChildren().filter(function (btn) {
+            return btn.name === 'mainHandButton'
+                || btn.name === 'offHandButton'
+                || btn.name === 'inspectButton'
+                || btn.name === 'walkButton'
+                || btn.name === 'spellsButton'
+                || btn.name === 'inventoryButton';
+        });
+        _.each(buttons, function (button) {
+            button.setTexture(button.name);
+        });
+        selectedButton = '';
+    };
+    this.selectButton = function (button) {
+        selectedButton = button.name;
+        button.setTexture(selectedButton + 'Activated');
+    };
+    this.endTurn = function () {
+        game.events.emit('endTurn');
+    };
+    this.useDash = function () {
+        var isSelectedButton = selectedButton !== 'walkButton';
+        this.deselectAllButtons();
+        if (isSelectedButton) {
+            var button = hudbuttons.getChildren().find(function (btn) {
+                return btn.name === 'walkButton';
             });
-            if (button.length > 0) {
-                if (button[0].isTinted) {
-                    button[0].clearTint();
-                } else {
-                    button[0].setTint(0xAA1111);
-                }
-            }
+            this.selectButton(button);
         } else {
-            _.each(hudbuttons.getChildren(), function (button) {
-                button.clearTint();
-            });
+            selectedButton = '';
         }
+        game.events.emit('useDash');
+    };
+    this.useMainHand = function () {
+        var isSelectedButton = selectedButton !== 'mainHandButton';
+        this.deselectAllButtons();
+        if (isSelectedButton) {
+            var button = hudbuttons.getChildren().find(function (btn) {
+                return btn.name === 'mainHandButton';
+            });
+            this.selectButton(button);
+        } else {
+            selectedButton = '';
+        }
+        game.events.emit('useMainHand');
     };
     this.selectInspectAction = function () {
+        var isSelectedButton = selectedButton !== 'inspectButton';
+        this.deselectAllButtons();
+        if (isSelectedButton) {
+            var button = hudbuttons.getChildren().find(function (btn) {
+                return btn.name === 'inspectButton';
+            });
+            this.selectButton(button);
+        } else {
+            selectedButton = '';
+        }
         game.events.emit('inspectSelected');
     };
     this.openMainMenu = function () {
@@ -228,10 +259,30 @@
     };
     this.openCharacterInventory = function (character) {
         // TODO: Split this method into two: one for clicking the button, the other for clicking a character
+        var isSelectedButton = selectedButton !== 'inventoryButton';
+        this.deselectAllButtons();
+        if (isSelectedButton) {
+            var button = hudbuttons.getChildren().find(function (btn) {
+                return btn.name === 'inventoryButton';
+            });
+            this.selectButton(button);
+        } else {
+            selectedButton = '';
+        }
         var char = character && character.type === 'Sprite' ? character : game.activeScene.activeCharacter;
         game.characterStatus.toggleInventoryTab(char);
     };
     this.openSpellBook = function (character) {
+        var isSelectedButton = selectedButton !== 'spellsButton';
+        this.deselectAllButtons();
+        if (isSelectedButton) {
+            var button = hudbuttons.getChildren().find(function (btn) {
+                return btn.name === 'spellsButton';
+            });
+            this.selectButton(button);
+        } else {
+            selectedButton = '';
+        }
         game.characterStatus.toggleAbilitiesTab(character);
     };
 };

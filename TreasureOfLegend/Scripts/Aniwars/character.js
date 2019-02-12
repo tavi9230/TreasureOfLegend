@@ -5,6 +5,7 @@ import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
 import { EnergyConfig } from 'Aniwars/Configurations/energyConfig';
 import { StatusIconConfig } from 'Aniwars/Configurations/statusIconConfig';
 import { CharacterConfig } from 'Aniwars/Configurations/characterConfig';
+import { setTimeout } from 'timers';
 
 export const Character = function (game) {
     var actionManager = new ActionManager(game),
@@ -340,6 +341,8 @@ export const Character = function (game) {
             StatusIconConfig.showEnergyIcon(game, activeCharacter, EnergyConfig.dash.cost);
             game.activeMap.showMovementGrid();
             game.events.emit('showCharacterInitiative', game.initiative);
+        } else {
+            game.events.emit('deselectButtons');
         }
     };
 
@@ -373,6 +376,7 @@ export const Character = function (game) {
         panel.fillRect(x, y, textPanel.width + 4, textPanel.height + 4);
         this.inspectionBox.add(panel);
         this.inspectionBox.add(textPanel);
+        game.events.emit('deselectButtons');
     };
 
     this.closeInspect = function () {
