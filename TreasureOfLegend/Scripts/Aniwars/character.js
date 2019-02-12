@@ -2,76 +2,14 @@
 import { EnumHelper } from 'Aniwars/Helpers/enumHelper';
 import { ActionManager } from 'Aniwars/Managers/actionManager';
 import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
-import { SpellsConfig } from 'Aniwars/Configurations/spellsConfig';
 import { EnergyConfig } from 'Aniwars/Configurations/energyConfig';
 import { StatusIconConfig } from 'Aniwars/Configurations/statusIconConfig';
+import { CharacterConfig } from 'Aniwars/Configurations/characterConfig';
 
 export const Character = function (game) {
-    var actionManager = new ActionManager(game);
-
-    this.characterConfig = {
-        path: [],
-        armor: 0,
-        naturalArmor: 0,
-        posX: 0,
-        posY: 0,
-        velocity: 200,
-        life: {
-            max: 10,
-            current: 4
-        },
-        mana: {
-            max: 10,
-            spent: 0
-        },
-        movement: {
-            max: 6,
-            spent: 0,
-            isMoving: false,
-            usedDash: false
-        },
-        energy: {
-            max: 10,
-            spent: 0,
-            actionId: -1,
-            selectedAction: null,
-            inProgress: null
-        },
-        inventory: {
-            mainHand: lodash.cloneDeep(InventoryConfig.defaultMainHand),
-            offHand: lodash.cloneDeep(InventoryConfig.defaultMainHand),
-            head: lodash.cloneDeep(InventoryConfig.defaultHead),
-            body: lodash.cloneDeep(InventoryConfig.defaultBody),
-            feet: lodash.cloneDeep(InventoryConfig.defaultFeet),
-            hands: lodash.cloneDeep(InventoryConfig.defaultHands),
-            slots: {
-                max: 2,
-                items: []
-            },
-            money: 0,
-            spells: [lodash.cloneDeep(SpellsConfig.firebolt)]
-        },
-        attributes: {
-            strength: 0,
-            dexterity: 0,
-            intelligence: 0
-        },
-        image: '',
-        isPlayerControlled: true,
-        statuses: [],
-        resistances: [],
-        vulnerabilities: [],
-        invulnerabilities: [],
-        experience: {
-            current: 0,
-            nextLevel: 12,
-            attributePoints: 1,
-            level: 1
-        }
-    };
-    this.game = game;
-    this.map = this.game.activeMap;
-    this.characters = this.game.add.group();
+    var actionManager = new ActionManager(game),
+        game = game;
+    this.characters = game.add.group();
     this.souls = {
         current: 0,
         nextLevel: 1,
@@ -79,10 +17,17 @@ export const Character = function (game) {
     };
 
     this.addNewCharacter = (x, y, spriteName) => {
-        var character = this.game.physics.add.sprite(x, y, spriteName).setOrigin(0, 0.5);
+        var character = game.physics.add.sprite(x, y, spriteName).setOrigin(0, 0.5);
         character.height = 50;
         character.width = 50;
-        character.characterConfig = lodash.cloneDeep(this.characterConfig);
+        character.characterConfig = lodash.cloneDeep(lodash.cloneDeep(CharacterConfig.config));
+        character.characterConfig.inventory.mainHand = lodash.cloneDeep(character.characterConfig.inventory.mainHand);
+        character.characterConfig.inventory.offHand = lodash.cloneDeep(character.characterConfig.inventory.offHand);
+        character.characterConfig.inventory.head = lodash.cloneDeep(character.characterConfig.inventory.head);
+        character.characterConfig.inventory.body = lodash.cloneDeep(character.characterConfig.inventory.body);
+        character.characterConfig.inventory.feet = lodash.cloneDeep(character.characterConfig.inventory.feet);
+        character.characterConfig.inventory.hands = lodash.cloneDeep(character.characterConfig.inventory.hands);
+        character.characterConfig.inventory.spells = lodash.cloneDeep(character.characterConfig.inventory.spells);
         var charConfig = character.characterConfig;
         charConfig.posX = x;
         charConfig.posY = y;
@@ -110,7 +55,7 @@ export const Character = function (game) {
     };
 
     this.interactWithObject = (object) => {
-        var character = this.game.activeCharacter,
+        var character = game.activeCharacter,
             charConfig = character.characterConfig;
         charConfig.energy.inProgress = null;
         if (object.objectConfig.isInteractible && charConfig.energy.max - charConfig.energy.spent > 0) {
@@ -120,7 +65,7 @@ export const Character = function (game) {
             },
                 isWithinReach = false;
             if (Math.floor(object.objectConfig.id) === EnumHelper.idEnum.door.id) {
-                obj = this.game.activeMap.getObjRealCoords(object);
+                obj = game.activeMap.getObjRealCoords(object);
                 if (Math.abs(character.x - obj.x) <= 50 && Math.abs(character.y - obj.y) <= 50 &&
                     (Math.abs(character.x - obj.x) > 0 || Math.abs(character.y - obj.y) > 0)) {
                     isWithinReach = true;
@@ -150,14 +95,14 @@ export const Character = function (game) {
                 actionManager.interactWithObject(object);
                 // Otherwise move near the object and try again
             } else if (Math.abs(character.x - obj.x) !== 0 || Math.abs(character.y - obj.y) !== 0) {
-                var path = Pathfinder.getPathFromAToB(character, object, this.game.activeMap.levelMap);
+                var path = Pathfinder.getPathFromAToB(character, object, game.activeMap.levelMap);
                 if (path) {
                     if (!this._isTileOccupied(path[path.length - 2][0] * 50, path[path.length - 2][1] * 50)) {
                         charConfig.energy.inProgress = object;
                         this.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
                     } else {
                         var auxMap = [];
-                        auxMap = this.game.activeMap.copyMap(this.game.activeMap.levelMap, auxMap);
+                        auxMap = game.activeMap.copyMap(game.activeMap.levelMap, auxMap);
                         auxMap[path[path.length - 2][1]][path[path.length - 2][0]] = 1;
                         path = Pathfinder.getPathFromAToB(character, object, auxMap);
                         if (path) {
@@ -171,7 +116,7 @@ export const Character = function (game) {
     };
 
     this.interactWithEnemy = (enemy) => {
-        var character = this.game.activeCharacter,
+        var character = game.activeCharacter,
             charConfig = character.characterConfig;
         charConfig.energy.inProgress = null;
         if (charConfig.energy.max - charConfig.energy.spent > 0) {
@@ -180,7 +125,7 @@ export const Character = function (game) {
     };
 
     this.check = () => {
-        var currentCharacter = this.game.activeCharacter,
+        var currentCharacter = game.activeCharacter,
             charConfig = currentCharacter.characterConfig;
         if (!charConfig.movement.isMoving && charConfig.path.length > 0) {
             this._moveCharacter(currentCharacter);
@@ -188,17 +133,17 @@ export const Character = function (game) {
     };
 
     this.pickUpItem = (item) => {
-        var character = this.game.activeCharacter,
+        var character = game.activeCharacter,
             charConfig = character.characterConfig;
         if (Math.abs(character.x - item.x) <= 50 && Math.abs(character.y - item.y) <= 50 &&
             (Math.abs(character.x - item.x) >= 0 || Math.abs(character.y - item.y) >= 0)) {
             if (charConfig.energy.max - charConfig.energy.spent > 0 && this._addItemToInventory(charConfig, item.itemConfig)) {
                 charConfig.energy.spent += EnergyConfig.pickup.cost;
-                StatusIconConfig.showEnergyIcon(this.game, character, EnergyConfig.pickup.cost);
+                StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.pickup.cost);
                 item.destroy();
-                this.game.items.remove(item);
-                this.game.events.emit('showCharacterInitiative', this.game.initiative);
-                this.game.events.emit('showCharacterInventory', character);
+                game.items.remove(item);
+                game.events.emit('showCharacterInitiative', game.initiative);
+                game.events.emit('showCharacterInventory', character);
             }
         } else {
             charConfig.energy.inProgress = item;
@@ -207,7 +152,7 @@ export const Character = function (game) {
     };
 
     this.dropItem = (itemToDrop) => {
-        var character = this.game.activeCharacter,
+        var character = game.activeCharacter,
             charConfig = character.characterConfig,
             self = this;
         if (itemToDrop.isEquipped) {
@@ -241,20 +186,20 @@ export const Character = function (game) {
             var index = charConfig.inventory.slots.items.indexOf(itemToDrop);
             charConfig.inventory.slots.items.splice(index, 1);
         }
-        var item = this.game.physics.add.sprite(character.x, character.y, itemToDrop.image).setOrigin(0, 0);
+        var item = game.physics.add.sprite(character.x, character.y, itemToDrop.image).setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.itemConfig = lodash.cloneDeep(itemToDrop);
-        this.game.items.add(item);
+        game.items.add(item);
         character.setDepth(1);
-        this.game.input.setHitArea([item]);
-        item.on('pointerdown', _.bind(self.game.characters.pickUpItem, self, item));
-        item.on('pointerover', _.bind(self.game.activeMap.highlightPathToItem, self, item));
-        this.game.events.emit('showCharacterInventory', character);
+        game.input.setHitArea([item]);
+        item.on('pointerdown', _.bind(game.characters.pickUpItem, self, item));
+        item.on('pointerover', _.bind(game.activeMap.highlightPathToItem, self, item));
+        game.events.emit('showCharacterInventory', character);
     };
 
     this.replaceItem = (itemToReplace) => {
-        var character = this.game.activeCharacter,
+        var character = game.activeCharacter,
             charConfig = character.characterConfig;
         if (charConfig.energy.max - charConfig.energy.spent > 0) {
             var index = charConfig.inventory.slots.items.indexOf(itemToReplace);
@@ -328,18 +273,18 @@ export const Character = function (game) {
                 charConfig.inventory.feet.isEquipped = true;
             }
             charConfig.energy.spent += EnergyConfig.pickup.cost;
-            StatusIconConfig.showEnergyIcon(this.game, character, EnergyConfig.pickup.cost);
-            this.game.events.emit('showCharacterInitiative', this.game.initiative);
-            this.game.events.emit('showCharacterInventory', character);
+            StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.pickup.cost);
+            game.events.emit('showCharacterInitiative', game.initiative);
+            game.events.emit('showCharacterInventory', character);
         }
     };
 
     this.addItemFromList = (item, lootbag) => {
-        var character = this.game.activeCharacter,
+        var character = game.activeCharacter,
             charConfig = character.characterConfig;
         if (charConfig.energy.max - charConfig.energy.spent > 0 && this._addItemToInventory(charConfig, item)) {
             charConfig.energy.spent += EnergyConfig.pickup.cost;
-            StatusIconConfig.showEnergyIcon(this.game, character, EnergyConfig.pickup.cost);
+            StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.pickup.cost);
             var lootbagConfig = lootbag.objectConfig.belongsTo.characterConfig;
             var index = lootbagConfig.inventory.slots.items.indexOf(item);
             lootbagConfig.inventory.slots.items.splice(index, 1);
@@ -351,20 +296,20 @@ export const Character = function (game) {
                 && lootbagConfig.inventory.body.type === EnumHelper.inventoryEnum.defaultEquipment
                 && lootbagConfig.inventory.hands.type === EnumHelper.inventoryEnum.defaultEquipment
                 && lootbagConfig.inventory.feet.type === EnumHelper.inventoryEnum.defaultEquipment) {
-                this.game.activeMap.deadCharacters.remove(lootbag);
+                game.activeMap.deadCharacters.remove(lootbag);
                 lootbag.destroy();
-                this.game.events.emit('showDeadCharacterInventory', lootbag);
-                this.game.events.emit('closeLootbag');
+                game.events.emit('showDeadCharacterInventory', lootbag);
+                game.events.emit('closeLootbag');
             }
             if (lootbagConfig.inventory.slots.items.length > 0) {
-                this.game.events.emit('showDeadCharacterInventory', lootbag);
+                game.events.emit('showDeadCharacterInventory', lootbag);
             }
-            this.game.events.emit('showCharacterInitiative', this.game.initiative);
+            game.events.emit('showCharacterInitiative', game.initiative);
         }
     };
 
     this.updateAttributes = (index) => {
-        var activeCharacter = this.game.activeCharacter;
+        var activeCharacter = game.activeCharacter;
         if (index === EnumHelper.attributeEnum.strength) {
             activeCharacter.characterConfig.attributes.strength++;
         } else if (index === EnumHelper.attributeEnum.dexterity) {
@@ -373,7 +318,7 @@ export const Character = function (game) {
             activeCharacter.characterConfig.attributes.intelligence++;
         }
         activeCharacter.characterConfig.experience.attributePoints--;
-        this.game.events.emit('updateStats', activeCharacter);
+        game.events.emit('updateStats', activeCharacter);
     };
 
     this.buySkill = (skill) => {
@@ -384,17 +329,56 @@ export const Character = function (game) {
     };
 
     this.useDash = () => {
-        var activeCharacter = this.game.activeCharacter;
+        var activeCharacter = game.activeCharacter;
         if (!activeCharacter.characterConfig.movement.usedDash &&
             activeCharacter.characterConfig.energy.max - activeCharacter.characterConfig.energy.spent >= EnergyConfig.dash.cost
             && activeCharacter.characterConfig.movement.max - activeCharacter.characterConfig.movement.spent === 0) {
             activeCharacter.characterConfig.movement.usedDash = true;
-            StatusIconConfig.showMovementIcon(this.game, activeCharacter, -activeCharacter.characterConfig.movement.spent);
+            StatusIconConfig.showMovementIcon(game, activeCharacter, -activeCharacter.characterConfig.movement.spent);
             activeCharacter.characterConfig.movement.spent = 0;
             activeCharacter.characterConfig.energy.spent += EnergyConfig.dash.cost;
-            StatusIconConfig.showEnergyIcon(this.game, activeCharacter, EnergyConfig.dash.cost);
-            this.game.activeMap.showMovementGrid();
-            this.game.events.emit('showCharacterInitiative', this.game.initiative);
+            StatusIconConfig.showEnergyIcon(game, activeCharacter, EnergyConfig.dash.cost);
+            game.activeMap.showMovementGrid();
+            game.events.emit('showCharacterInitiative', game.initiative);
+        }
+    };
+
+    this.inspect = (object) => {
+        if (this.inspectionBox) {
+            this.inspectionBox.destroy(true);
+        }
+        this.inspectionBox = game.add.group();
+        var panel = game.add.graphics(),
+            textPanel,
+            text = '',
+            x = object.x,
+            y = object.y,
+            style = {
+                fontSize: 20,
+                wordWrap: { width: 96, useAdvancedWrap: true }
+            };
+        if (object.objectConfig) {
+            text = object.objectConfig.description;
+        } else if (object.characterConfig) {
+            text = object.characterConfig.description;
+        }
+        if (x === game.activeMap.levelMap[0].length * 50 - 50) {
+            x -= 100;
+        }
+        if (y === game.activeMap.levelMap.length * 50 - 50) {
+            y -= 100;
+        }
+        textPanel = game.add.text(x + 2, y + 2, text, style);
+        panel.fillStyle(0x111111, 1);
+        panel.fillRect(x, y, textPanel.width + 4, textPanel.height + 4);
+        this.inspectionBox.add(panel);
+        this.inspectionBox.add(textPanel);
+    };
+
+    this.closeInspect = function () {
+        if (this.inspectionBox) {
+            this.inspectionBox.destroy(true);
+            this.inspectionBox = null;
         }
     };
 
@@ -404,37 +388,37 @@ export const Character = function (game) {
             self = this;
         charConfig.movement.spent++;
         charConfig.movement.isMoving = true;
-        StatusIconConfig.showMovementIcon(this.game, currentCharacter, 1);
-        this.game.events.emit('showCharacterInitiative', this.game.initiative);
+        StatusIconConfig.showMovementIcon(game, currentCharacter, 1);
+        game.events.emit('showCharacterInitiative', game.initiative);
         charConfig.posX = charConfig.path[0][0] * 50;
         charConfig.posY = charConfig.path[0][1] * 50;
         charConfig.path.shift();
-        var tile = this.game.activeMap.tiles.getChildren().find(function (tile) {
+        var tile = game.activeMap.tiles.getChildren().find(function (tile) {
             return tile.x === charConfig.posX && tile.y === charConfig.posY;
         });
         if (tile) {
-            this.game.physics.moveToObject(currentCharacter, tile, 100);
+            game.physics.moveToObject(currentCharacter, tile, 100);
             setTimeout(function () {
                 charConfig.movement.isMoving = false;
                 currentCharacter.setVelocity(0, 0);
                 currentCharacter.x = charConfig.posX;
                 currentCharacter.y = charConfig.posY;
                 if (charConfig.path.length === 0) {
-                    self.game.activeMap.showMovementGrid(currentCharacter);
+                    game.activeMap.showMovementGrid(currentCharacter);
                     self._checkIfObjectInteractionInProgress(charConfig.energy.inProgress);
                 }
-                self.game.events.emit('showCharacterInitiative', self.game.initiative);
+                game.events.emit('showCharacterInitiative', game.initiative);
             }, 500);
         }
     };
 
     this._moveActiveCharacter = (posX, posY) => {
-        var currentCharacter = this.game.activeCharacter,
+        var currentCharacter = game.activeCharacter,
             charConfig = currentCharacter.characterConfig;
         if (!charConfig.movement.isMoving &&
             (currentCharacter.x !== posX || currentCharacter.y !== posY)) {
             if (!this._isTileOccupied(posX, posY)) {
-                var auxMap = this.game.activeMap.addEnemiesToMap(this.game.enemies),
+                var auxMap = game.activeMap.addEnemiesToMap(game.enemies),
                     pathWay = Pathfinder.findWay(currentCharacter.x / 50, currentCharacter.y / 50, posX / 50, posY / 50, auxMap);
                 charConfig.path = pathWay || [];
                 if (pathWay.length > 0) {
@@ -458,21 +442,21 @@ export const Character = function (game) {
 
     this._isTileOccupied = (posX, posY) => {
         var isObstacleInTheWay;
-        if (this.game.enemies) {
-            isObstacleInTheWay = this.game.enemies.characters.getChildren().filter(function (enemy) {
+        if (game.enemies) {
+            isObstacleInTheWay = game.enemies.characters.getChildren().filter(function (enemy) {
                 return enemy.x === posX && enemy.y === posY;
             });
             if (isObstacleInTheWay.length > 0) {
                 return true;
             }
         }
-        isObstacleInTheWay = this.game.characters.characters.getChildren().filter(function (character) {
+        isObstacleInTheWay = game.characters.characters.getChildren().filter(function (character) {
             return character.x === posX && character.y === posY;
         });
         if (isObstacleInTheWay.length > 0) {
             return true;
         }
-        isObstacleInTheWay = this.game.activeMap.objects.getChildren().filter(function (object) {
+        isObstacleInTheWay = game.activeMap.objects.getChildren().filter(function (object) {
             if (object.x === posX && object.y === posY) {
                 //if object is a door check if it is open/activated
                 if (Math.floor(object.objectConfig.id) === Math.floor(EnumHelper.idEnum.door.id) && !object.objectConfig.isActivated) {

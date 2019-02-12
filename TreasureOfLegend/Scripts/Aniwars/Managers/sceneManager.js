@@ -270,7 +270,7 @@ export const SceneManager = function (game) {
         if (actionId === EnumHelper.actionEnum.inspect) {
             this.game.activeCharacter.characterConfig.energy.actionId = -1;
             this.game.activeCharacter.characterConfig.energy.selectedAction = null;
-            this.game.events.emit('inspect', tile);
+            this.game.characters.inspect(tile);
         } else {
             this.game.characters.moveActiveCharacterToTile(tile);
         }
@@ -286,7 +286,7 @@ export const SceneManager = function (game) {
         if (actionId === EnumHelper.actionEnum.inspect) {
             this.game.activeCharacter.characterConfig.energy.actionId = -1;
             this.game.activeCharacter.characterConfig.energy.selectedAction = null;
-            this.game.events.emit('inspect', object);
+            this.game.characters.inspect(object);
         } else {
             this.game.characters.interactWithObject(object);
         }
@@ -322,13 +322,13 @@ export const SceneManager = function (game) {
         }
     };
     this._leaveTile = () => {
-        this.game.events.emit('closeInspect');
+        this.game.characters.closeInspect();
     };
     this._leaveObject = () => {
-        this.game.events.emit('closeInspect');
+        this.game.characters.closeInspect();
     };
     this._unhoverCharacter = () => {
-        this.game.events.emit('closeInspect');
+        this.game.characters.closeInspect();
     };
 
     this._showCharacterInventory = (character, pointer) => {

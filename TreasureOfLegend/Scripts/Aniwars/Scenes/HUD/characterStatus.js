@@ -463,7 +463,7 @@ export const HUDCharacterStatus = function (scene) {
             callback(character, x);
         });
         tabImage.on('pointerover', function () {
-            game.tipsModal.showTips(startX + 30, y, 100, 20, text);
+            game.tipsModal.showTips(startX + 30, y, text);
         });
         tabImage.on('pointerout', function () {
             game.tipsModal.hideTips();

@@ -108,45 +108,6 @@ export const HUDScene = function (sceneName) {
                 });
             });
         },
-        inspect: function (object) {
-            // TODO: Disable right click menu on canvas
-            // TODO: Panel location should be where you click instead of relative position of object
-            // TODO: Fit text to box and box to text
-            if (this.inspectionBox) {
-                this.inspectionBox.destroy(true);
-            }
-            this.inspectionBox = this.add.group();
-            var panel = this.add.graphics(),
-                textPanel,
-                text = '',
-                x = object.x,
-                y = object.y,
-                style = {
-                    fontSize: 20,
-                    wordWrap: { width: 96, useAdvancedWrap: true }
-                };
-            if (object.objectConfig) {
-                text = object.objectConfig.description;
-            } else if (object.characterConfig) {
-                text = object.characterConfig.description;
-            }
-            if (x === this.activeScene.activeMap.levelMap[0].length * 50 - 50) {
-                x -= 100;
-            }
-            if (y === this.activeScene.activeMap.levelMap.length * 50 - 50) {
-                y -= 100;
-            }
-            panel.fillStyle(0x111111, 1);
-            panel.fillRect(x, y, 100, 100);
-            textPanel = this.add.text(x + 2, y + 2, text, style);
-            this.inspectionBox.add(panel);
-            this.inspectionBox.add(textPanel);
-        },
-        closeInspect: function () {
-            if (this.inspectionBox) {
-                this.inspectionBox.destroy(true);
-            }
-        },
         // PRIVATE ---------------------------------------------------------------------------------------------------------------------------------------
         _addEvents: function () {
             var self = this;
@@ -168,8 +129,6 @@ export const HUDScene = function (sceneName) {
             this.activeScene.events.on('changeTurnCounter', function () {
                 self.lowerPanel.changeTurn();
             });
-            this.activeScene.events.on('inspect', _.bind(this.inspect, this));
-            this.activeScene.events.on('closeInspect', _.bind(this.closeInspect, this));
             this.activeScene.events.on('showCharacterInventory', function (character) {
                 self.characterStatus.openInventoryTab(character);
             });

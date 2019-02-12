@@ -21,7 +21,7 @@
                         this.endTurn();
                     }, this),
                     pointerover: function () {
-                        game.tipsModal.showTips(game.windowWidth - 170, game.windowHeight - 175, 87, 20, 'End Turn (?)');
+                        game.tipsModal.showTips(game.windowWidth - 170, game.windowHeight - 175, 'End Turn (?)');
                     },
                     pointerout: function () {
                         game.tipsModal.hideTips();
@@ -37,7 +37,7 @@
                         this.openMainMenu();
                     }, this),
                     pointerover: function () {
-                        game.tipsModal.showTips(game.windowWidth - 130, game.windowHeight - 85, 97, 20, 'Open Menu (ESC)');
+                        game.tipsModal.showTips(game.windowWidth - 130, game.windowHeight - 85, 'Open Menu (ESC)');
                     },
                     pointerout: function () {
                         game.tipsModal.hideTips();
@@ -53,7 +53,7 @@
                         this.openSpellBook(game.activeScene.activeCharacter);
                     }, this),
                     pointerover: function () {
-                        game.tipsModal.showTips(game.windowWidth - 255, game.windowHeight - 205, 97, 20, 'Open Spell Book (S)');
+                        game.tipsModal.showTips(game.windowWidth - 255, game.windowHeight - 205, 'Open Spell Book (S)');
                     },
                     pointerout: function () {
                         game.tipsModal.hideTips();
@@ -69,7 +69,7 @@
                         this.openSpellBook(game.activeScene.activeCharacter);
                     }, this),
                     pointerover: function () {
-                        game.tipsModal.showTips(game.windowWidth - 255, game.windowHeight - 85, 97, 20, 'Total Souls');
+                        game.tipsModal.showTips(game.windowWidth - 255, game.windowHeight - 85, 'Total Souls');
                     },
                     pointerout: function () {
                         game.tipsModal.hideTips();
@@ -85,7 +85,7 @@
                         this.useDash();
                     }, this),
                     pointerover: function () {
-                        game.tipsModal.showTips(game.windowWidth - 80, game.windowHeight - 205, 97, 20, 'Dash (W)');
+                        game.tipsModal.showTips(game.windowWidth - 80, game.windowHeight - 205, 'Dash (W)');
                     },
                     pointerout: function () {
                         game.tipsModal.hideTips();
@@ -101,7 +101,7 @@
                         this.useMainHand();
                     }, this),
                     pointerover: function () {
-                        game.tipsModal.showTips(game.windowWidth - 175, game.windowHeight - 235, 97, 20, 'Use Main Hand (A)');
+                        game.tipsModal.showTips(game.windowWidth - 175, game.windowHeight - 235, 'Use Main Hand (A)');
                     },
                     pointerout: function () {
                         game.tipsModal.hideTips();
@@ -117,7 +117,7 @@
                         this.useMainHand();
                     }, this),
                     pointerover: function () {
-                        game.tipsModal.showTips(game.windowWidth - 175, game.windowHeight - 295, 97, 20, 'Use Offhand (D)');
+                        game.tipsModal.showTips(game.windowWidth - 175, game.windowHeight - 295, 'Use Offhand (D)');
                     },
                     pointerout: function () {
                         game.tipsModal.hideTips();
@@ -133,7 +133,7 @@
                         this.openCharacterInventory();
                     }, this),
                     pointerover: function () {
-                        game.tipsModal.showTips(game.windowWidth - 260, game.windowHeight - 145, 97, 20, 'Open Inventory (TAB)');
+                        game.tipsModal.showTips(game.windowWidth - 260, game.windowHeight - 145, 'Open Inventory (TAB)');
                     },
                     pointerout: function () {
                         game.tipsModal.hideTips();
@@ -149,7 +149,7 @@
                         this.selectInspectAction();
                     }, this),
                     pointerover: function () {
-                        game.tipsModal.showTips(game.windowWidth - 80, game.windowHeight - 145, 97, 20, 'Inspect (E)');
+                        game.tipsModal.showTips(game.windowWidth - 80, game.windowHeight - 145, 'Inspect (E)');
                     },
                     pointerout: function () {
                         game.tipsModal.hideTips();
