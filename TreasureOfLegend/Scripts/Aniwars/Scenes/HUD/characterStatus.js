@@ -28,6 +28,8 @@ export const HUDCharacterStatus = function (scene) {
         if (characterInventoryTabGroup) {
             this.destroyAllCharacterGroups();
             this.toggleInventoryTab(character);
+        } else {
+            this.toggleInventoryTab(character);
         }
     };
     this.toggleInventoryTab = function (character) {
@@ -105,6 +107,8 @@ export const HUDCharacterStatus = function (scene) {
     this.openDescriptionTab = function (character) {
         if (characterDescriptionTabGroup) {
             this.destroyAllCharacterGroups();
+            this.toggleDescriptionTab(character);
+        } else {
             this.toggleDescriptionTab(character);
         }
     };
@@ -217,6 +221,8 @@ export const HUDCharacterStatus = function (scene) {
     this.openAbilitiesTab = function (character) {
         if (characterAbilitiesTabGroup) {
             this.destroyAllCharacterGroups();
+            this.toggleAbilitiesTab(character);
+        } else {
             this.toggleAbilitiesTab(character);
         }
     };
@@ -435,6 +441,7 @@ export const HUDCharacterStatus = function (scene) {
         game.input.setHitArea([closeButton]);
         closeButton.on('pointerdown', function () {
             self.destroyAllCharacterGroups();
+            game.closeLootbag();
         });
     };
 
