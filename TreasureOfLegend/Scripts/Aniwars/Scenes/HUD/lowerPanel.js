@@ -162,7 +162,7 @@
         game.turn = 1;
         hudbuttons = game.add.group();
         _createButtons();
-        game.soulsText = game.add.text(game.windowWidth - 193, game.windowHeight - 30, '0', { fill: '#D22' });
+        this.soulsText = game.add.text(game.windowWidth - 193, game.windowHeight - 30, '0', { fill: '#D22' });
         this.turnText = game.add.text(game.windowWidth - 125, game.windowHeight - 92, game.turn, { fill: '#FFF' });
         this.turn = 1;
         game.input.setHitArea(hudbuttons.getChildren());
@@ -198,7 +198,7 @@
             return btn.name === 'soulsButton';
         });
         buttons[0].visible = isVisible;
-        game.soulsText.visible = isVisible;
+        this.soulsText.visible = isVisible;
     };
     this.setButtonTint = function (buttonName) {
         if (buttonName) {

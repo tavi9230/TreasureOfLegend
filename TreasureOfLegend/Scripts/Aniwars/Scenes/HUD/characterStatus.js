@@ -9,6 +9,8 @@ export const HUDCharacterStatus = function (scene) {
         attributesInfo = null,
         attributesInfoBox = null,
         abilityGroup = null,
+        enemyInventory = null,
+        itemStats = null,
         damageArray = ['slashing', 'piercing', 'bludgeoning', 'fire'],
         inventoryCallback = _.bind(function (character) {
             game.tipsModal.hideTips();
@@ -63,7 +65,8 @@ export const HUDCharacterStatus = function (scene) {
         }
     };
     this._createInventorySlot = function (x, y, character, item) {
-        var image = null,
+        var self = this,
+            image = null,
             box = game.add.graphics();
         box.fillStyle(0x444444, 0.8);
         box.fillRect(x, y, 50, 50);
@@ -74,8 +77,10 @@ export const HUDCharacterStatus = function (scene) {
             image.displayWidth = 50;
             image.displayHeight = 50;
             game.input.setHitArea([image]);
-            image.on('pointerover', _.bind(game.showItemStats, game, { x: x, y: y, item: item, character: character }));
-            image.on('pointerout', _.bind(game.hideItemStats, game));
+            image.on('pointerover', function () {
+                self._showItemStats({ x: x, y: y, item: item, character: character });
+            });
+            image.on('pointerout', this._hideItemStats);
             characterInventoryTabGroup.add(image);
         }
         if (item && item.type !== EnumHelper.inventoryEnum.defaultEquipment &&
@@ -337,6 +342,58 @@ export const HUDCharacterStatus = function (scene) {
             });
         }
     };
+
+    // LOOTBAG -------------------------------------------------------------------------------------------------------------------------------------------------------
+    this.showDeadCharacterInventory = function (lootbag) {
+        this.closeLootbag();
+        var self = this,
+            activeCharacter = game.activeScene.activeCharacter,
+            lootbagConfig = lootbag.objectConfig,
+            characterBelonging = lootbagConfig.belongsTo.characterConfig,
+            panel = game.add.graphics(),
+            x = 480,
+            y = 10,
+            image;
+        this.openInventoryTab(activeCharacter);
+        enemyInventory = game.add.group();
+        panel.fillStyle(0x111111, 0.8);
+        panel.fillRect(470, 0, 220, 440);
+        enemyInventory.add(panel);
+        y = this._addToEnemyInventory('mainHand', characterBelonging, x, y);
+        y = this._addToEnemyInventory('offHand', characterBelonging, x, y);
+        y = this._addToEnemyInventory('head', characterBelonging, x, y);
+        y = this._addToEnemyInventory('body', characterBelonging, x, y);
+        y = this._addToEnemyInventory('hands', characterBelonging, x, y);
+        y = this._addToEnemyInventory('feet', characterBelonging, x, y);
+        if (characterBelonging.inventory.slots.items.length > 0) {
+            _.each(characterBelonging.inventory.slots.items, function (item) {
+                item.isEquipped = false;
+                image = game.add.image(x, y, item.image).setOrigin(0, 0);
+                image.displayWidth = 50;
+                image.displayHeight = 50;
+                image.objectToSend = item;
+                enemyInventory.add(image);
+                y += 60;
+            });
+        }
+        game.input.setHitArea(enemyInventory.getChildren());
+        _.each(enemyInventory.getChildren(), function (item) {
+            item.on('pointerdown', function () {
+                game.events.emit('getItemFromLootBag', { item: item.objectToSend, lootbag: lootbag });
+            });
+            item.on('pointerover', function () {
+                self._showItemStats({ x: item.x, y: item.y, item: item.objectToSend, character: activeCharacter });
+            });
+            item.on('pointerout', self._hideItemStats);
+        });
+    };
+    this.closeLootbag = function () {
+        if (enemyInventory) {
+            enemyInventory.destroy(true);
+            enemyInventory = null;
+            this._hideItemStats();
+        }
+    };
     // DESTROY METHODS -----------------------------------------------------------------------------------------------------------------------------------------------
     // Inventory TAB
     this._destroyCharacterInventoryTab = function () {
@@ -386,6 +443,7 @@ export const HUDCharacterStatus = function (scene) {
         this._destroyCharacterInventoryTab();
         this._destroyCharacterDescriptionTab();
         this._destroyCharacterAbilitiesTab();
+        this.closeLootbag();
     };
 
     // BUTTONS --------------------------------------------------------------------------------------------------------------------------------------------
@@ -441,10 +499,10 @@ export const HUDCharacterStatus = function (scene) {
         game.input.setHitArea([closeButton]);
         closeButton.on('pointerdown', function () {
             self.destroyAllCharacterGroups();
-            game.closeLootbag();
         });
     };
 
+    // PRIVATE ------------------------------------------------------------------------------------------------------------------------------------------
     this._getCoordsForTabs = function (character) {
         var x = character.characterConfig.isPlayerControlled ? 0 : game.windowWidth - 440,
             y = 0;
@@ -452,5 +510,116 @@ export const HUDCharacterStatus = function (scene) {
             x: x,
             y: y
         };
+    };
+    this._showItemStats = function (config) {
+        if (config.item.type !== EnumHelper.inventoryEnum.defaultEquipment) {
+            var item = config.item,
+                compareBox = game.add.graphics();
+            compareBox.fillStyle(0x222222, 1);
+            compareBox.fillRect(config.x + 50, config.y, 150, 150);
+
+            itemStats = game.add.group();
+            itemStats.add(compareBox);
+
+            if (item.type === EnumHelper.inventoryEnum.mainHand) {
+                this._createItemStatsBox(item, config.character.characterConfig, config.x, config.y, 'mainHand');
+            } else if (item.type === EnumHelper.inventoryEnum.offHand) {
+                this._createItemStatsBox(item, config.character.characterConfig, config.x, config.y, 'offHand');
+            } else if (item.type === EnumHelper.inventoryEnum.head) {
+                this._createItemStatsBox(item, config.character.characterConfig, config.x, config.y, 'head');
+            } else if (item.type === EnumHelper.inventoryEnum.body) {
+                this._createItemStatsBox(item, config.character.characterConfig, config.x, config.y, 'body');
+            } else if (item.type === EnumHelper.inventoryEnum.hands) {
+                this._createItemStatsBox(item, config.character.characterConfig, config.x, config.y, 'hands');
+            } else if (item.type === EnumHelper.inventoryEnum.feet) {
+                this._createItemStatsBox(item, config.character.characterConfig, config.x, config.y, 'feet');
+            }
+        }
+    };
+    this._hideItemStats = function () {
+        if (itemStats) {
+            itemStats.destroy(true);
+            itemStats = null;
+        }
+    };
+    this._addToEnemyInventory = function (location, characterBelonging, x, y) {
+        if (characterBelonging.inventory[location].type !== EnumHelper.inventoryEnum.defaultEquipment) {
+            characterBelonging.inventory[location].isEquipped = false;
+            var image = game.add.image(x, y, characterBelonging.inventory[location].image).setOrigin(0, 0);
+            image.displayWidth = 50;
+            image.displayHeight = 50;
+            image.objectToSend = characterBelonging.inventory[location];
+            enemyInventory.add(image);
+            y += 60;
+        }
+        return y;
+    };
+    this._createItemStatsBox = function (item, characterConfig, x, y, location) {
+        var damage = '',
+            nameText, descriptionText, damageText, rangeText, holdText,
+            equippedBox, equippedNameText, equippedDescriptionText, equippedDamageText, equippedRangeText, equippedHoldText,
+            textStyle = {
+                fill: '#FFF',
+                wordWrap: {
+                    width: 145
+                }
+            },
+            itemHasDamage = item.damage,
+            equippedHasDamage;
+        if (itemHasDamage) {
+            var damage = '';
+            for (let i = 0; i < item.damage.length; i++) {
+                if (i !== item.damage.length - 1) {
+                    damage += item.damage[0].value + ' ' + damageArray[item.damage[0].type - 1] + ', ';
+                } else {
+                    damage += item.damage[0].value + ' ' + damageArray[item.damage[0].type - 1];
+                }
+            }
+            damageText = game.add.text(x + 55, y + 60, 'Damage: ' + damage, textStyle);
+        } else {
+            damageText = game.add.text(x + 55, y + 60, 'Armor: ' + item.armor, textStyle);
+        }
+        nameText = game.add.text(x + 55, y, item.name, textStyle);
+        descriptionText = game.add.text(x + 55, y + 30, item.description, textStyle);
+        if (itemHasDamage) {
+            rangeText = game.add.text(x + 55, y + 105, 'Range: ' + item.range, textStyle);
+            holdText = game.add.text(x + 55, y + 120, 'Hold: ' + item.hold, textStyle);
+            itemStats.add(rangeText);
+            itemStats.add(holdText);
+        }
+        itemStats.add(nameText);
+        itemStats.add(descriptionText);
+        itemStats.add(damageText);
+        if (characterConfig.inventory[location].type !== EnumHelper.inventoryEnum.defaultEquipment && !item.isEquipped) {
+            equippedBox = game.add.graphics();
+            equippedBox.fillStyle(0x222222, 1);
+            equippedBox.fillRect(x + 200, y, 150, 150);
+            equippedHasDamage = characterConfig.inventory[location].damage;
+            if (equippedHasDamage) {
+                damage = '';
+                for (let i = 0; i < characterConfig.inventory[location].damage.length; i++) {
+                    if (i !== item.damage.length - 1) {
+                        damage += item.damage[0].value + ' ' + damageArray[item.damage[0].type - 1] + ', ';
+                    } else {
+                        damage += item.damage[0].value + ' ' + damageArray[item.damage[0].type - 1];
+                    }
+                }
+                equippedDamageText = game.add.text(x + 205, y + 60, 'Damage: ' + damage, textStyle);
+            } else {
+                equippedDamageText = game.add.text(x + 205, y + 60, 'Armor: ' + characterConfig.inventory[location].armor, textStyle);
+            }
+            equippedNameText = game.add.text(x + 205, y, characterConfig.inventory[location].name, textStyle);
+            equippedDescriptionText = game.add.text(x + 205, y + 30, characterConfig.inventory[location].description, textStyle);
+            if (equippedHasDamage) {
+                equippedRangeText = game.add.text(x + 205, y + 105, 'Range: ' + characterConfig.inventory[location].range, textStyle);
+                equippedHoldText = game.add.text(x + 205, y + 120, 'Hold: ' + characterConfig.inventory[location].hold, textStyle);
+                itemStats.add(equippedRangeText);
+                itemStats.add(equippedHoldText);
+            }
+            itemStats.add(equippedBox);
+            itemStats.add(equippedNameText);
+            itemStats.add(equippedDescriptionText);
+            itemStats.add(equippedDamageText);
+        }
     };
 };
