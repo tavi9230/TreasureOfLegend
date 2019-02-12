@@ -2,7 +2,9 @@
 
 export const HUDCharacterStatus = function (scene) {
     var game = scene,
-        characterInfo = null,
+        characterInventoryTabGroup = null,
+        characterDescriptionTabGroup = null,
+        characterAbilitiesTabGroup = null,
         abilityStats = null,
         attributesInfo = null,
         attributesInfoBox = null,
@@ -22,15 +24,16 @@ export const HUDCharacterStatus = function (scene) {
         }, this);
 
     this.toggleCharacterInventory = function (character) {
-        if (!characterInfo) {
+        if (!characterInventoryTabGroup) {
+            this.destroyAllCharacterGroups();
             var x = character.characterConfig.isPlayerControlled ? 0 : game.windowWidth - 440,
                 y = 0;
             var charConfig = character.characterConfig,
                 panel = game.add.graphics();
-            characterInfo = game.add.group();
+            characterInventoryTabGroup = game.add.group();
             panel.fillStyle(0x111111, 1);
             panel.fillRect(x, y, 440, 440);
-            characterInfo.add(panel);
+            characterInventoryTabGroup.add(panel);
             // Equiped Inventory -----------------------------------------------------------------------------------------------------
             this._createInventorySlot(x + 75, y + 10, character, charConfig.inventory.head);
             this._createInventorySlot(x + 75, y + 65, character, charConfig.inventory.body);
@@ -40,15 +43,13 @@ export const HUDCharacterStatus = function (scene) {
             this._createInventorySlot(x + 130, y + 120, character, charConfig.inventory.feet);
             // Unequiped inventory ---------------------------------------------------------------------------------------------------
             this._createUnequippedInventorySlots(character, x, y + 220);
-            this._createInventoryTabButton(character, x, y, 'inventoryButton', 'Inventory', inventoryCallback);
-            this._createDescriptionTabButton(character, x, y, 'spellsButton', 'Description', descriptionCallback);
-            this._createAbilitiesTabButton(character, x, y, 'spellsButton', 'Abilities', abilitiesCallback);
-            this._createCloseButton(x + 420, y, characterInfo);
+            this._createInventoryTabButton(character, x, y, 'inventoryButton', 'Inventory', inventoryCallback, characterInventoryTabGroup);
+            this._createDescriptionTabButton(character, x, y, 'spellsButton', 'Description', descriptionCallback, characterInventoryTabGroup);
+            this._createAbilitiesTabButton(character, x, y, 'spellsButton', 'Abilities', abilitiesCallback, characterInventoryTabGroup);
+            this._createCloseButton(x + 420, y, characterInventoryTabGroup);
         } else {
-            this._destroyCharacterInfo();
-            this._destroyAbilityStats();
+            this.destroyAllCharacterGroups();
             game.tipsModal.hideTips();
-            this.toggleCharacterInventory(character);
         }
     };
     this.showAttributePointSelection = function (character, x, y) {
@@ -82,7 +83,7 @@ export const HUDCharacterStatus = function (scene) {
             box = game.add.graphics();
         box.fillStyle(0x444444, 0.8);
         box.fillRect(x, y, 50, 50);
-        characterInfo.add(box);
+        characterInventoryTabGroup.add(box);
 
         if (item) {
             image = game.add.image(x, y, item.image).setOrigin(0, 0);
@@ -91,18 +92,18 @@ export const HUDCharacterStatus = function (scene) {
             game.input.setHitArea([image]);
             image.on('pointerover', _.bind(game.showItemStats, game, { x: x, y: y, item: item, character: character }));
             image.on('pointerout', _.bind(game.hideItemStats, game));
-            characterInfo.add(image);
+            characterInventoryTabGroup.add(image);
         }
         if (item && item.type !== EnumHelper.inventoryEnum.defaultEquipment &&
             character.x === game.activeScene.activeCharacter.x &&
             character.y === game.activeScene.activeCharacter.y) {
-            this._createDropButton(x + 40, y, character, item, characterInfo);
+            this._createDropButton(x + 40, y, character, item, characterInventoryTabGroup);
         }
         if (_.isObject(item) && !item.isEquipped &&
             item && item.type !== EnumHelper.inventoryEnum.defaultEquipment &&
             character.x === game.activeScene.activeCharacter.x &&
             character.y === game.activeScene.activeCharacter.y) {
-            this._createReplaceButton(x, y, character, item, characterInfo);
+            this._createReplaceButton(x, y, character, item, characterInventoryTabGroup);
         }
     };
     this._createUnequippedInventorySlots = function (character, x, y) {
@@ -118,8 +119,9 @@ export const HUDCharacterStatus = function (scene) {
         }
     };
     this._createDescriptionsTab = function (character, x, y) {
-        if (!characterInfo) {
-            characterInfo = game.add.group();
+        if (!characterDescriptionTabGroup) {
+            this.destroyAllCharacterGroups();
+            characterDescriptionTabGroup = game.add.group();
             var isPlayerControlled = character.characterConfig.isPlayerControlled,
                 charConfig = character.characterConfig,
                 text = isPlayerControlled
@@ -134,7 +136,7 @@ export const HUDCharacterStatus = function (scene) {
                 panel = game.add.graphics();
             panel.fillStyle(0x111111, 1);
             panel.fillRect(x, y, 440, 440);
-            characterInfo.add(panel);
+            characterDescriptionTabGroup.add(panel);
             var experienceText = game.add.text(x + 10, y + 25, text, textStyle);
             var strengthText = game.add.text(x + 10, y + 40, 'Strength: ' + charConfig.attributes.strength, textStyle);
             var dexterityText = game.add.text(x + 10, y + 55, 'Dexterity: ' + charConfig.attributes.dexterity, textStyle);
@@ -149,31 +151,31 @@ export const HUDCharacterStatus = function (scene) {
 
             var moneyText = game.add.text(x + 10, y + 205, 'Money: ' + charConfig.inventory.money, textStyle);
 
-            characterInfo.add(experienceText);
-            characterInfo.add(strengthText);
-            characterInfo.add(dexterityText);
-            characterInfo.add(intelligenceText);
-            characterInfo.add(armorText);
-            characterInfo.add(naturalArmorText);
-            characterInfo.add(lifeText);
-            characterInfo.add(manaText);
-            characterInfo.add(movementText);
-            characterInfo.add(energyText);
-            characterInfo.add(moneyText);
+            characterDescriptionTabGroup.add(experienceText);
+            characterDescriptionTabGroup.add(strengthText);
+            characterDescriptionTabGroup.add(dexterityText);
+            characterDescriptionTabGroup.add(intelligenceText);
+            characterDescriptionTabGroup.add(armorText);
+            characterDescriptionTabGroup.add(naturalArmorText);
+            characterDescriptionTabGroup.add(lifeText);
+            characterDescriptionTabGroup.add(manaText);
+            characterDescriptionTabGroup.add(movementText);
+            characterDescriptionTabGroup.add(energyText);
+            characterDescriptionTabGroup.add(moneyText);
 
-            this._addVulnerabilities('invulnerabilities', charConfig, x + 10, y + 220, 'Invulnerable: ', textStyle, characterInfo);
-            this._addVulnerabilities('resistances', charConfig, x + 10, y + 250, 'Resistant: ', textStyle, characterInfo);
-            this._addVulnerabilities('vulnerabilities', charConfig, x + 10, y + 280, 'Vulnerable: ', textStyle, characterInfo);
+            this._addVulnerabilities('invulnerabilities', charConfig, x + 10, y + 220, 'Invulnerable: ', textStyle, characterDescriptionTabGroup);
+            this._addVulnerabilities('resistances', charConfig, x + 10, y + 250, 'Resistant: ', textStyle, characterDescriptionTabGroup);
+            this._addVulnerabilities('vulnerabilities', charConfig, x + 10, y + 280, 'Vulnerable: ', textStyle, characterDescriptionTabGroup);
             if (isPlayerControlled) {
                 this.showAttributePointSelection(character, x, y);
             }
-            this._createInventoryTabButton(character, x, y, 'inventoryButton', 'Inventory', inventoryCallback);
-            this._createDescriptionTabButton(character, x, y, 'spellsButton', 'Description', descriptionCallback);
-            this._createAbilitiesTabButton(character, x, y, 'spellsButton', 'Abilities', abilitiesCallback);
-            this._createCloseButton(x + 420, y, characterInfo);
+            this._createInventoryTabButton(character, x, y, 'inventoryButton', 'Inventory', inventoryCallback, characterDescriptionTabGroup);
+            this._createDescriptionTabButton(character, x, y, 'spellsButton', 'Description', descriptionCallback, characterDescriptionTabGroup);
+            this._createAbilitiesTabButton(character, x, y, 'spellsButton', 'Abilities', abilitiesCallback, characterDescriptionTabGroup);
+            this._createCloseButton(x + 420, y, characterDescriptionTabGroup);
         } else {
-            this._destroyCharacterInfo();
-            this._createDescriptionsTab(character, x, y);
+            this.destroyAllCharacterGroups();
+            game.tipsModal.hideTips();
         }
     };
     this._addVulnerabilities = function (type, charConfig, x, y, textToShow, textStyle, group) {
@@ -189,35 +191,36 @@ export const HUDCharacterStatus = function (scene) {
         group.add(text);
     };
     this._showCharacterAbilities = function (character, x, y) {
-        if (!characterInfo) {
+        if (!characterAbilitiesTabGroup) {
+            this.destroyAllCharacterGroups();
             var self = this,
                 startX = x,
                 inventoryCallback = function () {
                     game.tipsModal.hideTips();
                     self.toggleCharacterInventory(character, true);
                 };
-            characterInfo = game.add.group();
+            characterAbilitiesTabGroup = game.add.group();
             abilityGroup = game.add.group();
             var panel = game.add.graphics();
             panel.fillStyle(0x111111, 1);
             panel.fillRect(x, y, 440, 440);
-            characterInfo.add(panel);
-            this._createCloseButton(x + 420, y, characterInfo, this._destroyAbilityGroup);
-            this._createInventoryTabButton(character, x, y, 'inventoryButton', 'Inventory', inventoryCallback);
-            this._createDescriptionTabButton(character, x, y, 'spellsButton', 'Description', descriptionCallback);
-            this._createAbilitiesTabButton(character, x, y, 'spellsButton', 'Abilities', abilitiesCallback);
+            characterAbilitiesTabGroup.add(panel);
+            this._createCloseButton(x + 420, y, characterAbilitiesTabGroup);
+            this._createInventoryTabButton(character, x, y, 'inventoryButton', 'Inventory', inventoryCallback, characterAbilitiesTabGroup);
+            this._createDescriptionTabButton(character, x, y, 'spellsButton', 'Description', descriptionCallback, characterAbilitiesTabGroup);
+            this._createAbilitiesTabButton(character, x, y, 'spellsButton', 'Abilities', abilitiesCallback, characterAbilitiesTabGroup);
             _.each(character.characterConfig.inventory.spells, function (spell) {
                 var box = game.add.graphics(),
                     spellImage;
                 box.fillStyle(0xded7c7, 1);
                 box.fillRect(x, y, 70, 70);
-                characterInfo.add(box);
+                characterAbilitiesTabGroup.add(box);
 
                 spellImage = game.add.image(x + 10, y + 10, spell.image).setOrigin(0, 0);
                 spellImage.displayWidth = 50;
                 spellImage.displayHeight = 50;
                 spellImage.objectToSend = spell;
-                self._showAbilityUpgradeButton(character, spell, characterInfo, x, y);
+                self._showAbilityUpgradeButton(character, spell, characterAbilitiesTabGroup, x, y);
                 abilityGroup.add(spellImage);
                 x += 80;
                 if (x >= startX + 440) {
@@ -237,13 +240,13 @@ export const HUDCharacterStatus = function (scene) {
                         var hideAbilityStats = _.bind(self._destroyAbilityStats, self);
                         hideAbilityStats();
                         game.events.emit('spellSelected', abilityImage.objectToSend);
-                        self._destroyCharacterInfo();
+                        self._destroyCharacterInventoryTab();
                     }
                 });
             });
         } else {
-            this._destroyCharacterInfo();
-            this._showCharacterAbilities(character, x, y);
+            this.destroyAllCharacterGroups();
+            game.tipsModal.hideTips();
         }
     };
     this._showAbilityStats = function (image, ability) {
@@ -297,27 +300,16 @@ export const HUDCharacterStatus = function (scene) {
             });
         }
     };
-    this._destroyAbilityStats = function () {
-        if (abilityStats) {
-            abilityStats.destroy(true);
-            abilityStats = null;
+    // DESTROY METHODS -----------------------------------------------------------------------------------------------------------------------------------------------
+    // Inventory TAB
+    this._destroyCharacterInventoryTab = function () {
+        if (characterInventoryTabGroup) {
+            characterInventoryTabGroup.destroy(true);
+            characterInventoryTabGroup = null;
         }
     };
-    this._destroyCharacterInfo = function () {
-        // TODO: Hide tips in case player presses TAB
-        this._destroyAttributesInfo();
-        this._destroyAbilityGroup();
-        if (characterInfo) {
-            characterInfo.destroy(true);
-            characterInfo = null;
-        }
-    };
-    this._destroyAbilityGroup = function () {
-        if (abilityGroup) {
-            abilityGroup.destroy(true);
-            abilityGroup = null;
-        }
-    };
+
+    // Description TAB
     this._destroyAttributesInfo = function () {
         if (attributesInfo) {
             attributesInfo.destroy(true);
@@ -326,18 +318,50 @@ export const HUDCharacterStatus = function (scene) {
             attributesInfoBox = null;
         }
     };
+    this._destroyCharacterDescriptionTab = function () {
+        this._destroyAttributesInfo();
+        if (characterDescriptionTabGroup) {
+            characterDescriptionTabGroup.destroy(true);
+            characterDescriptionTabGroup = null;
+        }
+    };
+
+    // Abilities TAB
+    this._destroyAbilityStats = function () {
+        if (abilityStats) {
+            abilityStats.destroy(true);
+            abilityStats = null;
+        }
+    };
+    this._destroyCharacterAbilitiesTab = function () {
+        if (characterAbilitiesTabGroup) {
+            characterAbilitiesTabGroup.destroy(true);
+            characterAbilitiesTabGroup = null;
+        }
+        if (abilityGroup) {
+            abilityGroup.destroy(true);
+            abilityGroup = null;
+        }
+        this._destroyAbilityStats();
+    };
+
+    this.destroyAllCharacterGroups = function () {
+        this._destroyCharacterInventoryTab();
+        this._destroyCharacterDescriptionTab();
+        this._destroyCharacterAbilitiesTab();
+    };
 
     // BUTTONS --------------------------------------------------------------------------------------------------------------------------------------------
-    this._createInventoryTabButton = function (character, x, y, buttonImage, text, callback) {
+    this._createInventoryTabButton = function (character, x, y, buttonImage, text, callback, group) {
         var button = game.add.graphics(),
             startX = character.characterConfig.isPlayerControlled ? x + 440 : x - 30,
             tabImage = game.add.image(startX, y + 20, buttonImage).setOrigin(0, 0);
         button.fillStyle(0x111111, 1);
         button.fillRect(startX, y + 20, 30, 30);
-        characterInfo.add(button);
+        group.add(button);
         tabImage.displayWidth = 30;
         tabImage.displayHeight = 30;
-        characterInfo.add(tabImage);
+        group.add(tabImage);
 
         game.input.setHitArea([tabImage]);
         tabImage.on('pointerdown', function () {
@@ -350,16 +374,16 @@ export const HUDCharacterStatus = function (scene) {
             game.tipsModal.hideTips();
         });
     };
-    this._createDescriptionTabButton = function (character, x, y, buttonImage, text, callback) {
+    this._createDescriptionTabButton = function (character, x, y, buttonImage, text, callback, group) {
         var button = game.add.graphics(),
             startX = character.characterConfig.isPlayerControlled ? x + 440 : x - 30,
             tabImage = game.add.image(startX, y + 50, buttonImage).setOrigin(0, 0);
         button.fillStyle(0x111111, 1);
         button.fillRect(startX, y + 50, 30, 30);
-        characterInfo.add(button);
+        group.add(button);
         tabImage.displayWidth = 30;
         tabImage.displayHeight = 30;
-        characterInfo.add(tabImage);
+        group.add(tabImage);
 
         game.input.setHitArea([tabImage]);
         tabImage.on('pointerdown', function () {
@@ -372,16 +396,16 @@ export const HUDCharacterStatus = function (scene) {
             game.tipsModal.hideTips();
         });
     };
-    this._createAbilitiesTabButton = function (character, x, y, buttonImage, text, callback) {
+    this._createAbilitiesTabButton = function (character, x, y, buttonImage, text, callback, group) {
         var button = game.add.graphics(),
             startX = character.characterConfig.isPlayerControlled ? x + 440 : x - 30,
             tabImage = game.add.image(startX, y + 80, buttonImage).setOrigin(0, 0);
         button.fillStyle(0x111111, 1);
         button.fillRect(startX, y + 80, 30, 30);
-        characterInfo.add(button);
+        group.add(button);
         tabImage.displayWidth = 30;
         tabImage.displayHeight = 30;
-        characterInfo.add(tabImage);
+        group.add(tabImage);
 
         game.input.setHitArea([tabImage]);
         tabImage.on('pointerdown', function () {
@@ -415,18 +439,15 @@ export const HUDCharacterStatus = function (scene) {
             game.events.emit('replaceItem', itemToReplace);
         });
     };
-    this._createCloseButton = function (x, y, groupToDestroy, callback) {
-        var closeButton = game.add.image(x, y, 'closeButton').setOrigin(0, 0);
+    this._createCloseButton = function (x, y, groupToDestroy) {
+        var closeButton = game.add.image(x, y, 'closeButton').setOrigin(0, 0),
+            self = this;
         closeButton.displayHeight = 20;
         closeButton.displayWidth = 20;
         groupToDestroy.add(closeButton);
         game.input.setHitArea([closeButton]);
         closeButton.on('pointerdown', function () {
-            groupToDestroy.destroy(true);
-            groupToDestroy = null;
-            if (callback) {
-                callback();
-            }
+            self.destroyAllCharacterGroups();
         });
     };
 };
