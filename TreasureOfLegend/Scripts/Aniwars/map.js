@@ -91,7 +91,7 @@ export const BattleMap = function (game) {
                     && auxMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile.id
                     && (character.x !== tile.x || character.y !== tile.y) && !self._isPartyMemberOnTile(tile)) {
                     // TODO: Don't highlight if another character or enemy is on the tile
-                    tile.setTint(0x990899);
+                    tile.setTint(0x25ba11);
                 }
             }
         });
@@ -160,7 +160,7 @@ export const BattleMap = function (game) {
             return tile.x === character.x && tile.y === character.y;
         });
         if (tile) {
-            tile.setTint(0xcccc00);
+            tile.setTint(0x990899);
         }
     };
 
@@ -383,7 +383,7 @@ export const BattleMap = function (game) {
                         }
                     });
                     _.each(highlightedPath, function(tile) {
-                        tile.setTint(0x4693eb);
+                        tile.setTint(0x167509);
                     });
                 }
             }

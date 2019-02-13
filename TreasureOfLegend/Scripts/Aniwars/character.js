@@ -415,6 +415,7 @@ export const Character = function (game) {
             return tile.x === charConfig.posX && tile.y === charConfig.posY;
         });
         if (tile) {
+            game.cameras.main.startFollow(currentCharacter, true, 0.09, 0.09);
             game.physics.moveToObject(currentCharacter, tile, 100);
             setTimeout(function () {
                 charConfig.movement.isMoving = false;
@@ -422,6 +423,7 @@ export const Character = function (game) {
                 currentCharacter.x = charConfig.posX;
                 currentCharacter.y = charConfig.posY;
                 if (charConfig.path.length === 0) {
+                    game.cameras.main.stopFollow();
                     game.activeMap.showMovementGrid(currentCharacter);
                     self._checkIfObjectInteractionInProgress(charConfig.energy.inProgress);
                 }

@@ -43,6 +43,8 @@ export const SceneManager = function (game) {
             this.game.events.emit('deselectButtons');
             this.game.events.emit('closeCharacterInfoTab');
             this.game.activeCharacter = this.game.initiative[0];
+            this.game.cameras.main.startFollow(this.game.activeCharacter, true, 0.09, 0.09);
+            this.game.cameras.main.stopFollow();
 
             if (this.game.activeCharacter.characterConfig.isPlayerControlled) {
                 this.game.events.emit('toggleActionButtons', true);

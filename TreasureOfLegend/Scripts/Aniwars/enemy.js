@@ -156,8 +156,10 @@ export const Enemy = function (game) {
                 var tile = this.game.activeMap.tiles.getChildren().find(function (tile) {
                     return tile.x === x && tile.y === y;
                 });
+                this.game.cameras.main.startFollow(currentCharacter, true, 0.09, 0.09);
                 this.game.physics.moveToObject(currentCharacter, tile, 100);
                 setTimeout(function () {
+                    self.game.cameras.main.stopFollow();
                     charConfig.movement.isMoving = false;
                     currentCharacter.setVelocity(0, 0);
                     currentCharacter.x = x;
