@@ -62,6 +62,48 @@ var inventoryGetter = {
 };
 
 export const EnemyConfig = {
+    test: {
+        name: 'Test',
+        height: 50,
+        width: 50,
+        level: 1,
+        naturalArmor: 0,
+        life: '1d1',
+        energy: 3,
+        mana: '0d4',
+        movement: 6,
+        attributes: {
+            strength: 0,
+            dexterity: 0,
+            intelligence: 0
+        },
+        image: 'character',
+        experience: 500,
+        souls: 200,
+        traits: [EnumHelper.traitEnum.standard],
+        resistances: [],
+        vulnerabilities: [],
+        invulnerabilities: [],
+        getRandomInventoryItem: inventoryGetter.getRandomInventoryItem,
+        getRandomResistances: inventoryGetter.getRandomResistances,
+        inventory: {
+            slots: {
+                max: 2,
+                items: []
+            },
+            getMoney: function () {
+                var rand = Math.random() * 20;
+                return Math.floor(rand);
+            },
+            spells: [],
+            mainHand: inventoryGetter.getMainHandItem,
+            offHand: inventoryGetter.getOffHandItem,
+            head: inventoryGetter.getHeadItem,
+            body: inventoryGetter.getBodyItem,
+            hands: inventoryGetter.getHandsItem,
+            feet: inventoryGetter.getFeetItem
+        }
+    },
     thug: {
         name: 'Thug',
         height: 50,

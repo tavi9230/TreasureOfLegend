@@ -63,23 +63,34 @@ export const TestLevelScene = function () {
                 self.characters.useDash();
             });
             this.hudScene.events.on('spellSelected', function (spell) {
-                var charConfig = self.activeCharacter.characterConfig;
-                charConfig.energy.actionId = EnumHelper.actionEnum.attackSpell;
-                charConfig.energy.selectedAction = spell;
+                if (self.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackSpell
+                    && self.activeCharacter.characterConfig.energy.selectedAction === spell) {
+                    self.activeCharacter.characterConfig.energy.actionId = -1;
+                    self.events.emit('removeSelectedActionIcon');
+                } else {
+                    var charConfig = self.activeCharacter.characterConfig;
+                    charConfig.energy.actionId = EnumHelper.actionEnum.attackSpell;
+                    charConfig.energy.selectedAction = spell;
+                    self.events.emit('showSelectedActionIcon', spell.image);
+                }
             });
             this.hudScene.events.on('inspectSelected', function () {
                 if (self.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.inspect) {
                     self.activeCharacter.characterConfig.energy.actionId = -1;
+                    self.events.emit('removeSelectedActionIcon');
                 } else {
                     self.activeCharacter.characterConfig.energy.actionId = EnumHelper.actionEnum.inspect;
+                    self.events.emit('showSelectedActionIcon', 'inspectButton');
                 }
                 self.activeCharacter.characterConfig.energy.selectedAction = null;
             });
             this.hudScene.events.on('useMainHand', function () {
                 if (self.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand) {
                     self.activeCharacter.characterConfig.energy.actionId = -1;
+                    self.events.emit('removeSelectedActionIcon');
                 } else {
                     self.activeCharacter.characterConfig.energy.actionId = EnumHelper.actionEnum.attackMainHand;
+                    self.events.emit('showSelectedActionIcon', self.activeCharacter.characterConfig.inventory.mainHand.image);
                 }
                 self.activeCharacter.characterConfig.energy.selectedAction = null;
             });

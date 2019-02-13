@@ -11,7 +11,7 @@ export const CharacterConfig = {
         velocity: 200,
         life: {
             max: 10,
-            current: 4
+            current: 10
         },
         mana: {
             max: 10,
@@ -24,7 +24,7 @@ export const CharacterConfig = {
             usedDash: false
         },
         energy: {
-            max: 10,
+            max: 20,
             spent: 0,
             actionId: -1,
             selectedAction: null,

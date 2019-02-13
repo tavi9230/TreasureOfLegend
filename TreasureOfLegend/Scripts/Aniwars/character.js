@@ -59,7 +59,7 @@ export const Character = function (game) {
         var character = game.activeCharacter,
             charConfig = character.characterConfig;
         charConfig.energy.inProgress = null;
-        if (object.objectConfig.isInteractible && charConfig.energy.max - charConfig.energy.spent > 0) {
+        if (object.objectConfig.isInteractible && charConfig.energy.max - charConfig.energy.spent > 0 && !charConfig.movement.isMoving) {
             var obj = {
                 x: object.x,
                 y: object.y
@@ -144,7 +144,10 @@ export const Character = function (game) {
                 item.destroy();
                 game.items.remove(item);
                 game.events.emit('showCharacterInitiative', game.initiative);
-                game.events.emit('showCharacterInventory', character);
+                game.events.emit('refreshCharacterInventory', character);
+                if (character.characterConfig.energy.actionId === 1) {
+                    game.events.emit('showSelectedActionIcon', character.characterConfig.inventory.mainHand.image);
+                }
             }
         } else {
             charConfig.energy.inProgress = item;
@@ -196,7 +199,10 @@ export const Character = function (game) {
         game.input.setHitArea([item]);
         item.on('pointerdown', _.bind(game.characters.pickUpItem, self, item));
         item.on('pointerover', _.bind(game.activeMap.highlightPathToItem, self, item));
-        game.events.emit('showCharacterInventory', character);
+        game.events.emit('refreshCharacterInventory', character);
+        if (character.characterConfig.energy.actionId === 1) {
+            game.events.emit('showSelectedActionIcon', character.characterConfig.inventory.mainHand.image);
+        }
     };
 
     this.replaceItem = (itemToReplace) => {
@@ -276,7 +282,10 @@ export const Character = function (game) {
             charConfig.energy.spent += EnergyConfig.pickup.cost;
             StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.pickup.cost);
             game.events.emit('showCharacterInitiative', game.initiative);
-            game.events.emit('showCharacterInventory', character);
+            game.events.emit('refreshCharacterInventory', character);
+            if (character.characterConfig.energy.actionId === 1) {
+                game.events.emit('showSelectedActionIcon', character.characterConfig.inventory.mainHand.image);
+            }
         }
     };
 
@@ -306,6 +315,9 @@ export const Character = function (game) {
                 game.events.emit('showDeadCharacterInventory', lootbag);
             }
             game.events.emit('showCharacterInitiative', game.initiative);
+            if (character.characterConfig.energy.actionId === 1) {
+                game.events.emit('showSelectedActionIcon', character.characterConfig.inventory.mainHand.image);
+            }
         }
     };
 
@@ -342,7 +354,9 @@ export const Character = function (game) {
             game.activeMap.showMovementGrid();
             game.events.emit('showCharacterInitiative', game.initiative);
         } else {
-            game.events.emit('deselectButtons');
+            if (!activeCharacter.characterConfig.movement.usedDash) {
+                game.events.emit('deselectButtons', 'walkButton');
+            }
         }
     };
 
@@ -376,7 +390,7 @@ export const Character = function (game) {
         panel.fillRect(x, y, textPanel.width + 4, textPanel.height + 4);
         this.inspectionBox.add(panel);
         this.inspectionBox.add(textPanel);
-        game.events.emit('deselectButtons');
+        game.events.emit('removeSelectedActionIcon');
     };
 
     this.closeInspect = function () {

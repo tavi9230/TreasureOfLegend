@@ -16,8 +16,19 @@ export const SceneManager = function (game) {
             charConfig.movement.spent = 0;
             charConfig.energy.spent = 0;
             charConfig.movement.usedDash = false;
+            var initialInitiativeIndex = this.game.initiativeIndex;
             this.game.initiativeIndex++;
-            if (this.game.initiativeIndex >= this.game.initiative.length || this.game.initiativeIndex === -1) {
+            if (this.game.initiativeIndex >= this.game.initiative.length || initialInitiativeIndex === -1) {
+                var shouldRestart = true;
+                _.each(this.game.initiative, function (character) {
+                    if (!character.characterConfig.isPlayerControlled) {
+                        shouldRestart = false;
+                    }
+                });
+                if (shouldRestart) {
+                    this.game.initiative = null;
+                    this.game.initiative = this.getInitiativeArray();
+                }
                 this.game.initiativeIndex = 0;
                 shouldChangeTurn = true;
             }
@@ -29,7 +40,8 @@ export const SceneManager = function (game) {
             this.game.events.emit('showCharacterInitiative', this.game.initiative);
             this.game.activeCharacter.characterConfig.energy.selectedAction = null;
             this.game.activeCharacter.characterConfig.energy.actionId = -1;
-            this.game.events.emit('deselectAllButtons');
+            this.game.events.emit('deselectButtons');
+            this.game.events.emit('closeCharacterInfoTab');
             this.game.activeCharacter = this.game.initiative[0];
 
             if (this.game.activeCharacter.characterConfig.isPlayerControlled) {
@@ -101,7 +113,7 @@ export const SceneManager = function (game) {
     this.createEnemies = () => {
         var self = this;
         this.game.enemies = new Enemy(this.game);
-        this.game.enemies.addNewCharacter(800, 450, EnemyConfig.thug);
+        this.game.enemies.addNewCharacter(800, 450, EnemyConfig.test);
         this.game.enemies.total = this.game.enemies.characters.getChildren().length;
         this.game.input.setHitArea(this.game.enemies.characters.getChildren());
         _.each(this.game.enemies.characters.getChildren(), function (enemy) {
@@ -294,7 +306,7 @@ export const SceneManager = function (game) {
     this._interactWithEnemy = (enemy, pointer) => {
         // TODO: Move to action manager?
         var actionId = this.game.activeCharacter.characterConfig.energy.actionId;
-        if (pointer.rightButtonDown()) {
+        if (pointer.rightButtonDown() !== 0) {
             this._showCharacterInventory(enemy, pointer);
         }
         else if (actionId === EnumHelper.actionEnum.attackMainHand || actionId === EnumHelper.actionEnum.attackSpell) {
@@ -332,7 +344,7 @@ export const SceneManager = function (game) {
     };
 
     this._showCharacterInventory = (character, pointer) => {
-        if (pointer.rightButtonDown()) {
+        if (pointer.rightButtonDown() !== 0) {
             this.game.events.emit('showCharacterInventory', character);
         }
     };

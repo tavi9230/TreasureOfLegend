@@ -500,12 +500,12 @@ export const ActionManager = function (game) {
                     }
                 }
                 enemy = i % 5 === 0
-                    ? this.game.enemies.addNewRandomVulnerabilitiesCharacter(x, y, EnemyConfig.thug)
-                    : this.game.enemies.addNewCharacter(x, y, EnemyConfig.thug);
+                    ? this.game.enemies.addNewRandomVulnerabilitiesCharacter(x, y, EnemyConfig.test)
+                    : this.game.enemies.addNewCharacter(x, y, EnemyConfig.test);
                 this.game.input.setHitArea([enemy]);
                 this.game.sceneManager.bindEnemyEvents(enemy);
             }
-            this.game.initiative = null;
+            //this.game.initiative = null;
             this.game.initiativeIndex = -1;
         }
     };

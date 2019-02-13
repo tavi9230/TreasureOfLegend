@@ -118,7 +118,9 @@ export const HUDScene = function (sceneName) {
             });
             this.activeScene.events.on('showCharacterInitiative', _.bind(this.showCharacterInitiative, this));
             this.activeScene.events.on('endEnemyTurn', _.bind(this.lowerPanel.endTurn, this));
-            this.activeScene.events.on('showDeadCharacterInventory', _.bind(this.characterStatus.showDeadCharacterInventory, this.characterStatus));
+            this.activeScene.events.on('showDeadCharacterInventory', function (lootbag) {
+                self.characterStatus.openCharacterInventoryAndLootbag(lootbag);
+            });
             this.activeScene.events.on('closeLootbag', _.bind(this.characterStatus.closeLootbag, this.characterStatus));
             this.activeScene.events.on('updateAttributePointsPanel', function (character) {
                 self.characterStatus.openDescriptionTab(character);
@@ -132,8 +134,14 @@ export const HUDScene = function (sceneName) {
             this.activeScene.events.on('showCharacterInventory', function (character) {
                 self.characterStatus.openInventoryTab(character);
             });
+            this.activeScene.events.on('refreshCharacterInventory', function (character) {
+                self.characterStatus.refreshInventoryTab(character);
+            });
             this.activeScene.events.on('toggleActionButtons', _.bind(this.lowerPanel.toggleActionButtons, this.lowerPanel));
             this.activeScene.events.on('deselectButtons', _.bind(this.lowerPanel.deselectAllButtons, this.lowerPanel));
+            this.activeScene.events.on('showSelectedActionIcon', _.bind(this.lowerPanel.showSelectedActionIcon, this.lowerPanel));
+            this.activeScene.events.on('removeSelectedActionIcon', _.bind(this.lowerPanel.removeSelectedActionIcon, this.lowerPanel));
+            this.activeScene.events.on('closeCharacterInfoTab', _.bind(this.characterStatus.destroyAllCharacterGroups, this.characterStatus));
         },
         _showQuickStats: function (character, frameImage, index) {
             var textStyle = {
@@ -159,10 +167,14 @@ export const HUDScene = function (sceneName) {
                 'Y:' + (character.y / 50), { fontSize: index === 0 ? 30 : 15, color: '#000000' });
             this.initiativeTracker.add(locationXText);
             this.initiativeTracker.add(locationYText);
+            if (index === 0) {
+                this.selectedActionX = frameImage.x + frameImage.displayWidth - offset - iconDimensions;
+                this.selectedActionY = frameImage.y + ((frameImage.displayHeight / 3) * 2) + offset;
+            }
         },
         _createQuickStatIcon: function (x, y, imageName, value, style, iconDimensions) {
             var image = this.add.image(x, y, imageName).setOrigin(0, 0),
-                text = this.add.text(value < 10 && value > 0 ? x + (iconDimensions === 30 ? 10 : 12) : x + (iconDimensions === 30 ? 3 : 5),
+                text = this.add.text(value < 10 && value >= 0 ? x + (iconDimensions === 30 ? 10 : 12) : x + (iconDimensions === 30 ? 3 : 5),
                     y + (iconDimensions === 30 ? 7 : 10), value, style);
             image.displayHeight = iconDimensions;
             image.displayWidth = iconDimensions;

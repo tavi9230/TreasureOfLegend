@@ -26,13 +26,14 @@ export const HUDCharacterStatus = function (scene) {
         }, this);
 
     // Inventory TAB ------------------------------------------------------------------------------------------------------------------------
-    this.openInventoryTab = function (character) {
+    this.refreshInventoryTab = function (character) {
         if (characterInventoryTabGroup) {
-            this.destroyAllCharacterGroups();
-            this.toggleInventoryTab(character);
-        } else {
-            this.toggleInventoryTab(character);
+            this.openInventoryTab(character);
         }
+    };
+    this.openInventoryTab = function (character) {
+        this.destroyAllCharacterGroups();
+        this.toggleInventoryTab(character);
     };
     this.toggleInventoryTab = function (character) {
         if (!characterInventoryTabGroup) {
@@ -112,8 +113,6 @@ export const HUDCharacterStatus = function (scene) {
     this.openDescriptionTab = function (character) {
         if (characterDescriptionTabGroup) {
             this.destroyAllCharacterGroups();
-            this.toggleDescriptionTab(character);
-        } else {
             this.toggleDescriptionTab(character);
         }
     };
@@ -226,8 +225,6 @@ export const HUDCharacterStatus = function (scene) {
     this.openAbilitiesTab = function (character) {
         if (characterAbilitiesTabGroup) {
             this.destroyAllCharacterGroups();
-            this.toggleAbilitiesTab(character);
-        } else {
             this.toggleAbilitiesTab(character);
         }
     };
@@ -344,6 +341,11 @@ export const HUDCharacterStatus = function (scene) {
     };
 
     // LOOTBAG -------------------------------------------------------------------------------------------------------------------------------------------------------
+    this.openCharacterInventoryAndLootbag = function (lootbag) {
+        var activeCharacter = game.activeScene.activeCharacter;
+        this.refreshInventoryTab(activeCharacter);
+        this.showDeadCharacterInventory(lootbag);
+    };
     this.showDeadCharacterInventory = function (lootbag) {
         this.closeLootbag();
         var self = this,
