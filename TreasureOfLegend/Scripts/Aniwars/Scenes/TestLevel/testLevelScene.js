@@ -91,8 +91,8 @@ export const TestLevelScene = function () {
                 } else {
                     self.activeCharacter.characterConfig.energy.actionId = EnumHelper.actionEnum.attackMainHand;
                     self.events.emit('showSelectedActionIcon', self.activeCharacter.characterConfig.inventory.mainHand.image);
+                    self.activeCharacter.characterConfig.energy.selectedAction = self.activeCharacter.characterConfig.inventory.mainHand;
                 }
-                self.activeCharacter.characterConfig.energy.selectedAction = null;
             });
         },
         _moveCamera() {

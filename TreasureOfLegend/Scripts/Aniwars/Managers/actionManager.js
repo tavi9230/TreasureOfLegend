@@ -6,7 +6,8 @@ import { EnemyConfig } from 'Aniwars/Configurations/enemyConfig';
 import { StatusIconConfig } from 'Aniwars/Configurations/statusIconConfig';
 
 export const ActionManager = function (game) {
-    this.game = game;
+    var game = game,
+        rangeLines = null;
 
     this.interactWithObject = (object) => {
         if (Math.floor(object.objectConfig.id) === EnumHelper.idEnum.door.id) {
@@ -19,70 +20,68 @@ export const ActionManager = function (game) {
     };
 
     this.interactWithEnemy = (enemy) => {
-        var character = this.game.activeCharacter,
+        var character = game.activeCharacter,
             charConfig = character.characterConfig;
         if (!charConfig.movement.isMoving) {
             if (charConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand) {
                 this._checkDefaultAction(character, enemy);
             } else if (charConfig.energy.actionId === EnumHelper.actionEnum.attackSpell) {
                 this._checkSpellAttack(character, enemy);
-            } else {
-                this._checkDefaultAction(character, enemy);
             }
         }
     };
 
     // OBJECT INTERACTION -------------------------------------------------------------------------------------------------------------------
     this._interactWithDoor = (object) => {
-        var charConfig = this.game.activeCharacter.characterConfig,
+        var charConfig = game.activeCharacter.characterConfig,
             x = object.x / 50,
             y = object.y / 50;
         charConfig.energy.spent += EnergyConfig.door.cost;
-        StatusIconConfig.showEnergyIcon(this.game, this.game.activeCharacter, EnergyConfig.door.cost);
-        this.game.events.emit('showCharacterInitiative', this.game.initiative);
-        this.game.activeMap.levelMap = this.game.activeMap.copyMap(this.game.activeMap.levelMap, this.game.activeMap.previousMap);
+        StatusIconConfig.showEnergyIcon(game, game.activeCharacter, EnergyConfig.door.cost);
+        game.events.emit('showCharacterInitiative', game.initiative);
+        game.activeMap.levelMap = game.activeMap.copyMap(game.activeMap.levelMap, game.activeMap.previousMap);
         //door animations would be nice
         if (!object.objectConfig.isActivated) {
-            this.game.activeMap.levelMap[y][x] = 0;
+            game.activeMap.levelMap[y][x] = 0;
             if (object.objectConfig.id === EnumHelper.idEnum.door.type.up || object.objectConfig.id === EnumHelper.idEnum.door.type.down) {
                 object.setX(object.x - 50);
             } else if (object.objectConfig.id === EnumHelper.idEnum.door.type.right || object.objectConfig.id === EnumHelper.idEnum.door.type.left) {
                 object.setY(object.y - 50);
             }
         } else {
-            this.game.activeMap.levelMap[y][x] = object.objectConfig.id;
+            game.activeMap.levelMap[y][x] = object.objectConfig.id;
         }
         object.objectConfig.isActivated = !object.objectConfig.isActivated;
         if (charConfig.isPlayerControlled) {
-            this.game.activeMap.showMovementGrid();
+            game.activeMap.showMovementGrid();
         }
     };
 
     this._interactWithLootbag = (object) => {
-        this.game.events.emit('showDeadCharacterInventory', object);
+        game.events.emit('showDeadCharacterInventory', object);
     };
 
     this._interactWithWell = (object) => {
-        var currentTurn = this.game.hudScene.getTurn();
+        var currentTurn = game.hudScene.getTurn();
         if (currentTurn - object.objectConfig.turnActivated >= object.objectConfig.turnsToReset) {
             object.objectConfig.turnActivated = 0;
             object.objectConfig.turnsToReset = 0;
-            var activeCharacter = this.game.activeCharacter;
+            var activeCharacter = game.activeCharacter;
             if (object.objectConfig.id === EnumHelper.idEnum.well.type.health) {
-                StatusIconConfig.showManaIcon(this.game, activeCharacter, -(activeCharacter.characterConfig.life.max - activeCharacter.characterConfig.life.spent));
+                StatusIconConfig.showManaIcon(game, activeCharacter, -(activeCharacter.characterConfig.life.max - activeCharacter.characterConfig.life.spent));
                 activeCharacter.characterConfig.life.current = activeCharacter.characterConfig.life.max;
             } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.mana) {
-                StatusIconConfig.showManaIcon(this.game, activeCharacter, -activeCharacter.characterConfig.mana.spent);
+                StatusIconConfig.showManaIcon(game, activeCharacter, -activeCharacter.characterConfig.mana.spent);
                 activeCharacter.characterConfig.mana.spent = 0;
             } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.movement) {
-                StatusIconConfig.showMovementIcon(this.game, activeCharacter, -activeCharacter.characterConfig.movement.spent);
+                StatusIconConfig.showMovementIcon(game, activeCharacter, -activeCharacter.characterConfig.movement.spent);
                 activeCharacter.characterConfig.movement.spent = 0;
-                this.game.activeMap.showMovementGrid();
+                game.activeMap.showMovementGrid();
             } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.energy) {
-                StatusIconConfig.showEnergyIcon(this.game, activeCharacter, -activeCharacter.characterConfig.energy.spent);
+                StatusIconConfig.showEnergyIcon(game, activeCharacter, -activeCharacter.characterConfig.energy.spent);
                 activeCharacter.characterConfig.energy.spent = 0;
             }
-            this.game.activeMap.createReactivatingObject({
+            game.activeMap.createReactivatingObject({
                 object: object,
                 image: 'emptyWell',
                 description: 'Empty well',
@@ -93,7 +92,7 @@ export const ActionManager = function (game) {
                 isInteractible: true,
                 turnsToReset: Math.floor(Math.random() * 5) + 1
             });
-            this.game.events.emit('showCharacterInitiative', this.game.initiative);
+            game.events.emit('showCharacterInitiative', game.initiative);
         }
     };
 
@@ -109,11 +108,11 @@ export const ActionManager = function (game) {
         if (d20 <= enemyCharConfig.armor) {
             if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                 if (this._removeArmorPointsFromEquippedInventory(enemy, 1)) {
-                    StatusIconConfig.showArmorIcon(this.game, enemy, 1);
+                    StatusIconConfig.showArmorIcon(game, enemy, 1);
                 }
             } else if (enemyCharConfig.naturalArmor > 0) {
                 enemyCharConfig.naturalArmor--;
-                StatusIconConfig.showArmorIcon(this.game, enemy, 1);
+                StatusIconConfig.showArmorIcon(game, enemy, 1);
             }
         } else {
             _.each(charConfig.inventory.mainHand.damage, function (damage) {
@@ -121,22 +120,22 @@ export const ActionManager = function (game) {
                 if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === -1) {
                     if (enemyCharConfig.resistances.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
-                        StatusIconConfig.showLifeIcon(self.game, enemy, Math.ceil(attackDamage / 2));
+                        StatusIconConfig.showLifeIcon(game, enemy, Math.ceil(attackDamage / 2));
                     } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= (attackDamage * 2);
-                        StatusIconConfig.showLifeIcon(self.game, enemy, attackDamage * 2);
+                        StatusIconConfig.showLifeIcon(game, enemy, attackDamage * 2);
                     } else {
                         enemyCharConfig.life.current -= attackDamage;
-                        StatusIconConfig.showLifeIcon(self.game, enemy, attackDamage);
+                        StatusIconConfig.showLifeIcon(game, enemy, attackDamage);
                     }
                 }
                 if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                     if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
-                        StatusIconConfig.showArmorIcon(self.game, enemy, Math.ceil(attackDamage / 2));
+                        StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
                     }
                 } else if (enemyCharConfig.naturalArmor > 0) {
                     enemyCharConfig.naturalArmor -= Math.ceil(attackDamage / 2);
-                    StatusIconConfig.showArmorIcon(self.game, enemy, Math.ceil(attackDamage / 2));
+                    StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
                     if (enemyCharConfig.naturalArmor < 0) {
                         enemyCharConfig.naturalArmor = 0;
                     }
@@ -152,7 +151,11 @@ export const ActionManager = function (game) {
                 : 0) + enemyCharConfig.naturalArmor;
 
         charConfig.energy.spent += EnergyConfig.attackMainHand.cost;
-        StatusIconConfig.showEnergyIcon(this.game, character, EnergyConfig.attackMainHand.cost);
+        StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackMainHand.cost);
+
+        charConfig.energy.actionId = -1;
+        charConfig.energy.selectedAction = null;
+        game.events.emit('removeSelectedActionIcon');
 
         this._checkInitiative(enemy);
     };
@@ -165,11 +168,11 @@ export const ActionManager = function (game) {
         if (d20 <= enemyCharConfig.armor) {
             if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                 if (this._removeArmorPointsFromEquippedInventory(enemy, 1)) {
-                    StatusIconConfig.showArmorIcon(this.game, enemy, 1);
+                    StatusIconConfig.showArmorIcon(game, enemy, 1);
                 }
             } else if (enemyCharConfig.naturalArmor > 0) {
                 enemyCharConfig.naturalArmor--;
-                StatusIconConfig.showArmorIcon(this.game, enemy, 1);
+                StatusIconConfig.showArmorIcon(game, enemy, 1);
             }
         } else {
             _.each(charConfig.energy.selectedAction.damage, function (damage) {
@@ -177,22 +180,22 @@ export const ActionManager = function (game) {
                 if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === -1) {
                     if (enemyCharConfig.resistances.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
-                        StatusIconConfig.showLifeIcon(self.game, enemy, Math.ceil(attackDamage / 2));
+                        StatusIconConfig.showLifeIcon(game, enemy, Math.ceil(attackDamage / 2));
                     } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= (attackDamage * 2);
-                        StatusIconConfig.showLifeIcon(self.game, enemy, attackDamage * 2);
+                        StatusIconConfig.showLifeIcon(game, enemy, attackDamage * 2);
                     } else {
                         enemyCharConfig.life.current -= attackDamage;
-                        StatusIconConfig.showLifeIcon(self.game, enemy, attackDamage);
+                        StatusIconConfig.showLifeIcon(game, enemy, attackDamage);
                     }
                 }
                 if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                     if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
-                        StatusIconConfig.showArmorIcon(self.game, enemy, Math.ceil(attackDamage / 2));
+                        StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
                     }
                 } else if (enemyCharConfig.naturalArmor > 0) {
                     enemyCharConfig.naturalArmor -= Math.ceil(attackDamage / 2);
-                    StatusIconConfig.showArmorIcon(self.game, enemy, Math.ceil(attackDamage / 2));
+                    StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
                     if (enemyCharConfig.naturalArmor < 0) {
                         enemyCharConfig.naturalArmor = 0;
                     }
@@ -209,38 +212,106 @@ export const ActionManager = function (game) {
 
         charConfig.energy.spent += EnergyConfig.attackSpell.cost;
         charConfig.mana.spent += charConfig.energy.selectedAction.cost;
-        StatusIconConfig.showManaIcon(this.game, character, charConfig.energy.selectedAction.cost);
-        StatusIconConfig.showEnergyIcon(this.game, character, EnergyConfig.attackSpell.cost);
+        StatusIconConfig.showManaIcon(game, character, charConfig.energy.selectedAction.cost);
+        StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackSpell.cost);
+
+        charConfig.energy.actionId = -1;
+        charConfig.energy.selectedAction = null;
+        game.events.emit('removeSelectedActionIcon');
 
         this._checkInitiative(enemy);
+    };
+
+    this.showRangeLines = function (character, enemy) {
+        var projectileLines = this._checkProjectileSuccess(character, enemy),
+            charConfig = character.characterConfig;
+        this.hideRangeLines();
+        rangeLines = game.add.group();
+        if (projectileLines.isFound && Math.abs(character.x - enemy.x) <= 50 * charConfig.energy.selectedAction.range &&
+            Math.abs(character.y - enemy.y) <= 50 * charConfig.energy.selectedAction.range &&
+            (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)) {
+            _.each(projectileLines.lines, function (line) {
+                rangeLines.add(game.add.line(0, 0, line.charX, line.charY, line.enemyX, line.enemyY, 0x00ff00).setOrigin(0, 0));
+            });
+        } else {
+            rangeLines.add(game.add.line(0, 0, character.x, character.y, enemy.x, enemy.y, 0xff0000).setOrigin(0, 0));
+        }
+    };
+
+    this.hideRangeLines = function () {
+        if (rangeLines) {
+            rangeLines.destroy(true);
+            rangeLines = null;
+        }
     };
 
     // PRIVATE -------------------------------------------------------------------------------------------------------------------------------
     this._checkProjectileSuccess = (character, enemy) => {
         // TODO: Check Bresenham's algorithm (https://www.redblobgames.com/grids/line-drawing.html)
         // TODO: Check from each corner of character to each corner of enemy to make sure it hits
-        var self = this,
-            isNotBlocked = true,
-            linePoints = this._supercoverLine(character, enemy);
-        _.each(linePoints, function (point) {
-            if (Math.floor(self.game.activeMap.levelMap[point.y / 50][point.x / 50]) !== 0) {
-                isNotBlocked = false;
+        var pointMatrix = [
+            [character.x, character.y, enemy.x, enemy.y],
+            [character.x, character.y, enemy.x + enemy.width, enemy.y],
+            [character.x, character.y, enemy.x, enemy.y + enemy.height],
+            [character.x, character.y, enemy.x + enemy.width, enemy.y + enemy.height],
+            [character.x + character.width, character.y, enemy.x, enemy.y],
+            [character.x + character.width, character.y, enemy.x + enemy.width, enemy.y],
+            [character.x + character.width, character.y, enemy.x, enemy.y + enemy.height],
+            [character.x + character.width, character.y, enemy.x + enemy.width, enemy.y + enemy.height],
+            [character.x, character.y + character.height, enemy.x, enemy.y],
+            [character.x, character.y + character.height, enemy.x + enemy.width, enemy.y],
+            [character.x, character.y + character.height, enemy.x, enemy.y + enemy.height],
+            [character.x, character.y + character.height, enemy.x + enemy.width, enemy.y + enemy.height],
+            [character.x + character.width, character.y + character.height, enemy.x, enemy.y],
+            [character.x + character.width, character.y + character.height, enemy.x + enemy.width, enemy.y],
+            [character.x + character.width, character.y + character.height, enemy.x, enemy.y + enemy.height],
+            [character.x + character.width, character.y + character.height, enemy.x + enemy.width, enemy.y + enemy.height]
+        ];
+        var isNotBlocked,
+            linePoints,
+            pointsFound = 0,
+            lines = [];
+        for (let i = 0; i < pointMatrix.length; i++) {
+            isNotBlocked = true;
+            linePoints = this._supercoverLine(pointMatrix[i][0], pointMatrix[i][1], pointMatrix[i][2], pointMatrix[i][3]);
+            _.each(linePoints, function (point) {
+                if (Math.floor(game.activeMap.levelMap[point.y / 50][point.x / 50]) !== 0) {
+                    isNotBlocked = false;
+                }
+            });
+            if (isNotBlocked) {
+                pointsFound++;
+                lines.push({
+                    charX: pointMatrix[i][0],
+                    charY: pointMatrix[i][1],
+                    enemyX: pointMatrix[i][2],
+                    enemyY: pointMatrix[i][3]
+                });
             }
-        });
+            if (pointsFound >= 2) {
+                return {
+                    isFound: true,
+                    lines: lines
+                };
+            }
+        }
 
-        return isNotBlocked;
+        return {
+            isFound: false,
+            lines: lines
+        };
     };
 
-    this._supercoverLine = function (character, enemy) {
-        var dx = enemy.x - character.x,
-            dy = enemy.y - character.y,
+    this._supercoverLine = function (characterX, characterY, enemyX, enemyY) {
+        var dx = enemyX - characterX,
+            dy = enemyY - characterY,
             nx = Math.abs(dx),
             ny = Math.abs(dy),
             signX = dx > 0 ? 1 : -1,
             signY = dy > 0 ? 1 : -1,
             p = {
-                x: character.x,
-                y: character.y
+                x: characterX,
+                y: characterY
             },
             points = [{ x: p.x, y: p.y }];
         for (var ix = 0, iy = 0; ix < nx || iy < ny;) {
@@ -278,39 +349,38 @@ export const ActionManager = function (game) {
         var path,
             charConfig = character.characterConfig;
         if (Math.abs(character.x - enemy.x) !== 0 || Math.abs(character.y - enemy.y) !== 0) {
-            path = Pathfinder.getPathFromAToB(character, enemy, this.game.activeMap.levelMap);
+            path = Pathfinder.getPathFromAToB(character, enemy, game.activeMap.levelMap);
             if (charConfig.isPlayerControlled && path) {
-                this.game.characters.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
+                game.characters.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
             }
         }
     };
 
     this._checkInitiative = (enemy) => {
         var charConfig = enemy.characterConfig,
-            self = this;
+            lootbag;
         if (charConfig.life.current <= 0) {
-            var lootbag;
             this._addItemsFromBodyToInventory(enemy);
             if (charConfig.inventory.slots.items.length > 0) {
-                lootbag = this.game.add.image(enemy.x, enemy.y, 'lootbag').setOrigin(0, 0);
+                lootbag = game.add.image(enemy.x, enemy.y, 'lootbag').setOrigin(0, 0);
                 lootbag.displayWidth = 50;
                 lootbag.displayHeight = 50;
-                lootbag.objectConfig = lodash.cloneDeep(this.game.activeMap.objConfig);
+                lootbag.objectConfig = lodash.cloneDeep(game.activeMap.objConfig);
                 lootbag.objectConfig.belongsTo = enemy;
                 lootbag.objectConfig.id = EnumHelper.idEnum.lootbag.id;
                 lootbag.objectConfig.isInteractible = true;
-                this.game.activeMap.deadCharacters.add(lootbag);
+                game.activeMap.deadCharacters.add(lootbag);
                 // TODO: Check if this is overridden with each killed enemy
-                this.game.input.setHitArea(this.game.activeMap.deadCharacters.getChildren());
+                game.input.setHitArea(game.activeMap.deadCharacters.getChildren());
                 lootbag.on('pointerdown', function () {
-                    if (self.game.activeCharacter.characterConfig.isPlayerControlled) {
-                        self.game.characters.interactWithObject(lootbag);
+                    if (game.activeCharacter.characterConfig.isPlayerControlled) {
+                        game.characters.interactWithObject(lootbag);
                     }
                 });
             }
             if (!charConfig.isPlayerControlled) {
-                _.each(this.game.characters.characters.getChildren(), function (character) {
-                    character.characterConfig.experience.current += Math.floor(enemy.characterConfig.experience / self.game.characters.characters.getChildren().length);
+                _.each(game.characters.characters.getChildren(), function (character) {
+                    character.characterConfig.experience.current += Math.floor(enemy.characterConfig.experience / game.characters.characters.getChildren().length);
                     var difference = Math.floor(character.characterConfig.experience.current - character.characterConfig.experience.nextLevel);
                     if (difference >= 0) {
                         character.characterConfig.experience.current = difference;
@@ -319,29 +389,30 @@ export const ActionManager = function (game) {
                         character.characterConfig.experience.nextLevel = Math.floor(character.characterConfig.experience.nextLevel * 1.3);
                     }
                 });
-                this.game.characters.souls.current += enemy.characterConfig.souls;
+                game.characters.souls.current += enemy.characterConfig.souls;
                 // TODO: Attribute points cost 5 souls then 10 then 15 and so on. Change game logic to reflect this
                 // TODO: Skills cost X souls instead of ^ so we won't need skill points
-                var difference = this.game.characters.souls.current - this.game.characters.souls.nextLevel;
+                var difference = game.characters.souls.current - game.characters.souls.nextLevel;
                 if (difference >= 0) {
-                    this.game.characters.souls.current = difference;
-                    this.game.characters.souls.nextLevel += 5;
-                    this.game.characters.souls.skillPoints++;
+                    game.characters.souls.current = difference;
+                    game.characters.souls.nextLevel += 5;
+                    game.characters.souls.skillPoints++;
                 }
-                this.game.events.emit('updateSouls', this.game.characters.souls);
+                game.events.emit('updateSouls', game.characters.souls);
             }
 
             enemy.destroy();
             if (charConfig.isPlayerControlled) {
-                this.game.characters.characters.remove(enemy);
+                game.characters.characters.remove(enemy);
             } else {
-                this.game.enemies.characters.remove(enemy);
+                game.enemies.characters.remove(enemy);
                 this._createNewEnemies();
             }
-            this.game.initiative = this.game.sceneManager.getInitiativeArray([enemy]);
-            this.game.events.emit('updateAttributePointsPanel', this.game.activeCharacter);
+            game.initiative = game.sceneManager.getInitiativeArray([enemy]);
+            game.events.emit('updateAttributePointsPanel', game.activeCharacter);
+            this.hideRangeLines();
         }
-        this.game.events.emit('showCharacterInitiative', this.game.initiative);
+        game.events.emit('showCharacterInitiative', game.initiative);
     };
 
     this._checkDefaultAction = (character, enemy) => {
@@ -361,7 +432,21 @@ export const ActionManager = function (game) {
                 || charConfig.inventory.mainHand.hold === 1) {
                 // If it is a ranged weapon check if projectile hits
                 if (charConfig.inventory.mainHand.range > 1) {
-                    if (this._checkProjectileSuccess(character, enemy)) {
+                    var rangeLines = this._checkProjectileSuccess(character, enemy);
+                    if (rangeLines.isFound) {
+                        var arrow = game.physics.add.sprite(character.x + 25, character.y + 25, 'arrow'),
+                            enemyCenter = game.physics.add.sprite(enemy.x + 25, enemy.y + 25, 'arrow');
+                        enemyCenter.displayWidth = 1;
+                        enemyCenter.displayHeight = 1;
+                        enemyCenter.visible = false;
+                        arrow.displayWidth = 50;
+                        arrow.displayHeight = 25;
+                        var angle = game.physics.moveToObject(arrow, enemyCenter, 100);
+                        arrow.setRotation(angle + 180 / 57.2958);
+                        game.physics.add.overlap(arrow, enemyCenter, function () {
+                            arrow.destroy();
+                            enemyCenter.destroy();
+                        });
                         this._attackWithMainHand(character, enemy);
                     }
                 } else {
@@ -370,9 +455,9 @@ export const ActionManager = function (game) {
             }
         }
         // Otherwise move near the object and try again
-        else {
-            this._tryMovingCharacter(character, enemy);
-        }
+        //else {
+        //    this._tryMovingCharacter(character, enemy);
+        //}
     };
 
     this._checkSpellAttack = (character, enemy) => {
@@ -383,12 +468,31 @@ export const ActionManager = function (game) {
                 Math.abs(character.y - enemy.y) <= 50 * charConfig.energy.selectedAction.range &&
                 (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)
                 && charConfig.energy.max - EnergyConfig.attackSpell.cost >= charConfig.energy.spent) {
-                if (this._checkProjectileSuccess(character, enemy)) {
+                if (charConfig.energy.selectedAction.range > 1) {
+                    var rangeLines = this._checkProjectileSuccess(character, enemy);
+                    if (rangeLines.isFound) {
+                        var arrow = game.physics.add.sprite(character.x, character.y, 'arrow'),
+                            enemyCenter = game.physics.add.sprite(enemy.x + 25, enemy.y + 25, 'arrow');
+                        enemyCenter.displayWidth = 1;
+                        enemyCenter.displayHeight = 1;
+                        enemyCenter.visible = false;
+                        arrow.displayWidth = 50;
+                        arrow.displayHeight = 25;
+                        var angle = game.physics.moveToObject(arrow, enemyCenter, 0, 500);
+                        arrow.setRotation(angle + 180 / 57.2958);
+                        game.physics.add.overlap(arrow, enemyCenter, function () {
+                            arrow.destroy();
+                            enemyCenter.destroy();
+                        });
+                        this._attackWithSpell(character, enemy);
+                    }
+                } else {
                     this._attackWithSpell(character, enemy);
                 }
-            } else {
-                this._tryMovingCharacter(character, enemy);
             }
+            //else {
+            //    this._tryMovingCharacter(character, enemy);
+            //}
         }
     };
 
@@ -482,17 +586,17 @@ export const ActionManager = function (game) {
         }
     };
     this._createNewEnemies = () => {
-        if (this.game.enemies.characters.getChildren().length === 0 && this.game.scene.key === 'TestLevelScene') {
-            this.game.enemies.total++;
-            for (let i = 0; i < this.game.enemies.total; i++) {
+        if (game.enemies.characters.getChildren().length === 0 && game.scene.key === 'TestLevelScene') {
+            game.enemies.total++;
+            for (let i = 0; i < game.enemies.total; i++) {
                 var positionFound = false,
                     enemy,
                     x,
                     y;
                 while (!positionFound) {
-                    x = Math.floor(Math.random() * this.game.activeMap.levelMap[0].length) * 50,
-                        y = Math.floor(Math.random() * this.game.activeMap.levelMap.length) * 50;
-                    var tiles = this.game.activeMap.tiles.getChildren().filter(function (object) {
+                    x = Math.floor(Math.random() * game.activeMap.levelMap[0].length) * 50,
+                        y = Math.floor(Math.random() * game.activeMap.levelMap.length) * 50;
+                    var tiles = game.activeMap.tiles.getChildren().filter(function (object) {
                         return object.x === x && object.y === y;
                     });
                     if (tiles.length > 0) {
@@ -500,13 +604,13 @@ export const ActionManager = function (game) {
                     }
                 }
                 enemy = i % 5 === 0
-                    ? this.game.enemies.addNewRandomVulnerabilitiesCharacter(x, y, EnemyConfig.test)
-                    : this.game.enemies.addNewCharacter(x, y, EnemyConfig.test);
-                this.game.input.setHitArea([enemy]);
-                this.game.sceneManager.bindEnemyEvents(enemy);
+                    ? game.enemies.addNewRandomVulnerabilitiesCharacter(x, y, EnemyConfig.test)
+                    : game.enemies.addNewCharacter(x, y, EnemyConfig.test);
+                game.input.setHitArea([enemy]);
+                game.sceneManager.bindEnemyEvents(enemy);
             }
-            //this.game.initiative = null;
-            this.game.initiativeIndex = -1;
+            //game.initiative = null;
+            game.initiativeIndex = -1;
         }
     };
 };

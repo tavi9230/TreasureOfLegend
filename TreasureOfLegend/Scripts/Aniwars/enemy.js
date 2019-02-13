@@ -344,6 +344,7 @@ export const Enemy = function (game) {
                         charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
                         currentCharacter.setDepth(1);
                     }
+                    charConfig.energy.actionId = EnumHelper.actionEnum.attackMainHand;
                     this.interactWithEnemy(closestEnemy[0].enemy);
                     hasAttacked = true;
                 }

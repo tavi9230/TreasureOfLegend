@@ -400,6 +400,14 @@ export const Character = function (game) {
         }
     };
 
+    this.showRangeLine = function (character, enemy) {
+        actionManager.showRangeLines(character, enemy);
+    };
+
+    this.hideRangeLine = function () {
+        actionManager.hideRangeLines();
+    };
+
     // Private -----------------------------------------------------------------------------------------------------
     this._moveCharacter = function (currentCharacter) {
         var charConfig = currentCharacter.characterConfig,
@@ -429,6 +437,45 @@ export const Character = function (game) {
                 }
                 game.events.emit('showCharacterInitiative', game.initiative);
             }, 500);
+            /* TODO: Do more with this?
+             * var pointToReach = game.physics.add.sprite(tile.x + 25, tile.y + 25, 'arrow'),
+                pointToStart = game.physics.add.sprite(currentCharacter.x + 25, currentCharacter.y + 25, 'arrow'),
+                xReached = false,
+                yReached = false;
+            pointToReach.visible = false;
+            pointToReach.height = 1;
+            pointToReach.width = 1;
+            pointToStart.visible = false;
+            pointToStart.height = 1;
+            pointToStart.width = 1;
+            game.physics.moveToObject(currentCharacter, tile, 50);
+            game.physics.moveToObject(pointToStart, pointToReach, 50);
+            game.physics.add.overlap(pointToStart, pointToReach, function () {
+                pointToReach.destroy();
+                pointToStart.destroy();
+                charConfig.movement.isMoving = false;
+                currentCharacter.setVelocity(0, 0);
+                currentCharacter.x = charConfig.posX;
+                currentCharacter.y = charConfig.posY;
+                if (charConfig.path.length === 0) {
+                    game.cameras.main.stopFollow();
+                    game.activeMap.showMovementGrid(currentCharacter);
+                    self._checkIfObjectInteractionInProgress(charConfig.energy.inProgress);
+                }
+                game.events.emit('showCharacterInitiative', game.initiative);
+            }, function () {
+                if (Math.floor(pointToStart.x) === pointToReach.x) {
+                    xReached = true;
+                }
+                if (Math.floor(pointToStart.y) === pointToReach.y) {
+                    yReached = true;
+                }
+                if (xReached && yReached) {
+                    return true;
+                }
+                return false;
+            });
+             */
         }
     };
 

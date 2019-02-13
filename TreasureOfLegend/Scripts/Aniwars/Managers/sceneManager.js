@@ -322,6 +322,12 @@ export const SceneManager = function (game) {
     this._hoverCharacter = (character) => {
         if (!character.characterConfig.isPlayerControlled) {
             this.game.activeMap.highlightPathToEnemy(character);
+            if ((this.game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand &&
+                this.game.activeCharacter.characterConfig.inventory.mainHand.range > 1) ||
+                (this.game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackSpell &&
+                    this.game.activeCharacter.characterConfig.energy.selectedAction.range > 1)) {
+                this.game.characters.showRangeLine(this.game.activeCharacter, character);
+            }
         }
     };
     this._hoverItem = (item) => {
@@ -343,6 +349,7 @@ export const SceneManager = function (game) {
     };
     this._unhoverCharacter = () => {
         this.game.characters.closeInspect();
+        this.game.characters.hideRangeLine();
     };
 
     this._showCharacterInventory = (character, pointer) => {
