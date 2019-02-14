@@ -277,7 +277,7 @@ export const HUDCharacterStatus = function (scene) {
                         var hideAbilityStats = _.bind(self._destroyAbilityStats, self);
                         hideAbilityStats();
                         game.events.emit('spellSelected', abilityImage.objectToSend);
-                        self._destroyCharacterInventoryTab();
+                        self.destroyAllCharacterGroups();
                     }
                 });
             });

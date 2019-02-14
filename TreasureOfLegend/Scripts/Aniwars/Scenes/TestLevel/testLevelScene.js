@@ -9,6 +9,7 @@ export const TestLevelScene = function () {
         },
         preload() { },
         create() {
+            this.debugMode = true;
             this.sceneManager = new SceneManager(this);
             this.sceneManager.createMap();
             this.sceneManager.createItems();
@@ -21,10 +22,17 @@ export const TestLevelScene = function () {
             this.initiativeIndex = 0;
             this.sceneManager.createCamera();
             this.input.mouse.capture = true;
+            this.createKeys();
         },
         update() {
             this.sceneManager.checkManager();
             this._moveCamera();
+        },
+        createKeys: function () {
+            this.keycodes = {
+                d: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+                alt: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ALT)
+            };
         },
         _activateHUDScene() {
             var self = this;
@@ -107,6 +115,9 @@ export const TestLevelScene = function () {
             }
             if (this.cursors.down.isDown) {
                 this.cameras.main.scrollY += 10;
+            }
+            if (this.keycodes.d.isDown && this.keycodes.alt.isDown) {
+                this.debugMode = !this.debugMode;
             }
         }
     });

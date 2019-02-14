@@ -101,10 +101,10 @@ export const SceneManager = function (game) {
         //party characters
         var self = this;
         this.game.characters = new Character(this.game);
-        this.game.characters.addNewCharacter(600, 300, 'character1');
+        //this.game.characters.addNewCharacter(600, 300, 'character1');
         this.game.characters.addNewCharacter(600, 350, 'character2');
         this.game.characters.addNewCharacter(600, 400, 'character3');
-        this.game.characters.addNewCharacter(550, 300, 'character4');
+        //this.game.characters.addNewCharacter(550, 300, 'character4');
 
         this.game.input.setHitArea(this.game.characters.characters.getChildren());
         _.each(this.game.characters.characters.getChildren(), function (character) {
@@ -322,10 +322,16 @@ export const SceneManager = function (game) {
     this._hoverCharacter = (character) => {
         if (!character.characterConfig.isPlayerControlled) {
             this.game.activeMap.highlightPathToEnemy(character);
-            if ((this.game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand &&
+            //if ((this.game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand &&
+            //    this.game.activeCharacter.characterConfig.inventory.mainHand.range > 1) ||
+            //    (this.game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackSpell &&
+            //        this.game.activeCharacter.characterConfig.energy.selectedAction.range > 1)) {
+            //    this.game.characters.showRangeLine(this.game.activeCharacter, character);
+            //}
+            if (((this.game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand &&
                 this.game.activeCharacter.characterConfig.inventory.mainHand.range > 1) ||
                 (this.game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackSpell &&
-                    this.game.activeCharacter.characterConfig.energy.selectedAction.range > 1)) {
+                    this.game.activeCharacter.characterConfig.energy.selectedAction.range > 1)) && this.game.debugMode) {
                 this.game.characters.showRangeLine(this.game.activeCharacter, character);
             }
         }

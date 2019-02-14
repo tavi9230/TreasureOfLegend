@@ -250,49 +250,61 @@ export const ActionManager = function (game) {
         // TODO: Check Bresenham's algorithm (https://www.redblobgames.com/grids/line-drawing.html)
         // TODO: Check from each corner of character to each corner of enemy to make sure it hits
         var pointMatrix = [
-            [character.x, character.y, enemy.x, enemy.y],
-            [character.x, character.y, enemy.x + enemy.width, enemy.y],
-            [character.x, character.y, enemy.x, enemy.y + enemy.height],
-            [character.x, character.y, enemy.x + enemy.width, enemy.y + enemy.height],
-            [character.x + character.width, character.y, enemy.x, enemy.y],
-            [character.x + character.width, character.y, enemy.x + enemy.width, enemy.y],
-            [character.x + character.width, character.y, enemy.x, enemy.y + enemy.height],
-            [character.x + character.width, character.y, enemy.x + enemy.width, enemy.y + enemy.height],
-            [character.x, character.y + character.height, enemy.x, enemy.y],
-            [character.x, character.y + character.height, enemy.x + enemy.width, enemy.y],
-            [character.x, character.y + character.height, enemy.x, enemy.y + enemy.height],
-            [character.x, character.y + character.height, enemy.x + enemy.width, enemy.y + enemy.height],
-            [character.x + character.width, character.y + character.height, enemy.x, enemy.y],
-            [character.x + character.width, character.y + character.height, enemy.x + enemy.width, enemy.y],
-            [character.x + character.width, character.y + character.height, enemy.x, enemy.y + enemy.height],
-            [character.x + character.width, character.y + character.height, enemy.x + enemy.width, enemy.y + enemy.height]
+            [
+                [character.x, character.y, enemy.x, enemy.y],
+                [character.x, character.y, enemy.x + enemy.width, enemy.y],
+                [character.x, character.y, enemy.x, enemy.y + enemy.height],
+                [character.x, character.y, enemy.x + enemy.width, enemy.y + enemy.height]
+            ],
+            [
+                [character.x + character.width, character.y, enemy.x, enemy.y],
+                [character.x + character.width, character.y, enemy.x + enemy.width, enemy.y],
+                [character.x + character.width, character.y, enemy.x, enemy.y + enemy.height],
+                [character.x + character.width, character.y, enemy.x + enemy.width, enemy.y + enemy.height]
+            ],
+            [
+                [character.x, character.y + character.height, enemy.x, enemy.y],
+                [character.x, character.y + character.height, enemy.x + enemy.width, enemy.y],
+                [character.x, character.y + character.height, enemy.x, enemy.y + enemy.height],
+                [character.x, character.y + character.height, enemy.x + enemy.width, enemy.y + enemy.height]
+            ],
+            [
+                [character.x + character.width, character.y + character.height, enemy.x, enemy.y],
+                [character.x + character.width, character.y + character.height, enemy.x + enemy.width, enemy.y],
+                [character.x + character.width, character.y + character.height, enemy.x, enemy.y + enemy.height],
+                [character.x + character.width, character.y + character.height, enemy.x + enemy.width, enemy.y + enemy.height]
+            ]
         ];
         var isNotBlocked,
             linePoints,
-            pointsFound = 0,
+            pointsFound,
             lines = [];
         for (let i = 0; i < pointMatrix.length; i++) {
             isNotBlocked = true;
-            linePoints = this._supercoverLine(pointMatrix[i][0], pointMatrix[i][1], pointMatrix[i][2], pointMatrix[i][3]);
-            _.each(linePoints, function (point) {
-                if (Math.floor(game.activeMap.levelMap[point.y / 50][point.x / 50]) !== 0) {
-                    isNotBlocked = false;
-                }
-            });
-            if (isNotBlocked) {
-                pointsFound++;
-                lines.push({
-                    charX: pointMatrix[i][0],
-                    charY: pointMatrix[i][1],
-                    enemyX: pointMatrix[i][2],
-                    enemyY: pointMatrix[i][3]
+            pointsFound = 0;
+            for (let j = 0; j < pointMatrix[i].length; j++) {
+                linePoints = this._supercoverLine(pointMatrix[i][j][0], pointMatrix[i][j][1], pointMatrix[i][j][2], pointMatrix[i][j][3]);
+                _.each(linePoints, function (point) {
+                    if (Math.floor(game.activeMap.levelMap[point.y / 50][point.x / 50]) !== 0) {
+                        isNotBlocked = false;
+                    }
                 });
-            }
-            if (pointsFound >= 2) {
-                return {
-                    isFound: true,
-                    lines: lines
-                };
+                if (isNotBlocked) {
+                    pointsFound++;
+                    lines.push({
+                        charX: pointMatrix[i][j][0],
+                        charY: pointMatrix[i][j][1],
+                        enemyX: pointMatrix[i][j][2],
+                        enemyY: pointMatrix[i][j][3]
+                    });
+                }
+                if (pointsFound >= 2) {
+                    return {
+                        isFound: true,
+                        lines: lines
+                    };
+                }
+
             }
         }
 
