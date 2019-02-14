@@ -66,6 +66,7 @@ export const EnemyConfig = {
         name: 'Test',
         height: 50,
         width: 50,
+        lineOfSight: 2,
         level: 1,
         naturalArmor: 0,
         life: '1d1',

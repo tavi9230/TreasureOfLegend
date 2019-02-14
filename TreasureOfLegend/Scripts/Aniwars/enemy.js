@@ -77,6 +77,7 @@ export const Enemy = function (game) {
         charConfig.height = config.height;
         charConfig.width = config.width;
         charConfig.image = config.image;
+        charConfig.lineOfSight = config.lineOfSight;
         charConfig.level = config.level;
         charConfig.attributes.strength = Math.floor(Math.random() * config.attributes.strength) * (Math.floor(Math.random() * 2) === 1 ? 1 : -1);
         charConfig.attributes.dexterity = Math.floor(Math.random() * config.attributes.dexterity) * (Math.floor(Math.random() * 2) === 1 ? 1 : -1);
@@ -173,28 +174,47 @@ export const Enemy = function (game) {
                     duration: 500,
                     onComplete: onCompleteHandler
                 });
+                return true;
             }
         }
+        return false;
     };
 
-    this.getPathsToEnemies = () => {
-        var currentCharacter = this.game.activeCharacter;
-        var paths = [];
-        var auxMap = this.game.activeMap.addEnemiesToMap(this.game.characters);
-        _.each(this.game.characters.characters.getChildren(), function (character) {
-            auxMap[character.y / 50][character.x / 50] = 0;
-            var path = Pathfinder.findWay(currentCharacter.x / 50,
-                currentCharacter.y / 50,
-                character.x / 50,
-                character.y / 50,
-                auxMap);
-            if (path.length > 0) {
-                path.shift();
-                if (path.length > 0) {
-                    paths.push({ path: path, enemy: character });
+    this.getPathsToEnemies = (seenCharacters) => {
+        var self = this,
+            currentCharacter = this.game.activeCharacter,
+            paths = [],
+            auxMap = this.game.activeMap.addEnemiesToMap(this.game.characters);
+        if (seenCharacters && seenCharacters.length > 0) {
+            var path = self._getPathToEnemy(auxMap, currentCharacter, seenCharacters[0].character);
+            if (path) {
+                paths.push({ path: path, enemy: seenCharacters[0].character });
+            }
+        } else {
+            //This gets the closest enemy
+            //_.each(this.game.characters.characters.getChildren(), function (character) {
+            //    var path = self._getPathToEnemy(auxMap, currentCharacter, character);
+            //    if (path) {
+            //        paths.push({ path: path, enemy: character });
+            //    }
+            //});
+            var randX, randY, tile, isFound = false;
+            while (!isFound) {
+                randY = Math.floor(Math.random() * this.game.activeMap.levelMap.length) * 50;
+                randX = Math.floor(Math.random() * this.game.activeMap.levelMap[0].length) * 50;
+                tile = this.game.activeMap.tiles.getChildren().find(function (tile) {
+                    return tile.x === randX && tile.y === randY;
+                });
+                if (tile) {
+                    isFound = true;
                 }
             }
-        });
+
+            var path = self._getPathToEnemy(auxMap, currentCharacter, tile);
+            if (path) {
+                paths.push({ path: path, enemy: tile });
+            }
+        }
         paths.sort(function (a, b) {
             if (a.path.length > b.path.length) {
                 return 1;
@@ -286,55 +306,56 @@ export const Enemy = function (game) {
         return false;
     };
 
+    this._checkLineOfSight = function (currentCharacter) {
+        var seenCharacters = [];
+        _.each(this.game.characters.characters.getChildren(), function (character) {
+            var lineOfSight = actionManager.checkLineOfSight(currentCharacter, character);
+            if (lineOfSight.hasBeenSeen) {
+                seenCharacters.push({ character: character, distance: lineOfSight.distance });
+            }
+        });
+        seenCharacters.sort(function (a, b) {
+            if (a.distance > b.distance) {
+                return -1;
+            } else if (a.distance < b.distance) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+        return seenCharacters;
+    };
+
+    this._getPathToEnemy = function (map, character, enemy) {
+        map[enemy.y / 50][enemy.x / 50] = 0;
+        var path = Pathfinder.findWay(character.x / 50,
+            character.y / 50,
+            enemy.x / 50,
+            enemy.y / 50,
+            map);
+        if (path.length > 0) {
+            path.shift();
+            if (path.length > 0) {
+                return path;
+            }
+        }
+        return null;
+    };
+
     this._doStandardActions = (currentCharacter) => {
         var charConfig = currentCharacter.characterConfig,
             enemies = this.game.enemies;
-        // If enemy has movement left
-        if (charConfig.movement.max - charConfig.movement.spent > 0) {
-            if (!charConfig.movement.isMoving) {
-                // If it does not have a path
-                if (charConfig.path.length === 0) {
-                    var paths = enemies.getPathsToEnemies();
-                    if (paths.length > 0 && paths[0].path.length > 0) {
-                        // Get the path to the closest character
-                        charConfig.path = paths[0].path;
-                        charConfig.posX = charConfig.path[0][0] * 50;
-                        charConfig.posY = charConfig.path[0][1] * 50;
-                        charConfig.path.shift();
-                        // And move
-                        enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
-                    } else {
-                        // If no path is found to a character it might mean we are stuck in a room
-                        paths = enemies.getPathsToClosestDoor();
-                        if (paths.length > 0 && paths[0].path.length > 0) {
-                            charConfig.path = paths[0].path;
-                            charConfig.posX = charConfig.path[0][0] * 50;
-                            charConfig.posY = charConfig.path[0][1] * 50;
-                            charConfig.path.shift();
-                            enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
-                        }
-                    }
-                } else {
-                    // Move on the path
-                    var path = lodash.cloneDeep(charConfig.path);
-                    charConfig.posX = charConfig.path[0][0] * 50;
-                    charConfig.posY = charConfig.path[0][1] * 50;
-                    charConfig.path.shift();
-                    enemies.moveActiveCharacterToPosition(path[0][0] * 50, path[0][1] * 50);
-                }
-            }
-        } else {
-            // If no more movement, remove path in case player characters move
-            charConfig.path = [];
-        }
 
         if (!charConfig.movement.isMoving) {
             var hasAttacked = false,
-                hasInteracted = false;
+                hasInteracted = false,
+                hasMoved = false,
+                seenCharacters = this._checkLineOfSight(currentCharacter);
             // If enemy cannot move, try attacking
-            if (charConfig.energy.max - charConfig.energy.spent > 1) {
-                var closestEnemy = enemies.getPathsToEnemies();
-                if (closestEnemy.length > 0 && closestEnemy[0].path.length <= charConfig.inventory.mainHand.range) {
+            if (charConfig.energy.max - charConfig.energy.spent > 1 && seenCharacters.length > 0) {
+                var closestEnemy = enemies.getPathsToEnemies(seenCharacters);
+                closestEnemy[0].path.pop();
+                if (closestEnemy.length > 0 && closestEnemy[0].path.length < charConfig.inventory.mainHand.range) {
                     if (charConfig.inventory.mainHand.hold === 2 && charConfig.inventory.offHand.armor) {
                         // TODO: Drop offhand if it is an armor (or put in inventory if you can?) and then attack
                         var item = charConfig.inventory.offHand,
@@ -367,8 +388,47 @@ export const Enemy = function (game) {
                 }
             }
 
+            // If enemy has movement left
+            if (charConfig.movement.max - charConfig.movement.spent > 0) {
+                // If it does not have a path
+                if (charConfig.path.length > 0 && seenCharacters.length <= 0) {
+                    // Move on the path
+                    var path = lodash.cloneDeep(charConfig.path);
+                    charConfig.posX = charConfig.path[0][0] * 50;
+                    charConfig.posY = charConfig.path[0][1] * 50;
+                    charConfig.path.shift();
+                    hasMoved = enemies.moveActiveCharacterToPosition(path[0][0] * 50, path[0][1] * 50);
+                } else {
+                    var paths = enemies.getPathsToEnemies(seenCharacters);
+                    if (paths.length > 0 && paths[0].path.length > 0) {
+                        // Get the path to the closest character
+                        if (paths[0].path.length > charConfig.inventory.mainHand.range) {
+                            charConfig.path = paths[0].path;
+                            charConfig.posX = charConfig.path[0][0] * 50;
+                            charConfig.posY = charConfig.path[0][1] * 50;
+                            charConfig.path.shift();
+                            // And move
+                            hasMoved = enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
+                        }
+                    } else {
+                        // If no path is found to a character it might mean we are stuck in a room
+                        paths = enemies.getPathsToClosestDoor();
+                        if (paths.length > 0 && paths[0].path.length > 0) {
+                            charConfig.path = paths[0].path;
+                            charConfig.posX = charConfig.path[0][0] * 50;
+                            charConfig.posY = charConfig.path[0][1] * 50;
+                            charConfig.path.shift();
+                            hasMoved = enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
+                        }
+                    }
+                }
+            } else {
+                // If no more movement, remove path in case player characters move
+                charConfig.path = [];
+            }
+
             // If no action has been done it might mean we are out of movement and not near an enemy or object
-            if (!hasAttacked && !hasInteracted) {
+            if (!hasAttacked && !hasInteracted && !hasMoved) {
                 charConfig.energy.spent++;
                 charConfig.movement.spent++;
             }

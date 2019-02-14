@@ -245,10 +245,26 @@ export const ActionManager = function (game) {
         }
     };
 
+    this.checkLineOfSight = function (character, enemy) {
+        var projectileLines = this._checkProjectileSuccess(character, enemy);
+        projectileLines.linePoints.shift();
+        return projectileLines.isFound && projectileLines.linePoints.length <= character.characterConfig.lineOfSight
+            ?
+            {
+                hasBeenSeen: true,
+                distance: projectileLines.linePoints.length
+            }
+            :
+            {
+                hasBeenSeen: false,
+                distance: projectileLines.linePoints.length
+            };
+    };
+
     // PRIVATE -------------------------------------------------------------------------------------------------------------------------------
     this._checkProjectileSuccess = (character, enemy) => {
         // TODO: Check Bresenham's algorithm (https://www.redblobgames.com/grids/line-drawing.html)
-        // TODO: Check from each corner of character to each corner of enemy to make sure it hits
+        // TODO: Check if character.x > enemy.x or y and rearrange the pointMatrix accordingly
         var pointMatrix = [
             [
                 [character.x, character.y, enemy.x, enemy.y],
@@ -301,7 +317,8 @@ export const ActionManager = function (game) {
                 if (pointsFound >= 2) {
                     return {
                         isFound: true,
-                        lines: lines
+                        lines: lines,
+                        linePoints: linePoints
                     };
                 }
 
@@ -310,7 +327,8 @@ export const ActionManager = function (game) {
 
         return {
             isFound: false,
-            lines: lines
+            lines: lines,
+            linePoints: linePoints
         };
     };
 

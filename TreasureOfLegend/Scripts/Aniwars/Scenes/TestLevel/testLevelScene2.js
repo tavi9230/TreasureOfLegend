@@ -14,6 +14,7 @@ export const TestLevelScene2 = function () {
             this.sceneManager = new SceneManager(this);
             this.sceneManager.createMap(MapConfig.level1);
             this.sceneManager.createCharacters();
+            this.sceneManager.createEnemies();
             this._activateHUDScene();
             this.cursors = this.input.keyboard.createCursorKeys();
             this.initiative = this.sceneManager.getInitiativeArray();
