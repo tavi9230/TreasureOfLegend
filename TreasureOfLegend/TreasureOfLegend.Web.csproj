@@ -342,6 +342,7 @@
     <Content Include="Scripts\Aniwars\Scenes\HUD\Helpers\tipsModal.js" />
     <Content Include="Scripts\Aniwars\Scenes\HUD\lowerPanel.js" />
     <Content Include="Scripts\Aniwars\Scenes\Menu\mainMenuScene.js" />
+    <Content Include="Scripts\Aniwars\Scenes\TestLevel\testLevelScene2.js" />
     <Content Include="Scripts\Aniwars\Scenes\TestLevel\testLevelScene.js" />
     <Content Include="Scripts\Aniwars\Scenes\HUD\hudScene.js" />
     <Content Include="Scripts\Aniwars\Scenes\Boot\bootScene.js" />

@@ -59,8 +59,8 @@ export const SceneManager = function (game) {
             this.checkObjectReset();
         }
     },
-        this.createMap = () => {
-            this.game.activeMap = new BattleMap(this.game);
+        this.createMap = (map) => {
+            this.game.activeMap = new BattleMap(this.game, map);
             this.game.activeMap.generateMap();
             var self = this;
             _.each(this.game.activeMap.tiles.getChildren(), function (tile) {
@@ -320,20 +320,12 @@ export const SceneManager = function (game) {
         }
     };
     this._hoverCharacter = (character) => {
-        if (!character.characterConfig.isPlayerControlled) {
-            this.game.activeMap.highlightPathToEnemy(character);
-            //if ((this.game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand &&
-            //    this.game.activeCharacter.characterConfig.inventory.mainHand.range > 1) ||
-            //    (this.game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackSpell &&
-            //        this.game.activeCharacter.characterConfig.energy.selectedAction.range > 1)) {
-            //    this.game.characters.showRangeLine(this.game.activeCharacter, character);
-            //}
-            if (((this.game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand &&
-                this.game.activeCharacter.characterConfig.inventory.mainHand.range > 1) ||
-                (this.game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackSpell &&
-                    this.game.activeCharacter.characterConfig.energy.selectedAction.range > 1)) && this.game.debugMode) {
-                this.game.characters.showRangeLine(this.game.activeCharacter, character);
-            }
+        this.game.activeMap.highlightPathToEnemy(character);
+        if (((this.game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand &&
+            this.game.activeCharacter.characterConfig.inventory.mainHand.range > 1) ||
+            (this.game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackSpell &&
+                this.game.activeCharacter.characterConfig.energy.selectedAction.range > 1)) && this.game.debugMode) {
+            this.game.characters.showRangeLine(this.game.activeCharacter, character);
         }
     };
     this._hoverItem = (item) => {

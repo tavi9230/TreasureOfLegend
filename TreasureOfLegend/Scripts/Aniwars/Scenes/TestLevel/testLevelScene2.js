@@ -2,20 +2,18 @@
 import { EnumHelper } from 'Aniwars/Helpers/enumHelper';
 import { MapConfig } from 'Aniwars/Configurations/mapConfig';
 
-export const TestLevelScene = function () {
+export const TestLevelScene2 = function () {
     return new Phaser.Class({
         Extends: Phaser.Scene,
-        initialize: function TestLevelScene() {
-            Phaser.Scene.call(this, { key: 'TestLevelScene' });
+        initialize: function TestLevelScene2() {
+            Phaser.Scene.call(this, { key: 'TestLevelScene2' });
         },
         preload() { },
         create() {
             this.debugMode = true;
             this.sceneManager = new SceneManager(this);
-            this.sceneManager.createMap(MapConfig.level0);
-            this.sceneManager.createItems();
+            this.sceneManager.createMap(MapConfig.level1);
             this.sceneManager.createCharacters();
-            this.sceneManager.createEnemies();
             this._activateHUDScene();
             this.cursors = this.input.keyboard.createCursorKeys();
             this.initiative = this.sceneManager.getInitiativeArray();

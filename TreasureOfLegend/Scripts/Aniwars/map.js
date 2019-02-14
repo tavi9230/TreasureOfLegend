@@ -1,8 +1,7 @@
 ﻿import {Pathfinder} from 'Aniwars/Helpers/pathfinder';
-import {MapConfig} from 'Aniwars/Configurations/mapConfig';
 import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
 
-export const BattleMap = function (game) {
+export const BattleMap = function (game, map) {
     this.game = game;
     this.copyMap = (sourceMap, destinationMap) => {
         for (let i = 0; i < sourceMap.length; i++) {
@@ -15,7 +14,7 @@ export const BattleMap = function (game) {
         }
         return destinationMap;
     };
-    this.defaultMap = this.copyMap(MapConfig.level0, []);
+    this.defaultMap = this.copyMap(map, []);
     this.previousMap = this.copyMap(this.defaultMap, []);
     this.levelMap = this.copyMap(this.defaultMap, []);
     this.objConfig = {
