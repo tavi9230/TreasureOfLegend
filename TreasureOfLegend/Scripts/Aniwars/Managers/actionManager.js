@@ -297,9 +297,9 @@ export const ActionManager = function (game) {
             lines = [],
             allLinePoints = [];
         for (let i = 0; i < pointMatrix.length; i++) {
-            isNotBlocked = true;
             pointsFound = 0;
             for (let j = 0; j < pointMatrix[i].length; j++) {
+                isNotBlocked = true;
                 linePoints = this._supercoverLine(pointMatrix[i][j][0], pointMatrix[i][j][1], pointMatrix[i][j][2], pointMatrix[i][j][3]);
                 _.each(linePoints, function (point) {
                     if (Math.floor(game.activeMap.levelMap[point.y / 50][point.x / 50]) !== 0) {
