@@ -5,7 +5,6 @@ import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
 import { EnergyConfig } from 'Aniwars/Configurations/energyConfig';
 import { StatusIconConfig } from 'Aniwars/Configurations/statusIconConfig';
 import { CharacterConfig } from 'Aniwars/Configurations/characterConfig';
-import { setTimeout } from 'timers';
 
 export const Character = function (game) {
     var actionManager = new ActionManager(game),
@@ -410,8 +409,8 @@ export const Character = function (game) {
 
     // Private -----------------------------------------------------------------------------------------------------
     this._moveCharacter = function (currentCharacter) {
-        var charConfig = currentCharacter.characterConfig,
-            self = this;
+        var self = this,
+            charConfig = currentCharacter.characterConfig;
         charConfig.movement.spent++;
         charConfig.movement.isMoving = true;
         StatusIconConfig.showMovementIcon(game, currentCharacter, 1);
@@ -424,58 +423,26 @@ export const Character = function (game) {
         });
         if (tile) {
             game.cameras.main.startFollow(currentCharacter, true, 0.09, 0.09);
-            game.physics.moveToObject(currentCharacter, tile, 100);
-            setTimeout(function () {
-                charConfig.movement.isMoving = false;
-                currentCharacter.setVelocity(0, 0);
-                currentCharacter.x = charConfig.posX;
-                currentCharacter.y = charConfig.posY;
-                if (charConfig.path.length === 0) {
-                    game.cameras.main.stopFollow();
-                    game.activeMap.showMovementGrid(currentCharacter);
-                    self._checkIfObjectInteractionInProgress(charConfig.energy.inProgress);
-                }
-                game.events.emit('showCharacterInitiative', game.initiative);
-            }, 500);
-            /* TODO: Do more with this?
-             * var pointToReach = game.physics.add.sprite(tile.x + 25, tile.y + 25, 'arrow'),
-                pointToStart = game.physics.add.sprite(currentCharacter.x + 25, currentCharacter.y + 25, 'arrow'),
-                xReached = false,
-                yReached = false;
-            pointToReach.visible = false;
-            pointToReach.height = 1;
-            pointToReach.width = 1;
-            pointToStart.visible = false;
-            pointToStart.height = 1;
-            pointToStart.width = 1;
-            game.physics.moveToObject(currentCharacter, tile, 50);
-            game.physics.moveToObject(pointToStart, pointToReach, 50);
-            game.physics.add.overlap(pointToStart, pointToReach, function () {
-                pointToReach.destroy();
-                pointToStart.destroy();
-                charConfig.movement.isMoving = false;
-                currentCharacter.setVelocity(0, 0);
-                currentCharacter.x = charConfig.posX;
-                currentCharacter.y = charConfig.posY;
-                if (charConfig.path.length === 0) {
-                    game.cameras.main.stopFollow();
-                    game.activeMap.showMovementGrid(currentCharacter);
-                    self._checkIfObjectInteractionInProgress(charConfig.energy.inProgress);
-                }
-                game.events.emit('showCharacterInitiative', game.initiative);
-            }, function () {
-                if (Math.floor(pointToStart.x) === pointToReach.x) {
-                    xReached = true;
-                }
-                if (Math.floor(pointToStart.y) === pointToReach.y) {
-                    yReached = true;
-                }
-                if (xReached && yReached) {
-                    return true;
-                }
-                return false;
+            var onCompleteHandler = function () {
+                game.tweens.killAll();
+                setTimeout(function () {
+                    charConfig.movement.isMoving = false;
+                    if (charConfig.path.length === 0) {
+                        game.cameras.main.stopFollow();
+                        game.activeMap.showMovementGrid(currentCharacter);
+                        self._checkIfObjectInteractionInProgress(charConfig.energy.inProgress);
+                    }
+                    game.events.emit('showCharacterInitiative', game.initiative);
+                }, 5);
+            };
+            game.tweens.add({
+                targets: currentCharacter,
+                x: tile.x,
+                y: tile.y,
+                ease: 'Power1',
+                duration: 500,
+                onComplete: onCompleteHandler
             });
-             */
         }
     };
 

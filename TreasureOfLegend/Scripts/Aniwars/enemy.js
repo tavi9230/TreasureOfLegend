@@ -153,19 +153,26 @@ export const Enemy = function (game) {
                 charConfig.movement.spent++;
                 StatusIconConfig.showMovementIcon(this.game, currentCharacter, 1);
                 charConfig.movement.isMoving = true;
-                var tile = this.game.activeMap.tiles.getChildren().find(function (tile) {
-                    return tile.x === x && tile.y === y;
-                });
+                //var tile = this.game.activeMap.tiles.getChildren().find(function (tile) {
+                //    return tile.x === x && tile.y === y;
+                //});
                 this.game.cameras.main.startFollow(currentCharacter, true, 0.09, 0.09);
-                this.game.physics.moveToObject(currentCharacter, tile, 100);
-                setTimeout(function () {
-                    self.game.cameras.main.stopFollow();
-                    charConfig.movement.isMoving = false;
-                    currentCharacter.setVelocity(0, 0);
-                    currentCharacter.x = x;
-                    currentCharacter.y = y;
-                    self.game.events.emit('showCharacterInitiative', self.game.initiative);
-                }, 500);
+                var onCompleteHandler = function () {
+                    game.tweens.killAll();
+                    setTimeout(function () {
+                        self.game.cameras.main.stopFollow();
+                        charConfig.movement.isMoving = false;
+                        self.game.events.emit('showCharacterInitiative', game.initiative);
+                    }, 5);
+                };
+                game.tweens.add({
+                    targets: currentCharacter,
+                    x: x,
+                    y: y,
+                    ease: 'Power1',
+                    duration: 500,
+                    onComplete: onCompleteHandler
+                });
             }
         }
     };
