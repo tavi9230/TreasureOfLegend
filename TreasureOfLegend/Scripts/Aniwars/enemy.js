@@ -355,7 +355,7 @@ export const Enemy = function (game) {
             if (charConfig.energy.max - charConfig.energy.spent > 1 && seenCharacters.length > 0) {
                 var closestEnemy = enemies.getPathsToEnemies(seenCharacters);
                 closestEnemy[0].path.pop();
-                if (closestEnemy.length > 0 && closestEnemy[0].path.length < charConfig.inventory.mainHand.range) {
+                if (closestEnemy.length > 0 && closestEnemy[0].path.length <= charConfig.inventory.mainHand.range) {
                     if (charConfig.inventory.mainHand.hold === 2 && charConfig.inventory.offHand.armor) {
                         // TODO: Drop offhand if it is an armor (or put in inventory if you can?) and then attack
                         var item = charConfig.inventory.offHand,
@@ -388,7 +388,7 @@ export const Enemy = function (game) {
                 }
             }
 
-            // If enemy has movement left
+            // If enemy has movement left. Maybe move until doing an action or moving when trying to go to cover?
             if (charConfig.movement.max - charConfig.movement.spent > 0) {
                 // If it does not have a path
                 if (charConfig.path.length > 0 && seenCharacters.length <= 0) {

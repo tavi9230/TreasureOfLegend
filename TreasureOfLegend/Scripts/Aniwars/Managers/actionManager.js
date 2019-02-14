@@ -294,7 +294,8 @@ export const ActionManager = function (game) {
         var isNotBlocked,
             linePoints,
             pointsFound,
-            lines = [];
+            lines = [],
+            allLinePoints = [];
         for (let i = 0; i < pointMatrix.length; i++) {
             isNotBlocked = true;
             pointsFound = 0;
@@ -307,21 +308,30 @@ export const ActionManager = function (game) {
                 });
                 if (isNotBlocked) {
                     pointsFound++;
+                    allLinePoints.push(linePoints);
                     lines.push({
                         charX: pointMatrix[i][j][0],
                         charY: pointMatrix[i][j][1],
                         enemyX: pointMatrix[i][j][2],
                         enemyY: pointMatrix[i][j][3]
                     });
+                    if (pointsFound >= 2) {
+                        allLinePoints.sort(function(a, b) {
+                            if (a.length > b.length) {
+                                return 1;
+                            } else if (a.length < b.length) {
+                                return -1;
+                            } else {
+                                return 0;
+                            }
+                        });
+                        return {
+                            isFound: true,
+                            lines: lines,
+                            linePoints: allLinePoints[0]
+                        };
+                    }
                 }
-                if (pointsFound >= 2) {
-                    return {
-                        isFound: true,
-                        lines: lines,
-                        linePoints: linePoints
-                    };
-                }
-
             }
         }
 
