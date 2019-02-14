@@ -12,9 +12,9 @@ export const SceneManager = function (game) {
     this.endTurn = () => {
         var charConfig = game.activeCharacter.characterConfig;
         var shouldChangeTurn = false;
-        if (charConfig.path.length === 0 &&
-            !charConfig.movement.isMoving) {
+        if (!charConfig.movement.isMoving) {
             // TODO: Refresh movement, energy, etc only on turn counter change
+            // TODO: Fix initiative when only PCs remain
             charConfig.movement.spent = 0;
             charConfig.energy.spent = 0;
             charConfig.movement.usedDash = false;

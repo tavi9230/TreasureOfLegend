@@ -342,6 +342,8 @@ export const Enemy = function (game) {
         return null;
     };
 
+    // TODO: Split this into multiple methods
+    // TODO: If you get out of the enemy's line of sight they should "hunt" you for 1 or more number of turns and then resume a random path or predetermined one
     this._doStandardActions = (currentCharacter) => {
         var charConfig = currentCharacter.characterConfig,
             enemies = this.game.enemies;
@@ -401,7 +403,7 @@ export const Enemy = function (game) {
                 } else {
                     var paths = enemies.getPathsToEnemies(seenCharacters);
                     if (paths.length > 0 && paths[0].path.length > 0) {
-                        // Get the path to the closest character
+                        // Get the path to the closest seen character
                         if (paths[0].path.length > charConfig.inventory.mainHand.range) {
                             charConfig.path = paths[0].path;
                             charConfig.posX = charConfig.path[0][0] * 50;
@@ -424,19 +426,13 @@ export const Enemy = function (game) {
                 }
             } else {
                 // If no more movement, remove path in case player characters move
-                charConfig.path = [];
-            }
-
-            // If no action has been done it might mean we are out of movement and not near an enemy or object
-            if (!hasAttacked && !hasInteracted && !hasMoved) {
-                charConfig.energy.spent++;
-                charConfig.movement.spent++;
+                if (seenCharacters.length > 0) {
+                    charConfig.path = [];
+                }
             }
         }
 
-        if (charConfig.movement.max - charConfig.movement.spent <= 0 &&
-            !charConfig.movement.isMoving && charConfig.path.length <= 0 &&
-            charConfig.energy.max - charConfig.energy.spent <= 0) {
+        if (!hasAttacked && !hasInteracted && !hasMoved) {
             this.game.events.emit('endEnemyTurn');
         }
     };
