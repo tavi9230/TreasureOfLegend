@@ -117,7 +117,7 @@ export const SceneManager = function (game) {
     this.createEnemies = () => {
         var self = this;
         game.enemies = new Enemy(game);
-        game.enemies.addNewCharacter(800, 450, EnemyConfig.test);
+        game.enemies.addNewCharacter(200, 300, EnemyConfig.test);
         game.enemies.total = game.enemies.characters.getChildren().length;
         game.input.setHitArea(game.enemies.characters.getChildren());
         _.each(game.enemies.characters.getChildren(), function (enemy) {
