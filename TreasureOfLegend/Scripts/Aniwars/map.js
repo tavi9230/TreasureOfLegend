@@ -27,7 +27,8 @@ export const BattleMap = function (game, map) {
         turnActivated: 0,
         turnsToReset: 0,
         image: '',
-        callback: null
+        callback: null,
+        sound: ''
     };
     var hitArea = new Phaser.Geom.Rectangle(0, 0, 50, 50);
     var hitAreaCallback = Phaser.Geom.Rectangle.Contains;
@@ -219,6 +220,7 @@ export const BattleMap = function (game, map) {
         var obj = this.game.add.sprite(x, y, 'tile' + tileNumber).setOrigin(0, 0);
         obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.objectConfig.description = 'Stone tile';
+        obj.objectConfig.sound = 'walk_stone';
         obj.objectConfig.id = EnumHelper.idEnum.tile.id;
         obj.objectConfig.image = 'tile' + tileNumber;
         obj.height = 50;
@@ -296,6 +298,7 @@ export const BattleMap = function (game, map) {
         obj.objectConfig.description = 'Wooden door';
         obj.objectConfig.id = doorId;
         obj.objectConfig.isInteractible = true;
+        obj.objectConfig.sound = 'open_door';
         this.objects.add(obj);
     };
 

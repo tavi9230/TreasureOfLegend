@@ -144,6 +144,8 @@ export const Character = function (game) {
                 game.items.remove(item);
                 game.events.emit('showCharacterInitiative', game.initiative);
                 game.events.emit('refreshCharacterInventory', character);
+                var pickupSound = game.sound.add('pickup', { volume: 0.5 });
+                pickupSound.play();
                 if (character.characterConfig.energy.actionId === 1) {
                     game.events.emit('showSelectedActionIcon', character.characterConfig.inventory.mainHand.image);
                 }
@@ -189,6 +191,8 @@ export const Character = function (game) {
             var index = charConfig.inventory.slots.items.indexOf(itemToDrop);
             charConfig.inventory.slots.items.splice(index, 1);
         }
+        var dropSound = game.sound.add('drop_item', { volume: 0.5 });
+        dropSound.play();
         var item = game.physics.add.sprite(character.x, character.y, itemToDrop.image).setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
@@ -285,6 +289,8 @@ export const Character = function (game) {
             if (character.characterConfig.energy.actionId === 1) {
                 game.events.emit('showSelectedActionIcon', character.characterConfig.inventory.mainHand.image);
             }
+            var pickupSound = game.sound.add('pickup', { volume: 0.5 });
+            pickupSound.play();
         }
     };
 
@@ -297,7 +303,8 @@ export const Character = function (game) {
             var lootbagConfig = lootbag.objectConfig.belongsTo.characterConfig;
             var index = lootbagConfig.inventory.slots.items.indexOf(item);
             lootbagConfig.inventory.slots.items.splice(index, 1);
-
+            var pickupSound = game.sound.add('pickup', { volume: 0.5 });
+            pickupSound.play();
             if (lootbagConfig.inventory.slots.items.length === 0
                 && lootbagConfig.inventory.mainHand.type === EnumHelper.inventoryEnum.defaultEquipment
                 && lootbagConfig.inventory.offHand.type === EnumHelper.inventoryEnum.defaultEquipment
@@ -400,7 +407,9 @@ export const Character = function (game) {
     };
 
     this.showRangeLine = function (character, enemy) {
-        actionManager.showRangeLines(character, enemy);
+        if (!character.characterConfig.movement.isMoving) {
+            actionManager.showRangeLines(character, enemy);
+        }
     };
 
     this.hideRangeLine = function () {
@@ -423,9 +432,12 @@ export const Character = function (game) {
         });
         if (tile) {
             game.cameras.main.startFollow(currentCharacter, true, 0.09, 0.09);
+            var walkSound = game.sound.add(tile.objectConfig.sound, { volume: 0.5 });
+            walkSound.play();
             var onCompleteHandler = function () {
                 game.tweens.killAll();
                 setTimeout(function () {
+                    walkSound.destroy();
                     charConfig.movement.isMoving = false;
                     if (charConfig.path.length === 0) {
                         game.cameras.main.stopFollow();

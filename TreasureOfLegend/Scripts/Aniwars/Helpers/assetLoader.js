@@ -1,6 +1,6 @@
-﻿export const AssetLoader = function (game) {
+﻿export const AssetLoader = function (scene) {
     const AssetFolder = 'Assets/Aniwars/';
-    this.game = game;
+    var game = scene;
 
     this.loadImages = function() {
         game.load.image('tile1', AssetFolder + 'tile1.png');
@@ -79,6 +79,15 @@
         game.load.image('mainMenuButton', AssetFolder + 'mainMenuButton.png');
     };
 
-    this.loadSounds = function() {
+    this.loadSounds = function () {
+        game.load.audio('sword_clang', [AssetFolder + 'audio/sword_clang.wav']);
+        game.load.audio('sword_flesh', [AssetFolder + 'audio/sword_flesh.wav']);
+        game.load.audio('walk_stone', [AssetFolder + 'audio/walk_stone.mp3']);
+        game.load.audio('background_combat_1', [AssetFolder + 'audio/background_combat_1.mp3']);
+        game.load.audio('open_door', [AssetFolder + 'audio/open_door.wav']);
+        game.load.audio('drink_well', [AssetFolder + 'audio/drink_well.mp3']);
+        game.load.audio('pickup', [AssetFolder + 'audio/pickup.wav']);
+        game.load.audio('drop_item', [AssetFolder + 'audio/drop_item.wav']);
+        game.load.audio('lootbag_open', [AssetFolder + 'audio/lootbag_open.wav']);
     };
 };

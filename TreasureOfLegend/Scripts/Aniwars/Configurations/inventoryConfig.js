@@ -14,7 +14,11 @@ export const InventoryConfig = {
         hold: 1,
         image: 'punch',
         description: 'Default attack',
-        slots: 0
+        slots: 0,
+        sound: {
+            hittingArmor: 'sword_clang',
+            hittingFlesh: 'sword_flesh'
+        }
     },
     defaultHead: {
         type: EnumHelper.inventoryEnum.defaultEquipment,
@@ -58,7 +62,11 @@ export const InventoryConfig = {
         hold: 2,
         image: 'bow',
         description: 'Good bow',
-        slots: 1
+        slots: 1,
+        sound: {
+            hittingArmor: 'sword_clang',
+            hittingFlesh: 'sword_flesh'
+        }
     },
     shortsword: {
         name: 'Shortsword',
@@ -74,7 +82,11 @@ export const InventoryConfig = {
         hold: 1,
         image: 'shortsword',
         description: 'Good ol\' shortsword',
-        slots: 1
+        slots: 1,
+        sound: {
+            hittingArmor: 'sword_clang',
+            hittingFlesh: 'sword_flesh'
+        }
     },
     head: {
         name: 'Helmet',

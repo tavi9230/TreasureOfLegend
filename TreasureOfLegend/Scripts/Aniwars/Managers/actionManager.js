@@ -33,6 +33,7 @@ export const ActionManager = function (game) {
 
     // OBJECT INTERACTION -------------------------------------------------------------------------------------------------------------------
     this._interactWithDoor = (object) => {
+        // TODO: Don't close door when another character is in it's position
         var charConfig = game.activeCharacter.characterConfig,
             x = object.x / 50,
             y = object.y / 50;
@@ -51,6 +52,8 @@ export const ActionManager = function (game) {
         } else {
             game.activeMap.levelMap[y][x] = object.objectConfig.id;
         }
+        var doorSound = game.sound.add('open_door', { volume: 0.5 });
+        doorSound.play();
         object.objectConfig.isActivated = !object.objectConfig.isActivated;
         if (charConfig.isPlayerControlled) {
             game.activeMap.showMovementGrid();
@@ -58,6 +61,8 @@ export const ActionManager = function (game) {
     };
 
     this._interactWithLootbag = (object) => {
+        var lootbagOpenSound = game.sound.add('lootbag_open', { volume: 0.5 });
+        lootbagOpenSound.play();
         game.events.emit('showDeadCharacterInventory', object);
     };
 
@@ -81,6 +86,8 @@ export const ActionManager = function (game) {
                 StatusIconConfig.showEnergyIcon(game, activeCharacter, -activeCharacter.characterConfig.energy.spent);
                 activeCharacter.characterConfig.energy.spent = 0;
             }
+            var drinkSound = game.sound.add('drink_well', { volume: 0.5 });
+            drinkSound.play();
             game.activeMap.createReactivatingObject({
                 object: object,
                 image: 'emptyWell',
@@ -104,15 +111,24 @@ export const ActionManager = function (game) {
             attackAttribute = EnumHelper.attributeEnum.strength === charConfig.inventory.mainHand.attribute
                 ? charConfig.attributes.strength
                 : charConfig.attributes.dexterity,
-            d20 = Math.floor(Math.random() * 20) + 1 + attackAttribute;
+            d20 = Math.floor(Math.random() * 20) + 1 + attackAttribute,
+            hitSound;
         if (d20 <= enemyCharConfig.armor) {
             if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                 if (this._removeArmorPointsFromEquippedInventory(enemy, 1)) {
                     StatusIconConfig.showArmorIcon(game, enemy, 1);
+                    if (charConfig.inventory.mainHand.sound) {
+                        hitSound = game.sound.add(charConfig.inventory.mainHand.sound.hittingArmor, { volume: 0.5 });
+                        hitSound.play();
+                    }
                 }
             } else if (enemyCharConfig.naturalArmor > 0) {
                 enemyCharConfig.naturalArmor--;
                 StatusIconConfig.showArmorIcon(game, enemy, 1);
+                if (charConfig.inventory.mainHand.sound) {
+                    hitSound = game.sound.add(charConfig.inventory.mainHand.sound.hittingFlesh, { volume: 0.5 });
+                    hitSound.play();
+                }
             }
         } else {
             _.each(charConfig.inventory.mainHand.damage, function (damage) {
@@ -121,23 +137,43 @@ export const ActionManager = function (game) {
                     if (enemyCharConfig.resistances.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
                         StatusIconConfig.showLifeIcon(game, enemy, Math.ceil(attackDamage / 2));
+                        if (charConfig.inventory.mainHand.sound) {
+                            hitSound = game.sound.add(charConfig.inventory.mainHand.sound.hittingFlesh, { volume: 0.5 });
+                            hitSound.play();
+                        }
                     } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= (attackDamage * 2);
                         StatusIconConfig.showLifeIcon(game, enemy, attackDamage * 2);
+                        if (charConfig.inventory.mainHand.sound) {
+                            hitSound = game.sound.add(charConfig.inventory.mainHand.sound.hittingFlesh, { volume: 0.5 });
+                            hitSound.play();
+                        }
                     } else {
                         enemyCharConfig.life.current -= attackDamage;
                         StatusIconConfig.showLifeIcon(game, enemy, attackDamage);
+                        if (charConfig.inventory.mainHand.sound) {
+                            hitSound = game.sound.add(charConfig.inventory.mainHand.sound.hittingFlesh, { volume: 0.5 });
+                            hitSound.play();
+                        }
                     }
                 }
                 if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                     if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
                         StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
+                        if (charConfig.inventory.mainHand.sound) {
+                            game.sound.add(charConfig.inventory.mainHand.sound.hittingArmor, { volume: 0.5 });
+                            game.sound.play(charConfig.inventory.mainHand.sound.hittingArmor, { name: charConfig.inventory.mainHand.sound.hittingArmor });
+                        }
                     }
                 } else if (enemyCharConfig.naturalArmor > 0) {
                     enemyCharConfig.naturalArmor -= Math.ceil(attackDamage / 2);
                     StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
                     if (enemyCharConfig.naturalArmor < 0) {
                         enemyCharConfig.naturalArmor = 0;
+                    }
+                    if (charConfig.inventory.mainHand.sound) {
+                        hitSound = game.sound.add(charConfig.inventory.mainHand.sound.hittingFlesh, { volume: 0.5 });
+                        hitSound.play();
                     }
                 }
             });
@@ -164,15 +200,24 @@ export const ActionManager = function (game) {
         var self = this,
             charConfig = character.characterConfig,
             enemyCharConfig = enemy.characterConfig,
-            d20 = Math.floor(Math.random() * 20) + 1 + charConfig.attributes.intelligence;
+            d20 = Math.floor(Math.random() * 20) + 1 + charConfig.attributes.intelligence,
+            hitSound;
         if (d20 <= enemyCharConfig.armor) {
             if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                 if (this._removeArmorPointsFromEquippedInventory(enemy, 1)) {
                     StatusIconConfig.showArmorIcon(game, enemy, 1);
                 }
+                if (charConfig.energy.selectedAction.sound) {
+                    hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingArmor, { volume: 0.5 });
+                    hitSound.play();
+                }
             } else if (enemyCharConfig.naturalArmor > 0) {
                 enemyCharConfig.naturalArmor--;
                 StatusIconConfig.showArmorIcon(game, enemy, 1);
+                if (charConfig.energy.selectedAction.sound) {
+                    hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingFlesh, { volume: 0.5 });
+                    hitSound.play();
+                }
             }
         } else {
             _.each(charConfig.energy.selectedAction.damage, function (damage) {
@@ -181,23 +226,43 @@ export const ActionManager = function (game) {
                     if (enemyCharConfig.resistances.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
                         StatusIconConfig.showLifeIcon(game, enemy, Math.ceil(attackDamage / 2));
+                        if (charConfig.energy.selectedAction.sound) {
+                            hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingFlesh, { volume: 0.5 });
+                            hitSound.play();
+                        }
                     } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= (attackDamage * 2);
                         StatusIconConfig.showLifeIcon(game, enemy, attackDamage * 2);
+                        if (charConfig.energy.selectedAction.sound) {
+                            hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingFlesh, { volume: 0.5 });
+                            hitSound.play();
+                        }
                     } else {
                         enemyCharConfig.life.current -= attackDamage;
                         StatusIconConfig.showLifeIcon(game, enemy, attackDamage);
+                        if (charConfig.energy.selectedAction.sound) {
+                            hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingFlesh, { volume: 0.5 });
+                            hitSound.play();
+                        }
                     }
                 }
                 if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
                     if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
                         StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
+                        if (charConfig.energy.selectedAction.sound) {
+                            hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingArmor, { volume: 0.5 });
+                            hitSound.play();
+                        }
                     }
                 } else if (enemyCharConfig.naturalArmor > 0) {
                     enemyCharConfig.naturalArmor -= Math.ceil(attackDamage / 2);
                     StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
                     if (enemyCharConfig.naturalArmor < 0) {
                         enemyCharConfig.naturalArmor = 0;
+                    }
+                    if (charConfig.energy.selectedAction.sound) {
+                        hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingFlesh, { volume: 0.5 });
+                        hitSound.play();
                     }
                 }
             });

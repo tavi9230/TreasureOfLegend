@@ -237,6 +237,15 @@
     <Content Include="App_Data\Images\Tileset\tileset9.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\Aniwars\audio\background_combat_1.mp3" />
+    <Content Include="Assets\Aniwars\audio\drink_well.mp3" />
+    <Content Include="Assets\Aniwars\audio\drop_item.wav" />
+    <Content Include="Assets\Aniwars\audio\lootbag_open.wav" />
+    <Content Include="Assets\Aniwars\audio\open_door.wav" />
+    <Content Include="Assets\Aniwars\audio\pickup.wav" />
+    <Content Include="Assets\Aniwars\audio\sword_clang.wav" />
+    <Content Include="Assets\Aniwars\audio\sword_flesh.wav" />
+    <Content Include="Assets\Aniwars\audio\walk_stone.mp3" />
     <Content Include="Assets\Aniwars\buttons\circle.png" />
     <Content Include="Assets\Aniwars\buttons\closeButton.png" />
     <Content Include="Assets\Aniwars\buttons\endTurnButton.png" />

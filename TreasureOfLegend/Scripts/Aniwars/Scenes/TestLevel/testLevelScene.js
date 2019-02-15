@@ -10,6 +10,8 @@ export const TestLevelScene = function () {
         },
         preload() { },
         create() {
+            this.backgroundMusic = this.sound.add('background_combat_1', { volume: 0.1 });
+            this.backgroundMusic.setLoop(true);
             this.debugMode = true;
             this.sceneManager = new SceneManager(this);
             this.sceneManager.createMap(MapConfig.level0);
@@ -25,6 +27,7 @@ export const TestLevelScene = function () {
             this.input.mouse.capture = true;
             this.createKeys();
             this.events.emit('showCharacterInitiative', this.initiative);
+            this.backgroundMusic.play();
         },
         update() {
             this.sceneManager.checkManager();

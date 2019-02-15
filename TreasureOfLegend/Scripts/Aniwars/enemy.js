@@ -154,12 +154,17 @@ export const Enemy = function (game) {
                 charConfig.movement.spent++;
                 StatusIconConfig.showMovementIcon(this.game, currentCharacter, 1);
                 charConfig.movement.isMoving = true;
-                //var tile = this.game.activeMap.tiles.getChildren().find(function (tile) {
-                //    return tile.x === x && tile.y === y;
-                //});
+                var tile = this.game.activeMap.tiles.getChildren().find(function (tile) {
+                    return tile.x === x && tile.y === y;
+                });
+                if (tile) {
+                    var walkSound = game.sound.add(tile.objectConfig.sound, { volume: 0.5 });
+                    walkSound.play();
+                }
                 this.game.cameras.main.startFollow(currentCharacter, true, 0.09, 0.09);
                 var onCompleteHandler = function () {
                     game.tweens.killAll();
+                    walkSound.destroy();
                     setTimeout(function () {
                         self.game.cameras.main.stopFollow();
                         charConfig.movement.isMoving = false;

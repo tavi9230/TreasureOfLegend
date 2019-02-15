@@ -183,9 +183,9 @@ export const HUDCharacterStatus = function (scene) {
         var vulnerabilities = '', text;
         for (let i = 0; i < charConfig[type].length; i++) {
             if (i !== charConfig[type].length - 1) {
-                vulnerabilities += damageArray[charConfig[type][i]] + ', ';
+                vulnerabilities += damageArray[charConfig[type][i] - 1] + ', ';
             } else {
-                vulnerabilities += damageArray[charConfig[type][i]];
+                vulnerabilities += damageArray[charConfig[type][i] - 1];
             }
         }
         text = game.add.text(x, y, textToShow + vulnerabilities, textStyle);

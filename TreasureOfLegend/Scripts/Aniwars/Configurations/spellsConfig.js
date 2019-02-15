@@ -17,6 +17,10 @@ export const SpellsConfig = {
         level: 0,
         maxLevel: 1,
         isPassive: false,
-        isSpell: true
+        isSpell: true,
+        sound: {
+            hittingArmor: 'sword_clang',
+            hittingFlesh: 'sword_flesh'
+        }
     }
 };
