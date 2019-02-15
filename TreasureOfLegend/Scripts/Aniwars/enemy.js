@@ -368,6 +368,7 @@ export const Enemy = function (game) {
             }
         }
         auxMap[objY / 50][objX / 50] = 0;
+        // TODO: try to use Pathfinder.getPathFromAToB since in TestLevelScene the mana well cannot be reached when enemy.x > well.x
         path = Pathfinder.findWay(currentCharacter.x / 50,
             currentCharacter.y / 50,
             objX / 50,
