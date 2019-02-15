@@ -76,7 +76,7 @@ export const EnemyConfig = {
         naturalArmor: 0,
         life: '1d1',
         energy: 3,
-        mana: '2d4',
+        mana: '1d4',
         movement: 6,
         attributes: {
             strength: 0,
@@ -86,7 +86,8 @@ export const EnemyConfig = {
         image: 'character',
         experience: 500,
         souls: 200,
-        traits: [EnumHelper.traitEnum.magic],
+        //traits: [EnumHelper.traitEnum.magic],
+        traits: [],
         resistances: [],
         vulnerabilities: [],
         invulnerabilities: [],

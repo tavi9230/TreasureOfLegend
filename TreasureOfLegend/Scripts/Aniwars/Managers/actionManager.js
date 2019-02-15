@@ -313,6 +313,7 @@ export const ActionManager = function (game) {
     this.checkLineOfSight = function (character, enemy) {
         var projectileLines = this._checkProjectileSuccess(character, enemy);
         projectileLines.linePoints.shift();
+        // TODO: projectileLines.linePoints.length < character.characterConfig.lineOfSight is correct when enemy is below character
         return projectileLines.isFound && projectileLines.linePoints.length <= character.characterConfig.lineOfSight
             ?
             {

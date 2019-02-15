@@ -4,8 +4,9 @@ import { ActionManager } from 'Aniwars/Managers/actionManager';
 import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
 import { StatusIconConfig } from 'Aniwars/Configurations/statusIconConfig';
 
-export const Enemy = function (game) {
-    var actionManager = new ActionManager(game);
+export const Enemy = function (scene) {
+    var game = scene,
+        actionManager = new ActionManager(game);
 
     this.characterConfig = {
         life: {
@@ -64,12 +65,11 @@ export const Enemy = function (game) {
         souls: 5,
         level: 1
     };
-    this.game = game;
-    this.map = this.game.activeMap;
-    this.characters = this.game.add.group();
+    this.map = game.activeMap;
+    this.characters = game.add.group();
 
     this.addNewCharacter = (x, y, config) => {
-        var character = this.game.physics.add.sprite(x, y, config.image).setOrigin(0, 0);
+        var character = game.physics.add.sprite(x, y, config.image).setOrigin(0, 0);
         character.characterConfig = lodash.cloneDeep(this.characterConfig);
         var charConfig = character.characterConfig;
         charConfig.posX = x;
@@ -145,32 +145,31 @@ export const Enemy = function (game) {
     };
 
     this.moveActiveCharacterToPosition = (x, y) => {
-        var currentCharacter = this.game.activeCharacter,
-            charConfig = currentCharacter.characterConfig,
-            self = this;
+        var currentCharacter = game.activeCharacter,
+            charConfig = currentCharacter.characterConfig;
         if (!charConfig.movement.isMoving && (currentCharacter.x !== x || currentCharacter.y !== y)) {
             // Move if tile is unoccupied
             if (!this._isTileOccupied(x, y)) {
                 charConfig.movement.spent++;
-                StatusIconConfig.showMovementIcon(this.game, currentCharacter, 1);
+                StatusIconConfig.showMovementIcon(game, currentCharacter, 1);
                 charConfig.movement.isMoving = true;
-                var tile = this.game.activeMap.tiles.getChildren().find(function (tile) {
+                var tile = game.activeMap.tiles.getChildren().find(function (tile) {
                     return tile.x === x && tile.y === y;
                 });
                 if (tile) {
                     var walkSound = game.sound.add(tile.objectConfig.sound, { volume: 0.5 });
                     walkSound.play();
                 }
-                this.game.cameras.main.startFollow(currentCharacter, true, 0.09, 0.09);
+                game.cameras.main.startFollow(currentCharacter, true, 0.09, 0.09);
                 var onCompleteHandler = function () {
                     game.tweens.killAll();
                     if (walkSound) {
                         walkSound.destroy();
                     }
                     setTimeout(function () {
-                        self.game.cameras.main.stopFollow();
+                        game.cameras.main.stopFollow();
                         charConfig.movement.isMoving = false;
-                        self.game.events.emit('showCharacterInitiative', game.initiative);
+                        game.events.emit('showCharacterInitiative', game.initiative);
                     }, 5);
                 };
                 game.tweens.add({
@@ -188,28 +187,20 @@ export const Enemy = function (game) {
     };
 
     this.getPathsToEnemies = (seenCharacters) => {
-        var self = this,
-            currentCharacter = this.game.activeCharacter,
+        var currentCharacter = game.activeCharacter,
             paths = [],
-            auxMap = this.game.activeMap.addEnemiesToMap(this.game.characters);
+            auxMap = game.activeMap.addEnemiesToMap(game.characters);
         if (seenCharacters && seenCharacters.length > 0) {
-            var path = self._getPathToEnemy(auxMap, currentCharacter, seenCharacters[0].character);
+            var path = this._getPathToEnemy(auxMap, currentCharacter, seenCharacters[0].character);
             if (path.length > 0) {
                 paths.push({ path: path, enemy: seenCharacters[0].character });
             }
         } else {
-            //This gets the closest enemy
-            //_.each(this.game.characters.characters.getChildren(), function (character) {
-            //    var path = self._getPathToEnemy(auxMap, currentCharacter, character);
-            //    if (path) {
-            //        paths.push({ path: path, enemy: character });
-            //    }
-            //});
             var randX, randY, tile, isFound = false;
             while (!isFound) {
-                randY = Math.floor(Math.random() * this.game.activeMap.levelMap.length) * 50;
-                randX = Math.floor(Math.random() * this.game.activeMap.levelMap[0].length) * 50;
-                tile = this.game.activeMap.tiles.getChildren().find(function (tile) {
+                randY = Math.floor(Math.random() * game.activeMap.levelMap.length) * 50;
+                randX = Math.floor(Math.random() * game.activeMap.levelMap[0].length) * 50;
+                tile = game.activeMap.tiles.getChildren().find(function (tile) {
                     return tile.x === randX && tile.y === randY;
                 });
                 if (tile) {
@@ -217,7 +208,7 @@ export const Enemy = function (game) {
                 }
             }
 
-            var path = self._getPathToEnemy(auxMap, currentCharacter, tile);
+            var path = this._getPathToEnemy(auxMap, currentCharacter, tile);
             if (path.length > 0) {
                 paths.push({ path: path, enemy: tile });
             }
@@ -234,10 +225,10 @@ export const Enemy = function (game) {
     };
 
     this.getPathsToClosestDoor = () => {
-        var currentCharacter = this.game.activeCharacter;
+        var currentCharacter = game.activeCharacter;
         var paths = [];
-        var auxMap = this.game.activeMap.addEnemiesToMap(this.game.characters);
-        _.each(this.game.activeMap.objects.getChildren(), function (object) {
+        var auxMap = game.activeMap.addEnemiesToMap(game.characters);
+        _.each(game.activeMap.objects.getChildren(), function (object) {
             if (Math.floor(object.objectConfig.id) === Math.floor(EnumHelper.idEnum.door.id)) {
                 if (!object.objectConfig.isActivated) {
                     auxMap[object.y / 50][object.x / 50] = 0;
@@ -271,35 +262,31 @@ export const Enemy = function (game) {
     };
 
     this.interactWithObject = (object) => {
-        var realCoords = this.game.activeMap.getObjRealCoords(object);
+        var realCoords = game.activeMap.getObjRealCoords(object);
         object.x = realCoords.x;
         object.y = realCoords.y;
         actionManager.interactWithObject(object);
     };
 
     this.check = () => {
-        if (this.game.activeCharacter.characterConfig.traits.indexOf(EnumHelper.traitEnum.standard) !== -1) {
-            this._doStandardActions(this.game.activeCharacter);
-        } else if (this.game.activeCharacter.characterConfig.traits.indexOf(EnumHelper.traitEnum.magic) !== -1) {
-            this._doStandardMagicActions(this.game.activeCharacter);
-        }
+        this._doActions(game.activeCharacter);
     };
 
     // Private -----------------------------------------------------------------------------------------------------
     this._isTileOccupied = (posX, posY) => {
-        var isObstacleInTheWay = this.game.characters.characters.getChildren().filter(function (character) {
+        var isObstacleInTheWay = game.characters.characters.getChildren().filter(function (character) {
             return character.x === posX && character.y === posY;
         });
         if (isObstacleInTheWay.length > 0) {
             return true;
         }
-        isObstacleInTheWay = this.game.enemies.characters.getChildren().filter(function (enemy) {
+        isObstacleInTheWay = game.enemies.characters.getChildren().filter(function (enemy) {
             return enemy.x === posX && enemy.y === posY;
         });
         if (isObstacleInTheWay.length > 0) {
             return true;
         }
-        isObstacleInTheWay = this.game.activeMap.objects.getChildren().filter(function (object) {
+        isObstacleInTheWay = game.activeMap.objects.getChildren().filter(function (object) {
             if (object.x === posX && object.y === posY) {
                 //if object is a door check if it is open/activated
                 if (Math.floor(object.objectConfig.id) === Math.floor(EnumHelper.idEnum.door.id) && !object.objectConfig.isActivated) {
@@ -317,7 +304,7 @@ export const Enemy = function (game) {
 
     this._checkLineOfSight = function (currentCharacter) {
         var seenCharacters = [];
-        _.each(this.game.characters.characters.getChildren(), function (character) {
+        _.each(game.characters.characters.getChildren(), function (character) {
             var lineOfSight = actionManager.checkLineOfSight(currentCharacter, character);
             if (lineOfSight.hasBeenSeen) {
                 seenCharacters.push({ character: character, distance: lineOfSight.distance });
@@ -352,8 +339,8 @@ export const Enemy = function (game) {
     };
 
     this._getPathToObject = function (object) {
-        var currentCharacter = this.game.activeCharacter,
-            auxMap = this.game.activeMap.addEnemiesToMap(this.game.characters),
+        var currentCharacter = game.activeCharacter,
+            auxMap = game.activeMap.addEnemiesToMap(game.characters),
             path,
             objX = object.x,
             objY = object.y;
@@ -385,102 +372,9 @@ export const Enemy = function (game) {
 
     // TODO: Split this into multiple methods
     // TODO: If you get out of the enemy's line of sight they should "hunt" you for 1 or more number of turns and then resume a random path or predetermined one
-    this._doStandardActions = (currentCharacter) => {
+    this._doActions = (currentCharacter) => {
         var charConfig = currentCharacter.characterConfig,
-            enemies = this.game.enemies;
-
-        if (!charConfig.movement.isMoving) {
-            var hasAttacked = false,
-                hasInteracted = false,
-                hasMoved = false,
-                seenCharacters = this._checkLineOfSight(currentCharacter);
-            // If enemy cannot move, try attacking
-            if (charConfig.energy.max - charConfig.energy.spent > 1 && seenCharacters.length > 0) {
-                var closestEnemy = enemies.getPathsToEnemies(seenCharacters);
-                closestEnemy[0].path.pop();
-                if (closestEnemy.length > 0 && closestEnemy[0].path.length <= charConfig.inventory.mainHand.range) {
-                    if (charConfig.inventory.mainHand.hold === 2 && charConfig.inventory.offHand.armor) {
-                        // TODO: Drop offhand if it is an armor (or put in inventory if you can?) and then attack
-                        var item = charConfig.inventory.offHand,
-                            itemImage = this.game.physics.add.sprite(currentCharacter.x, currentCharacter.y, item.image).setOrigin(0, 0);
-                        itemImage.displayWidth = 50;
-                        itemImage.displayHeight = 50;
-                        itemImage.width = 50;
-                        itemImage.height = 50;
-                        this.game.input.setHitArea([itemImage]);
-                        itemImage.on('pointerdown', _.bind(this.game.sceneManager._pickUpItem, self, itemImage));
-                        itemImage.on('pointerover', _.bind(this.game.sceneManager._hoverItem, self, itemImage));
-                        itemImage.itemConfig = lodash.cloneDeep(item);
-                        this.game.items.add(itemImage);
-                        charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
-                        currentCharacter.setDepth(1);
-                    }
-                    charConfig.energy.actionId = EnumHelper.actionEnum.attackMainHand;
-                    this.interactWithEnemy(closestEnemy[0].enemy);
-                    hasAttacked = true;
-                }
-            }
-            // or opening a door
-            if (charConfig.energy.max - charConfig.energy.spent > 0) {
-                var closestDoor = enemies.getPathsToClosestDoor();
-                if (closestDoor.length > 0) {
-                    if (closestDoor[0].path.length === 1) {
-                        this.interactWithObject(closestDoor[0].object);
-                        hasInteracted = true;
-                    }
-                }
-            }
-
-            // If enemy has movement left. Maybe move until doing an action or moving when trying to go to cover?
-            if (charConfig.movement.max - charConfig.movement.spent > 0) {
-                // If it does not have a path
-                if (charConfig.path.length > 0 && seenCharacters.length <= 0) {
-                    // Move on the path
-                    var path = lodash.cloneDeep(charConfig.path);
-                    charConfig.posX = charConfig.path[0][0] * 50;
-                    charConfig.posY = charConfig.path[0][1] * 50;
-                    charConfig.path.shift();
-                    hasMoved = enemies.moveActiveCharacterToPosition(path[0][0] * 50, path[0][1] * 50);
-                } else {
-                    var paths = enemies.getPathsToEnemies(seenCharacters);
-                    if (paths.length > 0 && paths[0].path.length > 0) {
-                        // Get the path to the closest seen character
-                        if (paths[0].path.length > charConfig.inventory.mainHand.range) {
-                            charConfig.path = paths[0].path;
-                            charConfig.posX = charConfig.path[0][0] * 50;
-                            charConfig.posY = charConfig.path[0][1] * 50;
-                            charConfig.path.shift();
-                            // And move
-                            hasMoved = enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
-                        }
-                    } else {
-                        // If no path is found to a character it might mean we are stuck in a room
-                        paths = enemies.getPathsToClosestDoor();
-                        if (paths.length > 0 && paths[0].path.length > 0) {
-                            charConfig.path = paths[0].path;
-                            charConfig.posX = charConfig.path[0][0] * 50;
-                            charConfig.posY = charConfig.path[0][1] * 50;
-                            charConfig.path.shift();
-                            hasMoved = enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
-                        }
-                    }
-                }
-            } else {
-                // If no more movement, remove path in case player characters move
-                if (seenCharacters.length > 0) {
-                    charConfig.path = [];
-                }
-            }
-        }
-
-        if (!hasAttacked && !hasInteracted && !hasMoved) {
-            this.game.events.emit('endEnemyTurn');
-        }
-    };
-
-    this._doStandardMagicActions = (currentCharacter) => {
-        var charConfig = currentCharacter.characterConfig,
-            enemies = this.game.enemies,
+            enemies = game.enemies,
             selectedAction = null;
 
         //If enemy is not moving
@@ -501,52 +395,79 @@ export const Enemy = function (game) {
                     // get path to closest
                     var closestEnemy = enemies.getPathsToEnemies(seenCharacters);
                     closestEnemy[0].path.pop();
+                    charConfig.path = closestEnemy[0].path;
                     // if enemy has spells
-                    if (spells.length > 0) {
-                        // get random spell
-                        var useSpell = spells[Math.floor(Math.random() * spells.length)];
-                        // if enemy has enough mana
-                        if (charConfig.mana.max - charConfig.mana.spent >= useSpell.cost) {
-                            // if enemy is close enough to attack, attack
-                            if (closestEnemy.length > 0 && closestEnemy[0].path.length <= useSpell.range) {
-                                charConfig.energy.actionId = EnumHelper.actionEnum.attackSpell;
-                                charConfig.energy.selectedAction = useSpell;
-                                selectedAction = charConfig.energy.selectedAction;
-                                this.interactWithEnemy(closestEnemy[0].enemy);
-                                hasAttacked = true;
+                    if (charConfig.traits.indexOf(EnumHelper.traitEnum.magic) !== -1) {
+                        if (spells.length > 0) {
+                            // get random spell
+                            var useSpell = spells[Math.floor(Math.random() * spells.length)];
+                            // if enemy has enough mana
+                            if (charConfig.mana.max - charConfig.mana.spent >= useSpell.cost) {
+                                // if enemy is close enough to attack, attack
+                                if (closestEnemy.length > 0 && closestEnemy[0].path.length <= useSpell.range) {
+                                    charConfig.energy.actionId = EnumHelper.actionEnum.attackSpell;
+                                    charConfig.energy.selectedAction = useSpell;
+                                    selectedAction = charConfig.energy.selectedAction;
+                                    this.interactWithEnemy(closestEnemy[0].enemy);
+                                    hasAttacked = true;
+                                }
+                                // else move to enemy?
                             }
-                            // else move to enemy?
-                        }
-                        // check if we have a mana well
-                        else {
-                            var manaWell = game.activeMap.objects.getChildren().find(function (object) {
-                                return object.objectConfig.id === EnumHelper.idEnum.well.type.mana;
-                            });
-                            if (manaWell.objectConfig.description === 'Empty well') {
-                                manaWell = null;
-                            }
-                            // if we have a mana well
-                            if (manaWell) {
-                                // get path to well
-                                var pathToWell = this._getPathToObject(manaWell);
-                                charConfig.path = pathToWell;
-                                // if well is further than enemy
-                                if (pathToWell.length > closestEnemy[0].path.length) {
-                                    // get path to enemy and attack
-                                    charConfig.path = closestEnemy[0].path;
+                            // check if we have a mana well
+                            else {
+                                var manaWell = game.activeMap.objects.getChildren().find(function (object) {
+                                    return object.objectConfig.id === EnumHelper.idEnum.well.type.mana;
+                                });
+                                if (manaWell.objectConfig.description === 'Empty well') {
+                                    manaWell = null;
+                                }
+                                // if we have a mana well
+                                if (manaWell) {
+                                    // get path to well
+                                    var pathToWell = this._getPathToObject(manaWell);
+                                    charConfig.path = pathToWell;
+                                    // if well is further than enemy
+                                    if (pathToWell.length > closestEnemy[0].path.length) {
+                                        // get path to enemy and attack
+                                        charConfig.path = closestEnemy[0].path;
+                                        if (charConfig.inventory.mainHand.hold === 2 && charConfig.inventory.offHand.armor) {
+                                            // TODO: Drop offhand if it is an armor (or put in inventory if you can?) and then attack
+                                            var item = charConfig.inventory.offHand,
+                                                itemImage = game.physics.add.sprite(currentCharacter.x, currentCharacter.y, item.image).setOrigin(0, 0);
+                                            itemImage.displayWidth = 50;
+                                            itemImage.displayHeight = 50;
+                                            itemImage.width = 50;
+                                            itemImage.height = 50;
+                                            game.input.setHitArea([itemImage]);
+                                            itemImage.on('pointerdown', _.bind(game.sceneManager._pickUpItem, this, itemImage));
+                                            itemImage.on('pointerover', _.bind(game.sceneManager._hoverItem, this, itemImage));
+                                            itemImage.itemConfig = lodash.cloneDeep(item);
+                                            game.items.add(itemImage);
+                                            charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
+                                            currentCharacter.setDepth(1);
+                                        }
+                                        charConfig.energy.actionId = EnumHelper.actionEnum.attackMainHand;
+                                        charConfig.energy.selectedAction = charConfig.inventory.mainHand;
+                                        selectedAction = charConfig.energy.selectedAction;
+                                        this.interactWithEnemy(closestEnemy[0].enemy);
+                                        hasAttacked = true;
+                                    }
+                                }
+                                // if no mana well, try to attack with weapon
+                                else {
                                     if (charConfig.inventory.mainHand.hold === 2 && charConfig.inventory.offHand.armor) {
                                         // TODO: Drop offhand if it is an armor (or put in inventory if you can?) and then attack
                                         var item = charConfig.inventory.offHand,
-                                            itemImage = this.game.physics.add.sprite(currentCharacter.x, currentCharacter.y, item.image).setOrigin(0, 0);
+                                            itemImage = game.physics.add.sprite(currentCharacter.x, currentCharacter.y, item.image).setOrigin(0, 0);
                                         itemImage.displayWidth = 50;
                                         itemImage.displayHeight = 50;
                                         itemImage.width = 50;
                                         itemImage.height = 50;
-                                        this.game.input.setHitArea([itemImage]);
-                                        itemImage.on('pointerdown', _.bind(this.game.sceneManager._pickUpItem, self, itemImage));
-                                        itemImage.on('pointerover', _.bind(this.game.sceneManager._hoverItem, self, itemImage));
+                                        game.input.setHitArea([itemImage]);
+                                        itemImage.on('pointerdown', _.bind(game.sceneManager._pickUpItem, this, itemImage));
+                                        itemImage.on('pointerover', _.bind(game.sceneManager._hoverItem, this, itemImage));
                                         itemImage.itemConfig = lodash.cloneDeep(item);
-                                        this.game.items.add(itemImage);
+                                        game.items.add(itemImage);
                                         charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
                                         currentCharacter.setDepth(1);
                                     }
@@ -557,30 +478,6 @@ export const Enemy = function (game) {
                                     hasAttacked = true;
                                 }
                             }
-                            // if no mana well, try to attack with weapon
-                            else {
-                                if (charConfig.inventory.mainHand.hold === 2 && charConfig.inventory.offHand.armor) {
-                                    // TODO: Drop offhand if it is an armor (or put in inventory if you can?) and then attack
-                                    var item = charConfig.inventory.offHand,
-                                        itemImage = this.game.physics.add.sprite(currentCharacter.x, currentCharacter.y, item.image).setOrigin(0, 0);
-                                    itemImage.displayWidth = 50;
-                                    itemImage.displayHeight = 50;
-                                    itemImage.width = 50;
-                                    itemImage.height = 50;
-                                    this.game.input.setHitArea([itemImage]);
-                                    itemImage.on('pointerdown', _.bind(this.game.sceneManager._pickUpItem, self, itemImage));
-                                    itemImage.on('pointerover', _.bind(this.game.sceneManager._hoverItem, self, itemImage));
-                                    itemImage.itemConfig = lodash.cloneDeep(item);
-                                    this.game.items.add(itemImage);
-                                    charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
-                                    currentCharacter.setDepth(1);
-                                }
-                                charConfig.energy.actionId = EnumHelper.actionEnum.attackMainHand;
-                                charConfig.energy.selectedAction = charConfig.inventory.mainHand;
-                                selectedAction = charConfig.energy.selectedAction;
-                                this.interactWithEnemy(closestEnemy[0].enemy);
-                                hasAttacked = true;
-                            }
                         }
                     }
                     // if no spells, try to attack with weapon
@@ -588,16 +485,16 @@ export const Enemy = function (game) {
                         if (charConfig.inventory.mainHand.hold === 2 && charConfig.inventory.offHand.armor) {
                             // TODO: Drop offhand if it is an armor (or put in inventory if you can?) and then attack
                             var item = charConfig.inventory.offHand,
-                                itemImage = this.game.physics.add.sprite(currentCharacter.x, currentCharacter.y, item.image).setOrigin(0, 0);
+                                itemImage = game.physics.add.sprite(currentCharacter.x, currentCharacter.y, item.image).setOrigin(0, 0);
                             itemImage.displayWidth = 50;
                             itemImage.displayHeight = 50;
                             itemImage.width = 50;
                             itemImage.height = 50;
-                            this.game.input.setHitArea([itemImage]);
-                            itemImage.on('pointerdown', _.bind(this.game.sceneManager._pickUpItem, self, itemImage));
-                            itemImage.on('pointerover', _.bind(this.game.sceneManager._hoverItem, self, itemImage));
+                            game.input.setHitArea([itemImage]);
+                            itemImage.on('pointerdown', _.bind(game.sceneManager._pickUpItem, this, itemImage));
+                            itemImage.on('pointerover', _.bind(game.sceneManager._hoverItem, this, itemImage));
                             itemImage.itemConfig = lodash.cloneDeep(item);
-                            this.game.items.add(itemImage);
+                            game.items.add(itemImage);
                             charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
                             currentCharacter.setDepth(1);
                         }
@@ -620,32 +517,34 @@ export const Enemy = function (game) {
                     }
                 }
                 // if enemy has energy left, try to drink from mana well if near one
-                if (charConfig.energy.max - charConfig.energy.spent > 0) {
-                    var manaWell = game.activeMap.objects.getChildren().find(function (object) {
-                        return object.objectConfig.id === EnumHelper.idEnum.well.type.mana;
-                    });
-                    if (manaWell.objectConfig.description === 'Empty well') {
-                        manaWell = null;
-                    }
-                    // if we have a mana well
-                    if (manaWell) {
-                        // get path to well
-                        var pathToWell = this._getPathToObject(manaWell);
-                        if (pathToWell.length > 0 && pathToWell.length <= 1) {
-                            this.interactWithObject(manaWell);
-                            if (manaWell.objectConfig.description !== 'Empty well') {
-                                hasInteracted = true;
-                            }
-                            if (pathToWell.length === charConfig.path.length) {
-                                var isSamePath = true;
-                                for (let i = 0; i < pathToWell.length; i++) {
-                                    if (pathToWell[i][0] !== charConfig.path[i][0] ||
-                                        pathToWell[i][1] !== charConfig.path[i][1]) {
-                                        isSamePath = false;
-                                    }
+                if (charConfig.traits.indexOf(EnumHelper.traitEnum.magic) !== -1) {
+                    if (charConfig.energy.max - charConfig.energy.spent > 0) {
+                        var manaWell = game.activeMap.objects.getChildren().find(function (object) {
+                            return object.objectConfig.id === EnumHelper.idEnum.well.type.mana;
+                        });
+                        if (manaWell.objectConfig.description === 'Empty well') {
+                            manaWell = null;
+                        }
+                        // if we have a mana well
+                        if (manaWell) {
+                            // get path to well
+                            var pathToWell = this._getPathToObject(manaWell);
+                            if (pathToWell.length > 0 && pathToWell.length <= 1) {
+                                this.interactWithObject(manaWell);
+                                if (manaWell.objectConfig.description !== 'Empty well') {
+                                    hasInteracted = true;
                                 }
-                                if (isSamePath) {
-                                    charConfig.path = [];
+                                if (pathToWell.length === charConfig.path.length) {
+                                    var isSamePath = true;
+                                    for (let i = 0; i < pathToWell.length; i++) {
+                                        if (pathToWell[i][0] !== charConfig.path[i][0] ||
+                                            pathToWell[i][1] !== charConfig.path[i][1]) {
+                                            isSamePath = false;
+                                        }
+                                    }
+                                    if (isSamePath) {
+                                        charConfig.path = [];
+                                    }
                                 }
                             }
                         }
@@ -664,8 +563,9 @@ export const Enemy = function (game) {
                 // only move if the range of the attack is lower than the path to the enemy
                 // TODO: check why charConfig.path varies with +/- 1
                 if (charConfig.path.length >= selectedAction.range) {
-                    // If no path, no seen characters and no mana, try to get mana from well
-                    if (charConfig.path.length === 0 && seenCharacters.length <= 0 && spells.length > 0 && charConfig.mana.max - charConfig.mana.spent <= 0) {
+                    // If no path, no seen characters and no mana, try to get mana from well and enemy magic inclined
+                    if (charConfig.path.length === 0 && seenCharacters.length <= 0 && spells.length > 0 && charConfig.mana.max - charConfig.mana.spent !== charConfig.mana.max
+                        && charConfig.traits.indexOf(EnumHelper.traitEnum.magic) !== -1) {
                         var manaWell = game.activeMap.objects.getChildren().find(function (object) {
                             return object.objectConfig.id === EnumHelper.idEnum.well.type.mana;
                         });
@@ -745,7 +645,7 @@ export const Enemy = function (game) {
         }
 
         if (!hasAttacked && !hasInteracted && !hasMoved) {
-            this.game.events.emit('endEnemyTurn');
+            game.events.emit('endEnemyTurn');
         }
     };
 };
