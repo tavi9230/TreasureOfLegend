@@ -11,6 +11,7 @@ export const TestLevelScene = function () {
         preload() { },
         create() {
             this.backgroundMusic = this.sound.add('background_combat_1', { volume: 0.1 });
+			// TODO: Loop does not work?
             this.backgroundMusic.setLoop(true);
             this.debugMode = true;
             this.sceneManager = new SceneManager(this);
