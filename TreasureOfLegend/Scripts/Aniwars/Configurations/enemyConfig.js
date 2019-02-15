@@ -1,5 +1,6 @@
 ﻿import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
-import {InventoryConfig} from 'Aniwars/Configurations/inventoryConfig';
+import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
+import { SpellsConfig } from 'Aniwars/Configurations/spellsConfig';
 
 var mainHandArray = [InventoryConfig.defaultMainHand, InventoryConfig.shortsword, InventoryConfig.bow];
 var offHandArray = [InventoryConfig.defaultMainHand, InventoryConfig.shield];
@@ -58,6 +59,10 @@ var inventoryGetter = {
             default:
                 return _getItem(mainHandArray);
         }
+    },
+    getSpell: function (spell) {
+        spell.level++;
+        return spell;
     }
 };
 
@@ -71,7 +76,7 @@ export const EnemyConfig = {
         naturalArmor: 0,
         life: '1d1',
         energy: 3,
-        mana: '0d4',
+        mana: '2d4',
         movement: 6,
         attributes: {
             strength: 0,
@@ -81,7 +86,7 @@ export const EnemyConfig = {
         image: 'character',
         experience: 500,
         souls: 200,
-        traits: [EnumHelper.traitEnum.standard],
+        traits: [EnumHelper.traitEnum.magic],
         resistances: [],
         vulnerabilities: [],
         invulnerabilities: [],
@@ -96,7 +101,7 @@ export const EnemyConfig = {
                 var rand = Math.random() * 20;
                 return Math.floor(rand);
             },
-            spells: [],
+            spells: [inventoryGetter.getSpell(SpellsConfig.firebolt)],
             mainHand: inventoryGetter.getMainHandItem,
             offHand: inventoryGetter.getOffHandItem,
             head: inventoryGetter.getHeadItem,

@@ -50,7 +50,8 @@
         fire: 4
     },
     traitEnum: {
-        standard: 0
+        standard: 0,
+        magic: 1
     },
     actionEnum: {
         attackMainHand: 1,
