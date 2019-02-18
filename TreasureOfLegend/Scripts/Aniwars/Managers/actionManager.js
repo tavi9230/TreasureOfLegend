@@ -460,6 +460,9 @@ export const ActionManager = function (game) {
     };
 
     this._removeArmorPointsFromEquippedInventory = (enemy, value) => {
+        // TODO: remove durability points from EVERYTHING except default stuff.
+        // if armor piece, it will lose 1/3 (2/3) armor when 1/3 (2/3) durability is gone
+        // if weapon piece, it will lose 1/3 (2/3) attack power when 1/3 (2/3) durability is gone
         var pieceHit = Math.floor(Math.random() * 6) + 1,
             inventory = enemy.characterConfig.inventory,
             hasHit = false;
