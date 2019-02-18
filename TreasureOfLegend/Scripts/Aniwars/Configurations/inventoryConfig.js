@@ -18,6 +18,10 @@ export const InventoryConfig = {
         sound: {
             hittingArmor: 'sword_clang',
             hittingFlesh: 'sword_flesh'
+        },
+        durability: {
+            max: 0,
+            spent: 0
         }
     },
     defaultHead: {
@@ -26,7 +30,11 @@ export const InventoryConfig = {
         description: 'No head gear',
         slots: 0,
         armor: 0,
-        maxArmor: 0
+        maxArmor: 0,
+        durability: {
+            max: 0,
+            spent: 0
+        }
     },
     defaultBody: {
         type: EnumHelper.inventoryEnum.defaultEquipment,
@@ -34,7 +42,11 @@ export const InventoryConfig = {
         description: 'No body gear',
         slots: 0,
         armor: 0,
-        maxArmor: 0
+        maxArmor: 0,
+        durability: {
+            max: 0,
+            spent: 0
+        }
     },
     defaultHands: {
         type: EnumHelper.inventoryEnum.defaultEquipment,
@@ -42,7 +54,11 @@ export const InventoryConfig = {
         description: 'No hand gear',
         slots: 0,
         armor: 0,
-        maxArmor: 0
+        maxArmor: 0,
+        durability: {
+            max: 0,
+            spent: 0
+        }
     },
     defaultFeet: {
         type: EnumHelper.inventoryEnum.defaultEquipment,
@@ -50,7 +66,11 @@ export const InventoryConfig = {
         description: 'No feet gear',
         slots: 0,
         armor: 0,
-        maxArmor: 0
+        maxArmor: 0,
+        durability: {
+            max: 0,
+            spent: 0
+        }
     },
     bow: {
         name: 'Crude bow',
@@ -70,6 +90,10 @@ export const InventoryConfig = {
         sound: {
             hittingArmor: 'sword_clang',
             hittingFlesh: 'sword_flesh'
+        },
+        durability: {
+            max: 0,
+            spent: 0
         }
     },
     shortsword: {
@@ -90,6 +114,10 @@ export const InventoryConfig = {
         sound: {
             hittingArmor: 'sword_clang',
             hittingFlesh: 'sword_flesh'
+        },
+        durability: {
+            max: 0,
+            spent: 0
         }
     },
     head: {
@@ -99,7 +127,11 @@ export const InventoryConfig = {
         description: 'Head item',
         slots: 1,
         armor: 2,
-        maxArmor: 2
+        maxArmor: 2,
+        durability: {
+            max: 0,
+            spent: 0
+        }
     },
     shield: {
         name: 'Shield',
@@ -108,7 +140,11 @@ export const InventoryConfig = {
         description: 'Shield item',
         slots: 1,
         armor: 2,
-        maxArmor: 2
+        maxArmor: 2,
+        durability: {
+            max: 0,
+            spent: 0
+        }
     },
     chainmail: {
         name: 'Chainmail',
@@ -117,7 +153,11 @@ export const InventoryConfig = {
         description: 'Chainmail item',
         slots: 1,
         armor: 4,
-        maxArmor: 4
+        maxArmor: 4,
+        durability: {
+            max: 0,
+            spent: 0
+        }
     },
     hand: {
         name: 'Gloves',
@@ -126,7 +166,11 @@ export const InventoryConfig = {
         description: 'Hand item',
         slots: 1,
         armor: 1,
-        maxArmor: 1
+        maxArmor: 1,
+        durability: {
+            max: 0,
+            spent: 0
+        }
     },
     feet: {
         name: 'Boots',
@@ -135,6 +179,10 @@ export const InventoryConfig = {
         description: 'Feet item',
         slots: 1,
         armor: 1,
-        maxArmor: 1
+        maxArmor: 1,
+        durability: {
+            max: 0,
+            spent: 0
+        }
     }
 };

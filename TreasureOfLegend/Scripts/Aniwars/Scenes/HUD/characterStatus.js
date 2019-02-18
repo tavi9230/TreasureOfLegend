@@ -143,7 +143,7 @@ export const HUDCharacterStatus = function (scene) {
             var dexterityText = game.add.text(x + 10, y + 55, 'Dexterity: ' + charConfig.attributes.dexterity, textStyle);
             var intelligenceText = game.add.text(x + 10, y + 70, 'Intelligence: ' + charConfig.attributes.intelligence, textStyle);
 
-            var armorText = game.add.text(x + 10, y + 100, 'Armor total: ' + charConfig.armor, textStyle);
+            var armorText = game.add.text(x + 10, y + 100, 'Armor total: ' + (charConfig.armor + charConfig.attributes.dexterity), textStyle);
             var naturalArmorText = game.add.text(x + 10, y + 115, 'Natural Armor: ' + charConfig.attributes.dexterity, textStyle);
             var lifeText = game.add.text(x + 10, y + 130, 'Health: ' + charConfig.life.current + '/' + charConfig.life.max, textStyle);
             var manaText = game.add.text(x + 10, y + 145, 'Mana: ' + (charConfig.mana.max - charConfig.mana.spent) + '/' + charConfig.mana.max, textStyle);
