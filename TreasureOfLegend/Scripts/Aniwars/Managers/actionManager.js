@@ -1,12 +1,11 @@
 ﻿import { EnumHelper } from 'Aniwars/Helpers/enumHelper';
-import { Pathfinder } from 'Aniwars/Helpers/pathfinder';
 import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
 import { EnergyConfig } from 'Aniwars/Configurations/energyConfig';
 import { EnemyConfig } from 'Aniwars/Configurations/enemyConfig';
 import { StatusIconConfig } from 'Aniwars/Configurations/statusIconConfig';
 
-export const ActionManager = function (game) {
-    var game = game,
+export const ActionManager = function (scene) {
+    var game = scene,
         rangeLines = null;
 
     this.interactWithObject = (object) => {
@@ -31,6 +30,48 @@ export const ActionManager = function (game) {
         }
         return false;
     };
+
+    this.showRangeLines = function (character, enemy) {
+        var projectileLines = this._checkProjectileSuccess(character, enemy),
+            charConfig = character.characterConfig;
+        this.hideRangeLines();
+        rangeLines = game.add.group();
+        if (projectileLines.isFound && Math.abs(character.x - enemy.x) <= 50 * charConfig.energy.selectedAction.range &&
+            Math.abs(character.y - enemy.y) <= 50 * charConfig.energy.selectedAction.range &&
+            (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)) {
+            _.each(projectileLines.lines, function (line) {
+                rangeLines.add(game.add.line(0, 0, line.charX, line.charY, line.enemyX, line.enemyY, 0x00ff00).setOrigin(0, 0));
+            });
+        } else {
+            rangeLines.add(game.add.line(0, 0, character.x, character.y, enemy.x, enemy.y, 0xff0000).setOrigin(0, 0));
+        }
+    };
+
+    this.hideRangeLines = function () {
+        if (rangeLines) {
+            rangeLines.destroy(true);
+            rangeLines = null;
+        }
+    };
+
+    this.checkLineOfSight = function (character, enemy) {
+        var projectileLines = this._checkProjectileSuccess(character, enemy);
+        projectileLines.linePoints.shift();
+        // TODO: projectileLines.linePoints.length < character.characterConfig.lineOfSight is correct when enemy is below character
+        return projectileLines.isFound && projectileLines.linePoints.length <= character.characterConfig.lineOfSight
+            ?
+            {
+                hasBeenSeen: true,
+                distance: projectileLines.linePoints.length
+            }
+            :
+            {
+                hasBeenSeen: false,
+                distance: projectileLines.linePoints.length
+            };
+    };
+
+    // PRIVATE ----------------------------------------------------------------------------------------------------------------------------------------------
 
     // OBJECT INTERACTION -------------------------------------------------------------------------------------------------------------------
     this._interactWithDoor = (object) => {
@@ -111,101 +152,27 @@ export const ActionManager = function (game) {
     };
 
     //ENEMY INTERACTION --------------------------------------------------------------------------------------------------------------------
-    this._attackWithMainHand = (character, enemy) => {
+    this._tryAttack = (character, enemy, attackAttribute, isSpell) => {
         var self = this,
             charConfig = character.characterConfig,
             enemyCharConfig = enemy.characterConfig,
-            attackAttribute = EnumHelper.attributeEnum.strength === charConfig.inventory.mainHand.attribute
-                ? charConfig.attributes.strength
-                : charConfig.attributes.dexterity,
             d20 = Math.floor(Math.random() * 20) + 1 + attackAttribute,
             hitSound;
         if (d20 <= enemyCharConfig.armor) {
             if (enemyCharConfig.armor - enemyCharConfig.attributes.dexterity > 0) {
                 if (this._removeArmorPointsFromEquippedInventory(enemy, 1)) {
                     StatusIconConfig.showArmorIcon(game, enemy, 1);
-                    if (charConfig.inventory.mainHand.sound) {
-                        hitSound = game.sound.add(charConfig.inventory.mainHand.sound.hittingArmor, { volume: 0.5 });
+                    if (charConfig.energy.selectedAction.sound) {
+                        hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingArmor, { volume: 0.5 });
                         hitSound.play();
                     }
                 }
             }
             // else it's a miss? or calculate chance to miss or hit armor only?
         } else {
-            _.each(charConfig.inventory.mainHand.damage, function (damage) {
-                var attackDamage = Math.floor(Math.random() * damage.value) + 1 + Math.floor(attackAttribute / 2);
-                if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === -1) {
-                    if (enemyCharConfig.resistances.indexOf(damage.type) !== -1) {
-                        enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
-                        StatusIconConfig.showLifeIcon(game, enemy, Math.ceil(attackDamage / 2));
-                        if (charConfig.inventory.mainHand.sound) {
-                            hitSound = game.sound.add(charConfig.inventory.mainHand.sound.hittingFlesh, { volume: 0.5 });
-                            hitSound.play();
-                        }
-                    } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== -1) {
-                        enemyCharConfig.life.current -= (attackDamage * 2);
-                        StatusIconConfig.showLifeIcon(game, enemy, attackDamage * 2);
-                        if (charConfig.inventory.mainHand.sound) {
-                            hitSound = game.sound.add(charConfig.inventory.mainHand.sound.hittingFlesh, { volume: 0.5 });
-                            hitSound.play();
-                        }
-                    } else {
-                        enemyCharConfig.life.current -= attackDamage;
-                        StatusIconConfig.showLifeIcon(game, enemy, attackDamage);
-                        if (charConfig.inventory.mainHand.sound) {
-                            hitSound = game.sound.add(charConfig.inventory.mainHand.sound.hittingFlesh, { volume: 0.5 });
-                            hitSound.play();
-                        }
-                    }
-                }
-                if (enemyCharConfig.armor - enemyCharConfig.attributes.dexterity > 0) {
-                    if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
-                        StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
-                        if (charConfig.inventory.mainHand.sound) {
-                            game.sound.add(charConfig.inventory.mainHand.sound.hittingArmor, { volume: 0.5 });
-                            game.sound.play(charConfig.inventory.mainHand.sound.hittingArmor, { name: charConfig.inventory.mainHand.sound.hittingArmor });
-                        }
-                    }
-                }
-            });
-        }
-        enemyCharConfig.armor = enemyCharConfig.inventory.head.armor +
-            enemyCharConfig.inventory.body.armor +
-            enemyCharConfig.inventory.hands.armor +
-            enemyCharConfig.inventory.feet.armor +
-            (enemyCharConfig.inventory.offHand.armor
-                ? enemyCharConfig.inventory.offHand.armor
-                : 0) + enemyCharConfig.attributes.dexterity;
-
-        charConfig.energy.spent += EnergyConfig.attackMainHand.cost;
-        StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackMainHand.cost);
-
-        charConfig.energy.actionId = -1;
-        charConfig.energy.selectedAction = null;
-        game.events.emit('removeSelectedActionIcon');
-
-        this._checkInitiative(enemy);
-    };
-
-    this._attackWithSpell = (character, enemy) => {
-        var self = this,
-            charConfig = character.characterConfig,
-            enemyCharConfig = enemy.characterConfig,
-            d20 = Math.floor(Math.random() * 20) + 1 + charConfig.attributes.intelligence,
-            hitSound;
-        if (d20 <= enemyCharConfig.armor) {
-            if (enemyCharConfig.armor - enemyCharConfig.attributes.dexterity > 0) {
-                if (this._removeArmorPointsFromEquippedInventory(enemy, 1)) {
-                    StatusIconConfig.showArmorIcon(game, enemy, 1);
-                }
-                if (charConfig.energy.selectedAction.sound) {
-                    hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingArmor, { volume: 0.5 });
-                    hitSound.play();
-                }
-            }
-        } else {
             _.each(charConfig.energy.selectedAction.damage, function (damage) {
-                var attackDamage = Math.floor(Math.random() * damage.value * Math.ceil(charConfig.energy.selectedAction.level / 2)) + 1 + Math.floor(charConfig.attributes.intelligence / 2);
+                var actionLevel = charConfig.energy.selectedAction.level ? Math.ceil(charConfig.energy.selectedAction.level / 2) : 1,
+                    attackDamage = Math.floor(Math.random() * damage.value * actionLevel) + 1 + Math.floor(attackAttribute / 2);
                 if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === -1) {
                     if (enemyCharConfig.resistances.indexOf(damage.type) !== -1) {
                         enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
@@ -234,13 +201,14 @@ export const ActionManager = function (game) {
                     if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
                         StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
                         if (charConfig.energy.selectedAction.sound) {
-                            hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingArmor, { volume: 0.5 });
-                            hitSound.play();
+                            game.sound.add(charConfig.energy.selectedAction.sound.hittingArmor, { volume: 0.5 });
+                            game.sound.play(charConfig.energy.selectedAction.sound.hittingArmor, { name: charConfig.energy.selectedAction.sound.hittingArmor });
                         }
                     }
                 }
             });
         }
+
         enemyCharConfig.armor = enemyCharConfig.inventory.head.armor +
             enemyCharConfig.inventory.body.armor +
             enemyCharConfig.inventory.hands.armor +
@@ -249,10 +217,15 @@ export const ActionManager = function (game) {
                 ? enemyCharConfig.inventory.offHand.armor
                 : 0) + enemyCharConfig.attributes.dexterity;
 
-        charConfig.energy.spent += EnergyConfig.attackSpell.cost;
-        charConfig.mana.spent += charConfig.energy.selectedAction.cost;
-        StatusIconConfig.showManaIcon(game, character, charConfig.energy.selectedAction.cost);
-        StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackSpell.cost);
+        if (!isSpell) {
+            charConfig.energy.spent += EnergyConfig.attackMainHand.cost;
+            StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackMainHand.cost);
+        } else {
+            charConfig.energy.spent += EnergyConfig.attackSpell.cost;
+            charConfig.mana.spent += charConfig.energy.selectedAction.cost;
+            StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackSpell.cost);
+            StatusIconConfig.showManaIcon(game, character, charConfig.energy.selectedAction.cost);
+        }
 
         charConfig.energy.actionId = -1;
         charConfig.energy.selectedAction = null;
@@ -261,56 +234,12 @@ export const ActionManager = function (game) {
         this._checkInitiative(enemy);
     };
 
-    this.showRangeLines = function (character, enemy) {
-        var projectileLines = this._checkProjectileSuccess(character, enemy),
-            charConfig = character.characterConfig;
-        this.hideRangeLines();
-        rangeLines = game.add.group();
-        if (projectileLines.isFound && Math.abs(character.x - enemy.x) <= 50 * charConfig.energy.selectedAction.range &&
-            Math.abs(character.y - enemy.y) <= 50 * charConfig.energy.selectedAction.range &&
-            (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)) {
-            _.each(projectileLines.lines, function (line) {
-                rangeLines.add(game.add.line(0, 0, line.charX, line.charY, line.enemyX, line.enemyY, 0x00ff00).setOrigin(0, 0));
-            });
-        } else {
-            rangeLines.add(game.add.line(0, 0, character.x, character.y, enemy.x, enemy.y, 0xff0000).setOrigin(0, 0));
-        }
-    };
-
-    this.hideRangeLines = function () {
-        if (rangeLines) {
-            rangeLines.destroy(true);
-            rangeLines = null;
-        }
-    };
-
-    this.checkLineOfSight = function (character, enemy) {
-        var projectileLines = this._checkProjectileSuccess(character, enemy);
-        projectileLines.linePoints.shift();
-        // TODO: projectileLines.linePoints.length < character.characterConfig.lineOfSight is correct when enemy is below character
-        return projectileLines.isFound && projectileLines.linePoints.length <= character.characterConfig.lineOfSight
-            ?
-            {
-                hasBeenSeen: true,
-                distance: projectileLines.linePoints.length
-            }
-            :
-            {
-                hasBeenSeen: false,
-                distance: projectileLines.linePoints.length
-            };
-    };
-
-    // PRIVATE -------------------------------------------------------------------------------------------------------------------------------
-    this._tryMovingCharacter = (character, enemy) => {
-        var path,
-            charConfig = character.characterConfig;
-        if (Math.abs(character.x - enemy.x) !== 0 || Math.abs(character.y - enemy.y) !== 0) {
-            path = Pathfinder.getPathFromAToB(character, enemy, game.activeMap.levelMap);
-            if (charConfig.isPlayerControlled && path) {
-                game.characters.moveActiveCharacterNearObject(null, path[path.length - 2][0], path[path.length - 2][1]);
-            }
-        }
+    this._getAttackAttribute = (charConfig) => {
+        return EnumHelper.attributeEnum.strength === charConfig.energy.selectedAction.attribute
+            ? charConfig.attributes.strength
+            : EnumHelper.attributeEnum.dexterity === charConfig.energy.selectedAction.attribute
+                ? charConfig.attributes.dexterity
+                : charConfig.attributes.intelligence;
     };
 
     this._checkInitiative = (enemy) => {
@@ -372,89 +301,82 @@ export const ActionManager = function (game) {
         game.events.emit('showCharacterInitiative', game.initiative);
     };
 
+    this._canAttack = (character, enemy) => {
+        var charConfig = character.characterConfig,
+            cost = charConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand
+                ? EnergyConfig.attackMainHand.cost
+                : EnergyConfig.attackSpell.cost;
+        if (Math.abs(character.x - enemy.x) <= 50 * charConfig.energy.selectedAction.range &&
+            Math.abs(character.y - enemy.y) <= 50 * charConfig.energy.selectedAction.range &&
+            (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)
+            && charConfig.energy.max - cost >= charConfig.energy.spent) {
+            return true;
+        }
+        return false;
+    };
+
+    this._isProjectileHitting = (character, enemy) => {
+        var rangeLines = this._checkProjectileSuccess(character, enemy);
+        if (rangeLines.isFound) {
+            var arrow = game.physics.add.sprite(character.x, character.y, 'arrow'),
+                enemyCenter = game.physics.add.sprite(enemy.x + 25, enemy.y + 25, 'arrow');
+            enemyCenter.displayWidth = 1;
+            enemyCenter.displayHeight = 1;
+            enemyCenter.visible = false;
+            arrow.displayWidth = 50;
+            arrow.displayHeight = 25;
+            var angle = game.physics.moveToObject(arrow, enemyCenter, 0, 500);
+            arrow.setRotation(angle + 180 / 57.2958);
+            game.physics.add.overlap(arrow, enemyCenter, function () {
+                arrow.destroy();
+                enemyCenter.destroy();
+            });
+            return true;
+        }
+        return false;
+    };
+
     this._checkDefaultAction = (character, enemy) => {
         // TODO: Check if offhand is empty?
         // Check if in range
         var charConfig = character.characterConfig;
-        if (Math.abs(character.x - enemy.x) <= 50 * charConfig.inventory.mainHand.range &&
-            Math.abs(character.y - enemy.y) <= 50 * charConfig.inventory.mainHand.range &&
-            (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)
-            && charConfig.energy.max - EnergyConfig.attackMainHand.cost >= charConfig.energy.spent) {
+        if (this._canAttack(character, enemy)) {
             // If weapon is held with two hands check to have nothing in the offhand.
             // If it is a projectile weapon it can have projectiles in offhand
             // if it is a melee weapon check if two handed skill is available or some skill
             // that allows character to use TH weapons as OH
-            if (charConfig.inventory.mainHand.hold === 2 &&
-                charConfig.inventory.offHand.type === EnumHelper.inventoryEnum.defaultEquipment
-                || charConfig.inventory.mainHand.hold === 1) {
+            if ((charConfig.energy.selectedAction.hold === 2 && charConfig.inventory.offHand.type === EnumHelper.inventoryEnum.defaultEquipment)
+                || charConfig.energy.selectedAction.hold === 1) {
                 // If it is a ranged weapon check if projectile hits
-                if (charConfig.inventory.mainHand.range > 1) {
-                    var rangeLines = this._checkProjectileSuccess(character, enemy);
-                    if (rangeLines.isFound) {
-                        var arrow = game.physics.add.sprite(character.x + 25, character.y + 25, 'arrow'),
-                            enemyCenter = game.physics.add.sprite(enemy.x + 25, enemy.y + 25, 'arrow');
-                        enemyCenter.displayWidth = 1;
-                        enemyCenter.displayHeight = 1;
-                        enemyCenter.visible = false;
-                        arrow.displayWidth = 50;
-                        arrow.displayHeight = 25;
-                        var angle = game.physics.moveToObject(arrow, enemyCenter, 100);
-                        arrow.setRotation(angle + 180 / 57.2958);
-                        game.physics.add.overlap(arrow, enemyCenter, function () {
-                            arrow.destroy();
-                            enemyCenter.destroy();
-                        });
-                        this._attackWithMainHand(character, enemy);
+                if (charConfig.energy.selectedAction.range > 1) {
+                    if (this._isProjectileHitting(character, enemy)) {
+                        this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), false);
                         return true;
                     }
                 } else {
-                    this._attackWithMainHand(character, enemy);
+                    this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), false);
                     return true;
                 }
             }
         }
         return false;
-        // Otherwise move near the object and try again
-        //else {
-        //    this._tryMovingCharacter(character, enemy);
-        //}
     };
 
     this._checkSpellAttack = (character, enemy) => {
         // TODO: Check if offhand is empty?
         var charConfig = character.characterConfig;
         if (charConfig.mana.max - charConfig.mana.spent >= 0) {
-            if (Math.abs(character.x - enemy.x) <= 50 * charConfig.energy.selectedAction.range &&
-                Math.abs(character.y - enemy.y) <= 50 * charConfig.energy.selectedAction.range &&
-                (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)
-                && charConfig.energy.max - EnergyConfig.attackSpell.cost >= charConfig.energy.spent) {
+            if (this._canAttack(character, enemy)) {
                 if (charConfig.energy.selectedAction.range > 1) {
-                    var rangeLines = this._checkProjectileSuccess(character, enemy);
-                    if (rangeLines.isFound) {
-                        var arrow = game.physics.add.sprite(character.x, character.y, 'arrow'),
-                            enemyCenter = game.physics.add.sprite(enemy.x + 25, enemy.y + 25, 'arrow');
-                        enemyCenter.displayWidth = 1;
-                        enemyCenter.displayHeight = 1;
-                        enemyCenter.visible = false;
-                        arrow.displayWidth = 50;
-                        arrow.displayHeight = 25;
-                        var angle = game.physics.moveToObject(arrow, enemyCenter, 0, 500);
-                        arrow.setRotation(angle + 180 / 57.2958);
-                        game.physics.add.overlap(arrow, enemyCenter, function () {
-                            arrow.destroy();
-                            enemyCenter.destroy();
-                        });
-                        this._attackWithSpell(character, enemy);
+                    if (this._isProjectileHitting(character, enemy)) {
+                        this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), true);
                         return true;
                     }
                 } else {
-                    this._attackWithSpell(character, enemy);
+                    this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), true);
                     return true;
                 }
             }
-            //else {
-            //    this._tryMovingCharacter(character, enemy);
-            //}
         }
         return false;
     };
@@ -552,6 +474,7 @@ export const ActionManager = function (game) {
             character.characterConfig.inventory.feet = lodash.cloneDeep(InventoryConfig.defaultFeet);
         }
     };
+
     this._createNewEnemies = () => {
         if (game.enemies.characters.getChildren().length === 0 && game.scene.key === 'TestLevelScene') {
             game.enemies.total++;
@@ -678,13 +601,13 @@ export const ActionManager = function (game) {
         return points;
     };
 
-    this._getPointMatrix = function(character, enemy) {
+    this._getPointMatrix = function (character, enemy) {
         var xyc = [
-                [character.x, character.y, enemy.x, enemy.y],
-                [character.x, character.y, enemy.x + enemy.width, enemy.y],
-                [character.x, character.y, enemy.x, enemy.y + enemy.height],
-                [character.x, character.y, enemy.x + enemy.width, enemy.y + enemy.height]
-            ],
+            [character.x, character.y, enemy.x, enemy.y],
+            [character.x, character.y, enemy.x + enemy.width, enemy.y],
+            [character.x, character.y, enemy.x, enemy.y + enemy.height],
+            [character.x, character.y, enemy.x + enemy.width, enemy.y + enemy.height]
+        ],
             xpyc = [
                 [character.x + character.width, character.y, enemy.x, enemy.y],
                 [character.x + character.width, character.y, enemy.x + enemy.width, enemy.y],
