@@ -25,28 +25,32 @@ export const InventoryConfig = {
         image: 'punch',
         description: 'No head gear',
         slots: 0,
-        armor: 0
+        armor: 0,
+        maxArmor: 0
     },
     defaultBody: {
         type: EnumHelper.inventoryEnum.defaultEquipment,
         image: 'punch',
         description: 'No body gear',
         slots: 0,
-        armor: 0
+        armor: 0,
+        maxArmor: 0
     },
     defaultHands: {
         type: EnumHelper.inventoryEnum.defaultEquipment,
         image: 'punch',
         description: 'No hand gear',
         slots: 0,
-        armor: 0
+        armor: 0,
+        maxArmor: 0
     },
     defaultFeet: {
         type: EnumHelper.inventoryEnum.defaultEquipment,
         image: 'punch',
         description: 'No feet gear',
         slots: 0,
-        armor: 0
+        armor: 0,
+        maxArmor: 0
     },
     bow: {
         name: 'Crude bow',
@@ -94,7 +98,8 @@ export const InventoryConfig = {
         image: 'head',
         description: 'Head item',
         slots: 1,
-        armor: 2
+        armor: 2,
+        maxArmor: 2
     },
     shield: {
         name: 'Shield',
@@ -102,7 +107,8 @@ export const InventoryConfig = {
         image: 'shield',
         description: 'Shield item',
         slots: 1,
-        armor: 2
+        armor: 2,
+        maxArmor: 2
     },
     chainmail: {
         name: 'Chainmail',
@@ -110,7 +116,8 @@ export const InventoryConfig = {
         image: 'chainmail',
         description: 'Chainmail item',
         slots: 1,
-        armor: 4
+        armor: 4,
+        maxArmor: 4
     },
     hand: {
         name: 'Gloves',
@@ -118,7 +125,8 @@ export const InventoryConfig = {
         image: 'hand',
         description: 'Hand item',
         slots: 1,
-        armor: 1
+        armor: 1,
+        maxArmor: 1
     },
     feet: {
         name: 'Boots',
@@ -126,6 +134,7 @@ export const InventoryConfig = {
         image: 'feet',
         description: 'Feet item',
         slots: 1,
-        armor: 1
+        armor: 1,
+        maxArmor: 1
     }
 };

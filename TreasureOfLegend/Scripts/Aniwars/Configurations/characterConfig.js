@@ -5,7 +5,6 @@ export const CharacterConfig = {
     config: {
         path: [],
         armor: 0,
-        naturalArmor: 0,
         posX: 0,
         posY: 0,
         velocity: 200,

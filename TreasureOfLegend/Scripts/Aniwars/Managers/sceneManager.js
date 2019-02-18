@@ -14,10 +14,6 @@ export const SceneManager = function (game) {
         var shouldChangeTurn = false;
         if (!charConfig.movement.isMoving) {
             // TODO: Refresh movement, energy, etc only on turn counter change
-            // TODO: Fix initiative when only PCs remain
-            charConfig.movement.spent = 0;
-            charConfig.energy.spent = 0;
-            charConfig.movement.usedDash = false;
             var initialInitiativeIndex = game.initiativeIndex;
             game.initiativeIndex++;
             if (game.initiativeIndex >= game.initiative.length || initialInitiativeIndex === -1) {
@@ -57,6 +53,11 @@ export const SceneManager = function (game) {
             }
             if (shouldChangeTurn) {
                 game.events.emit('changeTurnCounter');
+                _.each(game.initiative, function (character) {
+                    character.characterConfig.movement.spent = 0;
+                    character.characterConfig.energy.spent = 0;
+                    character.characterConfig.movement.usedDash = false;
+                });
             }
             this.checkObjectReset();
         }

@@ -23,7 +23,6 @@ export const Enemy = function (scene) {
             isMoving: false
         },
         armor: 0,
-        naturalArmor: 2,
         velocity: 200,
         posX: 0,
         posY: 0,
@@ -91,7 +90,6 @@ export const Enemy = function (scene) {
             life = parseInt(lifeDice[0]) * (Math.floor(Math.random() * parseInt(lifeDice[1])) + 1);
         charConfig.life.max = life;
         charConfig.life.current = life;
-        charConfig.naturalArmor = config.naturalArmor;
         charConfig.traits = config.traits;
         charConfig.experience = config.experience;
         charConfig.souls = config.souls;
@@ -125,7 +123,7 @@ export const Enemy = function (scene) {
             charConfig.inventory.feet.armor +
             (charConfig.inventory.offHand.armor
                 ? charConfig.inventory.offHand.armor
-                : 0) + charConfig.naturalArmor;
+                : 0) + charConfig.attributes.dexterity;
 
         charConfig.resistances = config.resistances;
         charConfig.vulnerabilities = config.vulnerabilities;
@@ -356,10 +354,15 @@ export const Enemy = function (scene) {
         }
         auxMap[objY / 50][objX / 50] = 0;
         // TODO: try to use Pathfinder.getPathFromAToB since in TestLevelScene the mana well cannot be reached when enemy.x > well.x
-        path = Pathfinder.findWay(currentCharacter.x / 50,
-            currentCharacter.y / 50,
-            objX / 50,
-            objY / 50,
+        path = Pathfinder.getPathFromAToB(
+            {
+                x: currentCharacter.x,
+                y: currentCharacter.y
+            },
+            {
+                x: objX,
+                y: objY
+            },
             auxMap);
         if (path.length > 0) {
             path.shift();
@@ -392,7 +395,7 @@ export const Enemy = function (scene) {
             // TODO: Have a variable that keeps track of what the enemy wanted to do and do that here instead of these ifs?
             var attack = this._tryAttack(currentCharacter, seenCharacters, spells);
             selectedAction = attack.selectedAction;
-            hasAttacked = attack.selectedAction;
+            hasAttacked = attack.hasAttacked;
 
             // INTERACTION ----------------------------------------------------------------------------------------------------------------------------------------
             hasInteracted = this._tryInterract(currentCharacter);
@@ -553,9 +556,6 @@ export const Enemy = function (scene) {
             pathToWell = wellObject.path;
             if (pathToWell.length > 0 && pathToWell.length <= 1) {
                 this.interactWithObject(well);
-                if (well.objectConfig.description !== 'Empty well') {
-                    return true;
-                }
                 if (pathToWell.length === charConfig.path.length) {
                     var isSamePath = true;
                     for (let i = 0; i < pathToWell.length; i++) {
@@ -567,6 +567,9 @@ export const Enemy = function (scene) {
                     if (isSamePath) {
                         charConfig.path = [];
                     }
+                }
+                if (well.objectConfig.description !== 'Empty well') {
+                    return true;
                 }
             }
         }
@@ -593,7 +596,7 @@ export const Enemy = function (scene) {
                     }
                     // if no well found or not interested in getting mana, get random path or get path to a character that has been seen
                     if (!hasMoved) {
-                        hasMoved = this._tryMoveToSeenEnemyOrRandom(currentCharacter, seenCharacters);
+                        hasMoved = this._tryMoveToSeenEnemyOrRandom(currentCharacter, seenCharacters, selectedAction);
                     }
                 }
                 // if enemy has path but has not seen any character, move along the path
@@ -601,7 +604,7 @@ export const Enemy = function (scene) {
                     hasMoved = this._tryMoveOnAvailablePath(currentCharacter);
                 }
                 else {
-                    hasMoved = this._tryMoveToSeenEnemyWithinRangeOrRandom(currentCharacter, seenCharacters, selectedAction);
+                    hasMoved = this._tryMoveToSeenEnemyOrRandom(currentCharacter, seenCharacters, selectedAction);
                     if (!hasMoved) {
                         hasMoved = this._tryMoveToDoor(currentCharacter);
                     }
@@ -621,31 +624,20 @@ export const Enemy = function (scene) {
             pathToWell = this._getPathToWell(EnumHelper.idEnum.well.type.mana);
         if (pathToWell.length > 0) {
             charConfig.path = pathToWell;
-            charConfig.posX = charConfig.path[0][0] * 50;
-            charConfig.posY = charConfig.path[0][1] * 50;
-            return game.enemies.moveActiveCharacterToPosition(charConfig.path[0][0] * 50, charConfig.path[0][1] * 50);
-        }
-        return false;
-    };
-
-    this._tryMoveToSeenEnemyOrRandom = function (currentCharacter, seenCharacters) {
-        var charConfig = currentCharacter.characterConfig,
-            paths = game.enemies.getPathsToEnemies(seenCharacters);
-        if (paths.length > 0 && paths[0].path.length > 0) {
-            // Get the path to the closest seen character
-            if (paths[0].path.length > charConfig.inventory.mainHand.range) {
-                charConfig.path = paths[0].path;
+            if (currentCharacter.x === charConfig.path[0][0] * 50 && currentCharacter.y === charConfig.path[0][1] * 50) {
+                charConfig.path.shift();
+            }
+            if (charConfig.path.length > 0) {
                 charConfig.posX = charConfig.path[0][0] * 50;
                 charConfig.posY = charConfig.path[0][1] * 50;
                 charConfig.path.shift();
-                // And move
                 return game.enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
             }
         }
         return false;
     };
 
-    this._tryMoveToSeenEnemyWithinRangeOrRandom = function (currentCharacter, seenCharacters, selectedAction) {
+    this._tryMoveToSeenEnemyOrRandom = function (currentCharacter, seenCharacters, selectedAction) {
         // get random path or path to a seen character
         var charConfig = currentCharacter.characterConfig,
             paths = game.enemies.getPathsToEnemies(seenCharacters);
@@ -653,12 +645,16 @@ export const Enemy = function (scene) {
         if (paths.length > 0 && paths[0].path.length > 0 &&
             ((seenCharacters.length > 0 && paths[0].path.length > selectedAction.range) || seenCharacters.length === 0)) {
             // Get the path to the closest seen character
-            if (paths[0].path.length > charConfig.inventory.mainHand.range) {
-                charConfig.path = paths[0].path;
+            charConfig.path = paths[0].path;
+            if (currentCharacter.x === charConfig.path[0][0] * 50 && currentCharacter.y === charConfig.path[0][1] * 50) {
+                charConfig.path.shift();
+            }
+            if (charConfig.path.length > 0) {
                 charConfig.posX = charConfig.path[0][0] * 50;
                 charConfig.posY = charConfig.path[0][1] * 50;
                 charConfig.path.shift();
                 // And move
+                // TODO: If tile is occupied by enemy, stay in place if range is good enough
                 return game.enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
             }
         }
@@ -667,12 +663,17 @@ export const Enemy = function (scene) {
 
     this._tryMoveOnAvailablePath = function (currentCharacter) {
         // Move on the path
-        var charConfig = currentCharacter.characterConfig,
-            path = lodash.cloneDeep(charConfig.path);
-        charConfig.posX = charConfig.path[0][0] * 50;
-        charConfig.posY = charConfig.path[0][1] * 50;
-        charConfig.path.shift();
-        return game.enemies.moveActiveCharacterToPosition(path[0][0] * 50, path[0][1] * 50);
+        var charConfig = currentCharacter.characterConfig;
+        if (currentCharacter.x === charConfig.path[0][0] * 50 && currentCharacter.y === charConfig.path[0][1] * 50) {
+            charConfig.path.shift();
+        }
+        if (charConfig.path.length > 0) {
+            charConfig.posX = charConfig.path[0][0] * 50;
+            charConfig.posY = charConfig.path[0][1] * 50;
+            charConfig.path.shift();
+            return game.enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
+        }
+        return false;
     };
 
     this._tryMoveToDoor = function (currentCharacter) {
@@ -681,10 +682,15 @@ export const Enemy = function (scene) {
             paths = game.enemies.getPathsToClosestDoor();
         if (paths.length > 0 && paths[0].path.length > 0) {
             charConfig.path = paths[0].path;
-            charConfig.posX = charConfig.path[0][0] * 50;
-            charConfig.posY = charConfig.path[0][1] * 50;
-            charConfig.path.shift();
-            return game.enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
+            if (currentCharacter.x === charConfig.path[0][0] * 50 && currentCharacter.y === charConfig.path[0][1] * 50) {
+                charConfig.path.shift();
+            }
+            if (charConfig.path.length > 0) {
+                charConfig.posX = charConfig.path[0][0] * 50;
+                charConfig.posY = charConfig.path[0][1] * 50;
+                charConfig.path.shift();
+                return game.enemies.moveActiveCharacterToPosition(charConfig.posX, charConfig.posY);
+            }
         }
         return false;
     };

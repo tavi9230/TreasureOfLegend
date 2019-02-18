@@ -38,7 +38,7 @@ export const Character = function (game) {
             charConfig.inventory.feet.armor +
             (charConfig.inventory.offHand.armor
                 ? charConfig.inventory.offHand.armor
-                : 0) + charConfig.naturalArmor;
+                : 0) + charConfig.attributes.dexterity;
         this.characters.add(character);
     };
 
@@ -58,7 +58,7 @@ export const Character = function (game) {
         var character = game.activeCharacter,
             charConfig = character.characterConfig;
         charConfig.energy.inProgress = null;
-        if (object.objectConfig.isInteractible && charConfig.energy.max - charConfig.energy.spent > 0 && !charConfig.movement.isMoving) {
+        if (object.objectConfig.isInteractible && !charConfig.movement.isMoving) {
             var obj = {
                 x: object.x,
                 y: object.y

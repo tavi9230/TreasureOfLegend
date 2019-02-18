@@ -38,26 +38,28 @@ export const ActionManager = function (game) {
         var charConfig = game.activeCharacter.characterConfig,
             x = object.x / 50,
             y = object.y / 50;
-        charConfig.energy.spent += EnergyConfig.door.cost;
-        StatusIconConfig.showEnergyIcon(game, game.activeCharacter, EnergyConfig.door.cost);
-        game.events.emit('showCharacterInitiative', game.initiative);
-        game.activeMap.levelMap = game.activeMap.copyMap(game.activeMap.levelMap, game.activeMap.previousMap);
-        //door animations would be nice
-        if (!object.objectConfig.isActivated) {
-            game.activeMap.levelMap[y][x] = 0;
-            if (object.objectConfig.id === EnumHelper.idEnum.door.type.up || object.objectConfig.id === EnumHelper.idEnum.door.type.down) {
-                object.setX(object.x - 50);
-            } else if (object.objectConfig.id === EnumHelper.idEnum.door.type.right || object.objectConfig.id === EnumHelper.idEnum.door.type.left) {
-                object.setY(object.y - 50);
+        if (charConfig.energy.max - charConfig.energy.spent >= EnergyConfig.door.cost) {
+            charConfig.energy.spent += EnergyConfig.door.cost;
+            StatusIconConfig.showEnergyIcon(game, game.activeCharacter, EnergyConfig.door.cost);
+            game.events.emit('showCharacterInitiative', game.initiative);
+            game.activeMap.levelMap = game.activeMap.copyMap(game.activeMap.levelMap, game.activeMap.previousMap);
+            //door animations would be nice
+            if (!object.objectConfig.isActivated) {
+                game.activeMap.levelMap[y][x] = 0;
+                if (object.objectConfig.id === EnumHelper.idEnum.door.type.up || object.objectConfig.id === EnumHelper.idEnum.door.type.down) {
+                    object.setX(object.x - 50);
+                } else if (object.objectConfig.id === EnumHelper.idEnum.door.type.right || object.objectConfig.id === EnumHelper.idEnum.door.type.left) {
+                    object.setY(object.y - 50);
+                }
+            } else {
+                game.activeMap.levelMap[y][x] = object.objectConfig.id;
             }
-        } else {
-            game.activeMap.levelMap[y][x] = object.objectConfig.id;
-        }
-        var doorSound = game.sound.add('open_door', { volume: 0.5 });
-        doorSound.play();
-        object.objectConfig.isActivated = !object.objectConfig.isActivated;
-        if (charConfig.isPlayerControlled) {
-            game.activeMap.showMovementGrid();
+            var doorSound = game.sound.add('open_door', { volume: 0.5 });
+            doorSound.play();
+            object.objectConfig.isActivated = !object.objectConfig.isActivated;
+            if (charConfig.isPlayerControlled) {
+                game.activeMap.showMovementGrid();
+            }
         }
     };
 
@@ -68,39 +70,43 @@ export const ActionManager = function (game) {
     };
 
     this._interactWithWell = (object) => {
-        var currentTurn = game.hudScene.getTurn();
-        if (currentTurn - object.objectConfig.turnActivated >= object.objectConfig.turnsToReset) {
-            object.objectConfig.turnActivated = 0;
-            object.objectConfig.turnsToReset = 0;
-            var activeCharacter = game.activeCharacter;
-            if (object.objectConfig.id === EnumHelper.idEnum.well.type.health) {
-                StatusIconConfig.showManaIcon(game, activeCharacter, -(activeCharacter.characterConfig.life.max - activeCharacter.characterConfig.life.spent));
-                activeCharacter.characterConfig.life.current = activeCharacter.characterConfig.life.max;
-            } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.mana) {
-                StatusIconConfig.showManaIcon(game, activeCharacter, -activeCharacter.characterConfig.mana.spent);
-                activeCharacter.characterConfig.mana.spent = 0;
-            } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.movement) {
-                StatusIconConfig.showMovementIcon(game, activeCharacter, -activeCharacter.characterConfig.movement.spent);
-                activeCharacter.characterConfig.movement.spent = 0;
-                game.activeMap.showMovementGrid();
-            } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.energy) {
-                StatusIconConfig.showEnergyIcon(game, activeCharacter, -activeCharacter.characterConfig.energy.spent);
-                activeCharacter.characterConfig.energy.spent = 0;
+        var currentTurn = game.hudScene.getTurn(),
+            activeCharacter = game.activeCharacter,
+            charConfig = activeCharacter.characterConfig;
+        if (charConfig.energy.max - charConfig.energy.spent >= EnergyConfig.well.cost) {
+            if (currentTurn - object.objectConfig.turnActivated >= object.objectConfig.turnsToReset) {
+                object.objectConfig.turnActivated = 0;
+                object.objectConfig.turnsToReset = 0;
+                charConfig.energy.spent += EnergyConfig.well.cost;
+                if (object.objectConfig.id === EnumHelper.idEnum.well.type.health) {
+                    StatusIconConfig.showManaIcon(game, activeCharacter, -(charConfig.life.max - charConfig.life.spent));
+                    charConfig.life.current = charConfig.life.max;
+                } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.mana) {
+                    StatusIconConfig.showManaIcon(game, activeCharacter, -charConfig.mana.spent);
+                    charConfig.mana.spent = 0;
+                } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.movement) {
+                    StatusIconConfig.showMovementIcon(game, activeCharacter, -charConfig.movement.spent);
+                    charConfig.movement.spent = 0;
+                    game.activeMap.showMovementGrid();
+                } else if (object.objectConfig.id === EnumHelper.idEnum.well.type.energy) {
+                    StatusIconConfig.showEnergyIcon(game, activeCharacter, -charConfig.energy.spent);
+                    charConfig.energy.spent = 0;
+                }
+                var drinkSound = game.sound.add('drink_well', { volume: 0.5 });
+                drinkSound.play();
+                game.activeMap.createReactivatingObject({
+                    object: object,
+                    image: 'emptyWell',
+                    description: 'Empty well',
+                    displayWidth: 100,
+                    displayHeight: 100,
+                    width: 100,
+                    height: 100,
+                    isInteractible: true,
+                    turnsToReset: Math.floor(Math.random() * 5) + 1
+                });
+                game.events.emit('showCharacterInitiative', game.initiative);
             }
-            var drinkSound = game.sound.add('drink_well', { volume: 0.5 });
-            drinkSound.play();
-            game.activeMap.createReactivatingObject({
-                object: object,
-                image: 'emptyWell',
-                description: 'Empty well',
-                displayWidth: 100,
-                displayHeight: 100,
-                width: 100,
-                height: 100,
-                isInteractible: true,
-                turnsToReset: Math.floor(Math.random() * 5) + 1
-            });
-            game.events.emit('showCharacterInitiative', game.initiative);
         }
     };
 
@@ -115,7 +121,7 @@ export const ActionManager = function (game) {
             d20 = Math.floor(Math.random() * 20) + 1 + attackAttribute,
             hitSound;
         if (d20 <= enemyCharConfig.armor) {
-            if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
+            if (enemyCharConfig.armor - enemyCharConfig.attributes.dexterity > 0) {
                 if (this._removeArmorPointsFromEquippedInventory(enemy, 1)) {
                     StatusIconConfig.showArmorIcon(game, enemy, 1);
                     if (charConfig.inventory.mainHand.sound) {
@@ -123,14 +129,8 @@ export const ActionManager = function (game) {
                         hitSound.play();
                     }
                 }
-            } else if (enemyCharConfig.naturalArmor > 0) {
-                enemyCharConfig.naturalArmor--;
-                StatusIconConfig.showArmorIcon(game, enemy, 1);
-                if (charConfig.inventory.mainHand.sound) {
-                    hitSound = game.sound.add(charConfig.inventory.mainHand.sound.hittingFlesh, { volume: 0.5 });
-                    hitSound.play();
-                }
             }
+            // else it's a miss? or calculate chance to miss or hit armor only?
         } else {
             _.each(charConfig.inventory.mainHand.damage, function (damage) {
                 var attackDamage = Math.floor(Math.random() * damage.value) + 1 + Math.floor(attackAttribute / 2);
@@ -158,23 +158,13 @@ export const ActionManager = function (game) {
                         }
                     }
                 }
-                if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
+                if (enemyCharConfig.armor - enemyCharConfig.attributes.dexterity > 0) {
                     if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
                         StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
                         if (charConfig.inventory.mainHand.sound) {
                             game.sound.add(charConfig.inventory.mainHand.sound.hittingArmor, { volume: 0.5 });
                             game.sound.play(charConfig.inventory.mainHand.sound.hittingArmor, { name: charConfig.inventory.mainHand.sound.hittingArmor });
                         }
-                    }
-                } else if (enemyCharConfig.naturalArmor > 0) {
-                    enemyCharConfig.naturalArmor -= Math.ceil(attackDamage / 2);
-                    StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
-                    if (enemyCharConfig.naturalArmor < 0) {
-                        enemyCharConfig.naturalArmor = 0;
-                    }
-                    if (charConfig.inventory.mainHand.sound) {
-                        hitSound = game.sound.add(charConfig.inventory.mainHand.sound.hittingFlesh, { volume: 0.5 });
-                        hitSound.play();
                     }
                 }
             });
@@ -185,7 +175,7 @@ export const ActionManager = function (game) {
             enemyCharConfig.inventory.feet.armor +
             (enemyCharConfig.inventory.offHand.armor
                 ? enemyCharConfig.inventory.offHand.armor
-                : 0) + enemyCharConfig.naturalArmor;
+                : 0) + enemyCharConfig.attributes.dexterity;
 
         charConfig.energy.spent += EnergyConfig.attackMainHand.cost;
         StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackMainHand.cost);
@@ -204,19 +194,12 @@ export const ActionManager = function (game) {
             d20 = Math.floor(Math.random() * 20) + 1 + charConfig.attributes.intelligence,
             hitSound;
         if (d20 <= enemyCharConfig.armor) {
-            if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
+            if (enemyCharConfig.armor - enemyCharConfig.attributes.dexterity > 0) {
                 if (this._removeArmorPointsFromEquippedInventory(enemy, 1)) {
                     StatusIconConfig.showArmorIcon(game, enemy, 1);
                 }
                 if (charConfig.energy.selectedAction.sound) {
                     hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingArmor, { volume: 0.5 });
-                    hitSound.play();
-                }
-            } else if (enemyCharConfig.naturalArmor > 0) {
-                enemyCharConfig.naturalArmor--;
-                StatusIconConfig.showArmorIcon(game, enemy, 1);
-                if (charConfig.energy.selectedAction.sound) {
-                    hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingFlesh, { volume: 0.5 });
                     hitSound.play();
                 }
             }
@@ -247,23 +230,13 @@ export const ActionManager = function (game) {
                         }
                     }
                 }
-                if (enemyCharConfig.armor - enemyCharConfig.naturalArmor > 0) {
+                if (enemyCharConfig.armor - enemyCharConfig.attributes.dexterity > 0) {
                     if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
                         StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
                         if (charConfig.energy.selectedAction.sound) {
                             hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingArmor, { volume: 0.5 });
                             hitSound.play();
                         }
-                    }
-                } else if (enemyCharConfig.naturalArmor > 0) {
-                    enemyCharConfig.naturalArmor -= Math.ceil(attackDamage / 2);
-                    StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
-                    if (enemyCharConfig.naturalArmor < 0) {
-                        enemyCharConfig.naturalArmor = 0;
-                    }
-                    if (charConfig.energy.selectedAction.sound) {
-                        hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingFlesh, { volume: 0.5 });
-                        hitSound.play();
                     }
                 }
             });
@@ -274,7 +247,7 @@ export const ActionManager = function (game) {
             enemyCharConfig.inventory.feet.armor +
             (enemyCharConfig.inventory.offHand.armor
                 ? enemyCharConfig.inventory.offHand.armor
-                : 0) + enemyCharConfig.naturalArmor;
+                : 0) + enemyCharConfig.attributes.dexterity;
 
         charConfig.energy.spent += EnergyConfig.attackSpell.cost;
         charConfig.mana.spent += charConfig.energy.selectedAction.cost;
@@ -494,7 +467,8 @@ export const ActionManager = function (game) {
             case EnumHelper.inventoryEnum.offHand:
                 if (inventory.offHand.type !== InventoryConfig.defaultMainHand.type && inventory.offHand.armor) {
                     if (inventory.offHand.armor - value <= 0) {
-                        inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
+                        //inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
+                        inventory.offHand.armor = 0;
                     } else {
                         inventory.offHand.armor -= value;
                     }
@@ -504,7 +478,7 @@ export const ActionManager = function (game) {
             case EnumHelper.inventoryEnum.head:
                 if (inventory.head.type !== InventoryConfig.defaultHead.type) {
                     if (inventory.head.armor - value <= 0) {
-                        inventory.head = lodash.cloneDeep(InventoryConfig.defaultHead);
+                        inventory.head.armor = 0;
                     } else {
                         inventory.head.armor -= value;
                     }
@@ -514,7 +488,7 @@ export const ActionManager = function (game) {
             case EnumHelper.inventoryEnum.body:
                 if (inventory.body.type !== InventoryConfig.defaultBody.type) {
                     if (inventory.body.armor - value <= 0) {
-                        inventory.body = lodash.cloneDeep(InventoryConfig.defaultBody);
+                        inventory.body.armor = 0;
                     } else {
                         inventory.body.armor -= value;
                     }
@@ -524,7 +498,7 @@ export const ActionManager = function (game) {
             case EnumHelper.inventoryEnum.hands:
                 if (inventory.hands.type !== InventoryConfig.defaultHands.type) {
                     if (inventory.hands.armor - value <= 0) {
-                        inventory.hands = lodash.cloneDeep(InventoryConfig.defaultHands);
+                        inventory.hands.armor = 0;
                     } else {
                         inventory.hands.armor -= value;
                     }
@@ -534,7 +508,7 @@ export const ActionManager = function (game) {
             case EnumHelper.inventoryEnum.feet:
                 if (inventory.feet.type !== InventoryConfig.defaultFeet.type) {
                     if (inventory.feet.armor - value <= 0) {
-                        inventory.feet = lodash.cloneDeep(InventoryConfig.defaultFeet);
+                        inventory.feet.armor = 0;
                     } else {
                         inventory.feet.armor -= value;
                     }

@@ -16,5 +16,8 @@
     },
     dash: {
         cost: 2
+    },
+    well: {
+        cost: 1
     }
 };
