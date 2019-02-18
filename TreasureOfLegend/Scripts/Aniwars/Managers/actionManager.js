@@ -24,11 +24,12 @@ export const ActionManager = function (game) {
             charConfig = character.characterConfig;
         if (!charConfig.movement.isMoving) {
             if (charConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand) {
-                this._checkDefaultAction(character, enemy);
+                return this._checkDefaultAction(character, enemy);
             } else if (charConfig.energy.actionId === EnumHelper.actionEnum.attackSpell) {
-                this._checkSpellAttack(character, enemy);
+                return this._checkSpellAttack(character, enemy);
             }
         }
+        return false;
     };
 
     // OBJECT INTERACTION -------------------------------------------------------------------------------------------------------------------
@@ -328,129 +329,6 @@ export const ActionManager = function (game) {
     };
 
     // PRIVATE -------------------------------------------------------------------------------------------------------------------------------
-    this._checkProjectileSuccess = (character, enemy) => {
-        // TODO: Check Bresenham's algorithm (https://www.redblobgames.com/grids/line-drawing.html)
-        // TODO: Check if character.x > enemy.x or y and rearrange the pointMatrix accordingly
-        var pointMatrix = [
-            [
-                [character.x, character.y, enemy.x, enemy.y],
-                [character.x, character.y, enemy.x + enemy.width, enemy.y],
-                [character.x, character.y, enemy.x, enemy.y + enemy.height],
-                [character.x, character.y, enemy.x + enemy.width, enemy.y + enemy.height]
-            ],
-            [
-                [character.x + character.width, character.y, enemy.x, enemy.y],
-                [character.x + character.width, character.y, enemy.x + enemy.width, enemy.y],
-                [character.x + character.width, character.y, enemy.x, enemy.y + enemy.height],
-                [character.x + character.width, character.y, enemy.x + enemy.width, enemy.y + enemy.height]
-            ],
-            [
-                [character.x, character.y + character.height, enemy.x, enemy.y],
-                [character.x, character.y + character.height, enemy.x + enemy.width, enemy.y],
-                [character.x, character.y + character.height, enemy.x, enemy.y + enemy.height],
-                [character.x, character.y + character.height, enemy.x + enemy.width, enemy.y + enemy.height]
-            ],
-            [
-                [character.x + character.width, character.y + character.height, enemy.x, enemy.y],
-                [character.x + character.width, character.y + character.height, enemy.x + enemy.width, enemy.y],
-                [character.x + character.width, character.y + character.height, enemy.x, enemy.y + enemy.height],
-                [character.x + character.width, character.y + character.height, enemy.x + enemy.width, enemy.y + enemy.height]
-            ]
-        ];
-        var isNotBlocked,
-            linePoints,
-            pointsFound,
-            lines = [],
-            allLinePoints = [];
-        for (let i = 0; i < pointMatrix.length; i++) {
-            pointsFound = 0;
-            for (let j = 0; j < pointMatrix[i].length; j++) {
-                isNotBlocked = true;
-                linePoints = this._supercoverLine(pointMatrix[i][j][0], pointMatrix[i][j][1], pointMatrix[i][j][2], pointMatrix[i][j][3]);
-                _.each(linePoints, function (point) {
-                    if (Math.floor(game.activeMap.levelMap[point.y / 50][point.x / 50]) !== 0) {
-                        isNotBlocked = false;
-                    }
-                });
-                if (isNotBlocked) {
-                    pointsFound++;
-                    allLinePoints.push(linePoints);
-                    lines.push({
-                        charX: pointMatrix[i][j][0],
-                        charY: pointMatrix[i][j][1],
-                        enemyX: pointMatrix[i][j][2],
-                        enemyY: pointMatrix[i][j][3]
-                    });
-                    if (pointsFound >= 2) {
-                        allLinePoints.sort(function(a, b) {
-                            if (a.length > b.length) {
-                                return 1;
-                            } else if (a.length < b.length) {
-                                return -1;
-                            } else {
-                                return 0;
-                            }
-                        });
-                        return {
-                            isFound: true,
-                            lines: lines,
-                            linePoints: allLinePoints[0]
-                        };
-                    }
-                }
-            }
-        }
-
-        return {
-            isFound: false,
-            lines: lines,
-            linePoints: linePoints
-        };
-    };
-
-    this._supercoverLine = function (characterX, characterY, enemyX, enemyY) {
-        var dx = enemyX - characterX,
-            dy = enemyY - characterY,
-            nx = Math.abs(dx),
-            ny = Math.abs(dy),
-            signX = dx > 0 ? 1 : -1,
-            signY = dy > 0 ? 1 : -1,
-            p = {
-                x: characterX,
-                y: characterY
-            },
-            points = [{ x: p.x, y: p.y }];
-        for (var ix = 0, iy = 0; ix < nx || iy < ny;) {
-            if ((0.5 + ix) / nx === (0.5 + iy) / ny) {
-                // next step is diagonal
-                p.x += signX;
-                p.y += signY;
-                ix++;
-                iy++;
-            } else if ((0.5 + ix) / nx < (0.5 + iy) / ny) {
-                // next step is horizontal
-                p.x += signX;
-                ix++;
-            } else {
-                // next step is vertical
-                p.y += signY;
-                iy++;
-            }
-            if (p.x % 10 === 0 && p.y % 10 === 0) {
-                if (!points.find(function (point) {
-                    return point.x === Math.floor(p.x / 50) * 50 &&
-                        point.y === Math.floor(p.y / 50) * 50;
-                })) {
-                    points.push({
-                        x: Math.floor(p.x / 50) * 50,
-                        y: Math.floor(p.y / 50) * 50
-                    });
-                }
-            }
-        }
-        return points;
-    };
-
     this._tryMovingCharacter = (character, enemy) => {
         var path,
             charConfig = character.characterConfig;
@@ -554,12 +432,15 @@ export const ActionManager = function (game) {
                             enemyCenter.destroy();
                         });
                         this._attackWithMainHand(character, enemy);
+                        return true;
                     }
                 } else {
                     this._attackWithMainHand(character, enemy);
+                    return true;
                 }
             }
         }
+        return false;
         // Otherwise move near the object and try again
         //else {
         //    this._tryMovingCharacter(character, enemy);
@@ -591,15 +472,18 @@ export const ActionManager = function (game) {
                             enemyCenter.destroy();
                         });
                         this._attackWithSpell(character, enemy);
+                        return true;
                     }
                 } else {
                     this._attackWithSpell(character, enemy);
+                    return true;
                 }
             }
             //else {
             //    this._tryMovingCharacter(character, enemy);
             //}
         }
+        return false;
     };
 
     this._removeArmorPointsFromEquippedInventory = (enemy, value) => {
@@ -718,5 +602,151 @@ export const ActionManager = function (game) {
             //game.initiative = null;
             game.initiativeIndex = -1;
         }
+    };
+
+    this._checkProjectileSuccess = (character, enemy) => {
+        // TODO: Check Bresenham's algorithm (https://www.redblobgames.com/grids/line-drawing.html)
+        var pointMatrix = this._getPointMatrix(character, enemy);
+        var isNotBlocked,
+            linePoints,
+            pointsFound,
+            lines = [],
+            allLinePoints = [];
+        for (let i = 0; i < pointMatrix.length; i++) {
+            pointsFound = 0;
+            for (let j = 0; j < pointMatrix[i].length; j++) {
+                isNotBlocked = true;
+                linePoints = this._supercoverLine(pointMatrix[i][j][0], pointMatrix[i][j][1], pointMatrix[i][j][2], pointMatrix[i][j][3]);
+                _.each(linePoints, function (point) {
+                    if (Math.floor(game.activeMap.levelMap[point.y / 50][point.x / 50]) !== 0) {
+                        isNotBlocked = false;
+                    }
+                });
+                if (isNotBlocked) {
+                    pointsFound++;
+                    allLinePoints.push(linePoints);
+                    lines.push({
+                        charX: pointMatrix[i][j][0],
+                        charY: pointMatrix[i][j][1],
+                        enemyX: pointMatrix[i][j][2],
+                        enemyY: pointMatrix[i][j][3]
+                    });
+                    if (pointsFound >= 2) {
+                        allLinePoints.sort(function (a, b) {
+                            if (a.length > b.length) {
+                                return 1;
+                            } else if (a.length < b.length) {
+                                return -1;
+                            } else {
+                                return 0;
+                            }
+                        });
+                        return {
+                            isFound: true,
+                            lines: lines,
+                            linePoints: allLinePoints[0]
+                        };
+                    }
+                }
+            }
+        }
+
+        return {
+            isFound: false,
+            lines: lines,
+            linePoints: linePoints
+        };
+    };
+
+    this._supercoverLine = function (characterX, characterY, enemyX, enemyY) {
+        var dx = enemyX - characterX,
+            dy = enemyY - characterY,
+            nx = Math.abs(dx),
+            ny = Math.abs(dy),
+            signX = dx > 0 ? 1 : -1,
+            signY = dy > 0 ? 1 : -1,
+            p = {
+                x: characterX,
+                y: characterY
+            },
+            points = [{ x: p.x, y: p.y }];
+        for (var ix = 0, iy = 0; ix < nx || iy < ny;) {
+            if ((0.5 + ix) / nx === (0.5 + iy) / ny) {
+                // next step is diagonal
+                p.x += signX;
+                p.y += signY;
+                ix++;
+                iy++;
+            } else if ((0.5 + ix) / nx < (0.5 + iy) / ny) {
+                // next step is horizontal
+                p.x += signX;
+                ix++;
+            } else {
+                // next step is vertical
+                p.y += signY;
+                iy++;
+            }
+            if (p.x % 10 === 0 && p.y % 10 === 0) {
+                if (!points.find(function (point) {
+                    return point.x === Math.floor(p.x / 50) * 50 &&
+                        point.y === Math.floor(p.y / 50) * 50;
+                })) {
+                    points.push({
+                        x: Math.floor(p.x / 50) * 50,
+                        y: Math.floor(p.y / 50) * 50
+                    });
+                }
+            }
+        }
+        return points;
+    };
+
+    this._getPointMatrix = function(character, enemy) {
+        var xyc = [
+                [character.x, character.y, enemy.x, enemy.y],
+                [character.x, character.y, enemy.x + enemy.width, enemy.y],
+                [character.x, character.y, enemy.x, enemy.y + enemy.height],
+                [character.x, character.y, enemy.x + enemy.width, enemy.y + enemy.height]
+            ],
+            xpyc = [
+                [character.x + character.width, character.y, enemy.x, enemy.y],
+                [character.x + character.width, character.y, enemy.x + enemy.width, enemy.y],
+                [character.x + character.width, character.y, enemy.x, enemy.y + enemy.height],
+                [character.x + character.width, character.y, enemy.x + enemy.width, enemy.y + enemy.height]
+            ],
+            xypc = [
+                [character.x, character.y + character.height, enemy.x, enemy.y],
+                [character.x, character.y + character.height, enemy.x + enemy.width, enemy.y],
+                [character.x, character.y + character.height, enemy.x, enemy.y + enemy.height],
+                [character.x, character.y + character.height, enemy.x + enemy.width, enemy.y + enemy.height]
+            ],
+            xpypc = [
+                [character.x + character.width, character.y + character.height, enemy.x, enemy.y],
+                [character.x + character.width, character.y + character.height, enemy.x + enemy.width, enemy.y],
+                [character.x + character.width, character.y + character.height, enemy.x, enemy.y + enemy.height],
+                [
+                    character.x + character.width, character.y + character.height, enemy.x + enemy.width,
+                    enemy.y + enemy.height
+                ]
+            ];
+        var pointMatrix = [xyc, xpyc, xypc, xpypc];
+        if (character.x > enemy.x && character.y === enemy.y) {
+            pointMatrix = [xyc, xypc, xpyc, xpypc];
+        } else if (character.x < enemy.x && character.y === enemy.y) {
+            pointMatrix = [xpyc, xpypc, xyc, xypc];
+        } else if (character.y > enemy.y && character.x === enemy.x) {
+            pointMatrix = [xyc, xpyc, xypc, xpypc];
+        } else if (character.y < enemy.y && character.x === enemy.x) {
+            pointMatrix = [xypc, xpypc, xyc, xpyc];
+        } else if (character.x > enemy.x && character.y > enemy.y) {
+            pointMatrix = [xyc, xpyc, xypc, xpypc];
+        } else if (character.x < enemy.x && character.y < enemy.y) {
+            pointMatrix = [xpypc, xypc, xpyc, xyc];
+        } else if (character.x < enemy.x && character.y > enemy.y) {
+            pointMatrix = [xpyc, xyc, xpypc, xypc];
+        } else if (character.x > enemy.x && character.y < enemy.y) {
+            pointMatrix = [xpyc, xyc, xpypc, xypc];
+        }
+        return pointMatrix;
     };
 };

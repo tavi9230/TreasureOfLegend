@@ -256,7 +256,7 @@ export const Enemy = function (scene) {
     };
 
     this.interactWithEnemy = (enemy) => {
-        actionManager.interactWithEnemy(enemy);
+        return actionManager.interactWithEnemy(enemy);
     };
 
     this.interactWithObject = (object) => {
@@ -436,9 +436,9 @@ export const Enemy = function (scene) {
                         if (closestEnemy.length > 0 && closestEnemy[0].path.length <= useSpell.range) {
                             charConfig.energy.actionId = EnumHelper.actionEnum.attackSpell;
                             charConfig.energy.selectedAction = useSpell;
-                            this.interactWithEnemy(closestEnemy[0].enemy);
+                            var hasAttacked = this.interactWithEnemy(closestEnemy[0].enemy);
                             return {
-                                hasAttacked: true,
+                                hasAttacked: hasAttacked,
                                 selectedAction: charConfig.energy.selectedAction
                             };
                         }
@@ -489,9 +489,9 @@ export const Enemy = function (scene) {
         this._dropOffhandWeapon(currentCharacter);
         charConfig.energy.actionId = EnumHelper.actionEnum.attackMainHand;
         charConfig.energy.selectedAction = charConfig.inventory.mainHand;
-        this.interactWithEnemy(closestEnemy);
+        var hasAttacked = this.interactWithEnemy(closestEnemy);
         return {
-            hasAttacked: true,
+            hasAttacked: hasAttacked,
             selectedAction: charConfig.energy.selectedAction
         };
     };
@@ -693,9 +693,6 @@ export const Enemy = function (scene) {
         var well = game.activeMap.objects.getChildren().find(function (object) {
             return object.objectConfig.id === wellType;
         });
-        if (well.objectConfig.description === 'Empty well') {
-            well = null;
-        }
         // if we have a mana well
         if (well) {
             // get path to well
