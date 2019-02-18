@@ -60,9 +60,14 @@ var inventoryGetter = {
                 return _getItem(mainHandArray);
         }
     },
-    getSpell: function (spell) {
-        spell.level++;
-        return spell;
+    getSpells: function (spellsToGet) {
+        var spells = [];
+        _.each(spellsToGet, function(spell) {
+            var s = lodash.cloneDeep(spell);
+            s.level++;
+            spells.push(s);
+        });
+        return spells;
     }
 };
 
@@ -86,8 +91,8 @@ export const EnemyConfig = {
         image: 'character',
         experience: 500,
         souls: 200,
-        //traits: [EnumHelper.traitEnum.magic],
-        traits: [],
+        traits: [EnumHelper.traitEnum.magic],
+        //traits: [],
         resistances: [],
         vulnerabilities: [],
         invulnerabilities: [],
@@ -102,7 +107,8 @@ export const EnemyConfig = {
                 var rand = Math.random() * 20;
                 return Math.floor(rand);
             },
-            spells: [inventoryGetter.getSpell(SpellsConfig.firebolt)],
+            spells: inventoryGetter.getSpells,
+            spellsToGet: [SpellsConfig.firebolt],
             mainHand: inventoryGetter.getMainHandItem,
             offHand: inventoryGetter.getOffHandItem,
             head: inventoryGetter.getHeadItem,
