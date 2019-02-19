@@ -396,8 +396,10 @@ export const Enemy = function (scene) {
             // ATTACK ----------------------------------------------------------------------------------------------------------------------------------------
             // TODO: Have a variable that keeps track of what the enemy wanted to do and do that here instead of these ifs?
             var attack = this._tryAttack(currentCharacter, seenCharacters, spells);
-            selectedAction = attack.selectedAction;
             hasAttacked = attack.hasAttacked;
+            if (hasAttacked) {
+                selectedAction = attack.selectedAction;
+            }
 
             // INTERACTION ----------------------------------------------------------------------------------------------------------------------------------------
             hasInteracted = this._tryInterract(currentCharacter);
