@@ -391,17 +391,12 @@ export const ActionManager = function (scene) {
                 });
             }
         }
-        if (hasHit) {
-            if (!isSpell) {
-                charConfig.energy.spent += EnergyConfig.attackMainHand.cost;
-                StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackMainHand.cost);
-            } else {
-                charConfig.energy.spent += EnergyConfig.attackSpell.cost;
-                charConfig.mana.spent += charConfig.energy.selectedAction.cost;
-                StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackSpell.cost);
-                StatusIconConfig.showManaIcon(game, character, charConfig.energy.selectedAction.cost);
-            }
+        if (isSpell) {
+            charConfig.mana.spent += charConfig.energy.selectedAction.cost;
+            StatusIconConfig.showManaIcon(game, character, charConfig.energy.selectedAction.cost);
         }
+        charConfig.energy.spent += EnergyConfig.attackMainHand.cost;
+        StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackMainHand.cost);
 
         charConfig.energy.actionId = -1;
         charConfig.energy.selectedAction = null;

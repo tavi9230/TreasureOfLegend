@@ -81,7 +81,7 @@ export const HUDCharacterStatus = function (scene) {
             image.on('pointerover', function () {
                 self._showItemStats({ x: x, y: y, item: item, character: character });
             });
-            image.on('pointerout', this._hideItemStats);
+            image.on('pointerout', this._destroyItemStats);
             characterInventoryTabGroup.add(image);
         }
         if (item && item.type !== EnumHelper.inventoryEnum.defaultEquipment &&
@@ -283,6 +283,7 @@ export const HUDCharacterStatus = function (scene) {
             });
         } else {
             this.destroyAllCharacterGroups();
+            this._destroyItemStats();
             game.tipsModal.hideTips();
         }
     };
@@ -386,23 +387,31 @@ export const HUDCharacterStatus = function (scene) {
             item.on('pointerover', function () {
                 self._showItemStats({ x: item.x, y: item.y, item: item.objectToSend, character: activeCharacter });
             });
-            item.on('pointerout', self._hideItemStats);
+            item.on('pointerout', self._destroyItemStats);
         });
     };
     this.closeLootbag = function () {
         if (enemyInventory) {
             enemyInventory.destroy(true);
             enemyInventory = null;
-            this._hideItemStats();
+            this._destroyItemStats();
         }
     };
     // DESTROY METHODS -----------------------------------------------------------------------------------------------------------------------------------------------
     // Inventory TAB
+    this._destroyItemStats = function () {
+        if (itemStats) {
+            itemStats.destroy(true);
+            itemStats = null;
+        }
+    };
+
     this._destroyCharacterInventoryTab = function () {
         if (characterInventoryTabGroup) {
             characterInventoryTabGroup.destroy(true);
             characterInventoryTabGroup = null;
         }
+        this._destroyItemStats();
     };
 
     // Description TAB
@@ -536,12 +545,6 @@ export const HUDCharacterStatus = function (scene) {
             } else if (item.type === EnumHelper.inventoryEnum.feet) {
                 this._createItemStatsBox(item, config.character.characterConfig, config.x, config.y, 'feet');
             }
-        }
-    };
-    this._hideItemStats = function () {
-        if (itemStats) {
-            itemStats.destroy(true);
-            itemStats = null;
         }
     };
     this._addToEnemyInventory = function (location, characterBelonging, x, y) {
