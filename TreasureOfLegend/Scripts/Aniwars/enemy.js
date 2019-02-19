@@ -35,15 +35,15 @@ export const Enemy = function (scene) {
             inProgress: null
         },
         inventory: {
-            mainHand: lodash.cloneDeep(InventoryConfig.defaultMainHand),
-            offHand: lodash.cloneDeep(InventoryConfig.defaultMainHand),
-            head: lodash.cloneDeep(InventoryConfig.defaultHead),
-            body: lodash.cloneDeep(InventoryConfig.defaultBody),
-            feet: lodash.cloneDeep(InventoryConfig.defaultFeet),
-            hands: lodash.cloneDeep(InventoryConfig.defaultHands),
+            mainHand: lodash.cloneDeep(InventoryConfig.weapons.defaultMainHand),
+            offHand: lodash.cloneDeep(InventoryConfig.weapons.defaultMainHand),
+            head: lodash.cloneDeep(InventoryConfig.head.defaultHead),
+            body: lodash.cloneDeep(InventoryConfig.body.defaultBody),
+            feet: lodash.cloneDeep(InventoryConfig.feet.defaultFeet),
+            hands: lodash.cloneDeep(InventoryConfig.hands.defaultHands),
             slots: {
                 max: 2,
-                items: [lodash.cloneDeep(InventoryConfig.bow), lodash.cloneDeep(InventoryConfig.shortsword)]
+                items: [lodash.cloneDeep(InventoryConfig.weapons.shortBow), lodash.cloneDeep(InventoryConfig.weapons.shortSword)]
             },
             money: 0,
             spells: []
@@ -68,7 +68,9 @@ export const Enemy = function (scene) {
     this.characters = game.add.group();
 
     this.addNewCharacter = (x, y, config) => {
-        var character = game.physics.add.sprite(x, y, config.image).setOrigin(0, 0);
+        var character = game.physics.add.sprite(x, y, config.image).setOrigin(-0.25, 0.5);
+        character.height = 50;
+        character.width = 50;
         character.characterConfig = lodash.cloneDeep(this.characterConfig);
         var charConfig = character.characterConfig;
         charConfig.posX = x;
@@ -514,7 +516,7 @@ export const Enemy = function (scene) {
             itemImage.on('pointerover', _.bind(game.sceneManager._hoverItem, this, itemImage));
             itemImage.itemConfig = lodash.cloneDeep(item);
             game.items.add(itemImage);
-            charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
+            charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.weapons.defaultMainHand);
             currentCharacter.setDepth(1);
         }
     };

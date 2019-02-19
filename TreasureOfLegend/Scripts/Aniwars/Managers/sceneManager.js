@@ -188,76 +188,76 @@ export const SceneManager = function (game) {
 
     this.createItems = () => {
         var self = this,
-            item = game.physics.add.sprite(700, 200, 'bow').setOrigin(0, 0);
+            item = game.physics.add.sprite(700, 200, 'shortBow').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.width = 50;
         item.height = 50;
-        item.itemConfig = lodash.cloneDeep(InventoryConfig.bow);
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.weapons.shortBow);
         game.items.add(item);
 
-        item = game.physics.add.sprite(700, 250, 'bow').setOrigin(0, 0);
+        item = game.physics.add.sprite(700, 250, 'shortBow').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.width = 50;
         item.height = 50;
-        item.itemConfig = lodash.cloneDeep(InventoryConfig.bow);
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.weapons.shortBow);
         game.items.add(item);
 
-        item = game.physics.add.sprite(700, 300, 'shortsword').setOrigin(0, 0);
+        item = game.physics.add.sprite(700, 300, 'shortSword').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.width = 50;
         item.height = 50;
-        item.itemConfig = lodash.cloneDeep(InventoryConfig.shortsword);
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.weapons.shortSword);
         game.items.add(item);
 
-        item = game.physics.add.sprite(700, 350, 'shortsword').setOrigin(0, 0);
+        item = game.physics.add.sprite(700, 350, 'shortSword').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.width = 50;
         item.height = 50;
-        item.itemConfig = lodash.cloneDeep(InventoryConfig.shortsword);
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.weapons.shortSword);
         game.items.add(item);
 
-        item = game.physics.add.sprite(700, 400, 'head').setOrigin(0, 0);
+        item = game.physics.add.sprite(700, 400, 'cap').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.width = 50;
         item.height = 50;
-        item.itemConfig = lodash.cloneDeep(InventoryConfig.head);
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.head.cap);
         game.items.add(item);
 
-        item = game.physics.add.sprite(700, 450, 'shield').setOrigin(0, 0);
+        item = game.physics.add.sprite(700, 450, 'buckler').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.width = 50;
         item.height = 50;
-        item.itemConfig = lodash.cloneDeep(InventoryConfig.shield);
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.shields.buckler);
         game.items.add(item);
 
-        item = game.physics.add.sprite(700, 500, 'chainmail').setOrigin(0, 0);
+        item = game.physics.add.sprite(700, 500, 'chainMail').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.width = 50;
         item.height = 50;
-        item.itemConfig = lodash.cloneDeep(InventoryConfig.chainmail);
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.body.chainMail);
         game.items.add(item);
 
-        item = game.physics.add.sprite(700, 550, 'hand').setOrigin(0, 0);
+        item = game.physics.add.sprite(700, 550, 'leatherGloves').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.width = 50;
         item.height = 50;
-        item.itemConfig = lodash.cloneDeep(InventoryConfig.hand);
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.hands.leatherGloves);
         game.items.add(item);
 
-        item = game.physics.add.sprite(700, 600, 'feet').setOrigin(0, 0);
+        item = game.physics.add.sprite(700, 600, 'greaves').setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.width = 50;
         item.height = 50;
-        item.itemConfig = lodash.cloneDeep(InventoryConfig.feet);
+        item.itemConfig = lodash.cloneDeep(InventoryConfig.feet.greaves);
         game.items.add(item);
 
         game.input.setHitArea(game.items.getChildren());

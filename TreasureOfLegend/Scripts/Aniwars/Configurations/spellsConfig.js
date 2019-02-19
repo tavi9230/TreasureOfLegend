@@ -6,7 +6,8 @@ export const SpellsConfig = {
         damage: [
             {
                 type: EnumHelper.damageTypeEnum.fire,
-                value: 4
+                value: '1d6',
+                initialValue: '1d6'
             }
         ],
         range: 6,

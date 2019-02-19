@@ -558,8 +558,8 @@ export const HUDCharacterStatus = function (scene) {
     };
     this._createItemStatsBox = function (item, characterConfig, x, y, location) {
         var damage = '',
-            nameText, descriptionText, damageText, rangeText, holdText,
-            equippedBox, equippedNameText, equippedDescriptionText, equippedDamageText, equippedRangeText, equippedHoldText,
+            nameText, descriptionText, damageText, rangeText, holdText, durabilityText,
+            equippedBox, equippedNameText, equippedDescriptionText, equippedDamageText, equippedRangeText, equippedHoldText, equippedDurabilityText,
             textStyle = {
                 fill: '#FFF',
                 wordWrap: {
@@ -568,6 +568,8 @@ export const HUDCharacterStatus = function (scene) {
             },
             itemHasDamage = item.damage,
             equippedHasDamage;
+        nameText = game.add.text(x + 55, y, item.name, textStyle);
+        descriptionText = game.add.text(x + 55, y + 30, item.description, textStyle);
         if (itemHasDamage) {
             var damage = '';
             for (let i = 0; i < item.damage.length; i++) {
@@ -581,22 +583,24 @@ export const HUDCharacterStatus = function (scene) {
         } else {
             damageText = game.add.text(x + 55, y + 60, 'Armor: ' + item.armor, textStyle);
         }
-        nameText = game.add.text(x + 55, y, item.name, textStyle);
-        descriptionText = game.add.text(x + 55, y + 30, item.description, textStyle);
         if (itemHasDamage) {
             rangeText = game.add.text(x + 55, y + 105, 'Range: ' + item.range, textStyle);
             holdText = game.add.text(x + 55, y + 120, 'Hold: ' + item.hold, textStyle);
             itemStats.add(rangeText);
             itemStats.add(holdText);
         }
+        durabilityText = game.add.text(x + 55, y + 135, 'Durability: ' + item.durability.current + '/' + item.durability.max, textStyle);
         itemStats.add(nameText);
         itemStats.add(descriptionText);
         itemStats.add(damageText);
+        itemStats.add(durabilityText);
         if (characterConfig.inventory[location].type !== EnumHelper.inventoryEnum.defaultEquipment && !item.isEquipped) {
             equippedBox = game.add.graphics();
             equippedBox.fillStyle(0x222222, 1);
             equippedBox.fillRect(x + 200, y, 150, 150);
             equippedHasDamage = characterConfig.inventory[location].damage;
+            equippedNameText = game.add.text(x + 205, y, characterConfig.inventory[location].name, textStyle);
+            equippedDescriptionText = game.add.text(x + 205, y + 30, characterConfig.inventory[location].description, textStyle);
             if (equippedHasDamage) {
                 damage = '';
                 for (let i = 0; i < characterConfig.inventory[location].damage.length; i++) {
@@ -610,18 +614,19 @@ export const HUDCharacterStatus = function (scene) {
             } else {
                 equippedDamageText = game.add.text(x + 205, y + 60, 'Armor: ' + characterConfig.inventory[location].armor, textStyle);
             }
-            equippedNameText = game.add.text(x + 205, y, characterConfig.inventory[location].name, textStyle);
-            equippedDescriptionText = game.add.text(x + 205, y + 30, characterConfig.inventory[location].description, textStyle);
             if (equippedHasDamage) {
                 equippedRangeText = game.add.text(x + 205, y + 105, 'Range: ' + characterConfig.inventory[location].range, textStyle);
                 equippedHoldText = game.add.text(x + 205, y + 120, 'Hold: ' + characterConfig.inventory[location].hold, textStyle);
                 itemStats.add(equippedRangeText);
                 itemStats.add(equippedHoldText);
             }
+            equippedDurabilityText = game.add.text(x + 205, y + 135,
+                'Durability: ' + characterConfig.inventory[location].durability.current + '/' + characterConfig.inventory[location].durability.max, textStyle);
             itemStats.add(equippedBox);
             itemStats.add(equippedNameText);
             itemStats.add(equippedDescriptionText);
             itemStats.add(equippedDamageText);
+            itemStats.add(equippedDurabilityText);
         }
     };
 };

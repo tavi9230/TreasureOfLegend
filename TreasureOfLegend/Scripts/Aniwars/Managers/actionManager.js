@@ -152,153 +152,12 @@ export const ActionManager = function (scene) {
     };
 
     //ENEMY INTERACTION --------------------------------------------------------------------------------------------------------------------
-    this._tryAttack = (character, enemy, attackAttribute, isSpell) => {
-        var self = this,
-            charConfig = character.characterConfig,
-            enemyCharConfig = enemy.characterConfig,
-            d20 = Math.floor(Math.random() * 20) + 1 + attackAttribute,
-            hitSound;
-        if (d20 <= enemyCharConfig.armor) {
-            if (enemyCharConfig.armor - enemyCharConfig.attributes.dexterity > 0) {
-                if (this._removeArmorPointsFromEquippedInventory(enemy, 1)) {
-                    StatusIconConfig.showArmorIcon(game, enemy, 1);
-                    if (charConfig.energy.selectedAction.sound) {
-                        hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingArmor, { volume: 0.5 });
-                        hitSound.play();
-                    }
-                }
-            }
-            // else it's a miss? or calculate chance to miss or hit armor only?
-        } else {
-            _.each(charConfig.energy.selectedAction.damage, function (damage) {
-                var actionLevel = charConfig.energy.selectedAction.level ? Math.ceil(charConfig.energy.selectedAction.level / 2) : 1,
-                    attackDamage = Math.floor(Math.random() * damage.value * actionLevel) + 1 + Math.floor(attackAttribute / 2);
-                if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === -1) {
-                    if (enemyCharConfig.resistances.indexOf(damage.type) !== -1) {
-                        enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
-                        StatusIconConfig.showLifeIcon(game, enemy, Math.ceil(attackDamage / 2));
-                        if (charConfig.energy.selectedAction.sound) {
-                            hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingFlesh, { volume: 0.5 });
-                            hitSound.play();
-                        }
-                    } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== -1) {
-                        enemyCharConfig.life.current -= (attackDamage * 2);
-                        StatusIconConfig.showLifeIcon(game, enemy, attackDamage * 2);
-                        if (charConfig.energy.selectedAction.sound) {
-                            hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingFlesh, { volume: 0.5 });
-                            hitSound.play();
-                        }
-                    } else {
-                        enemyCharConfig.life.current -= attackDamage;
-                        StatusIconConfig.showLifeIcon(game, enemy, attackDamage);
-                        if (charConfig.energy.selectedAction.sound) {
-                            hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingFlesh, { volume: 0.5 });
-                            hitSound.play();
-                        }
-                    }
-                }
-                if (enemyCharConfig.armor - enemyCharConfig.attributes.dexterity > 0) {
-                    if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
-                        StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
-                        if (charConfig.energy.selectedAction.sound) {
-                            game.sound.add(charConfig.energy.selectedAction.sound.hittingArmor, { volume: 0.5 });
-                            game.sound.play(charConfig.energy.selectedAction.sound.hittingArmor, { name: charConfig.energy.selectedAction.sound.hittingArmor });
-                        }
-                    }
-                }
-            });
-        }
-
-        enemyCharConfig.armor = enemyCharConfig.inventory.head.armor +
-            enemyCharConfig.inventory.body.armor +
-            enemyCharConfig.inventory.hands.armor +
-            enemyCharConfig.inventory.feet.armor +
-            (enemyCharConfig.inventory.offHand.armor
-                ? enemyCharConfig.inventory.offHand.armor
-                : 0) + enemyCharConfig.attributes.dexterity;
-
-        if (!isSpell) {
-            charConfig.energy.spent += EnergyConfig.attackMainHand.cost;
-            StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackMainHand.cost);
-        } else {
-            charConfig.energy.spent += EnergyConfig.attackSpell.cost;
-            charConfig.mana.spent += charConfig.energy.selectedAction.cost;
-            StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackSpell.cost);
-            StatusIconConfig.showManaIcon(game, character, charConfig.energy.selectedAction.cost);
-        }
-
-        charConfig.energy.actionId = -1;
-        charConfig.energy.selectedAction = null;
-        game.events.emit('removeSelectedActionIcon');
-
-        this._checkInitiative(enemy);
-    };
-
     this._getAttackAttribute = (charConfig) => {
         return EnumHelper.attributeEnum.strength === charConfig.energy.selectedAction.attribute
             ? charConfig.attributes.strength
             : EnumHelper.attributeEnum.dexterity === charConfig.energy.selectedAction.attribute
                 ? charConfig.attributes.dexterity
                 : charConfig.attributes.intelligence;
-    };
-
-    this._checkInitiative = (enemy) => {
-        var charConfig = enemy.characterConfig,
-            lootbag;
-        if (charConfig.life.current <= 0) {
-            this._addItemsFromBodyToInventory(enemy);
-            if (charConfig.inventory.slots.items.length > 0) {
-                lootbag = game.add.image(enemy.x, enemy.y, 'lootbag').setOrigin(0, 0);
-                lootbag.displayWidth = 50;
-                lootbag.displayHeight = 50;
-                lootbag.objectConfig = lodash.cloneDeep(game.activeMap.objConfig);
-                lootbag.objectConfig.belongsTo = enemy;
-                lootbag.objectConfig.id = EnumHelper.idEnum.lootbag.id;
-                lootbag.objectConfig.isInteractible = true;
-                game.activeMap.deadCharacters.add(lootbag);
-                // TODO: Check if this is overridden with each killed enemy
-                game.input.setHitArea(game.activeMap.deadCharacters.getChildren());
-                lootbag.on('pointerdown', function () {
-                    if (game.activeCharacter.characterConfig.isPlayerControlled) {
-                        game.characters.interactWithObject(lootbag);
-                    }
-                });
-            }
-            if (!charConfig.isPlayerControlled) {
-                _.each(game.characters.characters.getChildren(), function (character) {
-                    character.characterConfig.experience.current += Math.floor(enemy.characterConfig.experience / game.characters.characters.getChildren().length);
-                    var difference = Math.floor(character.characterConfig.experience.current - character.characterConfig.experience.nextLevel);
-                    if (difference >= 0) {
-                        character.characterConfig.experience.current = difference;
-                        character.characterConfig.experience.level++;
-                        character.characterConfig.experience.attributePoints++;
-                        character.characterConfig.experience.nextLevel = Math.floor(character.characterConfig.experience.nextLevel * 1.3);
-                    }
-                });
-                game.characters.souls.current += enemy.characterConfig.souls;
-                // TODO: Attribute points cost 5 souls then 10 then 15 and so on. Change game logic to reflect this
-                // TODO: Skills cost X souls instead of ^ so we won't need skill points
-                var difference = game.characters.souls.current - game.characters.souls.nextLevel;
-                if (difference >= 0) {
-                    game.characters.souls.current = difference;
-                    game.characters.souls.nextLevel += 5;
-                    game.characters.souls.skillPoints++;
-                }
-                game.events.emit('updateSouls', game.characters.souls);
-            }
-
-            enemy.destroy();
-            if (charConfig.isPlayerControlled) {
-                game.characters.characters.remove(enemy);
-            } else {
-                game.enemies.characters.remove(enemy);
-                this._createNewEnemies();
-            }
-            game.initiative = game.sceneManager.getInitiativeArray([enemy]);
-            game.events.emit('updateAttributePointsPanel', game.activeCharacter);
-            this.hideRangeLines();
-        }
-        game.events.emit('showCharacterInitiative', game.initiative);
     };
 
     this._canAttack = (character, enemy) => {
@@ -386,56 +245,61 @@ export const ActionManager = function (scene) {
         // if armor piece, it will lose 1/3 (2/3) armor when 1/3 (2/3) durability is gone
         // if weapon piece, it will lose 1/3 (2/3) attack power when 1/3 (2/3) durability is gone
         var pieceHit = Math.floor(Math.random() * 6) + 1,
-            inventory = enemy.characterConfig.inventory,
+            enemyCharConfig = enemy.characterConfig,
+            inventory = enemyCharConfig.inventory,
             hasHit = false;
         switch (pieceHit) {
             case EnumHelper.inventoryEnum.offHand:
-                if (inventory.offHand.type !== InventoryConfig.defaultMainHand.type && inventory.offHand.armor) {
-                    if (inventory.offHand.armor - value <= 0) {
-                        //inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
+                if (inventory.offHand.type !== InventoryConfig.weapons.defaultMainHand.type && inventory.offHand.armor && inventory.offHand.durability !== 0) {
+                    if (inventory.offHand.durability.current - value <= 0) {
+                        inventory.feet.durability.current = 0;
                         inventory.offHand.armor = 0;
                     } else {
-                        inventory.offHand.armor -= value;
+                        inventory.offHand.durability.current -= value;
                     }
                     hasHit = true;
                 }
                 break;
             case EnumHelper.inventoryEnum.head:
-                if (inventory.head.type !== InventoryConfig.defaultHead.type) {
-                    if (inventory.head.armor - value <= 0) {
+                if (inventory.head.type !== InventoryConfig.head.defaultHead.type && inventory.head.durability !== 0) {
+                    if (inventory.head.durability.current - value <= 0) {
+                        inventory.feet.durability.current = 0;
                         inventory.head.armor = 0;
                     } else {
-                        inventory.head.armor -= value;
+                        inventory.head.durability.current -= value;
                     }
                     hasHit = true;
                 }
                 break;
             case EnumHelper.inventoryEnum.body:
-                if (inventory.body.type !== InventoryConfig.defaultBody.type) {
-                    if (inventory.body.armor - value <= 0) {
+                if (inventory.body.type !== InventoryConfig.body.defaultBody.type && inventory.body.durability !== 0) {
+                    if (inventory.body.durability.current - value <= 0) {
+                        inventory.feet.durability.current = 0;
                         inventory.body.armor = 0;
                     } else {
-                        inventory.body.armor -= value;
+                        inventory.body.durability.current -= value;
                     }
                     hasHit = true;
                 }
                 break;
             case EnumHelper.inventoryEnum.hands:
-                if (inventory.hands.type !== InventoryConfig.defaultHands.type) {
-                    if (inventory.hands.armor - value <= 0) {
+                if (inventory.hands.type !== InventoryConfig.hands.defaultHands.type && inventory.hands.durability !== 0) {
+                    if (inventory.hands.durability.current - value <= 0) {
+                        inventory.feet.durability.current = 0;
                         inventory.hands.armor = 0;
                     } else {
-                        inventory.hands.armor -= value;
+                        inventory.hands.durability.current -= value;
                     }
                     hasHit = true;
                 }
                 break;
             case EnumHelper.inventoryEnum.feet:
-                if (inventory.feet.type !== InventoryConfig.defaultFeet.type) {
-                    if (inventory.feet.armor - value <= 0) {
+                if (inventory.feet.type !== InventoryConfig.feet.defaultFeet.type && inventory.feet.durability !== 0) {
+                    if (inventory.feet.durability.current - value <= 0) {
+                        inventory.feet.durability.current = 0;
                         inventory.feet.armor = 0;
                     } else {
-                        inventory.feet.armor -= value;
+                        inventory.feet.durability.current -= value;
                     }
                     hasHit = true;
                 }
@@ -443,35 +307,194 @@ export const ActionManager = function (scene) {
             default:
                 break;
         }
+        enemyCharConfig.armor = enemyCharConfig.inventory.head.armor +
+            enemyCharConfig.inventory.body.armor +
+            enemyCharConfig.inventory.hands.armor +
+            enemyCharConfig.inventory.feet.armor +
+            (enemyCharConfig.inventory.offHand.armor
+                ? enemyCharConfig.inventory.offHand.armor
+                : 0) + enemyCharConfig.attributes.dexterity;
         return hasHit;
+    };
+
+    this._showStatusText = function (enemy, text) {
+        var statusText = game.add.text(enemy.x, enemy.y - 25, text, { color: '#dd0000' });
+        setTimeout(function () {
+            statusText.destroy();
+        }, 800);
+    };
+
+    this._tryAttack = (character, enemy, attackAttribute, isSpell) => {
+        var self = this,
+            charConfig = character.characterConfig,
+            enemyCharConfig = enemy.characterConfig,
+            d20 = Math.floor(Math.random() * 20) + 1 + attackAttribute,
+            enemyD20 = Math.floor(Math.random() * 20) + 1 + enemy.characterConfig.attributes.dexterity,
+            hitSound,
+            hasHit = false;
+        if (d20 < enemyD20) {
+            this._showStatusText(enemy, 'Too quick for ya!');
+        } else {
+            if (d20 <= enemyCharConfig.armor) {
+                if (enemyCharConfig.armor - enemyCharConfig.attributes.dexterity > 0) {
+                    _.each(charConfig.energy.selectedAction.damage, function (damage) {
+                        var attackDice = damage.value.split('d'),
+                            attackDamage = parseInt(attackDice[0]) * (Math.floor(Math.random() * parseInt(attackDice[1])) + 1) + Math.floor(attackAttribute / 2);
+                        // TODO: Remove durability from the same armor piece in case of multi damage type attack
+                        // TODO: If armor was not hit, enemy loses hp
+                        if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
+                            StatusIconConfig.showArmorIcon(game, enemy, Math.ceil(attackDamage / 2));
+                            if (charConfig.energy.selectedAction.sound) {
+                                hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingArmor, { volume: 0.5 });
+                                hitSound.play();
+                                hasHit = true;
+                            }
+                        }
+                    });
+                }
+                if (!hasHit) {
+                    this._showStatusText(enemy, 'Missed all armor!');
+                }
+            } else {
+                _.each(charConfig.energy.selectedAction.damage, function (damage) {
+                    var attackDice = damage.value.split('d'),
+                        attackDamage = parseInt(attackDice[0]) * (Math.floor(Math.random() * parseInt(attackDice[1])) + 1) + Math.floor(attackAttribute / 2);
+                    if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === -1) {
+                        if (enemyCharConfig.resistances.indexOf(damage.type) !== -1) {
+                            enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
+                            StatusIconConfig.showLifeIcon(game, enemy, Math.ceil(attackDamage / 2));
+                            if (charConfig.energy.selectedAction.sound) {
+                                hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingFlesh, { volume: 0.5 });
+                                hitSound.play();
+                            }
+                            self._showMissedText(enemy, 'Resistant!');
+                        } else if (enemyCharConfig.vulnerabilities.indexOf(damage.type) !== -1) {
+                            enemyCharConfig.life.current -= (attackDamage * 2);
+                            StatusIconConfig.showLifeIcon(game, enemy, attackDamage * 2);
+                            if (charConfig.energy.selectedAction.sound) {
+                                hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingFlesh, { volume: 0.5 });
+                                hitSound.play();
+                            }
+                            self._showMissedText(enemy, 'Vulnerable!');
+                        } else {
+                            enemyCharConfig.life.current -= attackDamage;
+                            StatusIconConfig.showLifeIcon(game, enemy, attackDamage);
+                            if (charConfig.energy.selectedAction.sound) {
+                                hitSound = game.sound.add(charConfig.energy.selectedAction.sound.hittingFlesh, { volume: 0.5 });
+                                hitSound.play();
+                            }
+                        }
+                        hasHit = true;
+                    } else {
+                        self._showMissedText(enemy, 'Invulnerable!');
+                    }
+                });
+            }
+        }
+        if (hasHit) {
+            if (!isSpell) {
+                charConfig.energy.spent += EnergyConfig.attackMainHand.cost;
+                StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackMainHand.cost);
+            } else {
+                charConfig.energy.spent += EnergyConfig.attackSpell.cost;
+                charConfig.mana.spent += charConfig.energy.selectedAction.cost;
+                StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackSpell.cost);
+                StatusIconConfig.showManaIcon(game, character, charConfig.energy.selectedAction.cost);
+            }
+        }
+
+        charConfig.energy.actionId = -1;
+        charConfig.energy.selectedAction = null;
+        game.events.emit('removeSelectedActionIcon');
+
+        this._checkInitiative(enemy);
+    };
+
+    this._checkInitiative = (enemy) => {
+        var charConfig = enemy.characterConfig,
+            lootbag;
+        if (charConfig.life.current <= 0) {
+            this._addItemsFromBodyToInventory(enemy);
+            if (charConfig.inventory.slots.items.length > 0) {
+                lootbag = game.add.image(enemy.x, enemy.y, 'lootbag').setOrigin(0, 0);
+                lootbag.displayWidth = 50;
+                lootbag.displayHeight = 50;
+                lootbag.objectConfig = lodash.cloneDeep(game.activeMap.objConfig);
+                lootbag.objectConfig.belongsTo = enemy;
+                lootbag.objectConfig.id = EnumHelper.idEnum.lootbag.id;
+                lootbag.objectConfig.isInteractible = true;
+                game.activeMap.deadCharacters.add(lootbag);
+                // TODO: Check if this is overridden with each killed enemy
+                game.input.setHitArea(game.activeMap.deadCharacters.getChildren());
+                lootbag.on('pointerdown', function () {
+                    if (game.activeCharacter.characterConfig.isPlayerControlled) {
+                        game.characters.interactWithObject(lootbag);
+                    }
+                });
+            }
+            if (!charConfig.isPlayerControlled) {
+                _.each(game.characters.characters.getChildren(), function (character) {
+                    character.characterConfig.experience.current += Math.floor(enemy.characterConfig.experience / game.characters.characters.getChildren().length);
+                    var difference = Math.floor(character.characterConfig.experience.current - character.characterConfig.experience.nextLevel);
+                    if (difference >= 0) {
+                        character.characterConfig.experience.current = difference;
+                        character.characterConfig.experience.level++;
+                        character.characterConfig.experience.attributePoints++;
+                        character.characterConfig.experience.nextLevel = Math.floor(character.characterConfig.experience.nextLevel * 1.3);
+                    }
+                });
+                game.characters.souls.current += enemy.characterConfig.souls;
+                // TODO: Attribute points cost 5 souls then 10 then 15 and so on. Change game logic to reflect this
+                // TODO: Skills cost X souls instead of ^ so we won't need skill points
+                var difference = game.characters.souls.current - game.characters.souls.nextLevel;
+                if (difference >= 0) {
+                    game.characters.souls.current = difference;
+                    game.characters.souls.nextLevel += 5;
+                    game.characters.souls.skillPoints++;
+                }
+                game.events.emit('updateSouls', game.characters.souls);
+            }
+
+            enemy.destroy();
+            if (charConfig.isPlayerControlled) {
+                game.characters.characters.remove(enemy);
+            } else {
+                game.enemies.characters.remove(enemy);
+                this._createNewEnemies();
+            }
+            game.initiative = game.sceneManager.getInitiativeArray([enemy]);
+            game.events.emit('updateAttributePointsPanel', game.activeCharacter);
+            this.hideRangeLines();
+        }
+        game.events.emit('showCharacterInitiative', game.initiative);
     };
 
     this._addItemsFromBodyToInventory = (character) => {
         if (character.characterConfig.inventory.mainHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
             character.characterConfig.inventory.slots.items.push(lodash
                 .cloneDeep(character.characterConfig.inventory.mainHand));
-            character.characterConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
+            character.characterConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.weapons.defaultMainHand);
         }
         if (character.characterConfig.inventory.offHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
             character.characterConfig.inventory.slots.items.push(lodash
                 .cloneDeep(character.characterConfig.inventory.offHand));
-            character.characterConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.defaultMainHand);
+            character.characterConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.weapons.defaultMainHand);
         }
         if (character.characterConfig.inventory.head.type !== EnumHelper.inventoryEnum.defaultEquipment) {
             character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(character.characterConfig.inventory.head));
-            character.characterConfig.inventory.head = lodash.cloneDeep(InventoryConfig.defaultHead);
+            character.characterConfig.inventory.head = lodash.cloneDeep(InventoryConfig.head.defaultHead);
         }
         if (character.characterConfig.inventory.body.type !== EnumHelper.inventoryEnum.defaultEquipment) {
             character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(character.characterConfig.inventory.body));
-            character.characterConfig.inventory.body = lodash.cloneDeep(InventoryConfig.defaultBody);
+            character.characterConfig.inventory.body = lodash.cloneDeep(InventoryConfig.body.defaultBody);
         }
         if (character.characterConfig.inventory.hands.type !== EnumHelper.inventoryEnum.defaultEquipment) {
             character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(character.characterConfig.inventory.hands));
-            character.characterConfig.inventory.hands = lodash.cloneDeep(InventoryConfig.defaultHands);
+            character.characterConfig.inventory.hands = lodash.cloneDeep(InventoryConfig.hands.defaultHands);
         }
         if (character.characterConfig.inventory.feet.type !== EnumHelper.inventoryEnum.defaultEquipment) {
             character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(character.characterConfig.inventory.feet));
-            character.characterConfig.inventory.feet = lodash.cloneDeep(InventoryConfig.defaultFeet);
+            character.characterConfig.inventory.feet = lodash.cloneDeep(InventoryConfig.feet.defaultFeet);
         }
     };
 

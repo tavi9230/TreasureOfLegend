@@ -30,12 +30,12 @@ export const CharacterConfig = {
             inProgress: null
         },
         inventory: {
-            mainHand: InventoryConfig.defaultMainHand,
-            offHand: InventoryConfig.defaultMainHand,
-            head: InventoryConfig.defaultHead,
-            body: InventoryConfig.defaultBody,
-            feet: InventoryConfig.defaultFeet,
-            hands: InventoryConfig.defaultHands,
+            mainHand: InventoryConfig.weapons.defaultMainHand,
+            offHand: InventoryConfig.weapons.defaultMainHand,
+            head: InventoryConfig.head.defaultHead,
+            body: InventoryConfig.body.defaultBody,
+            feet: InventoryConfig.feet.defaultFeet,
+            hands: InventoryConfig.hands.defaultHands,
             slots: {
                 max: 2,
                 items: []
