@@ -32,6 +32,7 @@ export const ActionManager = function (scene) {
     };
 
     this.showRangeLines = function (character, enemy) {
+        // TODO: Fix this when player - wall - enemy
         var projectileLines = this._checkProjectileSuccess(character, enemy),
             charConfig = character.characterConfig;
         this.hideRangeLines();
@@ -536,7 +537,8 @@ export const ActionManager = function (scene) {
                 isNotBlocked = true;
                 linePoints = this._supercoverLine(pointMatrix[i][j][0], pointMatrix[i][j][1], pointMatrix[i][j][2], pointMatrix[i][j][3]);
                 _.each(linePoints, function (point) {
-                    if (Math.floor(game.activeMap.levelMap[point.y / 50][point.x / 50]) !== 0) {
+                    var tile = game.activeMap.levelMap[point.y / 50][point.x / 50];
+                    if (Math.floor(tile) !== 0) {
                         isNotBlocked = false;
                     }
                 });
@@ -604,14 +606,14 @@ export const ActionManager = function (scene) {
                 p.y += signY;
                 iy++;
             }
-            if (p.x % 10 === 0 && p.y % 10 === 0) {
+            if (p.x % 10 === 0 || p.y % 10 === 0) {
                 if (!points.find(function (point) {
-                    return point.x === Math.floor(p.x / 50) * 50 &&
-                        point.y === Math.floor(p.y / 50) * 50;
+                    return point.x === Math.floor(p.x - p.x % 50) &&
+                        point.y === Math.floor(p.y - p.y % 50);
                 })) {
                     points.push({
-                        x: Math.floor(p.x / 50) * 50,
-                        y: Math.floor(p.y / 50) * 50
+                        x: Math.floor(p.x - p.x % 50),
+                        y: Math.floor(p.y - p.y % 50)
                     });
                 }
             }
