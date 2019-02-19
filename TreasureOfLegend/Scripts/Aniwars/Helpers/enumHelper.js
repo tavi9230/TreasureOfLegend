@@ -47,7 +47,31 @@
         slashing: 1,
         piercing: 2,
         bludgeoning: 3,
-        fire: 4
+        fire: 4,
+        cold: 5,
+        poison: 6,
+        acid: 7,
+        lightning: 8,
+        necrotic: 9,
+        radiant: 10,
+        thunder: 11,
+        psychic: 12,
+        force: 13
+    },
+    conditionsEnum: {
+        blinded: 1,
+        charmed: 2,
+        deafened: 3,
+        frightened: 4,
+        invisible: 5,
+        paralyzed: 6,
+        petrified: 7,
+        poisoned: 8,
+        stunned: 9,
+        unconscious: 10,
+        prone: 11,
+        incapacitated: 12,
+        grappled: 13
     },
     traitEnum: {
         standard: 0,
@@ -56,7 +80,8 @@
     actionEnum: {
         attackMainHand: 1,
         attackSpell: 2,
-        inspect: 3
+        inspect: 3,
+        attackOffhand: 4
     },
     inventoryEnum: {
         defaultEquipment: 0,
@@ -66,5 +91,11 @@
         body: 4,
         feet: 5,
         hands: 6
+    },
+    movementEnum: {
+        walk: 1,
+        swim: 2,
+        climb: 3,
+        fly: 4
     }
 };
