@@ -2,7 +2,7 @@
 
 export const InventoryConfig = {
     head: {
-        defaultHead: {
+        defaultEquipment: {
             type: EnumHelper.inventoryEnum.defaultEquipment,
             image: 'punch',
             description: 'No head gear',
@@ -75,7 +75,7 @@ export const InventoryConfig = {
         }
     },
     body: {
-        defaultBody: {
+        defaultEquipment: {
             type: EnumHelper.inventoryEnum.defaultEquipment,
             image: 'punch',
             description: 'No body gear',
@@ -148,7 +148,7 @@ export const InventoryConfig = {
         }
     },
     hands: {
-        defaultHands: {
+        defaultEquipment: {
             type: EnumHelper.inventoryEnum.defaultEquipment,
             image: 'punch',
             description: 'No hand gear',
@@ -221,7 +221,7 @@ export const InventoryConfig = {
         }
     },
     feet: {
-        defaultFeet: {
+        defaultEquipment: {
             type: EnumHelper.inventoryEnum.defaultEquipment,
             image: 'punch',
             description: 'No feet gear',
@@ -357,7 +357,7 @@ export const InventoryConfig = {
     },
     weapons: {
         // simple ---------------------------------------------------
-        defaultMainHand: {
+        defaultEquipment: {
             type: EnumHelper.inventoryEnum.defaultEquipment,
             damage: [
                 {

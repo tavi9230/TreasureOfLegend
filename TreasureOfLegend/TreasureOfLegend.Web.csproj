@@ -283,6 +283,8 @@
     <Content Include="Assets\Aniwars\characters\movement.png" />
     <Content Include="Assets\Aniwars\frame.png" />
     <Content Include="Assets\Aniwars\hourglass.png" />
+    <Content Include="Assets\Aniwars\inventoryBox.png" />
+    <Content Include="Assets\Aniwars\inventoryBoxSelected.png" />
     <Content Include="Assets\Aniwars\items\body\chainMail.gif" />
     <Content Include="Assets\Aniwars\items\body\leatherArmor.gif" />
     <Content Include="Assets\Aniwars\items\body\plateMail.gif" />

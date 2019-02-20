@@ -161,31 +161,31 @@ export const Character = function (game) {
             charConfig = character.characterConfig,
             self = this;
         if (itemToDrop.isEquipped) {
-            if (itemToDrop.type === EnumHelper.inventoryEnum.mainHand) {
+            if (EnumHelper.inventoryEnum[itemToDrop.location] === EnumHelper.inventoryEnum.mainHand) {
                 charConfig.inventory.mainHand.isEquipped = false;
-                charConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.weapons.defaultMainHand);
-            } else if (itemToDrop.type === EnumHelper.inventoryEnum.offHand) {
+                charConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.weapons.defaultEquipment);
+            } else if (EnumHelper.inventoryEnum[itemToDrop.location] === EnumHelper.inventoryEnum.offHand) {
                 if (itemToDrop.armor) {
                     charConfig.armor -= itemToDrop.armor;
                 }
                 charConfig.inventory.offHand.isEquipped = false;
-                charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.weapons.defaultMainHand);
-            } else if (itemToDrop.type === EnumHelper.inventoryEnum.body) {
+                charConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.weapons.defaultEquipment);
+            } else if (EnumHelper.inventoryEnum[itemToDrop.location] === EnumHelper.inventoryEnum.body) {
                 charConfig.armor -= itemToDrop.armor;
                 charConfig.inventory.body.isEquipped = false;
-                charConfig.inventory.body = lodash.cloneDeep(InventoryConfig.body.defaultBody);
-            } else if (itemToDrop.type === EnumHelper.inventoryEnum.head) {
+                charConfig.inventory.body = lodash.cloneDeep(InventoryConfig.body.defaultEquipment);
+            } else if (EnumHelper.inventoryEnum[itemToDrop.location] === EnumHelper.inventoryEnum.head) {
                 charConfig.armor -= itemToDrop.armor;
                 charConfig.inventory.head.isEquipped = false;
-                charConfig.inventory.head = lodash.cloneDeep(InventoryConfig.head.defaultHead);
-            } else if (itemToDrop.type === EnumHelper.inventoryEnum.hands) {
+                charConfig.inventory.head = lodash.cloneDeep(InventoryConfig.head.defaultEquipment);
+            } else if (EnumHelper.inventoryEnum[itemToDrop.location] === EnumHelper.inventoryEnum.hands) {
                 charConfig.armor -= itemToDrop.armor;
                 charConfig.inventory.hands.isEquipped = false;
-                charConfig.inventory.hands = lodash.cloneDeep(InventoryConfig.hands.defaultHands);
-            } else if (itemToDrop.type === EnumHelper.inventoryEnum.feet) {
+                charConfig.inventory.hands = lodash.cloneDeep(InventoryConfig.hands.defaultEquipment);
+            } else if (EnumHelper.inventoryEnum[itemToDrop.location] === EnumHelper.inventoryEnum.feet) {
                 charConfig.armor -= itemToDrop.armor;
                 charConfig.inventory.feet.isEquipped = false;
-                charConfig.inventory.feet = lodash.cloneDeep(InventoryConfig.feet.defaultFeet);
+                charConfig.inventory.feet = lodash.cloneDeep(InventoryConfig.feet.defaultEquipment);
             }
         } else {
             var index = charConfig.inventory.slots.items.indexOf(itemToDrop);
@@ -208,89 +208,110 @@ export const Character = function (game) {
         }
     };
 
-    this.replaceItem = (itemToReplace) => {
+    this.replaceItem = (selectedItem, itemToReplace) => {
         var character = game.activeCharacter,
-            charConfig = character.characterConfig;
+            charConfig = character.characterConfig,
+            hasBeenReplaced = false,
+            aux;
         if (charConfig.energy.max - charConfig.energy.spent > 0) {
-            var index = charConfig.inventory.slots.items.indexOf(itemToReplace);
-            if (itemToReplace.type === EnumHelper.inventoryEnum.mainHand) {
-                charConfig.inventory.mainHand.isEquipped = false;
-                if (charConfig.inventory.mainHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
-                    charConfig.inventory.slots.items.splice(index, 1, lodash.cloneDeep(charConfig.inventory.mainHand));
-                } else {
-                    charConfig.inventory.slots.items.splice(index, 1);
+            if (itemToReplace) {
+                if (selectedItem.type === itemToReplace.type &&
+                    ((selectedItem.location === 'offHand' && itemToReplace.hold < 2) ||
+                        (itemToReplace.location === 'offHand' && selectedItem.hold < 2) ||
+                        selectedItem.location !== 'offHand' && itemToReplace.location !== 'offHand') ||
+                    selectedItem.type === EnumHelper.inventoryEnum.mainHand &&
+                    itemToReplace.type === EnumHelper.inventoryEnum.offHand &&
+                    selectedItem.hold < 2 ||
+                    selectedItem.type === EnumHelper.inventoryEnum.offHand &&
+                    itemToReplace.type === EnumHelper.inventoryEnum.mainHand &&
+                    itemToReplace.hold < 2 ||
+                    selectedItem.location === 'inventory' && itemToReplace.location === 'inventory') {
+                    var isSelectedItemAnInventoryItem = selectedItem.location === 'inventory',
+                        isItemToReplaceAnInventoryItem = itemToReplace.location === 'inventory';
+                    if (isSelectedItemAnInventoryItem || isItemToReplaceAnInventoryItem) {
+                        var indexOfSelectedItem = -1;
+                        var indexOfItemToReplace = -1;
+                        if (isSelectedItemAnInventoryItem) {
+                            indexOfSelectedItem = charConfig.inventory.slots.items.indexOf(selectedItem);
+                        }
+                        if (isItemToReplaceAnInventoryItem) {
+                            indexOfItemToReplace = charConfig.inventory.slots.items.indexOf(itemToReplace);
+                        }
+                        if (indexOfSelectedItem !== -1 && indexOfItemToReplace !== -1) {
+                            selectedItem.isEquipped = false;
+                            itemToReplace.isEquipped = false;
+                            aux = charConfig.inventory.slots.items[indexOfSelectedItem];
+                            charConfig.inventory.slots.items[indexOfSelectedItem] =
+                                charConfig.inventory.slots.items[indexOfItemToReplace];
+                            charConfig.inventory.slots.items[indexOfItemToReplace] = aux;
+
+                        } else if (indexOfSelectedItem !== -1 && indexOfItemToReplace === -1) {
+                            selectedItem.isEquipped = true;
+                            itemToReplace.isEquipped = false;
+                            var item = charConfig.inventory.slots.items[indexOfSelectedItem];
+                            aux = lodash.cloneDeep(item);
+                            charConfig.inventory.slots.items[indexOfSelectedItem] = itemToReplace;
+                            charConfig.inventory[itemToReplace.location] = aux;
+                            hasBeenReplaced = true;
+                        } else {
+                            selectedItem.isEquipped = false;
+                            itemToReplace.isEquipped = true;
+                            var item = charConfig.inventory.slots.items[indexOfItemToReplace];
+                            aux = lodash.cloneDeep(item);
+                            charConfig.inventory.slots.items[indexOfItemToReplace] = selectedItem;
+                            charConfig.inventory[selectedItem.location] = aux;
+                            hasBeenReplaced = true;
+                        }
+                    } else {
+                        if (selectedItem.hold < 2 && itemToReplace.hold < 2) {
+                            selectedItem.isEquipped = true;
+                            itemToReplace.isEquipped = true;
+                            aux = lodash.cloneDeep(charConfig.inventory[selectedItem.location]);
+                            charConfig.inventory[selectedItem.location] =
+                                lodash.cloneDeep(charConfig.inventory[itemToReplace.location]);
+                            charConfig.inventory[itemToReplace.location] = aux;
+                            hasBeenReplaced = true;
+                        }
+                    }
+                } else if (itemToReplace.type === EnumHelper.inventoryEnum.defaultEquipment) {
+                    if (EnumHelper.inventoryEnum[itemToReplace.location] === selectedItem.type ||
+                        itemToReplace.location === 'offHand' &&
+                        selectedItem.type === EnumHelper.inventoryEnum.mainHand) {
+                        selectedItem.isEquipped = true;
+                        charConfig.inventory[itemToReplace.location] = lodash.cloneDeep(selectedItem);
+                        if (selectedItem.location === 'inventory') {
+                            var index = charConfig.inventory.slots.items.indexOf(selectedItem);
+                            charConfig.inventory.slots.items.splice(index, 1);
+                            hasBeenReplaced = true;
+                        } else {
+                            aux = lodash.cloneDeep(itemToReplace);
+                            charConfig.inventory[selectedItem.location] = aux;
+                            hasBeenReplaced = true;
+                        }
+                    }
                 }
-                charConfig.inventory.mainHand = lodash.cloneDeep(itemToReplace);
-                charConfig.inventory.mainHand.isEquipped = true;
-            } else if (itemToReplace.type === EnumHelper.inventoryEnum.offHand) {
-                charConfig.inventory.offHand.isEquipped = false;
-                if (charConfig.inventory.offHand.armor) {
-                    charConfig.armor -= charConfig.inventory.offHand.armor;
+            } else {
+                if (selectedItem.location !== 'inventory') {
+                    var location = selectedItem.location === 'mainHand' || selectedItem.location === 'offHand'
+                        ? 'weapons'
+                        : selectedItem.location;
+                    selectedItem.isEquipped = false;
+                    charConfig.inventory.slots.items.push(lodash.cloneDeep(selectedItem));
+                    charConfig.inventory[selectedItem.location] = lodash.cloneDeep(InventoryConfig[location].defaultEquipment);
+                    hasBeenReplaced = true;
                 }
-                if (charConfig.inventory.offHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
-                    charConfig.inventory.slots.items.splice(index, 1, lodash.cloneDeep(charConfig.inventory.offHand));
-                } else {
-                    charConfig.inventory.slots.items.splice(index, 1);
-                }
-                if (itemToReplace.armor) {
-                    charConfig.armor += itemToReplace.armor;
-                }
-                charConfig.inventory.offHand = lodash.cloneDeep(itemToReplace);
-                charConfig.inventory.offHand.isEquipped = true;
-            } else if (itemToReplace.type === EnumHelper.inventoryEnum.body) {
-                charConfig.inventory.body.isEquipped = false;
-                charConfig.armor -= charConfig.inventory.body.armor;
-                if (charConfig.inventory.body.type !== EnumHelper.inventoryEnum.defaultEquipment) {
-                    charConfig.inventory.slots.items.splice(index, 1, lodash.cloneDeep(charConfig.inventory.body));
-                } else {
-                    charConfig.inventory.slots.items.splice(index, 1);
-                }
-                charConfig.armor += itemToReplace.armor;
-                charConfig.inventory.body = lodash.cloneDeep(itemToReplace);
-                charConfig.inventory.body.isEquipped = true;
-            } else if (itemToReplace.type === EnumHelper.inventoryEnum.head) {
-                charConfig.inventory.head.isEquipped = false;
-                charConfig.armor -= charConfig.inventory.body.head;
-                if (charConfig.inventory.head.type !== EnumHelper.inventoryEnum.defaultEquipment) {
-                    charConfig.inventory.slots.items.splice(index, 1, lodash.cloneDeep(charConfig.inventory.head));
-                } else {
-                    charConfig.inventory.slots.items.splice(index, 1);
-                }
-                charConfig.armor += itemToReplace.armor;
-                charConfig.inventory.head = lodash.cloneDeep(itemToReplace);
-                charConfig.inventory.head.isEquipped = true;
-            } else if (itemToReplace.type === EnumHelper.inventoryEnum.hands) {
-                charConfig.inventory.hands.isEquipped = false;
-                charConfig.armor -= charConfig.inventory.body.hands;
-                if (charConfig.inventory.hands.type !== EnumHelper.inventoryEnum.defaultEquipment) {
-                    charConfig.inventory.slots.items.splice(index, 1, lodash.cloneDeep(charConfig.inventory.hands));
-                } else {
-                    charConfig.inventory.slots.items.splice(index, 1);
-                }
-                charConfig.armor += itemToReplace.armor;
-                charConfig.inventory.hands = lodash.cloneDeep(itemToReplace);
-                charConfig.inventory.hands.isEquipped = true;
-            } else if (itemToReplace.type === EnumHelper.inventoryEnum.feet) {
-                charConfig.inventory.feet.isEquipped = false;
-                charConfig.armor -= charConfig.inventory.feet.armor;
-                if (charConfig.inventory.feet.type !== EnumHelper.inventoryEnum.defaultEquipment) {
-                    charConfig.inventory.slots.items.splice(index, 1, lodash.cloneDeep(charConfig.inventory.feet));
-                } else {
-                    charConfig.inventory.slots.items.splice(index, 1);
-                }
-                charConfig.armor += itemToReplace.armor;
-                charConfig.inventory.feet = lodash.cloneDeep(itemToReplace);
-                charConfig.inventory.feet.isEquipped = true;
             }
-            charConfig.energy.spent += EnergyConfig.pickup.cost;
-            StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.pickup.cost);
+            if (hasBeenReplaced) {
+                charConfig.energy.spent += EnergyConfig.pickup.cost;
+                StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.pickup.cost);
+                if (character.characterConfig.energy.actionId === 1) {
+                    game.events.emit('showSelectedActionIcon', character.characterConfig.inventory.mainHand.image);
+                }
+                var pickupSound = game.sound.add('pickup', { volume: 0.5 });
+                pickupSound.play();
+            }
             game.events.emit('showCharacterInitiative', game.initiative);
             game.events.emit('refreshCharacterInventory', character);
-            if (character.characterConfig.energy.actionId === 1) {
-                game.events.emit('showSelectedActionIcon', character.characterConfig.inventory.mainHand.image);
-            }
-            var pickupSound = game.sound.add('pickup', { volume: 0.5 });
-            pickupSound.play();
         }
     };
 

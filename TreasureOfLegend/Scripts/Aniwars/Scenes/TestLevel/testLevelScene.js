@@ -28,7 +28,7 @@ export const TestLevelScene = function () {
             this.input.mouse.capture = true;
             this.createKeys();
             this.events.emit('showCharacterInitiative', this.initiative);
-            this.backgroundMusic.play();
+            //this.backgroundMusic.play();
         },
         update() {
             this.sceneManager.checkManager();
@@ -59,8 +59,9 @@ export const TestLevelScene = function () {
             this.hudScene.events.on('dropItem', function (itemToDrop) {
                 self.characters.dropItem(itemToDrop);
             });
-            this.hudScene.events.on('replaceItem', function (itemToReplace) {
-                self.characters.replaceItem(itemToReplace);
+            this.hudScene.events.on('replaceItem', function (config) {
+
+                self.characters.replaceItem(config.selectedItem, config.itemToReplace);
             });
             this.hudScene.events.on('getItemFromLootBag', function (config) {
                 var item = config.item,

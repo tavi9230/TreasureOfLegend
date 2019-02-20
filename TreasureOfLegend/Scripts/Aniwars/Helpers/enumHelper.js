@@ -90,7 +90,8 @@
         head: 3,
         body: 4,
         feet: 5,
-        hands: 6
+        hands: 6,
+        inventory: 7
     },
     movementEnum: {
         walk: 1,

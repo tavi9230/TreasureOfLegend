@@ -11,6 +11,7 @@ export const HUDCharacterStatus = function (scene) {
         abilityGroup = null,
         enemyInventory = null,
         itemStats = null,
+        selectedItem = null,
         damageArray = ['slashing', 'piercing', 'bludgeoning', 'fire'],
         inventoryCallback = _.bind(function (character) {
             game.tipsModal.hideTips();
@@ -48,12 +49,12 @@ export const HUDCharacterStatus = function (scene) {
             panel.fillRect(x, y, 440, 440);
             characterInventoryTabGroup.add(panel);
             // Equiped Inventory -----------------------------------------------------------------------------------------------------
-            this._createInventorySlot(x + 75, y + 10, character, charConfig.inventory.head);
-            this._createInventorySlot(x + 75, y + 65, character, charConfig.inventory.body);
-            this._createInventorySlot(x + 20, y + 65, character, charConfig.inventory.mainHand);
-            this._createInventorySlot(x + 130, y + 65, character, charConfig.inventory.offHand);
-            this._createInventorySlot(x + 20, y + 120, character, charConfig.inventory.hands);
-            this._createInventorySlot(x + 130, y + 120, character, charConfig.inventory.feet);
+            this._createInventorySlot(x + 75, y + 10, character, charConfig.inventory.head, 'head');
+            this._createInventorySlot(x + 75, y + 65, character, charConfig.inventory.body, 'body');
+            this._createInventorySlot(x + 20, y + 65, character, charConfig.inventory.mainHand, 'mainHand');
+            this._createInventorySlot(x + 130, y + 65, character, charConfig.inventory.offHand, 'offHand');
+            this._createInventorySlot(x + 20, y + 120, character, charConfig.inventory.hands, 'hands');
+            this._createInventorySlot(x + 130, y + 120, character, charConfig.inventory.feet, 'feet');
             // Unequiped inventory ---------------------------------------------------------------------------------------------------
             this._createUnequippedInventorySlots(character, x, y + 220);
             this._createTabButton(character, x, y + 20, 'inventoryButton', 'Inventory', inventoryCallback, characterInventoryTabGroup);
@@ -65,15 +66,26 @@ export const HUDCharacterStatus = function (scene) {
             game.tipsModal.hideTips();
         }
     };
-    this._createInventorySlot = function (x, y, character, item) {
+    this._createInventorySlot = function (x, y, character, item, location) {
         var self = this,
             image = null,
-            box = game.add.graphics();
-        box.fillStyle(0x444444, 0.8);
-        box.fillRect(x, y, 50, 50);
+            box = game.add.image(x, y, 'inventoryBox').setOrigin(0, 0);
+        box.displayWidth = 50;
+        box.displayHeight = 50;
+        box.name = 'inventoryBox';
+        if (character.x === game.activeScene.activeCharacter.x &&
+            character.y === game.activeScene.activeCharacter.y) {
+            game.input.setHitArea([box]);
+            box.on('pointerdown', function () {
+                if (selectedItem) {
+                    game.events.emit('replaceItem', { selectedItem: selectedItem, itemToReplace: null });
+                }
+            });
+        }
         characterInventoryTabGroup.add(box);
 
         if (item) {
+            item.location = location;
             image = game.add.image(x, y, item.image).setOrigin(0, 0);
             image.displayWidth = 50;
             image.displayHeight = 50;
@@ -82,25 +94,42 @@ export const HUDCharacterStatus = function (scene) {
                 self._showItemStats({ x: x, y: y, item: item, character: character });
             });
             image.on('pointerout', this._destroyItemStats);
+            if (character.x === game.activeScene.activeCharacter.x &&
+                character.y === game.activeScene.activeCharacter.y) {
+                image.on('pointerdown', function () {
+                    if (!selectedItem) {
+                        if (item.type !== EnumHelper.inventoryEnum.defaultEquipment) {
+                            box.setTexture('inventoryBoxSelected');
+                            selectedItem = item;
+                            self._createDropButton(x + 40, y, character, item, characterInventoryTabGroup);
+                        }
+                    } else if (selectedItem !== item) {
+                        var inventoryBoxes = characterInventoryTabGroup.getChildren().filter(function (obj) {
+                            return obj.name === 'inventoryBox';
+                        });
+                        _.each(inventoryBoxes, function (box) {
+                            box.setTexture('inventoryBox');
+                        });
+                        game.events.emit('replaceItem', { selectedItem: selectedItem, itemToReplace: item });
+                        selectedItem = null;
+                    } else {
+                        var dropButton = characterInventoryTabGroup.getChildren().find(function (obj) {
+                            return obj.name === 'dropButton';
+                        });
+                        dropButton.destroy();
+                        box.setTexture('inventoryBox');
+                        selectedItem = null;
+                    }
+                });
+            }
             characterInventoryTabGroup.add(image);
-        }
-        if (item && item.type !== EnumHelper.inventoryEnum.defaultEquipment &&
-            character.x === game.activeScene.activeCharacter.x &&
-            character.y === game.activeScene.activeCharacter.y) {
-            this._createDropButton(x + 40, y, character, item, characterInventoryTabGroup);
-        }
-        if (_.isObject(item) && !item.isEquipped &&
-            item && item.type !== EnumHelper.inventoryEnum.defaultEquipment &&
-            character.x === game.activeScene.activeCharacter.x &&
-            character.y === game.activeScene.activeCharacter.y) {
-            this._createReplaceButton(x, y, character, item, characterInventoryTabGroup);
         }
     };
     this._createUnequippedInventorySlots = function (character, x, y) {
         var startX = x,
             charConfig = character.characterConfig;
         for (let i = 0; i < charConfig.inventory.slots.max; i++) {
-            this._createInventorySlot(x, y, character, character.characterConfig.inventory.slots.items[i]);
+            this._createInventorySlot(x, y, character, character.characterConfig.inventory.slots.items[i], 'inventory');
             x += 55;
             if (x >= startX + 440) {
                 x = startX;
@@ -455,6 +484,7 @@ export const HUDCharacterStatus = function (scene) {
         this._destroyCharacterDescriptionTab();
         this._destroyCharacterAbilitiesTab();
         this.closeLootbag();
+        selectedItem = null;
     };
 
     // BUTTONS --------------------------------------------------------------------------------------------------------------------------------------------
@@ -484,21 +514,12 @@ export const HUDCharacterStatus = function (scene) {
         var dropButton = game.add.image(x, y, 'closeButton').setOrigin(0, 0);
         dropButton.displayHeight = 10;
         dropButton.displayWidth = 10;
+        dropButton.name = 'dropButton';
         group.add(dropButton);
         game.input.setHitArea([dropButton]);
 
         dropButton.on('pointerdown', function () {
             game.events.emit('dropItem', itemToDrop);
-        });
-    };
-    this._createReplaceButton = function (x, y, character, itemToReplace, group) {
-        var replaceButton = game.add.image(x, y, 'replaceButton').setOrigin(0, 0);
-        replaceButton.displayHeight = 10;
-        replaceButton.displayWidth = 10;
-        group.add(replaceButton);
-        game.input.setHitArea([replaceButton]);
-        replaceButton.on('pointerdown', function () {
-            game.events.emit('replaceItem', itemToReplace);
         });
     };
     this._createCloseButton = function (x, y, groupToDestroy) {
@@ -607,10 +628,10 @@ export const HUDCharacterStatus = function (scene) {
             if (equippedHasDamage) {
                 damage = '';
                 for (let i = 0; i < characterConfig.inventory[location].damage.length; i++) {
-                    if (i !== item.damage.length - 1) {
-                        damage += item.damage[0].value + ' ' + damageArray[item.damage[0].type - 1] + ', ';
+                    if (i !== characterConfig.inventory[location].damage.length - 1) {
+                        damage += characterConfig.inventory[location].damage[0].value + ' ' + damageArray[characterConfig.inventory[location].damage[0].type - 1] + ', ';
                     } else {
-                        damage += item.damage[0].value + ' ' + damageArray[item.damage[0].type - 1];
+                        damage += characterConfig.inventory[location].damage[0].value + ' ' + damageArray[characterConfig.inventory[location].damage[0].type - 1];
                     }
                 }
                 equippedDamageText = game.add.text(x + 205, y + 60, 'Damage: ' + damage, textStyle);

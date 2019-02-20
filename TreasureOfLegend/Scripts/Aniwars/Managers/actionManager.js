@@ -225,7 +225,7 @@ export const ActionManager = function (scene) {
     this._checkSpellAttack = (character, enemy) => {
         // TODO: Check if offhand is empty?
         var charConfig = character.characterConfig;
-        if (charConfig.mana.max - charConfig.mana.spent >= 0) {
+        if (charConfig.mana.max - charConfig.mana.spent >= charConfig.energy.selectedAction.cost) {
             if (this._canAttack(character, enemy)) {
                 if (charConfig.energy.selectedAction.range > 1) {
                     if (this._isProjectileHitting(character, enemy)) {
@@ -251,7 +251,7 @@ export const ActionManager = function (scene) {
             hasHit = false;
         switch (pieceHit) {
             case EnumHelper.inventoryEnum.offHand:
-                if (inventory.offHand.type !== InventoryConfig.weapons.defaultMainHand.type && inventory.offHand.armor && inventory.offHand.durability !== 0) {
+                if (inventory.offHand.type !== InventoryConfig.weapons.defaultEquipment.type && inventory.offHand.armor && inventory.offHand.durability !== 0) {
                     if (inventory.offHand.durability.current - value <= 0) {
                         inventory.feet.durability.current = 0;
                         inventory.offHand.armor = 0;
@@ -262,7 +262,7 @@ export const ActionManager = function (scene) {
                 }
                 break;
             case EnumHelper.inventoryEnum.head:
-                if (inventory.head.type !== InventoryConfig.head.defaultHead.type && inventory.head.durability !== 0) {
+                if (inventory.head.type !== InventoryConfig.head.defaultEquipment.type && inventory.head.durability !== 0) {
                     if (inventory.head.durability.current - value <= 0) {
                         inventory.feet.durability.current = 0;
                         inventory.head.armor = 0;
@@ -273,7 +273,7 @@ export const ActionManager = function (scene) {
                 }
                 break;
             case EnumHelper.inventoryEnum.body:
-                if (inventory.body.type !== InventoryConfig.body.defaultBody.type && inventory.body.durability !== 0) {
+                if (inventory.body.type !== InventoryConfig.body.defaultEquipment.type && inventory.body.durability !== 0) {
                     if (inventory.body.durability.current - value <= 0) {
                         inventory.feet.durability.current = 0;
                         inventory.body.armor = 0;
@@ -284,7 +284,7 @@ export const ActionManager = function (scene) {
                 }
                 break;
             case EnumHelper.inventoryEnum.hands:
-                if (inventory.hands.type !== InventoryConfig.hands.defaultHands.type && inventory.hands.durability !== 0) {
+                if (inventory.hands.type !== InventoryConfig.hands.defaultEquipment.type && inventory.hands.durability !== 0) {
                     if (inventory.hands.durability.current - value <= 0) {
                         inventory.feet.durability.current = 0;
                         inventory.hands.armor = 0;
@@ -295,7 +295,7 @@ export const ActionManager = function (scene) {
                 }
                 break;
             case EnumHelper.inventoryEnum.feet:
-                if (inventory.feet.type !== InventoryConfig.feet.defaultFeet.type && inventory.feet.durability !== 0) {
+                if (inventory.feet.type !== InventoryConfig.feet.defaultEquipment.type && inventory.feet.durability !== 0) {
                     if (inventory.feet.durability.current - value <= 0) {
                         inventory.feet.durability.current = 0;
                         inventory.feet.armor = 0;
@@ -469,28 +469,28 @@ export const ActionManager = function (scene) {
         if (character.characterConfig.inventory.mainHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
             character.characterConfig.inventory.slots.items.push(lodash
                 .cloneDeep(character.characterConfig.inventory.mainHand));
-            character.characterConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.weapons.defaultMainHand);
+            character.characterConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.weapons.defaultEquipment);
         }
         if (character.characterConfig.inventory.offHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
             character.characterConfig.inventory.slots.items.push(lodash
                 .cloneDeep(character.characterConfig.inventory.offHand));
-            character.characterConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.weapons.defaultMainHand);
+            character.characterConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.weapons.defaultEquipment);
         }
         if (character.characterConfig.inventory.head.type !== EnumHelper.inventoryEnum.defaultEquipment) {
             character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(character.characterConfig.inventory.head));
-            character.characterConfig.inventory.head = lodash.cloneDeep(InventoryConfig.head.defaultHead);
+            character.characterConfig.inventory.head = lodash.cloneDeep(InventoryConfig.head.defaultEquipment);
         }
         if (character.characterConfig.inventory.body.type !== EnumHelper.inventoryEnum.defaultEquipment) {
             character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(character.characterConfig.inventory.body));
-            character.characterConfig.inventory.body = lodash.cloneDeep(InventoryConfig.body.defaultBody);
+            character.characterConfig.inventory.body = lodash.cloneDeep(InventoryConfig.body.defaultEquipment);
         }
         if (character.characterConfig.inventory.hands.type !== EnumHelper.inventoryEnum.defaultEquipment) {
             character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(character.characterConfig.inventory.hands));
-            character.characterConfig.inventory.hands = lodash.cloneDeep(InventoryConfig.hands.defaultHands);
+            character.characterConfig.inventory.hands = lodash.cloneDeep(InventoryConfig.hands.defaultEquipment);
         }
         if (character.characterConfig.inventory.feet.type !== EnumHelper.inventoryEnum.defaultEquipment) {
             character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(character.characterConfig.inventory.feet));
-            character.characterConfig.inventory.feet = lodash.cloneDeep(InventoryConfig.feet.defaultFeet);
+            character.characterConfig.inventory.feet = lodash.cloneDeep(InventoryConfig.feet.defaultEquipment);
         }
     };
 

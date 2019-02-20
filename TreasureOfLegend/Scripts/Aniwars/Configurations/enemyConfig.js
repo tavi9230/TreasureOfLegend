@@ -3,7 +3,7 @@ import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
 import { SpellsConfig } from 'Aniwars/Configurations/spellsConfig';
 
 var mainHandArray = [
-    InventoryConfig.weapons.defaultMainHand,
+    InventoryConfig.weapons.defaultEquipment,
     InventoryConfig.weapons.club,
     InventoryConfig.weapons.dagger,
     InventoryConfig.weapons.greatclub,
@@ -40,7 +40,7 @@ var mainHandArray = [
     InventoryConfig.weapons.longbow
 ];
 var offHandArray = [
-    InventoryConfig.weapons.defaultMainHand,
+    InventoryConfig.weapons.defaultEquipment,
     InventoryConfig.shields.buckler,
     InventoryConfig.shields.largeShield,
     InventoryConfig.shields.kiteShield,
@@ -48,7 +48,7 @@ var offHandArray = [
     InventoryConfig.shields.towerShield
 ];
 var headArray = [
-    InventoryConfig.head.defaultHead,
+    InventoryConfig.head.defaultEquipment,
     InventoryConfig.head.cap,
     InventoryConfig.head.helm,
     InventoryConfig.head.basinet,
@@ -56,7 +56,7 @@ var headArray = [
     InventoryConfig.head.warCrown
 ];
 var bodyArray = [
-    InventoryConfig.body.defaultBody,
+    InventoryConfig.body.defaultEquipment,
     InventoryConfig.body.leatherArmor,
     InventoryConfig.body.studdedArmor,
     InventoryConfig.body.chainMail,
@@ -64,7 +64,7 @@ var bodyArray = [
     InventoryConfig.body.plateMail
 ];
 var handsArray = [
-    InventoryConfig.hands.defaultHands,
+    InventoryConfig.hands.defaultEquipment,
     InventoryConfig.hands.leatherGloves,
     InventoryConfig.hands.heavyGloves,
     InventoryConfig.hands.chainGloves,
@@ -72,7 +72,7 @@ var handsArray = [
     InventoryConfig.hands.gauntlets
 ];
 var feetArray = [
-    InventoryConfig.feet.defaultFeet,
+    InventoryConfig.feet.defaultEquipment,
     InventoryConfig.feet.boots,
     InventoryConfig.feet.heavyBoots,
     InventoryConfig.feet.chainBoots,
