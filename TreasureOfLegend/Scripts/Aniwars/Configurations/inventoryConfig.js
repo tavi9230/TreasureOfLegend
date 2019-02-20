@@ -301,6 +301,7 @@ export const InventoryConfig = {
             description: 'Buckler',
             slots: 1,
             armor: 1,
+            hold: 1,
             durability: {
                 max: 5,
                 current: 5
@@ -313,6 +314,7 @@ export const InventoryConfig = {
             description: 'Large Shield',
             slots: 1,
             armor: 2,
+            hold: 1,
             durability: {
                 max: 10,
                 current: 10
@@ -325,6 +327,7 @@ export const InventoryConfig = {
             description: 'Kite Shield',
             slots: 1,
             armor: 3,
+            hold: 1,
             durability: {
                 max: 15,
                 current: 15
@@ -337,6 +340,7 @@ export const InventoryConfig = {
             description: 'Spiked Shield',
             slots: 1,
             armor: 4,
+            hold: 1,
             durability: {
                 max: 20,
                 current: 20
@@ -349,6 +353,7 @@ export const InventoryConfig = {
             description: 'Tower Shield',
             slots: 1,
             armor: 5,
+            hold: 1,
             durability: {
                 max: 25,
                 current: 25
@@ -1233,6 +1238,26 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             }
+        }
+    },
+    utility: {
+        arrows: {
+            name: 'Bow arrows',
+            type: EnumHelper.inventoryEnum.offHand,
+            image: 'arrows',
+            description: 'Bow arrows',
+            slots: 1,
+            hold: 1,
+            quantity: 20
+        },
+        bolts: {
+            name: 'Crossbow bolts',
+            type: EnumHelper.inventoryEnum.offHand,
+            image: 'bolts',
+            description: 'Crossbow bolts',
+            slots: 1,
+            hold: 1,
+            quantity: 20
         }
     }
 };

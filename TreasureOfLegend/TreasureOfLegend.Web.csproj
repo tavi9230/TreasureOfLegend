@@ -314,8 +314,10 @@
     <Content Include="Assets\Aniwars\items\shields\towerShield.gif" />
     <Content Include="Assets\Aniwars\items\spells\firebolt.png" />
     <Content Include="Assets\Aniwars\items\weapons\arrow.png" />
+    <Content Include="Assets\Aniwars\items\weapons\arrows.gif" />
     <Content Include="Assets\Aniwars\items\weapons\balancedKnife.gif" />
     <Content Include="Assets\Aniwars\items\weapons\battleaxe.gif" />
+    <Content Include="Assets\Aniwars\items\weapons\bolts.gif" />
     <Content Include="Assets\Aniwars\items\weapons\club.gif" />
     <Content Include="Assets\Aniwars\items\weapons\dagger.gif" />
     <Content Include="Assets\Aniwars\items\weapons\flail.gif" />

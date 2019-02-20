@@ -91,12 +91,21 @@
         body: 4,
         feet: 5,
         hands: 6,
-        inventory: 7
+        inventory: 7,
+        utility: 8
     },
     movementEnum: {
         walk: 1,
         swim: 2,
         climb: 3,
         fly: 4
+    },
+    weaponProperties: {
+        finesse: 1,
+        loading: 2,
+        thrown: 3,
+        versatile: 4,
+        silvered: 5,
+        magical: 6
     }
 };

@@ -70,6 +70,9 @@
         game.load.image('warhammer', AssetFolder + 'items/weapons/warhammer.gif');
         game.load.image('warPick', AssetFolder + 'items/weapons/warPick.gif');
         game.load.image('whip', AssetFolder + 'items/weapons/whip.gif');
+
+        game.load.image('arrows', AssetFolder + 'items/weapons/arrows.gif');
+        game.load.image('bolts', AssetFolder + 'items/weapons/bolts.gif');
         game.load.image('arrow', AssetFolder + 'items/weapons/arrow.png');
 
         // spells

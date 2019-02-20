@@ -273,7 +273,8 @@ export const ActionManager = function (scene) {
             hasHit = false;
         switch (pieceHit) {
             case EnumHelper.inventoryEnum.offHand:
-                if (inventory.offHand.type !== InventoryConfig.weapons.defaultEquipment.type && inventory.offHand.armor && inventory.offHand.durability !== 0) {
+                if (inventory.offHand.type !== InventoryConfig.weapons.defaultEquipment.type && inventory.offHand.armor && inventory.offHand.durability !== 0
+                    && !inventory.offHand.quantity) {
                     if (inventory.offHand.durability.current - value <= 0) {
                         inventory.feet.durability.current = 0;
                         inventory.offHand.armor = 0;

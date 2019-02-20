@@ -590,11 +590,11 @@ export const HUDCharacterStatus = function (scene) {
                     width: 145
                 }
             },
-            itemHasDamage = item.damage,
-            equippedHasDamage;
+            equippedHasDamage,
+            equippedHasArmor;
         nameText = game.add.text(x + 55, y, item.name, textStyle);
         descriptionText = game.add.text(x + 55, y + 30, item.description, textStyle);
-        if (itemHasDamage) {
+        if (item.damage) {
             var damage = '';
             for (let i = 0; i < item.damage.length; i++) {
                 if (i !== item.damage.length - 1) {
@@ -604,25 +604,33 @@ export const HUDCharacterStatus = function (scene) {
                 }
             }
             damageText = game.add.text(x + 55, y + 60, 'Damage: ' + damage, textStyle);
-        } else {
+        } else if (item.armor) {
             damageText = game.add.text(x + 55, y + 60, 'Armor: ' + item.armor, textStyle);
+        } else {
+            damageText = game.add.text(x + 55, y + 60, 'Quantity: ' + item.quantity, textStyle);
         }
-        if (itemHasDamage) {
+        if (item.damage) {
             rangeText = game.add.text(x + 55, y + 105, 'Range: ' + item.range, textStyle);
             holdText = game.add.text(x + 55, y + 120, 'Hold: ' + item.hold, textStyle);
             itemStats.add(rangeText);
             itemStats.add(holdText);
+            durabilityText = game.add.text(x + 55, y + 135, 'Durability: ' + item.durability.current + '/' + item.durability.max, textStyle);
+        } else if (item.armor) {
+            durabilityText = game.add.text(x + 55, y + 135, 'Durability: ' + item.durability.current + '/' + item.durability.max, textStyle);
         }
-        durabilityText = game.add.text(x + 55, y + 135, 'Durability: ' + item.durability.current + '/' + item.durability.max, textStyle);
+
         itemStats.add(nameText);
         itemStats.add(descriptionText);
         itemStats.add(damageText);
-        itemStats.add(durabilityText);
+        if (durabilityText) {
+            itemStats.add(durabilityText);
+        }
         if (characterConfig.inventory[location].type !== EnumHelper.inventoryEnum.defaultEquipment && !item.isEquipped) {
             equippedBox = game.add.graphics();
             equippedBox.fillStyle(0x222222, 1);
             equippedBox.fillRect(x + 200, y, 150, 150);
             equippedHasDamage = characterConfig.inventory[location].damage;
+            equippedHasArmor = characterConfig.inventory[location].armor;
             equippedNameText = game.add.text(x + 205, y, characterConfig.inventory[location].name, textStyle);
             equippedDescriptionText = game.add.text(x + 205, y + 30, characterConfig.inventory[location].description, textStyle);
             if (equippedHasDamage) {
@@ -635,22 +643,30 @@ export const HUDCharacterStatus = function (scene) {
                     }
                 }
                 equippedDamageText = game.add.text(x + 205, y + 60, 'Damage: ' + damage, textStyle);
-            } else {
+            } else if (equippedHasArmor) {
                 equippedDamageText = game.add.text(x + 205, y + 60, 'Armor: ' + characterConfig.inventory[location].armor, textStyle);
+            } else {
+                equippedDamageText = game.add.text(x + 205, y + 60, 'Quantity: ' + characterConfig.inventory[location].quantity, textStyle);
             }
             if (equippedHasDamage) {
                 equippedRangeText = game.add.text(x + 205, y + 105, 'Range: ' + characterConfig.inventory[location].range, textStyle);
                 equippedHoldText = game.add.text(x + 205, y + 120, 'Hold: ' + characterConfig.inventory[location].hold, textStyle);
                 itemStats.add(equippedRangeText);
                 itemStats.add(equippedHoldText);
+                equippedDurabilityText = game.add.text(x + 205, y + 135,
+                    'Durability: ' + characterConfig.inventory[location].durability.current + '/' + characterConfig.inventory[location].durability.max, textStyle);
+            } else if (equippedHasArmor) {
+                equippedDurabilityText = game.add.text(x + 205, y + 135,
+                    'Durability: ' + characterConfig.inventory[location].durability.current + '/' + characterConfig.inventory[location].durability.max, textStyle);
             }
-            equippedDurabilityText = game.add.text(x + 205, y + 135,
-                'Durability: ' + characterConfig.inventory[location].durability.current + '/' + characterConfig.inventory[location].durability.max, textStyle);
+
             itemStats.add(equippedBox);
             itemStats.add(equippedNameText);
             itemStats.add(equippedDescriptionText);
             itemStats.add(equippedDamageText);
-            itemStats.add(equippedDurabilityText);
+            if (equippedDurabilityText) {
+                itemStats.add(equippedDurabilityText);
+            }
         }
     };
 };

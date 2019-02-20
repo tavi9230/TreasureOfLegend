@@ -1,4 +1,4 @@
-﻿import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
+﻿import { EnumHelper } from 'Aniwars/Helpers/enumHelper';
 import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
 import { SpellsConfig } from 'Aniwars/Configurations/spellsConfig';
 
@@ -79,15 +79,18 @@ var feetArray = [
     InventoryConfig.feet.platedBoots,
     InventoryConfig.feet.greaves
 ];
-var _getItem = (array) =>
-{
+var utilityArray = [
+    InventoryConfig.utility.arrows,
+    InventoryConfig.utility.bolts
+];
+var _getItem = (array) => {
     // TODO https://www.npmjs.com/package/random
     var rand = Math.floor(Math.random() * array.length);
     rand = rand === 0 ? 0 : rand === array.length ? rand - 1 : rand;
     return lodash.cloneDeep(array[rand]);
 };
 var inventoryGetter = {
-    getRandomResistances: function(number) {
+    getRandomResistances: function (number) {
         var array = [];
         while (number > 0) {
             array.push(Math.floor(Math.random() * 4) + 1);
@@ -95,26 +98,27 @@ var inventoryGetter = {
         }
         return _.uniq(array);
     },
-    getMainHandItem: function() {
+    getMainHandItem: function () {
         return _getItem(mainHandArray);
     },
-    getOffHandItem: function() {
+    getOffHandItem: function () {
         return _getItem(offHandArray);
     },
-    getHeadItem: function() {
+    getHeadItem: function () {
         return _getItem(headArray);
     },
-    getBodyItem: function() {
+    getBodyItem: function () {
         return _getItem(bodyArray);
     },
-    getHandsItem: function() {
+    getHandsItem: function () {
         return _getItem(handsArray);
     },
-    getFeetItem: function() {
+    getFeetItem: function () {
         return _getItem(feetArray);
     },
-    getRandomInventoryItem: function() {
-        var rand = Math.random() * 6;
+    getRandomInventoryItem: function () {
+        var rand = 6;
+        //Math.random() * 7;
         switch (Math.floor(rand)) {
             case 0:
                 return _getItem(mainHandArray);
@@ -128,13 +132,15 @@ var inventoryGetter = {
                 return _getItem(handsArray);
             case 5:
                 return _getItem(feetArray);
+            case 6:
+                return _getItem(utilityArray);
             default:
-                return _getItem(mainHandArray);
+                return _getItem(utilityArray);
         }
     },
     getSpells: function (spellsToGet) {
         var spells = [];
-        _.each(spellsToGet, function(spell) {
+        _.each(spellsToGet, function (spell) {
             var s = lodash.cloneDeep(spell);
             s.level++;
             spells.push(s);
@@ -215,7 +221,7 @@ export const EnemyConfig = {
                 max: 2,
                 items: []
             },
-            getMoney: function() {
+            getMoney: function () {
                 var rand = Math.random() * 20;
                 return Math.floor(rand);
             },
