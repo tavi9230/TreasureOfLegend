@@ -114,7 +114,7 @@
                 { height: 50, width: 50 },
                 {
                     pointerdown: _.bind(function () {
-                        this.useMainHand();
+                        this.useOffHand();
                     }, this),
                     pointerover: function () {
                         game.tipsModal.showTips(game.windowWidth - 175, game.windowHeight - 295, 'Use Offhand (D)');
