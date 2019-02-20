@@ -222,6 +222,9 @@
     this.useMainHand = function () {
         game.events.emit('useMainHand');
     };
+    this.useOffHand = function() {
+        game.events.emit('useOffHand');
+    };
     this.selectInspectAction = function () {
         game.events.emit('inspectSelected');
     };

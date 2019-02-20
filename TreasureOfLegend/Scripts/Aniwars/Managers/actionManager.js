@@ -23,9 +23,11 @@ export const ActionManager = function (scene) {
             charConfig = character.characterConfig;
         if (!charConfig.movement.isMoving) {
             if (charConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand) {
-                return this._checkDefaultAction(character, enemy);
+                return this._checkMainHandAttack(character, enemy);
             } else if (charConfig.energy.actionId === EnumHelper.actionEnum.attackSpell) {
                 return this._checkSpellAttack(character, enemy);
+            } else if (charConfig.energy.actionId === EnumHelper.actionEnum.attackOffHand) {
+                return this._checkOffHandAttack(character, enemy);
             }
         }
         return false;
@@ -165,7 +167,9 @@ export const ActionManager = function (scene) {
         var charConfig = character.characterConfig,
             cost = charConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand
                 ? EnergyConfig.attackMainHand.cost
-                : EnergyConfig.attackSpell.cost;
+                : charConfig.energy.actionId === EnumHelper.actionEnum.attackSpell
+                    ? EnergyConfig.attackSpell.cost
+                    : EnergyConfig.attackOffHand.cost;
         if (Math.abs(character.x - enemy.x) <= 50 * charConfig.energy.selectedAction.range &&
             Math.abs(character.y - enemy.y) <= 50 * charConfig.energy.selectedAction.range &&
             (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)
@@ -176,6 +180,7 @@ export const ActionManager = function (scene) {
     };
 
     this._isProjectileHitting = (character, enemy) => {
+        // TODO: Instead of arrow, send Selected Action Projectile Image
         var rangeLines = this._checkProjectileSuccess(character, enemy);
         if (rangeLines.isFound) {
             var arrow = game.physics.add.sprite(character.x, character.y, 'arrow'),
@@ -196,8 +201,7 @@ export const ActionManager = function (scene) {
         return false;
     };
 
-    this._checkDefaultAction = (character, enemy) => {
-        // TODO: Check if offhand is empty?
+    this._checkMainHandAttack = (character, enemy) => {
         // Check if in range
         var charConfig = character.characterConfig;
         if (this._canAttack(character, enemy)) {
@@ -210,13 +214,31 @@ export const ActionManager = function (scene) {
                 // If it is a ranged weapon check if projectile hits
                 if (charConfig.energy.selectedAction.range > 1) {
                     if (this._isProjectileHitting(character, enemy)) {
-                        this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), false);
+                        this._tryAttack(character, enemy, this._getAttackAttribute(charConfig));
                         return true;
                     }
                 } else {
-                    this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), false);
+                    this._tryAttack(character, enemy, this._getAttackAttribute(charConfig));
                     return true;
                 }
+            }
+        }
+        return false;
+    };
+
+    this._checkOffHandAttack = (character, enemy) => {
+        // Check if in range
+        var charConfig = character.characterConfig;
+        if (this._canAttack(character, enemy)) {
+            // If it is a ranged weapon check if projectile hits
+            if (charConfig.energy.selectedAction.range > 1) {
+                if (this._isProjectileHitting(character, enemy)) {
+                    this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), false, true);
+                    return true;
+                }
+            } else {
+                this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), false, true);
+                return true;
             }
         }
         return false;
@@ -325,7 +347,7 @@ export const ActionManager = function (scene) {
         }, 800);
     };
 
-    this._tryAttack = (character, enemy, attackAttribute, isSpell) => {
+    this._tryAttack = (character, enemy, attackAttribute, isSpell, isOffHand) => {
         var self = this,
             charConfig = character.characterConfig,
             enemyCharConfig = enemy.characterConfig,
@@ -340,7 +362,8 @@ export const ActionManager = function (scene) {
                 if (enemyCharConfig.armor - enemyCharConfig.attributes.dexterity > 0) {
                     _.each(charConfig.energy.selectedAction.damage, function (damage) {
                         var attackDice = damage.value.split('d'),
-                            attackDamage = parseInt(attackDice[0]) * (Math.floor(Math.random() * parseInt(attackDice[1])) + 1) + Math.floor(attackAttribute / 2);
+                            attackDamage = parseInt(attackDice[0]) * (Math.floor(Math.random() * parseInt(attackDice[1])) + 1)
+                                + (isOffHand ? 0 : attackAttribute);
                         // TODO: Remove durability from the same armor piece in case of multi damage type attack
                         // TODO: If armor was not hit, enemy loses hp
                         if (self._removeArmorPointsFromEquippedInventory(enemy, Math.ceil(attackDamage / 2))) {
@@ -359,7 +382,8 @@ export const ActionManager = function (scene) {
             } else {
                 _.each(charConfig.energy.selectedAction.damage, function (damage) {
                     var attackDice = damage.value.split('d'),
-                        attackDamage = parseInt(attackDice[0]) * (Math.floor(Math.random() * parseInt(attackDice[1])) + 1) + Math.floor(attackAttribute / 2);
+                        attackDamage = parseInt(attackDice[0]) * (Math.floor(Math.random() * parseInt(attackDice[1])) + 1)
+                            + (isOffHand ? 0 : attackAttribute);
                     if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === -1) {
                         if (enemyCharConfig.resistances.indexOf(damage.type) !== -1) {
                             enemyCharConfig.life.current -= Math.ceil(attackDamage / 2);
@@ -395,9 +419,15 @@ export const ActionManager = function (scene) {
         if (isSpell) {
             charConfig.mana.spent += charConfig.energy.selectedAction.cost;
             StatusIconConfig.showManaIcon(game, character, charConfig.energy.selectedAction.cost);
+            charConfig.energy.spent += EnergyConfig.attackSpell.cost;
+            StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackSpell.cost);
+        } else if (isOffHand) {
+            charConfig.energy.spent += EnergyConfig.attackOffHand.cost;
+            StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackOffHand.cost);
+        } else {
+            charConfig.energy.spent += EnergyConfig.attackMainHand.cost;
+            StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackMainHand.cost);
         }
-        charConfig.energy.spent += EnergyConfig.attackMainHand.cost;
-        StatusIconConfig.showEnergyIcon(game, character, EnergyConfig.attackMainHand.cost);
 
         charConfig.energy.actionId = -1;
         charConfig.energy.selectedAction = null;

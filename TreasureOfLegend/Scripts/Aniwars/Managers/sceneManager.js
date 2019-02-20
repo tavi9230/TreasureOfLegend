@@ -18,11 +18,12 @@ export const SceneManager = function (game) {
             game.initiativeIndex++;
             if (game.initiativeIndex >= game.initiative.length || initialInitiativeIndex === -1) {
                 var shouldRestart = true;
-                _.each(game.initiative, function (character) {
-                    if (!character.characterConfig.isPlayerControlled) {
-                        shouldRestart = false;
-                    }
-                });
+                _.each(game.initiative,
+                    function (character) {
+                        if (!character.characterConfig.isPlayerControlled) {
+                            shouldRestart = false;
+                        }
+                    });
                 if (shouldRestart) {
                     game.initiative = null;
                     game.initiative = this.getInitiativeArray();
@@ -32,9 +33,10 @@ export const SceneManager = function (game) {
             }
             var first = game.initiative.shift();
             game.initiative.push(first);
-            _.each(game.initiative, function (char) {
-                char.clearTint();
-            });
+            _.each(game.initiative,
+                function (char) {
+                    char.clearTint();
+                });
             game.events.emit('showCharacterInitiative', game.initiative);
             game.activeCharacter.characterConfig.energy.selectedAction = null;
             game.activeCharacter.characterConfig.energy.actionId = -1;
@@ -53,28 +55,119 @@ export const SceneManager = function (game) {
             }
             if (shouldChangeTurn) {
                 game.events.emit('changeTurnCounter');
-                _.each(game.initiative, function (character) {
-                    character.characterConfig.movement.spent = 0;
-                    character.characterConfig.energy.spent = 0;
-                    character.characterConfig.movement.usedDash = false;
-                });
+                _.each(game.initiative,
+                    function (character) {
+                        character.characterConfig.movement.spent = 0;
+                        character.characterConfig.energy.spent = 0;
+                        character.characterConfig.movement.usedDash = false;
+                    });
             }
             this.checkObjectReset();
         }
-    },
-        this.createMap = (map) => {
-            game.activeMap = new BattleMap(game, map);
-            game.activeMap.generateMap();
-            var self = this;
-            _.each(game.activeMap.tiles.getChildren(), function (tile) {
-                //mouse input on clicking game tiles and hovering over them
-                self.bindTileEvents(tile);
-            });
-            _.each(game.activeMap.objects.getChildren(), function (object) {
-                //mouse input on clicking game objects
-                self.bindObjectEvents(object);
-            });
+    };
+
+    this.createMap = (map) => {
+        game.activeMap = new BattleMap(game, map);
+        game.activeMap.generateMap();
+        var self = this;
+        _.each(game.activeMap.tiles.getChildren(), function (tile) {
+            //mouse input on clicking game tiles and hovering over them
+            self.bindTileEvents(tile);
+        });
+        _.each(game.activeMap.objects.getChildren(), function (object) {
+            //mouse input on clicking game objects
+            self.bindObjectEvents(object);
+        });
+    };
+
+    this.addHUDSceneEvents = function () {
+        var self = this;
+        game.hudScene = game.scene.get('HUDScene');
+        game.hudScene.scene.bringToTop();
+        game.hudScene.events.on('endTurn', function () {
+            self.endTurn();
+        });
+        game.hudScene.events.on('getCharacterStartData', function () {
+            game.events.emit('showCharacterInitiative', game.initiative);
+        });
+        game.hudScene.events.on('highlightCharacter', function (character) {
+            game.activeMap.highlightCharacter(character);
+        });
+        game.hudScene.events.on('dehighlightCharacter', function (character) {
+            game.activeMap.dehighlightCharacter(character);
+        });
+        game.hudScene.events.on('dropItem', function (itemToDrop) {
+            game.characters.dropItem(itemToDrop);
+        });
+        game.hudScene.events.on('replaceItem', function (config) {
+            game.characters.replaceItem(config.selectedItem, config.itemToReplace);
+        });
+        game.hudScene.events.on('getItemFromLootBag', function (config) {
+            var item = config.item,
+                lootbag = config.lootbag;
+            game.characters.addItemFromList(item, lootbag);
+        });
+        game.hudScene.events.on('addAttributePoint', function (index) {
+            game.characters.updateAttributes(index);
+        });
+        game.hudScene.events.on('boughtSkill', function (skill) {
+            game.characters.buySkill(skill);
+        });
+        game.hudScene.events.on('useDash', function () {
+            game.characters.useDash();
+        });
+        game.hudScene.events.on('spellSelected', function (spell) {
+            if (game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackSpell
+                && game.activeCharacter.characterConfig.energy.selectedAction === spell) {
+                game.activeCharacter.characterConfig.energy.actionId = -1;
+                game.events.emit('removeSelectedActionIcon');
+            } else {
+                var charConfig = game.activeCharacter.characterConfig;
+                charConfig.energy.actionId = EnumHelper.actionEnum.attackSpell;
+                charConfig.energy.selectedAction = spell;
+                game.events.emit('showSelectedActionIcon', spell.image);
+            }
+        });
+        game.hudScene.events.on('inspectSelected', function () {
+            if (game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.inspect) {
+                game.activeCharacter.characterConfig.energy.actionId = -1;
+                game.events.emit('removeSelectedActionIcon');
+            } else {
+                game.activeCharacter.characterConfig.energy.actionId = EnumHelper.actionEnum.inspect;
+                game.events.emit('showSelectedActionIcon', 'inspectButton');
+            }
+            game.activeCharacter.characterConfig.energy.selectedAction = null;
+        });
+        game.hudScene.events.on('useMainHand', function () {
+            if (game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand) {
+                game.activeCharacter.characterConfig.energy.actionId = -1;
+                game.events.emit('removeSelectedActionIcon');
+            } else {
+                game.activeCharacter.characterConfig.energy.actionId = EnumHelper.actionEnum.attackMainHand;
+                game.events.emit('showSelectedActionIcon', game.activeCharacter.characterConfig.inventory.mainHand.image);
+                game.activeCharacter.characterConfig.energy.selectedAction = game.activeCharacter.characterConfig.inventory.mainHand;
+            }
+        });
+        game.hudScene.events.on('useOffHand', function () {
+            if (game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackOffHand) {
+                game.activeCharacter.characterConfig.energy.actionId = -1;
+                game.events.emit('removeSelectedActionIcon');
+            } else {
+                if (game.activeCharacter.characterConfig.inventory.offHand.damage) {
+                    game.activeCharacter.characterConfig.energy.actionId = EnumHelper.actionEnum.attackOffHand;
+                    game.events.emit('showSelectedActionIcon', game.activeCharacter.characterConfig.inventory.offHand.image);
+                    game.activeCharacter.characterConfig.energy.selectedAction = game.activeCharacter.characterConfig.inventory.offHand;
+                }
+            }
+        });
+    };
+
+    this.createKeys = function () {
+        game.keycodes = {
+            d: game.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+            alt: game.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ALT)
         };
+    };
 
     this.bindTileEvents = (tile) => {
         tile.on('pointerdown', _.bind(this._moveCharacterOnClick, this, tile));
@@ -141,6 +234,7 @@ export const SceneManager = function (game) {
         } else {
             game.enemies.check();
         }
+        this._moveCamera();
     };
 
     this.getInitiativeArray = (deadCharacters) => {
@@ -279,6 +373,23 @@ export const SceneManager = function (game) {
 
     // PRIVATE
     // INTERACTION -------------------------------------------------------------------------------------
+    this._moveCamera = () => {
+        if (game.cursors.left.isDown) {
+            game.cameras.main.scrollX -= 10;
+        }
+        if (game.cursors.right.isDown) {
+            game.cameras.main.scrollX += 10;
+        }
+        if (game.cursors.up.isDown) {
+            game.cameras.main.scrollY -= 10;
+        }
+        if (game.cursors.down.isDown) {
+            game.cameras.main.scrollY += 10;
+        }
+        if (game.keycodes.d.isDown && game.keycodes.alt.isDown) {
+            game.debugMode = !game.debugMode;
+        }
+    };
     this._moveCharacterOnClick = (tile) => {
         var actionId = game.activeCharacter.characterConfig.energy.actionId;
         if (actionId === EnumHelper.actionEnum.inspect) {
@@ -311,7 +422,7 @@ export const SceneManager = function (game) {
         if (pointer.rightButtonDown() !== 0) {
             this._showCharacterInventory(enemy, pointer);
         }
-        else if (actionId === EnumHelper.actionEnum.attackMainHand || actionId === EnumHelper.actionEnum.attackSpell) {
+        else if (actionId === EnumHelper.actionEnum.attackMainHand || actionId === EnumHelper.actionEnum.attackSpell || actionId === EnumHelper.actionEnum.attackOffHand) {
             game.characters.interactWithEnemy(enemy);
         } else if (actionId === EnumHelper.actionEnum.inspect) {
             game.activeCharacter.characterConfig.energy.actionId = -1;

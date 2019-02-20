@@ -81,7 +81,7 @@
         attackMainHand: 1,
         attackSpell: 2,
         inspect: 3,
-        attackOffhand: 4
+        attackOffHand: 4
     },
     inventoryEnum: {
         defaultEquipment: 0,

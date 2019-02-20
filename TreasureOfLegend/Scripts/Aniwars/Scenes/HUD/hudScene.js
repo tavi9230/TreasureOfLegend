@@ -196,7 +196,7 @@ export const HUDScene = function (sceneName) {
                     this.lowerPanel.openSpellBook(this.activeScene.activeCharacter);
                 } else if (this.keycodes.d.isDown && !this.offhandButtonIsDown) {
                     this.offhandButtonIsDown = true;
-                    this.lowerPanel.useMainHand();
+                    this.lowerPanel.useOffHand();
                 } else if (this.keycodes.esc.isDown) {
                     this.keycodes.esc.isDown = false;
                     this.lowerPanel.openMainMenu();
