@@ -209,6 +209,7 @@ export const SceneManager = function (game) {
     };
 
     this.createEnemies = () => {
+        // TODO: Call this function from the level scene with paramaters so that it can be reused differently in other levels
         var self = this;
         game.enemies = new Enemy(game);
         game.enemies.addNewCharacter(750, 300, EnemyConfig.test);
