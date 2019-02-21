@@ -103,12 +103,17 @@
     weaponPropertiesEnum: {
         finesse: 1,
         loading: 2,
-        thrown: 3, // TODO: Implement
-        versatile: 4, // TODO: Implement
-        silvered: 5, // TODO: Implement
-        magical: 6, // TODO: Implement
+        // TODO: Implement
+        thrown: 3,
+        // TODO: Implement
+        versatile: 4,
+        // TODO: Implement
+        silvered: 5,
+        // TODO: Implement
+        magical: 6,
         light: 7,
-        reach: 8 // TODO: Implement
+        // TODO: Implement
+        reach: 8
     },
     ammunitionEnum: {
         arrows: 1,
