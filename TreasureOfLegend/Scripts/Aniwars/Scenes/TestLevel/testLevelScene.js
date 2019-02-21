@@ -1,5 +1,6 @@
 ﻿import { SceneManager } from 'Aniwars/Managers/sceneManager';
 import { MapConfig } from 'Aniwars/Configurations/mapConfig';
+import { EnemyConfig } from 'Aniwars/Configurations/enemyConfig';
 
 export const TestLevelScene = function () {
     return new Phaser.Class({
@@ -16,8 +17,9 @@ export const TestLevelScene = function () {
             this.sceneManager = new SceneManager(this);
             this.sceneManager.createMap(MapConfig.level0);
             this.sceneManager.createItems();
-            this.sceneManager.createCharacters();
-            this.sceneManager.createEnemies();
+            this.sceneManager.createCharacter(600, 350, 'character1');
+            this.sceneManager.createCharacter(600, 400, 'character2');
+            this.sceneManager.createEnemy(750, 300, EnemyConfig.test);
             this.sceneManager.addHUDSceneEvents();
             this.cursors = this.input.keyboard.createCursorKeys();
             this.initiative = this.sceneManager.getInitiativeArray();

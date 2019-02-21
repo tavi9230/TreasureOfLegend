@@ -50,6 +50,7 @@ export const CharacterConfig = {
         },
         image: '',
         isPlayerControlled: true,
+        isMasterControlled: false,
         statuses: [],
         resistances: [],
         vulnerabilities: [],

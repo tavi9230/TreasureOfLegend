@@ -55,6 +55,7 @@ export const Enemy = function (scene) {
         },
         image: '',
         isPlayerControlled: false,
+        isMasterControlled: false,
         traits: [EnumHelper.traitEnum.standard],
         statuses: [],
         resistances: [EnumHelper.damageTypeEnum.fire],
@@ -67,12 +68,13 @@ export const Enemy = function (scene) {
     this.map = game.activeMap;
     this.characters = game.add.group();
 
-    this.addNewCharacter = (x, y, config) => {
+    this.addNewCharacter = (x, y, config, isMasterControlled = false) => {
         var character = game.physics.add.sprite(x, y, config.image).setOrigin(-0.25, 0.5);
         character.height = 50;
         character.width = 50;
         character.characterConfig = lodash.cloneDeep(this.characterConfig);
         var charConfig = character.characterConfig;
+        charConfig.isMasterControlled = isMasterControlled;
         charConfig.posX = x;
         charConfig.posY = y;
         charConfig.height = config.height;
@@ -130,7 +132,6 @@ export const Enemy = function (scene) {
         charConfig.resistances = config.resistances;
         charConfig.vulnerabilities = config.vulnerabilities;
         charConfig.invulnerabilities = config.invulnerabilities;
-        this.characters.add(character);
         return character;
     };
 
@@ -187,9 +188,10 @@ export const Enemy = function (scene) {
     this.getPathsToEnemies = (seenCharacters) => {
         var currentCharacter = game.activeCharacter,
             paths = [],
+            path,
             auxMap = game.activeMap.addEnemiesToMap(game.characters);
         if (seenCharacters && seenCharacters.length > 0) {
-            var path = this._getPathToEnemy(auxMap, currentCharacter, seenCharacters[0].character);
+            path = this._getPathToEnemy(auxMap, currentCharacter, seenCharacters[0].character);
             if (path.length > 0) {
                 paths.push({ path: path, enemy: seenCharacters[0].character });
             }
@@ -201,14 +203,13 @@ export const Enemy = function (scene) {
                 tile = game.activeMap.tiles.getChildren().find(function (tile) {
                     return tile.x === randX && tile.y === randY;
                 });
-                if (tile) {
+                if (tile && !this._isTileOccupied(tile.x, tile.y)) {
                     isFound = true;
+                    path = this._getPathToTile(auxMap, currentCharacter, tile);
+                    if (path.length > 0) {
+                        paths.push({ path: path, enemy: tile });
+                    }
                 }
-            }
-
-            var path = this._getPathToEnemy(auxMap, currentCharacter, tile);
-            if (path.length > 0) {
-                paths.push({ path: path, enemy: tile });
             }
         }
         paths.sort(function (a, b) {
@@ -338,6 +339,26 @@ export const Enemy = function (scene) {
         return [];
     };
 
+    this._getPathToTile = function(map, character, tile) {
+        _.each(game.activeMap.objects.getChildren(), function(object) {
+            if (Math.floor(object.objectConfig.id) === 2) {
+                map[object.y / 50][object.x / 50] = 0;
+            }
+        });
+        var path = Pathfinder.findWay(character.x / 50,
+            character.y / 50,
+            tile.x / 50,
+            tile.y / 50,
+            map);
+        if (path.length > 0) {
+            path.shift();
+            if (path.length > 0) {
+                return path;
+            }
+        }
+        return [];
+    };
+
     this._getPathToObject = function (object) {
         var currentCharacter = game.activeCharacter,
             auxMap = game.activeMap.addEnemiesToMap(game.characters),
@@ -363,7 +384,9 @@ export const Enemy = function (scene) {
             },
             {
                 x: objX,
-                y: objY
+                y: objY,
+                height: object.height,
+                width: object.width
             },
             auxMap);
         if (path.length > 0) {
@@ -554,7 +577,7 @@ export const Enemy = function (scene) {
             wellObject,
             pathToWell,
             well;
-        if (charConfig.energy.max - charConfig.energy.spent > 0) {
+        if (charConfig.energy.max - charConfig.energy.spent !== charConfig.energy.max) {
             wellObject = this._getPathToWell(EnumHelper.idEnum.well.type.mana, true);
             well = wellObject.well;
             pathToWell = wellObject.path;

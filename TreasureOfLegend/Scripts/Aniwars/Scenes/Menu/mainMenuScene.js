@@ -2,6 +2,7 @@
 import {HUDScene} from 'Aniwars/Scenes/HUD/hudScene';
 import { TestLevelScene } from 'Aniwars/Scenes/TestLevel/testLevelScene';
 import { TestLevelScene2 } from 'Aniwars/Scenes/TestLevel/testLevelScene2';
+import { TestLevelScene3 } from 'Aniwars/Scenes/TestLevel/testLevelScene3';
 
 export const MainMenuScene = function() {
     this.sceneObject = new Phaser.Class({
@@ -64,6 +65,11 @@ export const MainMenuScene = function() {
             level.displayWidth = 100;
             level.displayHeight = 50;
             this.testLevelMapGroup.add(level);
+            level = this.add.image(230, 10, 'mainMenuButton').setOrigin(0, 0);
+            level.name = 'TestLevelScene3';
+            level.displayWidth = 100;
+            level.displayHeight = 50;
+            this.testLevelMapGroup.add(level);
             this.input.setHitArea(this.testLevelMapGroup.getChildren());
             _.each(this.testLevelMapGroup.getChildren(), function (level) {
                 level.on('pointerdown', _.bind(self._startTestLevel, self, level.name));
@@ -95,6 +101,9 @@ export const MainMenuScene = function() {
                     break;
                 case 'TestLevelScene2':
                     testLevelScene = new TestLevelScene2();
+                    break;
+                case 'TestLevelScene3':
+                    testLevelScene = new TestLevelScene3();
                     break;
                 default:
                     testLevelScene = new TestLevelScene();

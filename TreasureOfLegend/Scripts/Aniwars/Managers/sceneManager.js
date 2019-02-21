@@ -2,12 +2,13 @@
 import { Character } from 'Aniwars/character';
 import { Enemy } from 'Aniwars/enemy';
 import { InventoryConfig } from 'Aniwars/Configurations/inventoryConfig';
-import { EnemyConfig } from 'Aniwars/Configurations/enemyConfig';
 import { EnumHelper } from 'Aniwars/Helpers/enumHelper';
 
 export const SceneManager = function (game) {
     var game = game;
     game.items = game.add.group();
+    game.characters = new Character(game);
+    game.enemies = new Enemy(game);
 
     this.endTurn = () => {
         var charConfig = game.activeCharacter.characterConfig;
@@ -18,12 +19,11 @@ export const SceneManager = function (game) {
             game.initiativeIndex++;
             if (game.initiativeIndex >= game.initiative.length || initialInitiativeIndex === -1) {
                 var shouldRestart = true;
-                _.each(game.initiative,
-                    function (character) {
-                        if (!character.characterConfig.isPlayerControlled) {
-                            shouldRestart = false;
-                        }
-                    });
+                _.each(game.initiative, function (character) {
+                    if (!character.characterConfig.isPlayerControlled && !character.characterConfig.isMasterControlled) {
+                        shouldRestart = false;
+                    }
+                });
                 if (shouldRestart) {
                     game.initiative = null;
                     game.initiative = this.getInitiativeArray();
@@ -46,7 +46,7 @@ export const SceneManager = function (game) {
             game.cameras.main.startFollow(game.activeCharacter, true, 0.09, 0.09);
             game.cameras.main.stopFollow();
 
-            if (game.activeCharacter.characterConfig.isPlayerControlled) {
+            if (game.activeCharacter.characterConfig.isPlayerControlled || game.activeCharacter.characterConfig.isMasterControlled) {
                 game.events.emit('toggleActionButtons', true);
                 game.activeMap.showMovementGrid();
             } else {
@@ -182,7 +182,7 @@ export const SceneManager = function (game) {
     };
 
     this.bindEnemyEvents = (enemy) => {
-        enemy.on('pointerdown', _.bind(this._interactWithEnemy, this, enemy));
+        enemy.on('pointerdown', _.bind(this._interactWithCharacter, this, enemy));
         enemy.on('pointerover', _.bind(this._hoverCharacter, this, enemy));
         enemy.on('pointerout', _.bind(this._unhoverCharacter, this, enemy));
     };
@@ -190,47 +190,32 @@ export const SceneManager = function (game) {
     this.bindCharacterEvents = (character) => {
         character.on('pointerover', _.bind(this._hoverCharacter, this, character));
         character.on('pointerout', _.bind(this._unhoverCharacter, this, character));
-        character.on('pointerdown', _.bind(this._showCharacterInventory, this, character));
+        character.on('pointerdown', _.bind(this._interactWithCharacter, this, character));
     };
 
-    this.createCharacters = () => {
-        //party characters
-        var self = this;
-        game.characters = new Character(game);
-        //game.characters.addNewCharacter(600, 300, 'character1');
-        game.characters.addNewCharacter(600, 350, 'character2');
-        game.characters.addNewCharacter(600, 400, 'character3');
-        //game.characters.addNewCharacter(550, 300, 'character4');
-
-        game.input.setHitArea(game.characters.characters.getChildren());
-        _.each(game.characters.characters.getChildren(), function (character) {
-            self.bindCharacterEvents(character);
-        });
+    this.createCharacter = (x, y, characterImage) => {
+        var character = game.characters.addNewCharacter(x, y, characterImage);
+        game.input.setHitArea([character]);
+        this.bindCharacterEvents(character);
+        game.characters.characters.add(character);
     };
 
-    this.createEnemies = () => {
-        // TODO: Call this function from the level scene with paramaters so that it can be reused differently in other levels
-        var self = this;
-        game.enemies = new Enemy(game);
-        game.enemies.addNewCharacter(750, 300, EnemyConfig.test);
+    this.createEnemy = (x, y, enemyType, isMasterControlled) => {
+        var character = game.enemies.addNewCharacter(x, y, enemyType, isMasterControlled);
         game.enemies.total = game.enemies.characters.getChildren().length;
-        game.input.setHitArea(game.enemies.characters.getChildren());
-        _.each(game.enemies.characters.getChildren(), function (enemy) {
-            self.bindEnemyEvents(enemy);
-        });
+        game.input.setHitArea([character]);
+        this.bindEnemyEvents(character);
+        game.enemies.characters.add(character);
     };
 
     this.createCamera = () => {
         //main camera
         game.cameras.main.setBounds(0, 0, game.activeMap.levelMap[0].length * 50, game.activeMap.levelMap.length * 50 + 230);
         game.cameras.main.setZoom(1.5);
-        if (game.activeCharacter.characterConfig.isPlayerControlled) {
-            //game.cameras.main.startFollow(game.activeCharacter, true, 0.09, 0.09);
-        }
     };
 
     this.checkManager = () => {
-        if (game.activeCharacter.characterConfig.isPlayerControlled) {
+        if (game.activeCharacter.characterConfig.isPlayerControlled || game.activeCharacter.characterConfig.isMasterControlled) {
             game.characters.check();
         } else {
             game.enemies.check();
@@ -417,7 +402,7 @@ export const SceneManager = function (game) {
             game.characters.interactWithObject(object);
         }
     };
-    this._interactWithEnemy = (enemy, pointer) => {
+    this._interactWithCharacter = (enemy, pointer) => {
         // TODO: Move to action manager?
         var actionId = game.activeCharacter.characterConfig.energy.actionId;
         if (pointer.rightButtonDown() !== 0) {

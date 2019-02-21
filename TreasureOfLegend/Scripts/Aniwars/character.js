@@ -39,7 +39,7 @@ export const Character = function (game) {
             (charConfig.inventory.offHand.armor
                 ? charConfig.inventory.offHand.armor
                 : 0) + charConfig.attributes.dexterity;
-        this.characters.add(character);
+        return character;
     };
 
     this.moveActiveCharacterToTile = (tile) => {

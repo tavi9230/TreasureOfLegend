@@ -182,7 +182,8 @@ export const HUDScene = function (sceneName) {
             this.initiativeTracker.add(text);
         },
         _checkShortcutKeys() {
-            if (this.activeScene.activeCharacter.characterConfig.isPlayerControlled) {
+            var charConfig = this.activeScene.activeCharacter.characterConfig;
+            if (charConfig.isPlayerControlled || charConfig.isMasterControlled) {
                 if (this.keycodes.w.isDown) {
                     this.lowerPanel.useDash();
                 } else if (this.keycodes.e.isDown && !this.inspectButtonIsDown) {

@@ -660,7 +660,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            ammunition: EnumHelper.ammunitionEnum.bolts
         },
         balancedKnife: {
             name: 'Balanced Knife',
@@ -710,7 +711,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            ammunition: EnumHelper.ammunitionEnum.arrows
         },
         // special ---------------------------------------------------
         battleaxe: {
@@ -1187,7 +1189,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            ammunition: EnumHelper.ammunitionEnum.bolts
         },
         heavyCrossbow: {
             name: 'Heavy Crossbow',
@@ -1212,7 +1215,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            ammunition: EnumHelper.ammunitionEnum.bolts
         },
         longbow: {
             name: 'Longbow',
@@ -1237,7 +1241,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            ammunition: EnumHelper.ammunitionEnum.arrows
         }
     },
     utility: {
@@ -1248,7 +1253,8 @@ export const InventoryConfig = {
             description: 'Bow arrows',
             slots: 1,
             hold: 1,
-            quantity: 20
+            quantity: 20,
+            ammunition: EnumHelper.ammunitionEnum.arrows
         },
         bolts: {
             name: 'Crossbow bolts',
@@ -1257,7 +1263,8 @@ export const InventoryConfig = {
             description: 'Crossbow bolts',
             slots: 1,
             hold: 1,
-            quantity: 20
+            quantity: 20,
+            ammunition: EnumHelper.ammunitionEnum.bolts
         }
     }
 };

@@ -100,12 +100,16 @@
         climb: 3,
         fly: 4
     },
-    weaponProperties: {
+    weaponPropertiesEnum: {
         finesse: 1,
         loading: 2,
         thrown: 3,
         versatile: 4,
         silvered: 5,
         magical: 6
+    },
+    ammunitionEnum: {
+        arrows: 1,
+        bolts: 2
     }
 };

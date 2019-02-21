@@ -1,5 +1,5 @@
 ﻿var PF = require('pathfinding');
-import {EnumHelper} from 'Aniwars/Helpers/enumHelper';
+import { EnumHelper } from 'Aniwars/Helpers/enumHelper';
 
 var _cloneMap = (levelMap) => {
     var map = [];
@@ -61,7 +61,7 @@ export const Pathfinder = {
 
             posX += destination.width / 2;
             posY += destination.height / 2;
-            if (posX <= map[0].length * 50 && posY <= map.length * 50){
+            if (posX <= map[0].length * 50 && posY <= map.length * 50) {
                 map[posY / 50][posX / 50] = 0;
                 paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
                 posX = auxPosX;
@@ -94,7 +94,7 @@ export const Pathfinder = {
                 paths.push(Pathfinder.findWay(source.x / 50, source.y / 50, posX / 50, posY / 50, map));
             }
         }
-        return paths.sort(function(a, b) {
+        return paths.length > 0 ? paths.sort(function (a, b) {
             if (a.length < b.length) {
                 return -1;
             } else if (a.length > b.length) {
@@ -102,8 +102,8 @@ export const Pathfinder = {
             } else {
                 return 0;
             }
-        }).filter(function(val) {
+        }).filter(function (val) {
             return val.length > 0;
-        })[0];
+        })[0] : [];
     }
 };

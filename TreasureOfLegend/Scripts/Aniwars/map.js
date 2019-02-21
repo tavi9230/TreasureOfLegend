@@ -355,7 +355,7 @@ export const BattleMap = function (game, map) {
 
     this._highlightPath = (tile, object) => {
         var currentCharacter = this.game.activeCharacter;
-        if (currentCharacter.characterConfig.isPlayerControlled) {
+        if (currentCharacter.characterConfig.isPlayerControlled || currentCharacter.characterConfig.isMasterControlled) {
             var obj = {
                 isTile: tile ? true : false,
                 value: tile ? tile : object

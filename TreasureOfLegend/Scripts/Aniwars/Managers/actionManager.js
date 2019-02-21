@@ -101,7 +101,7 @@ export const ActionManager = function (scene) {
             var doorSound = game.sound.add('open_door', { volume: 0.5 });
             doorSound.play();
             object.objectConfig.isActivated = !object.objectConfig.isActivated;
-            if (charConfig.isPlayerControlled) {
+            if (charConfig.isPlayerControlled || charConfig.isMasterControlled) {
                 game.activeMap.showMovementGrid();
             }
         }
@@ -210,6 +210,8 @@ export const ActionManager = function (scene) {
             // if it is a melee weapon check if two handed skill is available or some skill
             // that allows character to use TH weapons as OH
             if ((charConfig.energy.selectedAction.hold === 2 && charConfig.inventory.offHand.type === EnumHelper.inventoryEnum.defaultEquipment)
+                || (charConfig.energy.selectedAction.ammunition && charConfig.inventory.offHand.ammunition &&
+                    charConfig.inventory.offHand.ammunition === charConfig.energy.selectedAction.ammunition)
                 || charConfig.energy.selectedAction.hold === 1) {
                 // If it is a ranged weapon check if projectile hits
                 if (charConfig.energy.selectedAction.range > 1) {
@@ -454,12 +456,12 @@ export const ActionManager = function (scene) {
                 // TODO: Check if this is overridden with each killed enemy
                 game.input.setHitArea(game.activeMap.deadCharacters.getChildren());
                 lootbag.on('pointerdown', function () {
-                    if (game.activeCharacter.characterConfig.isPlayerControlled) {
+                    if (game.activeCharacter.characterConfig.isPlayerControlled || game.activeCharacter.characterConfig.isMasterControlled) {
                         game.characters.interactWithObject(lootbag);
                     }
                 });
             }
-            if (!charConfig.isPlayerControlled) {
+            if (!charConfig.isPlayerControlled && !charConfig.isMasterControlled ) {
                 _.each(game.characters.characters.getChildren(), function (character) {
                     character.characterConfig.experience.current += Math.floor(enemy.characterConfig.experience / game.characters.characters.getChildren().length);
                     var difference = Math.floor(character.characterConfig.experience.current - character.characterConfig.experience.nextLevel);
