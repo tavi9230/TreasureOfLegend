@@ -107,7 +107,8 @@
         versatile: 4, // TODO: Implement
         silvered: 5, // TODO: Implement
         magical: 6, // TODO: Implement
-        light: 7
+        light: 7,
+        reach: 8 // TODO: Implement
     },
     ammunitionEnum: {
         arrows: 1,
