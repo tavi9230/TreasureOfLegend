@@ -106,7 +106,8 @@
         thrown: 3,
         versatile: 4,
         silvered: 5,
-        magical: 6
+        magical: 6,
+        light: 7
     },
     ammunitionEnum: {
         arrows: 1,

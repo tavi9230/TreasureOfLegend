@@ -411,7 +411,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.light]
         },
         dagger: {
             name: 'Dagger',
@@ -437,7 +437,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: [EnumHelper.weaponPropertiesEnum.finesse]
+            properties: [EnumHelper.weaponPropertiesEnum.finesse, EnumHelper.weaponPropertiesEnum.light]
         },
         greatclub: {
             name: 'Greatclub',
@@ -489,7 +489,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.light]
         },
         javelin: {
             name: 'Javelin',
@@ -541,7 +541,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.light]
         },
         mace: {
             name: 'Mace',
@@ -619,7 +619,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.light]
         },
         spear: {
             name: 'Spear',
@@ -1065,7 +1065,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: [EnumHelper.weaponPropertiesEnum.finesse]
+            properties: [EnumHelper.weaponPropertiesEnum.finesse, EnumHelper.weaponPropertiesEnum.light]
         },
         shortSword: {
             name: 'Short Sword',
@@ -1091,7 +1091,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: [EnumHelper.weaponPropertiesEnum.finesse]
+            properties: [EnumHelper.weaponPropertiesEnum.finesse, EnumHelper.weaponPropertiesEnum.light]
         },
         trident: {
             name: 'Trident',
@@ -1223,7 +1223,7 @@ export const InventoryConfig = {
                 current: 20
             },
             ammunition: EnumHelper.ammunitionEnum.bolts,
-            properties: [EnumHelper.weaponPropertiesEnum.loading]
+            properties: [EnumHelper.weaponPropertiesEnum.loading, EnumHelper.weaponPropertiesEnum.light]
         },
         heavyCrossbow: {
             name: 'Heavy Crossbow',

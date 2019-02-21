@@ -222,21 +222,22 @@ export const Character = function (game) {
             charConfig = character.characterConfig,
             hasBeenReplaced = false,
             aux;
-        if (charConfig.energy.max - charConfig.energy.spent > 0) {
+        if (charConfig.energy.max - charConfig.energy.spent >= EnergyConfig.pickup.cost) {
             if (itemToReplace) {
                 if (selectedItem.type === itemToReplace.type &&
-                    ((selectedItem.location === 'offHand' && itemToReplace.hold < 2) ||
-                        (itemToReplace.location === 'offHand' && selectedItem.hold < 2) ||
+                    ((selectedItem.location === 'offHand' && itemToReplace.properties.indexOf(EnumHelper.weaponPropertiesEnum.light) > -1) ||
+                        (itemToReplace.location === 'offHand' && selectedItem.properties.indexOf(EnumHelper.weaponPropertiesEnum.light) > -1) ||
                         selectedItem.location !== 'offHand' && itemToReplace.location !== 'offHand') ||
                     selectedItem.type === EnumHelper.inventoryEnum.mainHand &&
                     itemToReplace.type === EnumHelper.inventoryEnum.offHand &&
-                    selectedItem.hold < 2 ||
+                    selectedItem.properties.indexOf(EnumHelper.weaponPropertiesEnum.light) > -1 ||
                     selectedItem.type === EnumHelper.inventoryEnum.offHand &&
                     itemToReplace.type === EnumHelper.inventoryEnum.mainHand &&
-                    itemToReplace.hold < 2 ||
+                    itemToReplace.properties.indexOf(EnumHelper.weaponPropertiesEnum.light) > -1 ||
                     selectedItem.location === 'inventory' && itemToReplace.location === 'inventory') {
                     var isSelectedItemAnInventoryItem = selectedItem.location === 'inventory',
                         isItemToReplaceAnInventoryItem = itemToReplace.location === 'inventory';
+                    // if we want to swap 2 inventory items between them or to replace an equipped item with an unequipped one
                     if (isSelectedItemAnInventoryItem || isItemToReplaceAnInventoryItem) {
                         var indexOfSelectedItem = -1;
                         var indexOfItemToReplace = -1;
@@ -283,9 +284,11 @@ export const Character = function (game) {
                         }
                     }
                 } else if (itemToReplace.type === EnumHelper.inventoryEnum.defaultEquipment) {
+                    // If we want to replace default equipment
                     if (EnumHelper.inventoryEnum[itemToReplace.location] === selectedItem.type ||
                         itemToReplace.location === 'offHand' &&
-                        selectedItem.type === EnumHelper.inventoryEnum.mainHand) {
+                        selectedItem.type === EnumHelper.inventoryEnum.mainHand &&
+                        selectedItem.properties.indexOf(EnumHelper.weaponPropertiesEnum.light) > -1) {
                         selectedItem.isEquipped = true;
                         charConfig.inventory[itemToReplace.location] = lodash.cloneDeep(selectedItem);
                         if (selectedItem.location === 'inventory') {
@@ -300,6 +303,7 @@ export const Character = function (game) {
                     }
                 }
             } else {
+                // if we want to unequip item
                 if (selectedItem.location !== 'inventory') {
                     var location = selectedItem.location === 'mainHand' || selectedItem.location === 'offHand'
                         ? 'weapons'
