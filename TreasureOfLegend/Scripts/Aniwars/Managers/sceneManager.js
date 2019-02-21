@@ -33,10 +33,9 @@ export const SceneManager = function (game) {
             }
             var first = game.initiative.shift();
             game.initiative.push(first);
-            _.each(game.initiative,
-                function (char) {
-                    char.clearTint();
-                });
+            _.each(game.initiative, function (char) {
+                char.clearTint();
+            });
             game.events.emit('showCharacterInitiative', game.initiative);
             game.activeCharacter.characterConfig.energy.selectedAction = null;
             game.activeCharacter.characterConfig.energy.actionId = -1;
@@ -55,12 +54,15 @@ export const SceneManager = function (game) {
             }
             if (shouldChangeTurn) {
                 game.events.emit('changeTurnCounter');
-                _.each(game.initiative,
-                    function (character) {
-                        character.characterConfig.movement.spent = 0;
-                        character.characterConfig.energy.spent = 0;
-                        character.characterConfig.movement.usedDash = false;
+                _.each(game.initiative, function (character) {
+                    character.characterConfig.movement.spent = 0;
+                    character.characterConfig.energy.spent = 0;
+                    character.characterConfig.movement.usedDash = false;
+                    character.characterConfig.inventory.mainHand.hasBeenUsed = false;
+                    _.each(character.characterConfig.inventory.slots.items, function(item) {
+                        item.hasBeenUsed = false;
                     });
+                });
             }
             this.checkObjectReset();
         }

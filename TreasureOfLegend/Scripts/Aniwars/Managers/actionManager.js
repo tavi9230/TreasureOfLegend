@@ -156,11 +156,21 @@ export const ActionManager = function (scene) {
 
     //ENEMY INTERACTION --------------------------------------------------------------------------------------------------------------------
     this._getAttackAttribute = (charConfig) => {
-        return EnumHelper.attributeEnum.strength === charConfig.energy.selectedAction.attribute
-            ? charConfig.attributes.strength
-            : EnumHelper.attributeEnum.dexterity === charConfig.energy.selectedAction.attribute
-                ? charConfig.attributes.dexterity
-                : charConfig.attributes.intelligence;
+        var isFinesseWeapon = charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.finesse),
+            isStrengthBased = EnumHelper.attributeEnum.strength === charConfig.energy.selectedAction.attribute,
+            isDexterityBased = EnumHelper.attributeEnum.dexterity === charConfig.energy.selectedAction.attribute,
+            isIntelligenceBased = EnumHelper.attributeEnum.intelligence === charConfig.energy.selectedAction.attribute;
+        if (isFinesseWeapon > -1) {
+            return charConfig.attributes.strength > charConfig.attributes.dexterity
+                ? charConfig.attributes.strength
+                : charConfig.attributes.dexterity;
+        } else if (isStrengthBased) {
+            return charConfig.attributes.strength;
+        } else if (isDexterityBased) {
+            return charConfig.attributes.dexterity;
+        } else if (isIntelligenceBased) {
+            return charConfig.attributes.intelligence;
+        }
     };
 
     this._canAttack = (character, enemy) => {
@@ -205,24 +215,22 @@ export const ActionManager = function (scene) {
         // Check if in range
         var charConfig = character.characterConfig;
         if (this._canAttack(character, enemy)) {
-            // If weapon is held with two hands check to have nothing in the offhand.
-            // If it is a projectile weapon it can have projectiles in offhand
-            // if it is a melee weapon check if two handed skill is available or some skill
-            // that allows character to use TH weapons as OH
-            if ((charConfig.energy.selectedAction.hold === 2 && charConfig.inventory.offHand.type === EnumHelper.inventoryEnum.defaultEquipment)
-                || (charConfig.energy.selectedAction.ammunition && charConfig.inventory.offHand.ammunition &&
-                    charConfig.inventory.offHand.ammunition === charConfig.energy.selectedAction.ammunition)
-                || charConfig.energy.selectedAction.hold === 1) {
-                // If it is a ranged weapon check if projectile hits
-                if (charConfig.energy.selectedAction.range > 1) {
-                    if (this._isProjectileHitting(character, enemy)) {
-                        this._tryAttack(character, enemy, this._getAttackAttribute(charConfig));
-                        return true;
-                    }
-                } else {
+            // If it is a ranged weapon check if projectile hits
+            if (charConfig.energy.selectedAction.range > 1 && (charConfig.energy.selectedAction.ammunition && charConfig.inventory.offHand.ammunition &&
+                charConfig.inventory.offHand.ammunition === charConfig.energy.selectedAction.ammunition && charConfig.inventory.offHand.quantity > 0)) {
+                var isLoadingWeapon = charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.loading),
+                    hasBeenUsed = false;
+                hasBeenUsed = charConfig.energy.selectedAction.hasBeenUsed;
+                charConfig.energy.selectedAction.hasBeenUsed = isLoadingWeapon > -1;
+                if (!hasBeenUsed && this._isProjectileHitting(character, enemy)) {
+                    charConfig.inventory.offHand.quantity--;
                     this._tryAttack(character, enemy, this._getAttackAttribute(charConfig));
                     return true;
                 }
+            }
+            if (!charConfig.energy.selectedAction.ammunition) {
+                this._tryAttack(character, enemy, this._getAttackAttribute(charConfig));
+                return true;
             }
         }
         return false;
@@ -461,7 +469,7 @@ export const ActionManager = function (scene) {
                     }
                 });
             }
-            if (!charConfig.isPlayerControlled && !charConfig.isMasterControlled ) {
+            if (!charConfig.isPlayerControlled && !charConfig.isMasterControlled) {
                 _.each(game.characters.characters.getChildren(), function (character) {
                     character.characterConfig.experience.current += Math.floor(enemy.characterConfig.experience / game.characters.characters.getChildren().length);
                     var difference = Math.floor(character.characterConfig.experience.current - character.characterConfig.experience.nextLevel);

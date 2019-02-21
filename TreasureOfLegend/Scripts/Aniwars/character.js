@@ -117,9 +117,18 @@ export const Character = function (game) {
 
     this.interactWithEnemy = (enemy) => {
         var character = game.activeCharacter,
-            charConfig = character.characterConfig;
+            charConfig = character.characterConfig,
+            cost = 99;
         charConfig.energy.inProgress = null;
-        if (charConfig.energy.max - charConfig.energy.spent > 0) {
+        //TODO check if energy is bigger than the action involved
+        if (charConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand) {
+            cost = EnergyConfig.attackMainHand.cost;
+        } else if (charConfig.energy.actionId === EnumHelper.actionEnum.attackOffHand) {
+            cost = EnergyConfig.attackOffHand.cost;
+        } else if (charConfig.energy.actionId === EnumHelper.actionEnum.attackSpell) {
+            cost = EnergyConfig.attackSpell.cost;
+        }
+        if (charConfig.energy.max - charConfig.energy.spent >= cost) {
             actionManager.interactWithEnemy(enemy);
         }
     };

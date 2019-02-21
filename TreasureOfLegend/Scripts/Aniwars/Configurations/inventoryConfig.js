@@ -384,7 +384,8 @@ export const InventoryConfig = {
             durability: {
                 max: 0,
                 current: 0
-            }
+            },
+            properties: []
         },
         club: {
             name: 'Club',
@@ -409,7 +410,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         dagger: {
             name: 'Dagger',
@@ -434,7 +436,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: [EnumHelper.weaponPropertiesEnum.finesse]
         },
         greatclub: {
             name: 'Greatclub',
@@ -459,7 +462,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         handaxe: {
             name: 'Handaxe',
@@ -484,7 +488,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         javelin: {
             name: 'Javelin',
@@ -509,7 +514,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         lightHammer: {
             name: 'Light Hammer',
@@ -534,7 +540,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         mace: {
             name: 'Mace',
@@ -559,7 +566,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         quarterstaff: {
             name: 'Quarterstaff',
@@ -584,7 +592,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         sickle: {
             name: 'Sickle',
@@ -609,7 +618,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         spear: {
             name: 'Spear',
@@ -634,7 +644,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         // simple ranged---------------------------------------------------
         lightCrossbow: {
@@ -661,7 +672,8 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            ammunition: EnumHelper.ammunitionEnum.bolts
+            ammunition: EnumHelper.ammunitionEnum.bolts,
+            properties: [EnumHelper.weaponPropertiesEnum.loading]
         },
         balancedKnife: {
             name: 'Balanced Knife',
@@ -674,7 +686,7 @@ export const InventoryConfig = {
                 }
             ],
             range: 4,
-            attribute: EnumHelper.attributeEnum.dexterity,
+            attribute: EnumHelper.attributeEnum.strength,
             hold: 1,
             image: 'balancedKnife',
             description: 'Balanced Knife',
@@ -686,7 +698,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: [EnumHelper.weaponPropertiesEnum.finesse]
         },
         shortBow: {
             name: 'Short bow',
@@ -712,7 +725,8 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            ammunition: EnumHelper.ammunitionEnum.arrows
+            ammunition: EnumHelper.ammunitionEnum.arrows,
+            properties: []
         },
         // special ---------------------------------------------------
         battleaxe: {
@@ -738,7 +752,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         flail: {
             name: 'Flail',
@@ -763,7 +778,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         glaive: {
             name: 'Glaive',
@@ -788,7 +804,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         greataxe: {
             name: 'Greataxe',
@@ -813,7 +830,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         greatsword: {
             name: 'Greatsword',
@@ -838,7 +856,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         halberd: {
             name: 'Halberd',
@@ -863,7 +882,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         lance: {
             name: 'Lance',
@@ -888,7 +908,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         longsword: {
             name: 'Longsword',
@@ -913,7 +934,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         maul: {
             name: 'Maul',
@@ -938,7 +960,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         morningstar: {
             name: 'Morningstar',
@@ -963,7 +986,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         pike: {
             name: 'Pike',
@@ -988,7 +1012,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         rapier: {
             name: 'Rapier',
@@ -1013,7 +1038,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         scimitar: {
             name: 'Scimitar',
@@ -1038,7 +1064,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: [EnumHelper.weaponPropertiesEnum.finesse]
         },
         shortSword: {
             name: 'Short Sword',
@@ -1063,7 +1090,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: [EnumHelper.weaponPropertiesEnum.finesse]
         },
         trident: {
             name: 'Trident',
@@ -1088,7 +1116,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         warPick: {
             name: 'War Pick',
@@ -1113,7 +1142,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         warhammer: {
             name: 'Warhammer',
@@ -1138,7 +1168,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: []
         },
         whip: {
             name: 'Whip',
@@ -1163,7 +1194,8 @@ export const InventoryConfig = {
             durability: {
                 max: 20,
                 current: 20
-            }
+            },
+            properties: [EnumHelper.weaponPropertiesEnum.finesse]
         },
         // special ranged ---------------------------------------------------
         handCrossbow: {
@@ -1190,7 +1222,8 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            ammunition: EnumHelper.ammunitionEnum.bolts
+            ammunition: EnumHelper.ammunitionEnum.bolts,
+            properties: [EnumHelper.weaponPropertiesEnum.loading]
         },
         heavyCrossbow: {
             name: 'Heavy Crossbow',
@@ -1216,7 +1249,8 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            ammunition: EnumHelper.ammunitionEnum.bolts
+            ammunition: EnumHelper.ammunitionEnum.bolts,
+            properties: [EnumHelper.weaponPropertiesEnum.loading]
         },
         longbow: {
             name: 'Longbow',
@@ -1242,7 +1276,8 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            ammunition: EnumHelper.ammunitionEnum.arrows
+            ammunition: EnumHelper.ammunitionEnum.arrows,
+            properties: []
         }
     },
     utility: {

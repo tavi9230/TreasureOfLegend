@@ -97,6 +97,7 @@ export const HUDCharacterStatus = function (scene) {
             if (character.x === game.activeScene.activeCharacter.x &&
                 character.y === game.activeScene.activeCharacter.y) {
                 image.on('pointerdown', function () {
+                    var dropButton;
                     if (!selectedItem) {
                         if (item.type !== EnumHelper.inventoryEnum.defaultEquipment) {
                             box.setTexture('inventoryBoxSelected');
@@ -110,10 +111,14 @@ export const HUDCharacterStatus = function (scene) {
                         _.each(inventoryBoxes, function (box) {
                             box.setTexture('inventoryBox');
                         });
+                        dropButton = characterInventoryTabGroup.getChildren().find(function (obj) {
+                            return obj.name === 'dropButton';
+                        });
+                        dropButton.destroy();
                         game.events.emit('replaceItem', { selectedItem: selectedItem, itemToReplace: item });
                         selectedItem = null;
                     } else {
-                        var dropButton = characterInventoryTabGroup.getChildren().find(function (obj) {
+                        dropButton = characterInventoryTabGroup.getChildren().find(function (obj) {
                             return obj.name === 'dropButton';
                         });
                         dropButton.destroy();
