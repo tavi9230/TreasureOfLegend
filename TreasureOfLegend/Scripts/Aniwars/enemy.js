@@ -528,7 +528,9 @@ export const Enemy = function (scene) {
 
     this._dropOffhandWeapon = function (currentCharacter) {
         var charConfig = currentCharacter.characterConfig;
-        if (charConfig.inventory.mainHand.hold === 2 && charConfig.inventory.offHand.armor) {
+        if (charConfig.inventory.mainHand.ammunition && !charConfig.inventory.offHand.ammunition
+            || charConfig.inventory.mainHand.ammunition && charConfig.inventory.offHand.ammunition
+            && charConfig.inventory.offHand.ammunition !== charConfig.energy.selectedAction.ammunition) {
             // TODO: Drop offhand if it is an armor (or put in inventory if you can?) and then attack
             var item = charConfig.inventory.offHand,
                 itemImage = game.physics.add.sprite(currentCharacter.x, currentCharacter.y, item.image).setOrigin(0, 0);

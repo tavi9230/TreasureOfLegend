@@ -222,6 +222,7 @@ export const Character = function (game) {
             charConfig = character.characterConfig,
             hasBeenReplaced = false,
             aux;
+        // TODO BUG: change locations of swapped weapons
         if (charConfig.energy.max - charConfig.energy.spent >= EnergyConfig.pickup.cost) {
             if (itemToReplace) {
                 if (selectedItem.type === itemToReplace.type &&
@@ -273,15 +274,13 @@ export const Character = function (game) {
                             hasBeenReplaced = true;
                         }
                     } else {
-                        if (selectedItem.hold < 2 && itemToReplace.hold < 2) {
-                            selectedItem.isEquipped = true;
-                            itemToReplace.isEquipped = true;
-                            aux = lodash.cloneDeep(charConfig.inventory[selectedItem.location]);
-                            charConfig.inventory[selectedItem.location] =
-                                lodash.cloneDeep(charConfig.inventory[itemToReplace.location]);
-                            charConfig.inventory[itemToReplace.location] = aux;
-                            hasBeenReplaced = true;
-                        }
+                        selectedItem.isEquipped = true;
+                        itemToReplace.isEquipped = true;
+                        aux = lodash.cloneDeep(charConfig.inventory[selectedItem.location]);
+                        charConfig.inventory[selectedItem.location] =
+                            lodash.cloneDeep(charConfig.inventory[itemToReplace.location]);
+                        charConfig.inventory[itemToReplace.location] = aux;
+                        hasBeenReplaced = true;
                     }
                 } else if (itemToReplace.type === EnumHelper.inventoryEnum.defaultEquipment) {
                     // If we want to replace default equipment

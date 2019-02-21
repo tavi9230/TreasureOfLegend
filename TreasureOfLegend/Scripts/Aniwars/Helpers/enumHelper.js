@@ -103,10 +103,10 @@
     weaponPropertiesEnum: {
         finesse: 1,
         loading: 2,
-        thrown: 3,
-        versatile: 4,
-        silvered: 5,
-        magical: 6,
+        thrown: 3, // TODO: Implement
+        versatile: 4, // TODO: Implement
+        silvered: 5, // TODO: Implement
+        magical: 6, // TODO: Implement
         light: 7
     },
     ammunitionEnum: {

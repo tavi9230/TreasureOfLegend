@@ -229,8 +229,15 @@ export const ActionManager = function (scene) {
                 }
             }
             if (!charConfig.energy.selectedAction.ammunition) {
-                this._tryAttack(character, enemy, this._getAttackAttribute(charConfig));
-                return true;
+                var canAttack = true;
+                if (charConfig.energy.selectedAction.location === 'mainHand' && charConfig.energy.selectedAction.hold === 2 &&
+                    charConfig.inventory.offHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
+                    canAttack = false;
+                }
+                if (canAttack) {
+                    this._tryAttack(character, enemy, this._getAttackAttribute(charConfig));
+                    return true;
+                }
             }
         }
         return false;
