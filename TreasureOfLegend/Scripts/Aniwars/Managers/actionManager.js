@@ -37,7 +37,9 @@ export const ActionManager = function (scene) {
         // TODO: Fix this when player - wall - enemy
         var projectileLines = this._checkProjectileSuccess(character, enemy),
             charConfig = character.characterConfig,
-            isThrownWeapon = charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.thrown) > -1;
+            isThrownWeapon = charConfig.energy.selectedAction.properties
+                ? charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.thrown) > -1
+                : false;
         this.hideRangeLines();
         rangeLines = game.add.group();
         if (projectileLines.isFound &&
@@ -158,7 +160,7 @@ export const ActionManager = function (scene) {
 
     //ENEMY INTERACTION --------------------------------------------------------------------------------------------------------------------
     this._getAttackAttribute = (charConfig) => {
-        var isFinesseWeapon = charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.finesse),
+        var isFinesseWeapon = charConfig.energy.selectedAction.properties ? charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.finesse) > -1 : false,
             isStrengthBased = EnumHelper.attributeEnum.strength === charConfig.energy.selectedAction.attribute,
             isDexterityBased = EnumHelper.attributeEnum.dexterity === charConfig.energy.selectedAction.attribute,
             isIntelligenceBased = EnumHelper.attributeEnum.intelligence === charConfig.energy.selectedAction.attribute;
@@ -182,8 +184,8 @@ export const ActionManager = function (scene) {
                 : charConfig.energy.actionId === EnumHelper.actionEnum.attackSpell
                     ? EnergyConfig.attackSpell.cost
                     : EnergyConfig.attackOffHand.cost,
-            isReachWeapon = charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.reach) > -1,
-            isThrownWeapon = charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.thrown) > -1;
+            isReachWeapon = charConfig.energy.selectedAction.properties ? charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.reach) > -1 : false,
+            isThrownWeapon = charConfig.energy.selectedAction.properties ? charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.thrown) > -1 : false;
         if (Math.abs(character.x - enemy.x) <= 50 * (isThrownWeapon ? charConfig.energy.selectedAction.rangeThrown : charConfig.energy.selectedAction.range) + (isReachWeapon ? 50 : 0) &&
             Math.abs(character.y - enemy.y) <= 50 * (isThrownWeapon ? charConfig.energy.selectedAction.rangeThrown : charConfig.energy.selectedAction.range) + (isReachWeapon ? 50 : 0) &&
             (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)
@@ -253,7 +255,9 @@ export const ActionManager = function (scene) {
             // If it is a ranged weapon check if projectile hits
             if (charConfig.energy.selectedAction.range > 1 && (charConfig.energy.selectedAction.ammunition && charConfig.inventory.offHand.ammunition &&
                 charConfig.inventory.offHand.ammunition === charConfig.energy.selectedAction.ammunition && charConfig.inventory.offHand.quantity > 0)) {
-                var isLoadingWeapon = charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.loading),
+                var isLoadingWeapon = charConfig.energy.selectedAction.properties
+                    ? charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.loading) > -1
+                    : false,
                     hasBeenUsed = false;
                 hasBeenUsed = charConfig.energy.selectedAction.hasBeenUsed;
                 charConfig.energy.selectedAction.hasBeenUsed = isLoadingWeapon > -1;
@@ -424,7 +428,9 @@ export const ActionManager = function (scene) {
             enemyD20 = Math.floor(Math.random() * 20) + 1 + enemy.characterConfig.attributes.dexterity,
             hitSound,
             hasHit = false,
-            isVersatile = charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.versatile) > -1;
+            isVersatile = charConfig.energy.selectedAction.properties
+                ? charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.versatile) > -1
+                : false;
         if (d20 < enemyD20) {
             this._showStatusText(enemy, 'Too quick for ya!');
         } else {
