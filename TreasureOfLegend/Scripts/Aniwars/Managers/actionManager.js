@@ -372,14 +372,18 @@ export const ActionManager = function (scene) {
             d20 = Math.floor(Math.random() * 20) + 1 + attackAttribute,
             enemyD20 = Math.floor(Math.random() * 20) + 1 + enemy.characterConfig.attributes.dexterity,
             hitSound,
-            hasHit = false;
+            hasHit = false,
+            isVersatile = charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.versatile) > -1;
         if (d20 < enemyD20) {
             this._showStatusText(enemy, 'Too quick for ya!');
         } else {
             if (d20 <= enemyCharConfig.armor) {
                 if (enemyCharConfig.armor - enemyCharConfig.attributes.dexterity > 0) {
                     _.each(charConfig.energy.selectedAction.damage, function (damage) {
-                        var attackDice = damage.value.split('d'),
+                        var attackDice = isVersatile &&
+                            charConfig.inventory.offHand.type === EnumHelper.inventoryEnum.defaultEquipment
+                            ? damage.versatileValue.split('d')
+                            : damage.value.split('d'),
                             attackDamage = parseInt(attackDice[0]) * (Math.floor(Math.random() * parseInt(attackDice[1])) + 1)
                                 + (isOffHand ? 0 : attackAttribute);
                         // TODO: Remove durability from the same armor piece in case of multi damage type attack
@@ -399,7 +403,10 @@ export const ActionManager = function (scene) {
                 }
             } else {
                 _.each(charConfig.energy.selectedAction.damage, function (damage) {
-                    var attackDice = damage.value.split('d'),
+                    var attackDice = isVersatile &&
+                        charConfig.inventory.offHand.type === EnumHelper.inventoryEnum.defaultEquipment
+                        ? damage.versatileValue.split('d')
+                        : damage.value.split('d'),
                         attackDamage = parseInt(attackDice[0]) * (Math.floor(Math.random() * parseInt(attackDice[1])) + 1)
                             + (isOffHand ? 0 : attackAttribute);
                     if (enemyCharConfig.invulnerabilities.indexOf(damage.type) === -1) {

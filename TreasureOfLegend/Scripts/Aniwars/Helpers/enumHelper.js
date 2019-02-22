@@ -105,7 +105,6 @@
         loading: 2,
         // TODO: Implement
         thrown: 3,
-        // TODO: Implement
         versatile: 4,
         // TODO: Implement
         silvered: 5,

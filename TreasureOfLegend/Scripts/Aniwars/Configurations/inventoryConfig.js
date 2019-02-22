@@ -576,7 +576,8 @@ export const InventoryConfig = {
                 {
                     type: EnumHelper.damageTypeEnum.bludgeoning,
                     value: '1d6',
-                    initialValue: '1d6'
+                    initialValue: '1d6',
+                    versatileValue: '1d8'
                 }
             ],
             range: 1,
@@ -593,7 +594,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.versatile]
         },
         sickle: {
             name: 'Sickle',
@@ -628,7 +629,8 @@ export const InventoryConfig = {
                 {
                     type: EnumHelper.damageTypeEnum.piercing,
                     value: '1d6',
-                    initialValue: '1d6'
+                    initialValue: '1d6',
+                    versatileValue: '1d8'
                 }
             ],
             range: 4,
@@ -645,7 +647,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.versatile]
         },
         // simple ranged---------------------------------------------------
         lightCrossbow: {
@@ -736,7 +738,8 @@ export const InventoryConfig = {
                 {
                     type: EnumHelper.damageTypeEnum.slashing,
                     value: '1d8',
-                    initialValue: '1d8'
+                    initialValue: '1d8',
+                    versatileValue: '1d10'
                 }
             ],
             range: 1,
@@ -753,7 +756,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.versatile]
         },
         flail: {
             name: 'Flail',
@@ -918,7 +921,8 @@ export const InventoryConfig = {
                 {
                     type: EnumHelper.damageTypeEnum.slashing,
                     value: '1d8',
-                    initialValue: '1d8'
+                    initialValue: '1d8',
+                    versatileValue: '1d10'
                 }
             ],
             range: 1,
@@ -935,7 +939,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.versatile]
         },
         maul: {
             name: 'Maul',
@@ -1100,7 +1104,8 @@ export const InventoryConfig = {
                 {
                     type: EnumHelper.damageTypeEnum.piercing,
                     value: '1d6',
-                    initialValue: '1d6'
+                    initialValue: '1d6',
+                    versatileValue: '1d8'
                 }
             ],
             range: 4,
@@ -1117,7 +1122,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.versatile]
         },
         warPick: {
             name: 'War Pick',
@@ -1152,7 +1157,8 @@ export const InventoryConfig = {
                 {
                     type: EnumHelper.damageTypeEnum.bludgeoning,
                     value: '1d8',
-                    initialValue: '1d8'
+                    initialValue: '1d8',
+                    versatileValue: '1d10'
                 }
             ],
             range: 1,
@@ -1169,7 +1175,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.versatile]
         },
         whip: {
             name: 'Whip',
