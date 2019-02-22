@@ -36,11 +36,13 @@ export const ActionManager = function (scene) {
     this.showRangeLines = function (character, enemy) {
         // TODO: Fix this when player - wall - enemy
         var projectileLines = this._checkProjectileSuccess(character, enemy),
-            charConfig = character.characterConfig;
+            charConfig = character.characterConfig,
+            isThrownWeapon = charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.thrown) > -1;
         this.hideRangeLines();
         rangeLines = game.add.group();
-        if (projectileLines.isFound && Math.abs(character.x - enemy.x) <= 50 * charConfig.energy.selectedAction.range &&
-            Math.abs(character.y - enemy.y) <= 50 * charConfig.energy.selectedAction.range &&
+        if (projectileLines.isFound &&
+            Math.abs(character.x - enemy.x) <= 50 * (isThrownWeapon ? charConfig.energy.selectedAction.rangeThrown : charConfig.energy.selectedAction.range) &&
+            Math.abs(character.y - enemy.y) <= 50 * (isThrownWeapon ? charConfig.energy.selectedAction.rangeThrown : charConfig.energy.selectedAction.range) &&
             (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)) {
             _.each(projectileLines.lines, function (line) {
                 rangeLines.add(game.add.line(0, 0, line.charX, line.charY, line.enemyX, line.enemyY, 0x00ff00).setOrigin(0, 0));
@@ -180,14 +182,20 @@ export const ActionManager = function (scene) {
                 : charConfig.energy.actionId === EnumHelper.actionEnum.attackSpell
                     ? EnergyConfig.attackSpell.cost
                     : EnergyConfig.attackOffHand.cost,
-            isReachWeapon = charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.reach) > -1;
-        if (Math.abs(character.x - enemy.x) <= 50 * charConfig.energy.selectedAction.range + (isReachWeapon ? 50 : 0) &&
-            Math.abs(character.y - enemy.y) <= 50 * charConfig.energy.selectedAction.range + (isReachWeapon ? 50 : 0) &&
+            isReachWeapon = charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.reach) > -1,
+            isThrownWeapon = charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.thrown) > -1;
+        if (Math.abs(character.x - enemy.x) <= 50 * (isThrownWeapon ? charConfig.energy.selectedAction.rangeThrown : charConfig.energy.selectedAction.range) + (isReachWeapon ? 50 : 0) &&
+            Math.abs(character.y - enemy.y) <= 50 * (isThrownWeapon ? charConfig.energy.selectedAction.rangeThrown : charConfig.energy.selectedAction.range) + (isReachWeapon ? 50 : 0) &&
             (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)
             && charConfig.energy.max - cost >= charConfig.energy.spent) {
-            return true;
+            return {
+                throwAttack: Math.abs(character.x - enemy.x) > 50 || Math.abs(character.y - enemy.y) > 50 && (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0),
+                canAttack: true
+            };
         }
-        return false;
+        return {
+            canAttack: false
+        };
     };
 
     this._isProjectileHitting = (character, enemy) => {
@@ -212,10 +220,36 @@ export const ActionManager = function (scene) {
         return false;
     };
 
+    this._removeThrownWeapon = (character, enemy, hasHit, characterEnergy) => {
+        // TODO: If enemy is hit, add item to tempInventory?
+        // TODO: If enemy not hit, add item to character + thrownRange in direction of enemy
+        // TODO: If there's a lootbag on the ground, add items to lootbag
+        var itemX = enemy.x,
+            itemY = enemy.y,
+            item,
+            isMainHandAttack = characterEnergy.actionId === EnumHelper.actionEnum.attackMainHand;
+        if (hasHit) {
+            itemX = enemy.x;
+            itemY = enemy.y;
+        }
+        item = game.add.image(itemX, itemY, characterEnergy.selectedAction.image).setOrigin(0, 0);
+        item.displayWidth = 50;
+        item.displayHeight = 50;
+        item.width = 50;
+        item.height = 50;
+        item.itemConfig = lodash.cloneDeep(characterEnergy.selectedAction);
+        game.items.add(item);
+        // TODO: Check if this is overridden with each killed enemy
+        game.input.setHitArea([item]);
+        game.sceneManager.bindItemEvents(item);
+        character.characterConfig.inventory[isMainHandAttack ? 'mainHand' : 'offHand'] = lodash.cloneDeep(InventoryConfig.weapons.defaultEquipment);
+    };
+
     this._checkMainHandAttack = (character, enemy) => {
         // Check if in range
-        var charConfig = character.characterConfig;
-        if (this._canAttack(character, enemy)) {
+        var charConfig = character.characterConfig,
+            attack = this._canAttack(character, enemy);
+        if (attack.canAttack) {
             // If it is a ranged weapon check if projectile hits
             if (charConfig.energy.selectedAction.range > 1 && (charConfig.energy.selectedAction.ammunition && charConfig.inventory.offHand.ammunition &&
                 charConfig.inventory.offHand.ammunition === charConfig.energy.selectedAction.ammunition && charConfig.inventory.offHand.quantity > 0)) {
@@ -236,8 +270,16 @@ export const ActionManager = function (scene) {
                     canAttack = false;
                 }
                 if (canAttack) {
-                    this._tryAttack(character, enemy, this._getAttackAttribute(charConfig));
-                    return true;
+                    if (attack.throwAttack) {
+                        if (this._isProjectileHitting(character, enemy)) {
+                            var characterEnergy = lodash.cloneDeep(charConfig.energy),
+                                hasHit = this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), false, false, attack.throwAttack);
+                            this._removeThrownWeapon(character, enemy, hasHit, characterEnergy);
+                            return hasHit;
+                        }
+                    } else {
+                        return this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), false, false, attack.throwAttack);
+                    }
                 }
             }
         }
@@ -246,8 +288,9 @@ export const ActionManager = function (scene) {
 
     this._checkOffHandAttack = (character, enemy) => {
         // Check if in range
-        var charConfig = character.characterConfig;
-        if (this._canAttack(character, enemy)) {
+        var charConfig = character.characterConfig,
+            attack = this._canAttack(character, enemy);
+        if (attack.canAttack) {
             // If it is a ranged weapon check if projectile hits
             if (charConfig.energy.selectedAction.range > 1) {
                 if (this._isProjectileHitting(character, enemy)) {
@@ -255,8 +298,16 @@ export const ActionManager = function (scene) {
                     return true;
                 }
             } else {
-                this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), false, true);
-                return true;
+                if (attack.throwAttack) {
+                    if (this._isProjectileHitting(character, enemy)) {
+                        var characterEnergy = lodash.cloneDeep(charConfig.energy),
+                            hasHit = this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), false, false, attack.throwAttack);
+                        this._removeThrownWeapon(character, enemy, hasHit, characterEnergy);
+                        return hasHit;
+                    }
+                } else {
+                    return this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), false, true, attack.throwAttack);
+                }
             }
         }
         return false;
@@ -266,15 +317,14 @@ export const ActionManager = function (scene) {
         // TODO: Check if offhand is empty?
         var charConfig = character.characterConfig;
         if (charConfig.mana.max - charConfig.mana.spent >= charConfig.energy.selectedAction.cost) {
-            if (this._canAttack(character, enemy)) {
+            var attack = this._canAttack(character, enemy);
+            if (attack.canAttack) {
                 if (charConfig.energy.selectedAction.range > 1) {
                     if (this._isProjectileHitting(character, enemy)) {
-                        this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), true);
-                        return true;
+                        return this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), true);
                     }
                 } else {
-                    this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), true);
-                    return true;
+                    return this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), true);
                 }
             }
         }
@@ -460,6 +510,7 @@ export const ActionManager = function (scene) {
         game.events.emit('removeSelectedActionIcon');
 
         this._checkInitiative(enemy);
+        return hasHit;
     };
 
     this._checkInitiative = (enemy) => {
@@ -468,6 +519,7 @@ export const ActionManager = function (scene) {
         if (charConfig.life.current <= 0) {
             this._addItemsFromBodyToInventory(enemy);
             if (charConfig.inventory.slots.items.length > 0) {
+                // TODO: If there's an item on the ground, add it to the lootbag
                 lootbag = game.add.image(enemy.x, enemy.y, 'lootbag').setOrigin(0, 0);
                 lootbag.displayWidth = 50;
                 lootbag.displayHeight = 50;
@@ -476,8 +528,7 @@ export const ActionManager = function (scene) {
                 lootbag.objectConfig.id = EnumHelper.idEnum.lootbag.id;
                 lootbag.objectConfig.isInteractible = true;
                 game.activeMap.deadCharacters.add(lootbag);
-                // TODO: Check if this is overridden with each killed enemy
-                game.input.setHitArea(game.activeMap.deadCharacters.getChildren());
+                game.input.setHitArea([lootbag]);
                 lootbag.on('pointerdown', function () {
                     if (game.activeCharacter.characterConfig.isPlayerControlled || game.activeCharacter.characterConfig.isMasterControlled) {
                         game.characters.interactWithObject(lootbag);

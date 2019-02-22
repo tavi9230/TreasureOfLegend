@@ -424,6 +424,7 @@ export const InventoryConfig = {
                 }
             ],
             range: 1,
+            rangeThrown: 4,
             attribute: EnumHelper.attributeEnum.strength,
             hold: 1,
             image: 'dagger',
@@ -437,7 +438,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: [EnumHelper.weaponPropertiesEnum.finesse, EnumHelper.weaponPropertiesEnum.light]
+            properties: [EnumHelper.weaponPropertiesEnum.finesse, EnumHelper.weaponPropertiesEnum.light, EnumHelper.weaponPropertiesEnum.thrown]
         },
         greatclub: {
             name: 'Greatclub',
@@ -476,6 +477,7 @@ export const InventoryConfig = {
                 }
             ],
             range: 1,
+            rangeThrown: 6,
             attribute: EnumHelper.attributeEnum.strength,
             hold: 1,
             image: 'handaxe',
@@ -489,7 +491,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: [EnumHelper.weaponPropertiesEnum.light]
+            properties: [EnumHelper.weaponPropertiesEnum.light, EnumHelper.weaponPropertiesEnum.thrown]
         },
         javelin: {
             name: 'Javelin',
@@ -501,7 +503,8 @@ export const InventoryConfig = {
                     initialValue: '1d6'
                 }
             ],
-            range: 6,
+            range: 1,
+            rangeThrown: 6,
             attribute: EnumHelper.attributeEnum.strength,
             hold: 1,
             image: 'javelin',
@@ -515,7 +518,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.thrown]
         },
         lightHammer: {
             name: 'Light Hammer',
@@ -527,7 +530,8 @@ export const InventoryConfig = {
                     initialValue: '1d4'
                 }
             ],
-            range: 4,
+            range: 1,
+            rangeThrown: 4,
             attribute: EnumHelper.attributeEnum.strength,
             hold: 1,
             image: 'lightHammer',
@@ -541,7 +545,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: [EnumHelper.weaponPropertiesEnum.light]
+            properties: [EnumHelper.weaponPropertiesEnum.light, EnumHelper.weaponPropertiesEnum.thrown]
         },
         mace: {
             name: 'Mace',
@@ -633,7 +637,8 @@ export const InventoryConfig = {
                     versatileValue: '1d8'
                 }
             ],
-            range: 4,
+            range: 1,
+            rangeThrown: 4,
             attribute: EnumHelper.attributeEnum.strength,
             hold: 1,
             image: 'spear',
@@ -647,7 +652,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: [EnumHelper.weaponPropertiesEnum.versatile]
+            properties: [EnumHelper.weaponPropertiesEnum.versatile, EnumHelper.weaponPropertiesEnum.thrown]
         },
         // simple ranged---------------------------------------------------
         lightCrossbow: {
@@ -687,7 +692,8 @@ export const InventoryConfig = {
                     initialValue: '1d4'
                 }
             ],
-            range: 4,
+            range: 1,
+            rangeThrown: 4,
             attribute: EnumHelper.attributeEnum.strength,
             hold: 1,
             image: 'balancedKnife',
@@ -701,7 +707,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: [EnumHelper.weaponPropertiesEnum.finesse]
+            properties: [EnumHelper.weaponPropertiesEnum.finesse, EnumHelper.weaponPropertiesEnum.thrown]
         },
         shortBow: {
             name: 'Short bow',
@@ -1108,7 +1114,8 @@ export const InventoryConfig = {
                     versatileValue: '1d8'
                 }
             ],
-            range: 4,
+            range: 1,
+            rangeThrown: 4,
             attribute: EnumHelper.attributeEnum.strength,
             hold: 1,
             image: 'trident',
@@ -1122,7 +1129,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: [EnumHelper.weaponPropertiesEnum.versatile]
+            properties: [EnumHelper.weaponPropertiesEnum.versatile, EnumHelper.weaponPropertiesEnum.thrown]
         },
         warPick: {
             name: 'War Pick',

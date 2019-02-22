@@ -59,7 +59,7 @@ export const SceneManager = function (game) {
                     character.characterConfig.energy.spent = 0;
                     character.characterConfig.movement.usedDash = false;
                     character.characterConfig.inventory.mainHand.hasBeenUsed = false;
-                    _.each(character.characterConfig.inventory.slots.items, function(item) {
+                    _.each(character.characterConfig.inventory.slots.items, function (item) {
                         item.hasBeenUsed = false;
                     });
                 });
@@ -193,6 +193,11 @@ export const SceneManager = function (game) {
         character.on('pointerover', _.bind(this._hoverCharacter, this, character));
         character.on('pointerout', _.bind(this._unhoverCharacter, this, character));
         character.on('pointerdown', _.bind(this._interactWithCharacter, this, character));
+    };
+
+    this.bindItemEvents = (item) => {
+        item.on('pointerdown', _.bind(this._pickUpItem, this, item));
+        item.on('pointerover', _.bind(this._hoverItem, this, item));
     };
 
     this.createCharacter = (x, y, characterImage) => {
@@ -344,9 +349,7 @@ export const SceneManager = function (game) {
 
         game.input.setHitArea(game.items.getChildren());
         _.each(game.items.getChildren(), function (item) {
-            //mouse input on clicking game objects
-            item.on('pointerdown', _.bind(self._pickUpItem, self, item));
-            item.on('pointerover', _.bind(self._hoverItem, self, item));
+            self.bindItemEvents(item);
         });
     };
 
@@ -419,9 +422,14 @@ export const SceneManager = function (game) {
         }
     };
     this._hoverCharacter = (character) => {
+        var isThrownWeapon = game.activeCharacter.characterConfig.energy.selectedAction
+            ? game.activeCharacter.characterConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.thrown) > -1
+            : false;
         game.activeMap.highlightPathToEnemy(character);
         if (((game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand &&
-            game.activeCharacter.characterConfig.inventory.mainHand.range > 1) ||
+            ((isThrownWeapon ? game.activeCharacter.characterConfig.inventory.mainHand.rangeThrown : game.activeCharacter.characterConfig.inventory.mainHand.range) > 1)) ||
+            (game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackOffHand &&
+                ((isThrownWeapon ? game.activeCharacter.characterConfig.inventory.offHand.rangeThrown : game.activeCharacter.characterConfig.inventory.offHand.range) > 1)) ||
             (game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackSpell &&
                 game.activeCharacter.characterConfig.energy.selectedAction.range > 1)) && game.debugMode) {
             game.characters.showRangeLine(game.activeCharacter, character);

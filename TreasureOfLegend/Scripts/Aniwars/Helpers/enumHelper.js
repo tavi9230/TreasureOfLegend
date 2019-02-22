@@ -103,7 +103,6 @@
     weaponPropertiesEnum: {
         finesse: 1,
         loading: 2,
-        // TODO: Implement
         thrown: 3,
         versatile: 4,
         // TODO: Implement later when needed
