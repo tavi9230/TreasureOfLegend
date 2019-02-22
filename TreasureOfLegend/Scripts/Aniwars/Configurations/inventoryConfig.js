@@ -808,7 +808,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.reach]
         },
         greataxe: {
             name: 'Greataxe',
@@ -886,7 +886,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.reach]
         },
         lance: {
             name: 'Lance',
@@ -912,7 +912,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.reach]
         },
         longsword: {
             name: 'Longsword',
@@ -1017,7 +1017,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: []
+            properties: [EnumHelper.weaponPropertiesEnum.reach]
         },
         rapier: {
             name: 'Rapier',
@@ -1201,7 +1201,7 @@ export const InventoryConfig = {
                 max: 20,
                 current: 20
             },
-            properties: [EnumHelper.weaponPropertiesEnum.finesse]
+            properties: [EnumHelper.weaponPropertiesEnum.finesse, EnumHelper.weaponPropertiesEnum.reach]
         },
         // special ranged ---------------------------------------------------
         handCrossbow: {

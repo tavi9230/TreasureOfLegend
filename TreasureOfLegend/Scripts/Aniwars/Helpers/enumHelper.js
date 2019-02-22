@@ -106,12 +106,11 @@
         // TODO: Implement
         thrown: 3,
         versatile: 4,
-        // TODO: Implement
+        // TODO: Implement later when needed
         silvered: 5,
-        // TODO: Implement
+        // TODO: Implement later when needed
         magical: 6,
         light: 7,
-        // TODO: Implement
         reach: 8
     },
     ammunitionEnum: {

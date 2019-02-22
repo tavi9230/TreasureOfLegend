@@ -179,9 +179,10 @@ export const ActionManager = function (scene) {
                 ? EnergyConfig.attackMainHand.cost
                 : charConfig.energy.actionId === EnumHelper.actionEnum.attackSpell
                     ? EnergyConfig.attackSpell.cost
-                    : EnergyConfig.attackOffHand.cost;
-        if (Math.abs(character.x - enemy.x) <= 50 * charConfig.energy.selectedAction.range &&
-            Math.abs(character.y - enemy.y) <= 50 * charConfig.energy.selectedAction.range &&
+                    : EnergyConfig.attackOffHand.cost,
+            isReachWeapon = charConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.reach) > -1;
+        if (Math.abs(character.x - enemy.x) <= 50 * charConfig.energy.selectedAction.range + (isReachWeapon ? 50 : 0) &&
+            Math.abs(character.y - enemy.y) <= 50 * charConfig.energy.selectedAction.range + (isReachWeapon ? 50 : 0) &&
             (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)
             && charConfig.energy.max - cost >= charConfig.energy.spent) {
             return true;
