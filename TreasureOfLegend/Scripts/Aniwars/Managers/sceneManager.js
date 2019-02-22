@@ -392,9 +392,22 @@ export const SceneManager = function (game) {
         }
     };
     this._hoverTile = (tile) => {
+        var invisibleObject = game.activeMap.objects.getChildren().find(function (obj) {
+            return obj.alpha === 0.35;
+        });
+        if (invisibleObject) {
+            invisibleObject.alpha = 1;
+        }
         game.activeMap.highlightPathToTile(tile);
     };
     this._hoverObject = (object) => {
+        var invisibleObject = game.activeMap.objects.getChildren().find(function (obj) {
+            return obj.alpha === 0.35;
+        });
+        if (invisibleObject) {
+            invisibleObject.alpha = 1;
+        }
+        object.alpha = 0.35;
         game.activeMap.highlightPathToObject(object);
     };
     this._interactWithObject = (object) => {
@@ -422,9 +435,12 @@ export const SceneManager = function (game) {
         }
     };
     this._hoverCharacter = (character) => {
-        var isThrownWeapon = game.activeCharacter.characterConfig.energy.selectedAction
-            ? game.activeCharacter.characterConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.thrown) > -1
-            : false;
+        var properties = game.activeCharacter.characterConfig.energy.selectedAction.properties,
+            isThrownWeapon = game.activeCharacter.characterConfig.energy.selectedAction
+                ? properties
+                    ? properties.indexOf(EnumHelper.weaponPropertiesEnum.thrown) > -1
+                    : false
+                : false;
         game.activeMap.highlightPathToEnemy(character);
         if (((game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand &&
             ((isThrownWeapon ? game.activeCharacter.characterConfig.inventory.mainHand.rangeThrown : game.activeCharacter.characterConfig.inventory.mainHand.range) > 1)) ||
