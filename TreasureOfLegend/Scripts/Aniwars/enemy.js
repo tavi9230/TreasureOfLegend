@@ -339,8 +339,8 @@ export const Enemy = function (scene) {
         return [];
     };
 
-    this._getPathToTile = function(map, character, tile) {
-        _.each(game.activeMap.objects.getChildren(), function(object) {
+    this._getPathToTile = function (map, character, tile) {
+        _.each(game.activeMap.objects.getChildren(), function (object) {
             if (Math.floor(object.objectConfig.id) === 2) {
                 map[object.y / 50][object.x / 50] = 0;
             }
@@ -530,7 +530,8 @@ export const Enemy = function (scene) {
         var charConfig = currentCharacter.characterConfig;
         if (charConfig.inventory.mainHand.ammunition && !charConfig.inventory.offHand.ammunition
             || charConfig.inventory.mainHand.ammunition && charConfig.inventory.offHand.ammunition
-            && charConfig.inventory.offHand.ammunition !== charConfig.energy.selectedAction.ammunition) {
+            && charConfig.inventory.offHand.ammunition !== charConfig.energy.selectedAction.ammunition
+            || charConfig.inventory.mainHand.hold > 1 && charConfig.inventory.offHand.type !== EnumHelper.inventoryEnum.defaultEquipment) {
             // TODO: Drop offhand if it is an armor (or put in inventory if you can?) and then attack
             var item = charConfig.inventory.offHand,
                 itemImage = game.physics.add.sprite(currentCharacter.x, currentCharacter.y, item.image).setOrigin(0, 0);
