@@ -115,5 +115,13 @@
     ammunitionEnum: {
         arrows: 1,
         bolts: 2
+    },
+    areaEnum: {
+        point: 1,
+        line: 2,
+        cube: 3,
+        cone: 4,
+        sphere: 5,
+        cylinder: 6
     }
 };

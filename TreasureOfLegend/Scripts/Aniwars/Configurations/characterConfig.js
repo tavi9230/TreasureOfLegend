@@ -51,7 +51,9 @@ export const CharacterConfig = {
                 SpellsConfig.radiantbolt,
                 SpellsConfig.thunderbolt,
                 SpellsConfig.psychicbolt,
-                SpellsConfig.forcebolt
+                SpellsConfig.forcebolt,
+                SpellsConfig.fireline,
+                SpellsConfig.firecube
             ]
         },
         attributes: {

@@ -22,6 +22,10 @@ export const SpellsConfig = {
         sound: {
             hittingArmor: 'sword_clang',
             hittingFlesh: 'sword_flesh'
+        },
+        area: {
+            shape: EnumHelper.areaEnum.point,
+            targets: 1
         }
     },
     frostbolt: {
@@ -45,6 +49,10 @@ export const SpellsConfig = {
         sound: {
             hittingArmor: 'sword_clang',
             hittingFlesh: 'sword_flesh'
+        },
+        area: {
+            shape: EnumHelper.areaEnum.point,
+            targets: 1
         }
     },
     poisonbolt: {
@@ -68,6 +76,10 @@ export const SpellsConfig = {
         sound: {
             hittingArmor: 'sword_clang',
             hittingFlesh: 'sword_flesh'
+        },
+        area: {
+            shape: EnumHelper.areaEnum.point,
+            targets: 1
         }
     },
     acidbolt: {
@@ -91,6 +103,10 @@ export const SpellsConfig = {
         sound: {
             hittingArmor: 'sword_clang',
             hittingFlesh: 'sword_flesh'
+        },
+        area: {
+            shape: EnumHelper.areaEnum.point,
+            targets: 1
         }
     },
     lightningbolt: {
@@ -114,6 +130,10 @@ export const SpellsConfig = {
         sound: {
             hittingArmor: 'sword_clang',
             hittingFlesh: 'sword_flesh'
+        },
+        area: {
+            shape: EnumHelper.areaEnum.point,
+            targets: 1
         }
     },
     necroticbolt: {
@@ -137,6 +157,10 @@ export const SpellsConfig = {
         sound: {
             hittingArmor: 'sword_clang',
             hittingFlesh: 'sword_flesh'
+        },
+        area: {
+            shape: EnumHelper.areaEnum.point,
+            targets: 1
         }
     },
     radiantbolt: {
@@ -160,6 +184,10 @@ export const SpellsConfig = {
         sound: {
             hittingArmor: 'sword_clang',
             hittingFlesh: 'sword_flesh'
+        },
+        area: {
+            shape: EnumHelper.areaEnum.point,
+            targets: 1
         }
     },
     thunderbolt: {
@@ -183,6 +211,10 @@ export const SpellsConfig = {
         sound: {
             hittingArmor: 'sword_clang',
             hittingFlesh: 'sword_flesh'
+        },
+        area: {
+            shape: EnumHelper.areaEnum.point,
+            targets: 1
         }
     },
     psychicbolt: {
@@ -206,6 +238,10 @@ export const SpellsConfig = {
         sound: {
             hittingArmor: 'sword_clang',
             hittingFlesh: 'sword_flesh'
+        },
+        area: {
+            shape: EnumHelper.areaEnum.point,
+            targets: 1
         }
     },
     forcebolt: {
@@ -229,6 +265,70 @@ export const SpellsConfig = {
         sound: {
             hittingArmor: 'sword_clang',
             hittingFlesh: 'sword_flesh'
+        },
+        area: {
+            shape: EnumHelper.areaEnum.point,
+            targets: 1
+        }
+    },
+    fireline: {
+        name: 'Fireline',
+        damage: [
+            {
+                type: EnumHelper.damageTypeEnum.fire,
+                value: '1d6',
+                initialValue: '1d6'
+            }
+        ],
+        range: 6,
+        cost: 2,
+        attribute: EnumHelper.attributeEnum.dexterity,
+        image: 'firebolt',
+        imageLeftover: 'fire',
+        description: 'Fireline',
+        level: 0,
+        maxLevel: 1,
+        isPassive: false,
+        isSpell: true,
+        sound: {
+            hittingArmor: 'sword_clang',
+            hittingFlesh: 'sword_flesh'
+        },
+        area: {
+            shape: EnumHelper.areaEnum.line,
+            targets: -1,
+            length: 6,
+            startPoint: 0
+        }
+    },
+    firecube: {
+        name: 'Firecube',
+        damage: [
+            {
+                type: EnumHelper.damageTypeEnum.fire,
+                value: '1d6',
+                initialValue: '1d6'
+            }
+        ],
+        range: 6,
+        cost: 2,
+        attribute: EnumHelper.attributeEnum.dexterity,
+        image: 'firebolt',
+        imageLeftover: 'fire',
+        description: 'Firecube',
+        level: 0,
+        maxLevel: 1,
+        isPassive: false,
+        isSpell: true,
+        sound: {
+            hittingArmor: 'sword_clang',
+            hittingFlesh: 'sword_flesh'
+        },
+        area: {
+            shape: EnumHelper.areaEnum.cube,
+            targets: -1,
+            length: 2,
+            startPoint: 1
         }
     }
 };

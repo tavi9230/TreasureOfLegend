@@ -77,6 +77,7 @@
 
         // spells
         game.load.image('firebolt', AssetFolder + 'items/spells/firebolt.png');
+        game.load.image('fire', AssetFolder + 'items/spells/fire.png');
 
         // head
         game.load.image('cap', AssetFolder + 'items/head/cap.gif');

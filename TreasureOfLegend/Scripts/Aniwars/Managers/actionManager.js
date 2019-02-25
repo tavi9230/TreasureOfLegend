@@ -164,7 +164,7 @@ export const ActionManager = function (scene) {
             isStrengthBased = EnumHelper.attributeEnum.strength === charConfig.energy.selectedAction.attribute,
             isDexterityBased = EnumHelper.attributeEnum.dexterity === charConfig.energy.selectedAction.attribute,
             isIntelligenceBased = EnumHelper.attributeEnum.intelligence === charConfig.energy.selectedAction.attribute;
-        if (isFinesseWeapon > -1) {
+        if (isFinesseWeapon) {
             return charConfig.attributes.strength > charConfig.attributes.dexterity
                 ? charConfig.attributes.strength
                 : charConfig.attributes.dexterity;
@@ -175,6 +175,7 @@ export const ActionManager = function (scene) {
         } else if (isIntelligenceBased) {
             return charConfig.attributes.intelligence;
         }
+        return charConfig.attributes.dexterity;
     };
 
     this._canAttack = (character, enemy) => {
@@ -323,16 +324,201 @@ export const ActionManager = function (scene) {
         if (charConfig.mana.max - charConfig.mana.spent >= charConfig.energy.selectedAction.cost) {
             var attack = this._canAttack(character, enemy);
             if (attack.canAttack) {
-                if (charConfig.energy.selectedAction.range > 1) {
+                if (charConfig.energy.selectedAction.range > 1 && charConfig.energy.selectedAction.area.shape === EnumHelper.areaEnum.point) {
                     if (this._isProjectileHitting(character, enemy)) {
                         return this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), true);
                     }
+                } else if (charConfig.energy.selectedAction.range > 1 && charConfig.energy.selectedAction.area.shape === EnumHelper.areaEnum.line) {
+                    return this._checkLineShapedSpell(character, enemy);
+                } else if (charConfig.energy.selectedAction.range > 1 && charConfig.energy.selectedAction.area.shape === EnumHelper.areaEnum.cube) {
+                    return this._checkCubeShapedSpell(character, enemy);
                 } else {
                     return this._tryAttack(character, enemy, this._getAttackAttribute(charConfig), true);
                 }
             }
         }
         return false;
+    };
+
+    this._getCharacterPoints = (character, enemy) => {
+        var charX, charY, enemyX, enemyY;
+        if (character.x > enemy.x && character.y > enemy.y) {
+            charX = character.x;
+            charY = character.y;
+            enemyX = enemy.x + enemy.width - 10;
+            enemyY = enemy.y + enemy.height - 10;
+        } else if (character.x < enemy.x && character.y < enemy.y) {
+            charX = character.x + character.width - 10;
+            charY = character.y + character.height - 10;
+            enemyX = enemy.x;
+            enemyY = enemy.y;
+        } else if (character.x > enemy.x && character.y < enemy.y) {
+            charX = character.x;
+            charY = character.y + character.height - 10;
+            enemyX = enemy.x + enemy.width - 10;
+            enemyY = enemy.y;
+        } else if (character.x < enemy.x && character.y > enemy.y) {
+            charX = character.x + character.width - 10;
+            charY = character.y;
+            enemyX = enemy.x;
+            enemyY = enemy.y + enemy.height - 10;
+        } else if (character.x < enemy.x && character.y === enemy.y) {
+            charX = character.x + character.width - 10;
+            charY = character.y;
+            enemyX = enemy.x;
+            enemyY = enemy.y;
+        } else if (character.x > enemy.x && character.y === enemy.y) {
+            charX = character.x;
+            charY = character.y;
+            enemyX = enemy.x + enemy.width - 10;
+            enemyY = enemy.y;
+        } else if (character.x === enemy.x && character.y < enemy.y) {
+            charX = character.x + character.width - 10;
+            charY = character.y + character.height - 10;
+            enemyX = enemy.x;
+            enemyY = enemy.y;
+        } else if (character.x === enemy.x && character.y > enemy.y) {
+            charX = character.x;
+            charY = character.y;
+            enemyX = enemy.x + enemy.width - 10;
+            enemyY = enemy.y + enemy.height - 10;
+        }
+        return {
+            charX: charX,
+            charY: charY,
+            enemyX: enemyX,
+            enemyY: enemyY
+        };
+    };
+
+    this._checkLineShapedSpell = (character, enemy) => {
+        var characterPoints = this._getCharacterPoints(character, enemy),
+            linePoints = this._supercoverLine(characterPoints.charX, characterPoints.charY, characterPoints.enemyX, characterPoints.enemyY),
+            targetsToHit = [],
+            tilesToAnimate = [],
+            target,
+            charConfig = lodash.cloneDeep(character.characterConfig),
+            index,
+            hasHit = false,
+            leftoverImage = charConfig.energy.selectedAction.imageLeftover;
+        linePoints.shift();
+        _.each(linePoints, function (point) {
+            var tile = game.activeMap.levelMap[point.y / 50][point.x / 50];
+            if (Math.floor(tile) === 0) {
+                target = !enemy.characterConfig.isPlayerControlled
+                    ? game.enemies.characters.getChildren().find(function (enemy) {
+                        return enemy.x === point.x && enemy.y === point.y;
+                    })
+                    : game.characters.characters.getChildren().find(function (enemy) {
+                        return enemy.x === point.x && enemy.y === point.y;
+                    });
+                if (target) {
+                    if (charConfig.energy.selectedAction.area.targets === -1) {
+                        if (targetsToHit.length < 1) {
+                            targetsToHit.push(target);
+                        }
+                    }
+                    else if (charConfig.energy.selectedAction.area.targets > 0 &&
+                        charConfig.energy.selectedAction.area.targets <= targetsToHit.length) {
+                        targetsToHit.push(target);
+                    }
+                }
+                tilesToAnimate.push({ x: point.x, y: point.y });
+            } else {
+                targetsToHit.push(-1);
+                tilesToAnimate.push(-1);
+            }
+        });
+        index = targetsToHit.indexOf(-1);
+        if (index !== -1) {
+            targetsToHit.splice(index, targetsToHit.length);
+            tilesToAnimate.splice(index, tilesToAnimate.length);
+        }
+        if (targetsToHit.length > 0) {
+            var self = this,
+                lineGroup = game.add.group();
+            _.each(tilesToAnimate, function (tile) {
+                var img = game.add.image(tile.x, tile.y, leftoverImage).setOrigin(0, 0);
+                img.displayWidth = 50;
+                img.displayHeight = 50;
+                lineGroup.add(img);
+            });
+            _.each(targetsToHit, function (enemy) {
+                var attack = self._tryAttack(character, enemy, self._getAttackAttribute(charConfig), true);
+                character.characterConfig.energy.actionId = charConfig.energy.actionId;
+                character.characterConfig.energy.selectedAction = charConfig.energy.selectedAction;
+                if (attack) {
+                    hasHit = true;
+                }
+            });
+            setTimeout(function () {
+                lineGroup.destroy(true);
+                lineGroup = null;
+            }, 1250);
+        }
+        character.characterConfig.energy.actionId = -1;
+        character.characterConfig.energy.selectedAction = null;
+        return hasHit;
+    };
+
+    this._checkCubeShapedSpell = (character, enemy) => {
+        var characterPoints = this._getCharacterPoints(character, enemy),
+            linePoints = this._supercoverLine(characterPoints.charX, characterPoints.charY, characterPoints.enemyX, characterPoints.enemyY),
+            canHit = true,
+            charConfig = lodash.cloneDeep(character.characterConfig),
+            length = charConfig.energy.selectedAction.area.length,
+            cubeGroup = game.add.group(),
+            hasHit = false,
+            leftoverImage = charConfig.energy.selectedAction.imageLeftover;
+        _.each(linePoints, function (point) {
+            var tile = game.activeMap.levelMap[point.y / 50][point.x / 50];
+            if (Math.floor(tile) !== 0) {
+                canHit = false;
+            }
+        });
+        if (canHit) {
+            var startY = enemy.y - 50 * length,
+                startX = enemy.x - 50 * length,
+                endY = enemy.y + 50 * length + 50,
+                endX = enemy.x + 50 * length + 50;
+            startY = startY < 0 ? 0 : startY;
+            startX = startX < 0 ? 0 : startX;
+            endY = endY > game.activeMap.levelMap.length * 50 ? game.activeMap.levelMap.length * 50 : endY;
+            endX = endX > game.activeMap.levelMap[0].length * 50 ? game.activeMap.levelMap[0].length * 50 : endX;
+            // TODO: Watch for walls (or other obstacles)
+            // TODO: Make sure it works ok if you kill yourself or other party characters
+            for (let i = startY; i < endY; i += 50) {
+                for (let j = startX; j < endX; j += 50) {
+                    var t = game.activeMap.tiles.getChildren().find(function (tile) {
+                        return tile.x === j && tile.y === i;
+                    });
+                    if (t) {
+                        var img = game.add.image(t.x, t.y, leftoverImage).setOrigin(0, 0);
+                        img.displayWidth = 50;
+                        img.displayHeight = 50;
+                        cubeGroup.add(img);
+                    }
+                    var target = game.initiative.find(function (character) {
+                        return character.x === j && character.y === i;
+                    });
+                    if (target) {
+                        var attack = this._tryAttack(character, target, this._getAttackAttribute(charConfig), true);
+                        character.characterConfig.energy.actionId = charConfig.energy.actionId;
+                        character.characterConfig.energy.selectedAction = charConfig.energy.selectedAction;
+                        if (attack) {
+                            hasHit = true;
+                        }
+                    }
+                }
+            }
+            setTimeout(function () {
+                cubeGroup.destroy(true);
+                cubeGroup = null;
+            }, 1250);
+        }
+        character.characterConfig.energy.actionId = -1;
+        character.characterConfig.energy.selectedAction = null;
+        return hasHit;
     };
 
     this._removeArmorPointsFromEquippedInventory = (enemy, value) => {
@@ -574,6 +760,10 @@ export const ActionManager = function (scene) {
             game.initiative = game.sceneManager.getInitiativeArray([enemy]);
             game.events.emit('updateAttributePointsPanel', game.activeCharacter);
             this.hideRangeLines();
+            if (game.activeCharacter.x === enemy.x && game.activeCharacter.y === enemy.y
+                && (game.activeCharacter.characterConfig.isPlayerControlled || game.activeCharacter.characterConfig.isMasterControlled)) {
+                game.sceneManager.endTurn();
+            }
         }
         game.events.emit('showCharacterInitiative', game.initiative);
     };
@@ -702,7 +892,7 @@ export const ActionManager = function (scene) {
                 x: characterX,
                 y: characterY
             },
-            points = [{ x: p.x, y: p.y }];
+            points = p.x % 50 === 0 && p.y % 50 === 0 ? [{ x: p.x, y: p.y }] : [];
         for (var ix = 0, iy = 0; ix < nx || iy < ny;) {
             if ((0.5 + ix) / nx === (0.5 + iy) / ny) {
                 // next step is diagonal
