@@ -41,7 +41,18 @@ export const CharacterConfig = {
                 items: []
             },
             money: 0,
-            spells: [SpellsConfig.firebolt]
+            spells: [
+                SpellsConfig.firebolt,
+                SpellsConfig.frostbolt,
+                SpellsConfig.poisonbolt,
+                SpellsConfig.acidbolt,
+                SpellsConfig.lightningbolt,
+                SpellsConfig.necroticbolt,
+                SpellsConfig.radiantbolt,
+                SpellsConfig.thunderbolt,
+                SpellsConfig.psychicbolt,
+                SpellsConfig.forcebolt
+            ]
         },
         attributes: {
             strength: 0,

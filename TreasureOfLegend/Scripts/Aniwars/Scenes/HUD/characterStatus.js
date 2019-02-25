@@ -12,7 +12,7 @@ export const HUDCharacterStatus = function (scene) {
         enemyInventory = null,
         itemStats = null,
         selectedItem = null,
-        damageArray = ['slashing', 'piercing', 'bludgeoning', 'fire'],
+        damageArray = ['slashing', 'piercing', 'bludgeoning', 'fire', 'cold', 'poison', 'acid', 'lightning', 'necrotic', 'radiant', 'thunder', 'psychic', 'force'],
         inventoryCallback = _.bind(function (character) {
             game.tipsModal.hideTips();
             this.toggleInventoryTab(character);
@@ -281,6 +281,10 @@ export const HUDCharacterStatus = function (scene) {
             this._createTabButton(character, x, y + 50, 'spellsButton', 'Description', descriptionCallback, characterAbilitiesTabGroup);
             this._createTabButton(character, x, y + 80, 'spellsButton', 'Abilities', abilitiesCallback, characterAbilitiesTabGroup);
             _.each(character.characterConfig.inventory.spells, function (spell) {
+                if (x + 80 >= startX + 440) {
+                    x = startX;
+                    y += 80;
+                }
                 var box = game.add.graphics(),
                     spellImage;
                 box.fillStyle(0xded7c7, 1);
@@ -294,10 +298,6 @@ export const HUDCharacterStatus = function (scene) {
                 self._showAbilityUpgradeButton(character, spell, characterAbilitiesTabGroup, x, y);
                 abilityGroup.add(spellImage);
                 x += 80;
-                if (x >= startX + 440) {
-                    x = startX;
-                    y += 80;
-                }
             });
 
             game.input.setHitArea(abilityGroup.getChildren());
@@ -328,11 +328,11 @@ export const HUDCharacterStatus = function (scene) {
             textStyle = {
                 fill: '#FFF',
                 wordWrap: {
-                    width: 145
+                    width: 190
                 }
             };
         panel.fillStyle(0x111111, 1);
-        panel.fillRect(image.x + 50, image.y, 150, 150);
+        panel.fillRect(image.x + 50, image.y, 200, 200);
         abilityStats = game.add.group();
         abilityStats.add(panel);
         nameText = game.add.text(image.x + 55, image.y, ability.name, textStyle);
@@ -348,13 +348,13 @@ export const HUDCharacterStatus = function (scene) {
         }
         damageText = game.add.text(image.x + 55, image.y + 60, 'Damage: ' + damage, textStyle);
         abilityStats.add(damageText);
-        rangeText = game.add.text(image.x + 55, image.y + 75, 'Range: ' + ability.range, textStyle);
+        rangeText = game.add.text(image.x + 55, image.y + 90, 'Range: ' + ability.range, textStyle);
         abilityStats.add(rangeText);
-        costText = game.add.text(image.x + 55, image.y + 90, 'Cost: ' + ability.cost, textStyle);
+        costText = game.add.text(image.x + 55, image.y + 105, 'Cost: ' + ability.cost, textStyle);
         abilityStats.add(costText);
-        levelText = game.add.text(image.x + 55, image.y + 105, 'Level: ' + ability.level, textStyle);
+        levelText = game.add.text(image.x + 55, image.y + 120, 'Level: ' + ability.level, textStyle);
         abilityStats.add(levelText);
-        isPassiveText = game.add.text(image.x + 55, image.y + 120, ability.isPassive ? 'Passive' : 'Active', textStyle);
+        isPassiveText = game.add.text(image.x + 55, image.y + 135, ability.isPassive ? 'Passive' : 'Active', textStyle);
         abilityStats.add(isPassiveText);
     };
     this._showAbilityUpgradeButton = function (character, spell, group, x, y) {

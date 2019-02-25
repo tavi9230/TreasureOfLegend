@@ -435,9 +435,8 @@ export const SceneManager = function (game) {
         }
     };
     this._hoverCharacter = (character) => {
-        var properties = game.activeCharacter.characterConfig.energy.selectedAction.properties,
-            isThrownWeapon = game.activeCharacter.characterConfig.energy.selectedAction
-                ? properties
+        var isThrownWeapon = game.activeCharacter.characterConfig.energy.selectedAction
+                ? game.activeCharacter.characterConfig.energy.selectedAction.properties
                     ? properties.indexOf(EnumHelper.weaponPropertiesEnum.thrown) > -1
                     : false
                 : false;
