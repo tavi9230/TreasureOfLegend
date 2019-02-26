@@ -436,10 +436,10 @@ export const SceneManager = function (game) {
     };
     this._hoverCharacter = (character) => {
         var isThrownWeapon = game.activeCharacter.characterConfig.energy.selectedAction
-                ? game.activeCharacter.characterConfig.energy.selectedAction.properties
-                    ? properties.indexOf(EnumHelper.weaponPropertiesEnum.thrown) > -1
-                    : false
-                : false;
+            ? game.activeCharacter.characterConfig.energy.selectedAction.properties
+                ? game.activeCharacter.characterConfig.energy.selectedAction.properties.indexOf(EnumHelper.weaponPropertiesEnum.thrown) > -1
+                : false
+            : false;
         game.activeMap.highlightPathToEnemy(character);
         if (((game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.attackMainHand &&
             ((isThrownWeapon ? game.activeCharacter.characterConfig.inventory.mainHand.rangeThrown : game.activeCharacter.characterConfig.inventory.mainHand.range) > 1)) ||

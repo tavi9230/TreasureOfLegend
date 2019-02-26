@@ -481,32 +481,51 @@ export const ActionManager = function (scene) {
                 startX = enemy.x - 50 * length,
                 endY = enemy.y + 50 * length + 50,
                 endX = enemy.x + 50 * length + 50;
-            startY = startY < 0 ? 0 : startY;
-            startX = startX < 0 ? 0 : startX;
-            endY = endY > game.activeMap.levelMap.length * 50 ? game.activeMap.levelMap.length * 50 : endY;
-            endX = endX > game.activeMap.levelMap[0].length * 50 ? game.activeMap.levelMap[0].length * 50 : endX;
-            // TODO: Watch for walls (or other obstacles)
-            // TODO: Make sure it works ok if you kill yourself or other party characters
-            for (let i = startY; i < endY; i += 50) {
-                for (let j = startX; j < endX; j += 50) {
-                    var t = game.activeMap.tiles.getChildren().find(function (tile) {
-                        return tile.x === j && tile.y === i;
-                    });
-                    if (t) {
-                        var img = game.add.image(t.x, t.y, leftoverImage).setOrigin(0, 0);
-                        img.displayWidth = 50;
-                        img.displayHeight = 50;
-                        cubeGroup.add(img);
-                    }
-                    var target = game.initiative.find(function (character) {
-                        return character.x === j && character.y === i;
-                    });
-                    if (target) {
-                        var attack = this._tryAttack(character, target, this._getAttackAttribute(charConfig), true);
-                        character.characterConfig.energy.actionId = charConfig.energy.actionId;
-                        character.characterConfig.energy.selectedAction = charConfig.energy.selectedAction;
-                        if (attack) {
-                            hasHit = true;
+            var area = this._getCubeShapedAffectedObjects(enemy, character);
+            for (let y = startY, j = 0; y < endY; y += 50, j++) {
+                for (let x = startX, i = 0; x < endX; x += 50, i++) {
+                    if ((y >= 0 || y < game.activeMap.levelMap.length * 50) && (x >= 0 || x < game.activeMap.levelMap.length * 50)) {
+                        if (area[j][i] === 1) {
+                            var t = game.activeMap.tiles.getChildren().find(function (tile) {
+                                return tile.x === x && tile.y === y;
+                            });
+                            if (t) {
+                                var img = game.add.image(t.x, t.y, leftoverImage).setOrigin(0, 0);
+                                img.displayWidth = 50;
+                                img.displayHeight = 50;
+                                cubeGroup.add(img);
+                            }
+                            var target = game.initiative.find(function (character) {
+                                return character.x === x && character.y === y;
+                            });
+                            if (target) {
+                                var attack = this._tryAttack(character, target, this._getAttackAttribute(charConfig), true);
+                                character.characterConfig.energy.actionId = charConfig.energy.actionId;
+                                character.characterConfig.energy.selectedAction = charConfig.energy.selectedAction;
+                                if (attack) {
+                                    hasHit = true;
+                                }
+                            }
+                        } else if (area[j][i] === 0) {
+                            var o = game.activeMap.objects.getChildren().find(function (tile) {
+                                return tile.x === x && tile.y === y;
+                            });
+                            if (o) {
+                                var img = game.add.image(o.x, o.y, leftoverImage).setOrigin(0, 0);
+                                img.displayWidth = 50;
+                                img.displayHeight = 50;
+                                cubeGroup.add(img);
+                            } else {
+                                var t = game.activeMap.tiles.getChildren().find(function (tile) {
+                                    return tile.x === x && tile.y === y;
+                                });
+                                if (t) {
+                                    var img = game.add.image(t.x, t.y, leftoverImage).setOrigin(0, 0);
+                                    img.displayWidth = 50;
+                                    img.displayHeight = 50;
+                                    cubeGroup.add(img);
+                                }
+                            }
                         }
                     }
                 }
@@ -515,10 +534,91 @@ export const ActionManager = function (scene) {
                 cubeGroup.destroy(true);
                 cubeGroup = null;
             }, 1250);
+
         }
         character.characterConfig.energy.actionId = -1;
         character.characterConfig.energy.selectedAction = null;
         return hasHit;
+    };
+
+    this._getCubeShapedAffectedObjects = (enemy, character) => {
+        var area = [],
+            areaLength = 50 * character.characterConfig.energy.selectedAction.area.length;
+        for (let y = enemy.y - areaLength, j = 0; y < enemy.y + (areaLength * 2) - 50; y += 50, j++) {
+            area[j] = [];
+            for (let x = enemy.x - areaLength, i = 0; x < enemy.x + (areaLength * 2) - 50; x += 50, i++) {
+                if (x >= 0 && x <= game.activeMap.levelMap[0].length * 50 && y >= 0 && y <= game.activeMap.levelMap.length * 50) {
+                    if (Math.floor(game.activeMap.levelMap[y / 50][x / 50]) === 0) {
+                        area[j][i] = 1;
+                    } else {
+                        area[j][i] = 0;
+                    }
+                } else {
+                    area[j][i] = -1;
+                }
+            }
+        }
+        // top
+        for (let i = (area.length - 3) / 2; i >= 0; i--) {
+            if (area[i + 1][(area.length - 1) / 2] === 0 || area[i + 1][(area.length - 1) / 2] === -1) {
+                area[i][(area.length - 1) / 2] = -1;
+            }
+        }
+        // bottom
+        for (let i = (area.length + 1) / 2; i < area.length; i++) {
+            if (area[i - 1][(area.length - 1) / 2] === 0 || area[i - 1][(area.length - 1) / 2] === -1) {
+                area[i][(area.length - 1) / 2] = -1;
+            }
+        }
+        // left
+        for (let j = (area.length - 3) / 2; j >= 0; j--) {
+            if (area[(area.length - 1) / 2][j + 1] === 0 || area[(area.length - 1) / 2][j + 1] === -1) {
+                area[(area.length - 1) / 2][j] = -1;
+            }
+        }
+        // right
+        for (let j = (area.length + 1) / 2; j < area.length; j++) {
+            if (area[(area.length - 1) / 2][j - 1] === 0 || area[(area.length - 1) / 2][j - 1] === -1) {
+                area[(area.length - 1) / 2][j] = -1;
+            }
+        }
+        // top-left
+        for (let i = (area.length - 3) / 2; i >= 0; i--) {
+            for (let j = (area.length - 3) / 2; j >= 0; j--) {
+                if (area[i + 1][j] === 0 && area[i][j + 1] === 0 || area[i + 1][j] === -1 && area[i][j + 1] === -1
+                    || area[i + 1][j] === -1 && area[i][j + 1] === 0 || area[i + 1][j] === 0 && area[i][j + 1] === -1) {
+                    area[i][j] = -1;
+                }
+            }
+        }
+        // top-right
+        for (let i = (area.length - 3) / 2; i >= 0; i--) {
+            for (let j = (area.length - 1) / 2 + 1; j < area.length; j++) {
+                if (area[i + 1][j] === 0 && area[i][j - 1] === 0 || area[i + 1][j] === -1 && area[i][j - 1] === -1
+                    || area[i + 1][j] === -1 && area[i][j - 1] === 0 || area[i + 1][j] === 0 && area[i][j - 1] === -1) {
+                    area[i][j] = -1;
+                }
+            }
+        }
+        // bottom-left
+        for (let i = (area.length - 1) / 2 + 1; i < area.length; i++) {
+            for (let j = (area.length - 3) / 2; j >= 0; j--) {
+                if (area[i - 1][j] === 0 && area[i][j + 1] === 0 || area[i - 1][j] === -1 && area[i][j + 1] === -1
+                    || area[i - 1][j] === -1 && area[i][j + 1] === 0 || area[i - 1][j] === 0 && area[i][j + 1] === -1) {
+                    area[i][j] = -1;
+                }
+            }
+        }
+        //bottom-right
+        for (let i = (area.length - 1) / 2 + 1; i < area.length; i++) {
+            for (let j = (area.length - 1) / 2 + 1; j < area.length; j++) {
+                if (area[i - 1][j] === 0 && area[i][j - 1] === 0 || area[i - 1][j] === -1 && area[i][j - 1] === -1
+                    || area[i - 1][j] === -1 && area[i][j - 1] === 0 || area[i - 1][j] === 0 && area[i][j - 1] === -1) {
+                    area[i][j] = -1;
+                }
+            }
+        }
+        return area;
     };
 
     this._removeArmorPointsFromEquippedInventory = (enemy, value) => {
