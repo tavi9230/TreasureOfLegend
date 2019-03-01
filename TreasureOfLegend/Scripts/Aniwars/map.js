@@ -49,6 +49,7 @@ export const BattleMap = function (game, map) {
     this.isMovementGridShown = false;
 
     this.generateMap = () => {
+        // TODO: in order to display isometric tiles correctly, x and y should increase by half of the dimension our tile has. In our case instead of 50 it should be 25
         for (let i = 0, y = 0; i < this.levelMap.length; i++, y += 50) {
             for (let j = 0, x = 0; j < this.levelMap[i].length; j++, x += 50) {
                 if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.tile.id)) {
@@ -215,6 +216,19 @@ export const BattleMap = function (game, map) {
     };
 
     // Private ----------------------------------------------------------------------
+    // Isometric projection functions. Might need to be moved to a shared location
+    this._cartesianToIsometric = (x, y) => {
+        var tempPt = {};
+        tempPt.x = x - y;
+        tempPt.y = (x + y) / 2;
+        return (tempPt);
+    };
+    this._isometricToCartesian = (x, y) => {
+        var tempPt = {};
+        tempPt.x = (2 * y + x) / 2;
+        tempPt.y = (2 * y - x) / 2;
+        return (tempPt);
+    };
     this._addTile = (x, y, isUnreachable) => {
         var tileNumber = Math.floor(Math.random() * 5) + 1;
         var obj = this.game.add.sprite(x, y, 'tile' + tileNumber).setOrigin(0, 0);
@@ -225,6 +239,8 @@ export const BattleMap = function (game, map) {
         obj.objectConfig.image = 'tile' + tileNumber;
         obj.height = 50;
         obj.width = 50;
+        obj.displayHeight = 50;
+        obj.displayWidth = 50;
         if (!isUnreachable) {
             this.tiles.add(obj);
         } else {
