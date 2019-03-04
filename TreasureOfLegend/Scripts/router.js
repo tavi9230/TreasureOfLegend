@@ -4,6 +4,7 @@ import { Error } from 'Shared/error';
 import { LandingContainer } from 'Landing/landingContainer';
 import { HomeContainer } from 'Home/homeContainer';
 import { Aniwars } from 'Aniwars/aniwars';
+import { TreasureOfLegend } from 'TreasureOfLegend/treasureOfLegend';
 
 Vue.use(VueRouter);
 
@@ -25,6 +26,11 @@ export const router = new VueRouter({
             path: '/Aniwars',
             name: 'Aniwars',
             component: Aniwars
+        },
+        {
+            path: '/TreasureOfLegend',
+            name: 'TreasureOfLegend',
+            component: TreasureOfLegend
         },
         {
             path: '*',

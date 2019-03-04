@@ -12,6 +12,7 @@ export const HomeContainer = {
     '<div v-on:click="_startDManGame">Start D-man game</div>' +
     '<div v-on:click="_startTBSGame">TBS</div>' +
     '<div v-on:click="_startAniwarsGame">Aniwars</div>' +
+    '<div v-on:click="_startTreasureOfLegendGame">Treasure Of Legend</div>' +
 	//'<canvas id="mainScreen" ref="mainScreen" width="1800" height="900">' + Resources.CanvasError + '</canvas >' +
 	'</div>',
     data: function () {
@@ -54,6 +55,10 @@ export const HomeContainer = {
         _startAniwarsGame: function() {
             var split = window.location.href.split('Home');
             NavigationHelper.openLocationInNewTab(split[0] + 'Aniwars');
+        },
+        _startTreasureOfLegendGame: function() {
+            var split = window.location.href.split('Home');
+            NavigationHelper.openLocationInNewTab(split[0] + 'TreasureOfLegend');
         }
     }
 };
