@@ -217,7 +217,7 @@ export const SceneManager = function (game) {
 
     this.createCamera = () => {
         //main camera
-        game.cameras.main.setBounds(0, 0, game.activeMap.levelMap[0].length * 50, game.activeMap.levelMap.length * 50 + 230);
+        //game.cameras.main.setBounds(0, 0, game.activeMap.levelMap[0].length * 50, game.activeMap.levelMap.length * 50 + 230);
         game.cameras.main.setZoom(1.5);
     };
 

@@ -5,6 +5,7 @@ import { InventoryConfig } from 'TreasureOfLegend/Configurations/inventoryConfig
 import { EnergyConfig } from 'TreasureOfLegend/Configurations/energyConfig';
 import { StatusIconConfig } from 'TreasureOfLegend/Configurations/statusIconConfig';
 import { CharacterConfig } from 'TreasureOfLegend/Configurations/characterConfig';
+import { CoordHelper } from 'TreasureOfLegend/Helpers/coordHelper';
 
 export const Character = function (game) {
     var actionManager = new ActionManager(game),
@@ -17,9 +18,12 @@ export const Character = function (game) {
     };
 
     this.addNewCharacter = (x, y, spriteName) => {
-        var character = game.physics.add.sprite(x, y, spriteName).setOrigin(-0.25, 0.5);
-        character.height = 50;
-        character.width = 50;
+        var isometricPoint = CoordHelper.CartesianToIsometric(x, y);
+        var character = game.physics.add.sprite(isometricPoint.x, isometricPoint.y, spriteName).setOrigin(0, 0);
+        character.height = 200;
+        character.width = 100;
+        character.displayHeight = 200;
+        character.displayWidth = 100;
         character.characterConfig = lodash.cloneDeep(lodash.cloneDeep(CharacterConfig.config));
         character.characterConfig.inventory.mainHand = lodash.cloneDeep(character.characterConfig.inventory.mainHand);
         character.characterConfig.inventory.offHand = lodash.cloneDeep(character.characterConfig.inventory.offHand);
@@ -29,8 +33,8 @@ export const Character = function (game) {
         character.characterConfig.inventory.hands = lodash.cloneDeep(character.characterConfig.inventory.hands);
         character.characterConfig.inventory.spells = lodash.cloneDeep(character.characterConfig.inventory.spells);
         var charConfig = character.characterConfig;
-        charConfig.posX = x;
-        charConfig.posY = y;
+        charConfig.posX = isometricPoint.x;
+        charConfig.posY = isometricPoint.y;
         charConfig.image = spriteName;
         charConfig.armor = charConfig.inventory.head.armor +
             charConfig.inventory.body.armor +

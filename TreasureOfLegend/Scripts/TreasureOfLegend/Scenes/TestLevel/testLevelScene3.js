@@ -1,6 +1,6 @@
 ﻿import { SceneManager } from 'TreasureOfLegend/Managers/sceneManager';
 import { MapConfig } from 'TreasureOfLegend/Configurations/mapConfig';
-import { EnemyConfig } from 'TreasureOfLegend/Configurations/enemyConfig';
+//import { EnemyConfig } from 'TreasureOfLegend/Configurations/enemyConfig';
 import { InventoryConfig } from 'TreasureOfLegend/Configurations/inventoryConfig';
 
 export const TestLevelScene3 = function () {
@@ -14,11 +14,12 @@ export const TestLevelScene3 = function () {
             this.debugMode = true;
             this.sceneManager = new SceneManager(this);
             this.sceneManager.createMap(MapConfig.level1);
-            this.sceneManager.createCharacter(600, 350, 'character1');
+            this.sceneManager.createCharacter(50, 50, 'character1');
             //this.sceneManager.createEnemy(500, 250, EnemyConfig.test, true);
             this.sceneManager.addHUDSceneEvents();
 
             var character = this.characters.characters.getChildren()[0];
+            character.setDepth(2);
             character.characterConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.weapons.javelin);
             character.characterConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.weapons.handaxe);
             character.characterConfig.inventory.mainHand.isEquipped = true;

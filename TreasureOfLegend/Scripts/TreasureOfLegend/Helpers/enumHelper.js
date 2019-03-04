@@ -2,26 +2,35 @@
     idEnum: {
         tile: {
             id: 0,
-            type: {}
+            type: {
+                stoneTile1: 0.1,
+                stoneTile2: 0.2
+            }
         },
         wall: {
             id: 1,
             type: {
-                top: 1.1,
-                side: 1.2,
-                topLeft: 1.3,
-                topRight: 1.4,
-                bottomLeft: 1.5,
-                bottomRight: 1.6
+                stoneWallE: 1.1,
+                stoneWallN: 1.2,
+                stoneWallS: 1.3,
+                stoneWallW: 1.4,
+                stoneWallCornerE: 1.5,
+                stoneWallCornerN: 1.6,
+                stoneWallCornerS: 1.7,
+                stoneWallCornerW: 1.8
             }
         },
         door: {
             id: 2,
             type: {
-                up: 2.1,
-                right: 2.2,
-                down: 2.3,
-                left: 2.4
+                stoneWallDoorClosedE: 2.1,
+                stoneWallDoorClosedN: 2.2,
+                stoneWallDoorClosedS: 2.3,
+                stoneWallDoorClosedW: 2.4,
+                stoneWallDoorOpenE: 2.5,
+                stoneWallDoorOpenN: 2.6,
+                stoneWallDoorOpenS: 2.7,
+                stoneWallDoorOpenW: 2.8
             }
         },
         lootbag: {
