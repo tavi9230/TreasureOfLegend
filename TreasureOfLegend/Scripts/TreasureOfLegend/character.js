@@ -17,13 +17,13 @@ export const Character = function (game) {
         skillPoints: 1
     };
 
-    this.addNewCharacter = (x, y, spriteName) => {
-        var isometricPoint = CoordHelper.CartesianToIsometric(x, y);
-        var character = game.physics.add.sprite(isometricPoint.x, isometricPoint.y, spriteName).setOrigin(0, 0);
-        character.height = 200;
-        character.width = 100;
-        character.displayHeight = 200;
-        character.displayWidth = 100;
+    this.addNewCharacter = (coords, spriteName) => {
+        var isometricPoint = CoordHelper.CartesianToIsometric(coords.x * 50, coords.y * 50);
+        var character = game.physics.add.sprite(isometricPoint.x, isometricPoint.y, spriteName).setOrigin(-1, -0.35);
+        //character.height = 200;
+        //character.width = 100;
+        character.displayWidth = 30;
+        character.displayHeight = character.displayWidth * character.height / character.width;
         character.characterConfig = lodash.cloneDeep(lodash.cloneDeep(CharacterConfig.config));
         character.characterConfig.inventory.mainHand = lodash.cloneDeep(character.characterConfig.inventory.mainHand);
         character.characterConfig.inventory.offHand = lodash.cloneDeep(character.characterConfig.inventory.offHand);
@@ -204,14 +204,15 @@ export const Character = function (game) {
             var index = charConfig.inventory.slots.items.indexOf(itemToDrop);
             charConfig.inventory.slots.items.splice(index, 1);
         }
-        var dropSound = game.sound.add('drop_item', { volume: 0.5 });
+        var dropSound = game.sound.add('drop_item', { volume: 0.5 }),
+            item = game.physics.add.sprite(character.x, character.y, itemToDrop.image).setOrigin(-0.5, -0.75);
         dropSound.play();
-        var item = game.physics.add.sprite(character.x, character.y, itemToDrop.image).setOrigin(0, 0);
         item.displayHeight = 50;
         item.displayWidth = 50;
         item.itemConfig = lodash.cloneDeep(itemToDrop);
+        item.setDepth(character.depth);
         game.items.add(item);
-        character.setDepth(1);
+        character.setDepth(item.depth + 1);
         game.input.setHitArea([item]);
         item.on('pointerdown', _.bind(game.characters.pickUpItem, self, item));
         item.on('pointerover', _.bind(game.activeMap.highlightPathToItem, self, item));
@@ -456,24 +457,27 @@ export const Character = function (game) {
     // Private -----------------------------------------------------------------------------------------------------
     this._moveCharacter = function (currentCharacter) {
         var self = this,
-            charConfig = currentCharacter.characterConfig;
+            charConfig = currentCharacter.characterConfig,
+            isometricPath = CoordHelper.CartesianToIsometric(charConfig.path[0][0], charConfig.path[0][1]);
         charConfig.movement.spent++;
         charConfig.movement.isMoving = true;
         StatusIconConfig.showMovementIcon(game, currentCharacter, 1);
         game.events.emit('showCharacterInitiative', game.initiative);
-        charConfig.posX = charConfig.path[0][0] * 50;
-        charConfig.posY = charConfig.path[0][1] * 50;
+        charConfig.posX = isometricPath.x * 50;
+        charConfig.posY = isometricPath.y * 50;
         charConfig.path.shift();
         var tile = game.activeMap.tiles.getChildren().find(function (tile) {
             return tile.x === charConfig.posX && tile.y === charConfig.posY;
         });
         if (tile) {
+            currentCharacter.setDepth(tile.depth + 1);
             game.cameras.main.startFollow(currentCharacter, true, 0.09, 0.09);
             var walkSound = game.sound.add(tile.objectConfig.sound, { volume: 0.5 });
             walkSound.play();
             var onCompleteHandler = function () {
                 game.tweens.killAll();
                 setTimeout(function () {
+                    currentCharacter.setDepth(tile.depth);
                     walkSound.destroy();
                     charConfig.movement.isMoving = false;
                     if (charConfig.path.length === 0) {
@@ -502,7 +506,9 @@ export const Character = function (game) {
             (currentCharacter.x !== posX || currentCharacter.y !== posY)) {
             if (!this._isTileOccupied(posX, posY)) {
                 var auxMap = game.activeMap.addEnemiesToMap(game.enemies),
-                    pathWay = Pathfinder.findWay(currentCharacter.x / 50, currentCharacter.y / 50, posX / 50, posY / 50, auxMap);
+                    isometricCharacter = CoordHelper.IsometricToCartesian(currentCharacter.x, currentCharacter.y),
+                    isometricPosisiton = CoordHelper.IsometricToCartesian(posX, posY),
+                    pathWay = Pathfinder.findWay(isometricCharacter.x / 50, isometricCharacter.y / 50, isometricPosisiton.x / 50, isometricPosisiton.y / 50, auxMap);
                 charConfig.path = pathWay || [];
                 if (pathWay.length > 0) {
                     charConfig.path.shift();

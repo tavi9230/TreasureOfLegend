@@ -2,6 +2,7 @@
 import { HUDLowerPanel } from 'TreasureOfLegend/Scenes/HUD/lowerPanel';
 import { HUDCharacterStatus } from 'TreasureOfLegend/Scenes/HUD/characterStatus';
 import { TipsModal } from 'TreasureOfLegend/Scenes/HUD/Helpers/tipsModal';
+import { CoordHelper } from 'TreasureOfLegend/Helpers/coordHelper';
 
 export const HUDScene = function (sceneName) {
     return new Phaser.Class({
@@ -145,12 +146,13 @@ export const HUDScene = function (sceneName) {
         },
         _showQuickStats: function (character, frameImage, index) {
             var textStyle = {
-                fontSize: index === 0 ? 40 : 20,
-                wordWrap: { width: 96, useAdvancedWrap: true }
-            },
+                    fontSize: index === 0 ? 40 : 20,
+                    wordWrap: { width: 96, useAdvancedWrap: true }
+                },
                 charConfig = character.characterConfig,
                 offset = index === 0 ? 20 : 10,
-                iconDimensions = index === 0 ? 50 : 30;
+                iconDimensions = index === 0 ? 50 : 30,
+                cartesianPosition = CoordHelper.IsometricToCartesian(character.x, character.y);
             this._createQuickStatIcon(frameImage.x + offset, frameImage.y + ((frameImage.displayHeight / 3) * 0) + offset,
                 'healthIcon', charConfig.life.current, textStyle, iconDimensions);
             this._createQuickStatIcon(frameImage.x + offset, frameImage.y + ((frameImage.displayHeight / 3) * 1) + offset,
@@ -162,9 +164,9 @@ export const HUDScene = function (sceneName) {
             this._createQuickStatIcon(frameImage.x + frameImage.displayWidth - offset - iconDimensions, frameImage.y + ((frameImage.displayHeight / 3) * 1) + offset,
                 'energyIcon', (charConfig.energy.max - charConfig.energy.spent), textStyle, iconDimensions);
             var locationXText = this.add.text(frameImage.x + (index === 0 ? 80 : 60), frameImage.y + ((frameImage.displayHeight / 3) * 2) + offset,
-                'X:' + (character.x / 50), { fontSize: index === 0 ? 30 : 15, color: '#000000' });
+                'X:' + (cartesianPosition.x / 50), { fontSize: index === 0 ? 30 : 15, color: '#000000' });
             var locationYText = this.add.text(frameImage.x + (index === 0 ? 80 : 60), frameImage.y + ((frameImage.displayHeight / 3) * 2) + offset + (index === 0 ? 30 : 15),
-                'Y:' + (character.y / 50), { fontSize: index === 0 ? 30 : 15, color: '#000000' });
+                'Y:' + (cartesianPosition.y / 50), { fontSize: index === 0 ? 30 : 15, color: '#000000' });
             this.initiativeTracker.add(locationXText);
             this.initiativeTracker.add(locationYText);
             if (index === 0) {

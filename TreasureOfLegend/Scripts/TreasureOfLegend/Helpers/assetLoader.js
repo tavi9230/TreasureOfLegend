@@ -1,34 +1,53 @@
 ﻿export const AssetLoader = function (scene) {
     const AssetFolder = 'Assets/TreasureOfLegend/';
-    const KenneyNLPack = 'KenneyNL/Isometric/';
+    //const KenneyNLPack = 'KenneyNL/Isometric/';
     var game = scene;
 
     this.loadImages = function () {
         // tiles --------------------------------------------------------------------
-        game.load.image('stoneTile1', AssetFolder + KenneyNLPack + 'stone_N - Copy.png');
-        game.load.image('stoneTile2', AssetFolder + KenneyNLPack + 'stoneMissingTiles_N - Copy.png');
+        //game.load.image('stoneTile1', AssetFolder + KenneyNLPack + 'stone_N - Copy.png');
+        //game.load.image('stoneTile2', AssetFolder + KenneyNLPack + 'stoneMissingTiles_N - Copy.png');
+        game.load.image('stoneTile1', AssetFolder + 'testassets/floor.png');
+        game.load.image('stoneTile2', AssetFolder + 'testassets/floor.png');
 
-        game.load.image('stoneWallE', AssetFolder + KenneyNLPack + 'stoneWall_E - Copy.png');
-        game.load.image('stoneWallN', AssetFolder + KenneyNLPack + 'stoneWall_N - Copy.png');
-        game.load.image('stoneWallS', AssetFolder + KenneyNLPack + 'stoneWall_S - Copy.png');
-        game.load.image('stoneWallW', AssetFolder + KenneyNLPack + 'stoneWall_W - Copy.png');
+        game.load.image('stoneWallE', AssetFolder + 'testassets/isometric_0100.png');
+        game.load.image('stoneWallN', AssetFolder + 'testassets/isometric_0100.png');
+        game.load.image('stoneWallS', AssetFolder + 'testassets/isometric_0100.png');
+        game.load.image('stoneWallW', AssetFolder + 'testassets/isometric_0100.png');
+        game.load.image('stoneWallCornerE', AssetFolder + 'testassets/isometric_0100.png');
+        game.load.image('stoneWallCornerN', AssetFolder + 'testassets/isometric_0100.png');
+        game.load.image('stoneWallCornerS', AssetFolder + 'testassets/isometric_0100.png');
+        game.load.image('stoneWallCornerW', AssetFolder + 'testassets/isometric_0100.png');
 
-        game.load.image('stoneWallCornerE', AssetFolder + KenneyNLPack + 'stoneWallCorner_E - Copy.png');
-        game.load.image('stoneWallCornerN', AssetFolder + KenneyNLPack + 'stoneWallCorner_N - Copy.png');
-        game.load.image('stoneWallCornerS', AssetFolder + KenneyNLPack + 'stoneWallCorner_S - Copy.png');
-        game.load.image('stoneWallCornerW', AssetFolder + KenneyNLPack + 'stoneWallCorner_W - Copy.png');
+        //game.load.image('stoneWallE', AssetFolder + KenneyNLPack + 'stoneWall_E - Copy.png');
+        //game.load.image('stoneWallN', AssetFolder + KenneyNLPack + 'stoneWall_N - Copy.png');
+        //game.load.image('stoneWallS', AssetFolder + KenneyNLPack + 'stoneWall_S - Copy.png');
+        //game.load.image('stoneWallW', AssetFolder + KenneyNLPack + 'stoneWall_W - Copy.png');
 
-        game.load.image('stoneWallDoorClosedE', AssetFolder + KenneyNLPack + 'stoneWallDoorClosed_E.png');
-        game.load.image('stoneWallDoorClosedN', AssetFolder + KenneyNLPack + 'stoneWallDoorClosed_N.png');
-        game.load.image('stoneWallDoorClosedS', AssetFolder + KenneyNLPack + 'stoneWallDoorClosed_S.png');
-        game.load.image('stoneWallDoorClosedW', AssetFolder + KenneyNLPack + 'stoneWallDoorClosed_W.png');
-        game.load.image('stoneWallDoorOpenE', AssetFolder + KenneyNLPack + 'stoneWallDoorOpen_E.png');
-        game.load.image('stoneWallDoorOpenN', AssetFolder + KenneyNLPack + 'stoneWallDoorOpen_N.png');
-        game.load.image('stoneWallDoorOpenS', AssetFolder + KenneyNLPack + 'stoneWallDoorOpen_S.png');
-        game.load.image('stoneWallDoorOpenW', AssetFolder + KenneyNLPack + 'stoneWallDoorOpen_W.png');
+        //game.load.image('stoneWallCornerE', AssetFolder + KenneyNLPack + 'stoneWallCorner_E - Copy.png');
+        //game.load.image('stoneWallCornerN', AssetFolder + KenneyNLPack + 'stoneWallCorner_N - Copy.png');
+        //game.load.image('stoneWallCornerS', AssetFolder + KenneyNLPack + 'stoneWallCorner_S - Copy.png');
+        //game.load.image('stoneWallCornerW', AssetFolder + KenneyNLPack + 'stoneWallCorner_W - Copy.png');
+
+        //game.load.image('stoneWallDoorClosedE', AssetFolder + KenneyNLPack + 'stoneWallDoorClosed_E.png');
+        //game.load.image('stoneWallDoorClosedN', AssetFolder + KenneyNLPack + 'stoneWallDoorClosed_N.png');
+        //game.load.image('stoneWallDoorClosedS', AssetFolder + KenneyNLPack + 'stoneWallDoorClosed_S.png');
+        //game.load.image('stoneWallDoorClosedW', AssetFolder + KenneyNLPack + 'stoneWallDoorClosed_W.png');
+        //game.load.image('stoneWallDoorOpenE', AssetFolder + KenneyNLPack + 'stoneWallDoorOpen_E.png');
+        //game.load.image('stoneWallDoorOpenN', AssetFolder + KenneyNLPack + 'stoneWallDoorOpen_N.png');
+        //game.load.image('stoneWallDoorOpenS', AssetFolder + KenneyNLPack + 'stoneWallDoorOpen_S.png');
+        //game.load.image('stoneWallDoorOpenW', AssetFolder + KenneyNLPack + 'stoneWallDoorOpen_W.png');
+        game.load.image('stoneWallDoorClosedE', AssetFolder + 'testassets/isometric_0024.png');
+        game.load.image('stoneWallDoorClosedN', AssetFolder + 'testassets/isometric_0024.png');
+        game.load.image('stoneWallDoorClosedS', AssetFolder + 'testassets/isometric_0024.png');
+        game.load.image('stoneWallDoorClosedW', AssetFolder + 'testassets/isometric_0024.png');
+        game.load.image('stoneWallDoorOpenE', AssetFolder + 'testassets/isometric_0024.png');
+        game.load.image('stoneWallDoorOpenN', AssetFolder + 'testassets/isometric_0024.png');
+        game.load.image('stoneWallDoorOpenS', AssetFolder + 'testassets/isometric_0024.png');
+        game.load.image('stoneWallDoorOpenW', AssetFolder + 'testassets/isometric_0024.png');
 
         game.load.image('characterFrame', AssetFolder + 'frame.png');
-        game.load.image('character1', AssetFolder + 'KenneyNL/Characters/Male/Male_3_Idle0.png');
+        game.load.image('character1', AssetFolder + 'KenneyNL/Characters/Male/Male_3_Idle0 - Copy.png');
 
         // rechargeable objects --------------------------------------------------------------------
         game.load.image('movementWell', AssetFolder + 'objects/movementWell.png');

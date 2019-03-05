@@ -15,10 +15,7 @@ export const BattleMap = function (game, map) {
         }
         return destinationMap;
     };
-    this.tileLayer = this.copyMap(map.tiles, []);
-    this.objectLayer = this.copyMap(map.objects, []);
-    this.defaultMap = this.copyMap(map.tiles, []);
-    this.defaultMap = this.copyMap(map.objects, this.defaultMap);
+    this.defaultMap = this.copyMap(map, []);
     this.previousMap = this.copyMap(this.defaultMap, []);
     this.levelMap = this.copyMap(this.defaultMap, []);
     this.objConfig = {
@@ -54,23 +51,21 @@ export const BattleMap = function (game, map) {
     this.isMovementGridShown = false;
 
     this.generateMap = () => {
-        for (let i = 0, y = 0; i < this.tileLayer.length; i++, y += 50) {
-            for (let j = 0, x = 0; j < this.tileLayer[i].length; j++, x += 50) {
-                this._addTile(x, y);
-            }
-        }
-        for (let i = 0, y = 0; i < this.objectLayer.length; i++, y += 50) {
-            for (let j = 0, x = 0; j < this.objectLayer[i].length; j++, x += 50) {
-                if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.wall.id)) {
-                    this._addWall(x, y, this.levelMap[i][j]);
+        for (let i = 0, y = 0; i < this.defaultMap.length; i++, y += 50) {
+            for (let j = 0, x = 0; j < this.defaultMap[i].length; j++, x += 50) {
+                if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.tile.id)) {
+                    this._addTile(i, j, x, y);
+                } else if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.wall.id)) {
+                    this._addWall(i, j, x, y, this.levelMap[i][j]);
                 } else if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.door.id)) {
-                    this._addDoor(x, y, i, j, this.levelMap[i][j]);
+                    this._addTile(i, j, x, y);
+                    this._addDoor(i, j, x, y, this.levelMap[i][j]);
                 } else if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.well.id)) {
-                    this._addTile(x, y, true);
-                    this._addTile(x + 50, y, true);
-                    this._addTile(x, y + 50, true);
-                    this._addTile(x + 50, y + 50, true);
-                    this._addWell(x, y, i, j, this.levelMap[i][j]);
+                    this._addTile(i, j, x, y, true);
+                    this._addTile(i, j, x + 50, y, true);
+                    this._addTile(i, j, x, y + 50, true);
+                    this._addTile(i, j, x + 50, y + 50, true);
+                    this._addWell(i, j, x, y, this.levelMap[i][j]);
                 }
             }
         }
@@ -229,10 +224,10 @@ export const BattleMap = function (game, map) {
     };
 
     // Private ----------------------------------------------------------------------
-    this._addTile = (x, y, isUnreachable) => {
+    this._addTile = (i, j, x, y, isUnreachable) => {
         var tileNumber = Math.floor(Math.random() * 2) + 1,
             isometricPoint = CoordHelper.CartesianToIsometric(x, y);
-        var obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneTile' + tileNumber).setOrigin(0, 0);
+        var obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneTile' + tileNumber).setOrigin(0, -0.4);
         obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.objectConfig.description = 'Tile';
         obj.objectConfig.sound = 'walk_stone';
@@ -242,6 +237,7 @@ export const BattleMap = function (game, map) {
         //obj.width = 100;
         obj.displayWidth = 100;
         obj.displayHeight = obj.displayWidth * obj.height / obj.width;//58;
+        obj.setDepth(i + j);
         if (!isUnreachable) {
             this.tiles.add(obj);
         } else {
@@ -249,7 +245,7 @@ export const BattleMap = function (game, map) {
         }
     };
 
-    this._addWall = (x, y, wallId) => {
+    this._addWall = (i, j, x, y, wallId) => {
         var obj,
             isometricPoint = CoordHelper.CartesianToIsometric(x, y);
         //if (wallId !== EnumHelper.idEnum.wall.type.stoneWallE &&
@@ -298,14 +294,14 @@ export const BattleMap = function (game, map) {
         //obj.height = 200;
         obj.objectConfig.description = 'Wall';
         obj.objectConfig.id = EnumHelper.idEnum.wall.id;
-        obj.setDepth(1);
+        obj.setDepth(i + j);
         this.objects.add(obj);
     };
 
-    this._addDoor = (x, y, i, j, doorId) => {
+    this._addDoor = (i, j, x, y, doorId) => {
         var obj,
             isometricPoint = CoordHelper.CartesianToIsometric(x, y);
-        this._addTile(x, y);
+        //this._addTile(x, y);
         if (doorId === EnumHelper.idEnum.door.type.stoneWallDoorClosedE) {
             obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallDoorClosedE').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
@@ -319,7 +315,6 @@ export const BattleMap = function (game, map) {
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallDoorClosedS';
         } else if (doorId === EnumHelper.idEnum.door.type.stoneWallDoorClosedW) {
-            this._addTile(x, y);
             obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallDoorClosedW').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallDoorClosedW';
@@ -336,24 +331,23 @@ export const BattleMap = function (game, map) {
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallDoorOpenS';
         } else if (doorId === EnumHelper.idEnum.door.type.stoneWallDoorOpenW) {
-            this._addTile(x, y);
             obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallDoorOpenW').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallDoorOpenW';
         }
         obj.displayWidth = 100;
-        obj.displayHeight = 200;
-        obj.width = 100;
-        obj.height = 200;
+        obj.displayHeight = obj.displayWidth * obj.height / obj.width;
+        //obj.width = 100;
+        //obj.height = 200;
         obj.objectConfig.description = 'Door';
         obj.objectConfig.id = doorId;
         obj.objectConfig.isInteractible = true;
         obj.objectConfig.sound = 'open_door';
-        obj.setDepth(1);
+        obj.setDepth(i + j);
         this.objects.add(obj);
     };
 
-    this._addWell = (x, y, i, j, wellId) => {
+    this._addWell = (i, j, x, y, wellId) => {
         var obj;
         if (wellId === EnumHelper.idEnum.well.type.health) {
             obj = this.game.add.sprite(x, y, 'healthWell').setOrigin(0, 0);
@@ -377,9 +371,9 @@ export const BattleMap = function (game, map) {
             obj.objectConfig.image = 'energyWell';
         }
         obj.displayWidth = 100;
-        obj.displayHeight = 100;
-        obj.width = 100;
-        obj.height = 100;
+        obj.displayHeight = obj.displayWidth * obj.height / obj.width;
+        //obj.width = 100;
+        //obj.height = 100;
         obj.objectConfig.id = wellId;
         obj.objectConfig.isInteractible = true;
         this.objects.add(obj);
