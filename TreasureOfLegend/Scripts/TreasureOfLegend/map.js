@@ -15,7 +15,10 @@ export const BattleMap = function (game, map) {
         }
         return destinationMap;
     };
-    this.defaultMap = this.copyMap(map, []);
+    this.tileLayer = this.copyMap(map.tiles, []);
+    this.objectLayer = this.copyMap(map.objects, []);
+    this.defaultMap = this.copyMap(map.tiles, []);
+    this.defaultMap = this.copyMap(map.objects, this.defaultMap);
     this.previousMap = this.copyMap(this.defaultMap, []);
     this.levelMap = this.copyMap(this.defaultMap, []);
     this.objConfig = {
@@ -31,12 +34,13 @@ export const BattleMap = function (game, map) {
         callback: null,
         sound: ''
     };
-    var hitArea = new Phaser.Geom.Rectangle(0, 0, 50, 50);
+    var hitArea = new Phaser.Geom.Rectangle(0, 0, 100, 100);
     var hitAreaCallback = Phaser.Geom.Rectangle.Contains;
     this.tiles = this.game.add.group({
         hitArea: hitArea,
         hitAreaCallback: hitAreaCallback
     });
+    this.tileHitBox = this.game.add.group();
     this.objects = this.game.add.group({
         hitArea: hitArea,
         hitAreaCallback: hitAreaCallback
@@ -50,11 +54,14 @@ export const BattleMap = function (game, map) {
     this.isMovementGridShown = false;
 
     this.generateMap = () => {
-        for (let i = 0, y = 0; i < this.levelMap.length; i++, y += 50) {
-            for (let j = 0, x = 0; j < this.levelMap[i].length; j++, x += 50) {
-                if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.tile.id)) {
-                    this._addTile(x, y);
-                } else if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.wall.id)) {
+        for (let i = 0, y = 0; i < this.tileLayer.length; i++, y += 50) {
+            for (let j = 0, x = 0; j < this.tileLayer[i].length; j++, x += 50) {
+                this._addTile(x, y);
+            }
+        }
+        for (let i = 0, y = 0; i < this.objectLayer.length; i++, y += 50) {
+            for (let j = 0, x = 0; j < this.objectLayer[i].length; j++, x += 50) {
+                if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.wall.id)) {
                     this._addWall(x, y, this.levelMap[i][j]);
                 } else if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.door.id)) {
                     this._addDoor(x, y, i, j, this.levelMap[i][j]);
@@ -82,7 +89,7 @@ export const BattleMap = function (game, map) {
             return (character.characterConfig.movement.max - character.characterConfig.movement.spent) * 50 >=
                 Math.abs(carthesianTile.x - carthesianCharacter.x) &&
                 (character.characterConfig.movement.max - character.characterConfig.movement.spent) * 50 >=
-            Math.abs(carthesianTile.y - carthesianCharacter.y);
+                Math.abs(carthesianTile.y - carthesianCharacter.y);
         });
         _.each(moveableTiles, (tile) => {
             var auxMap = this.addEnemiesToMap(this.game.enemies),
@@ -231,10 +238,10 @@ export const BattleMap = function (game, map) {
         obj.objectConfig.sound = 'walk_stone';
         obj.objectConfig.id = EnumHelper.idEnum.tile.id;
         obj.objectConfig.image = 'stoneTile' + tileNumber;
-        obj.height = 200;
-        obj.width = 100;
-        obj.displayHeight = 200;
+        //obj.height = 100;
+        //obj.width = 100;
         obj.displayWidth = 100;
+        obj.displayHeight = obj.displayWidth * obj.height / obj.width;//58;
         if (!isUnreachable) {
             this.tiles.add(obj);
         } else {
@@ -245,44 +252,50 @@ export const BattleMap = function (game, map) {
     this._addWall = (x, y, wallId) => {
         var obj,
             isometricPoint = CoordHelper.CartesianToIsometric(x, y);
-        this._addTile(x, y);
+        //if (wallId !== EnumHelper.idEnum.wall.type.stoneWallE &&
+        //    wallId !== EnumHelper.idEnum.wall.type.stoneWallS &&
+        //    wallId !== EnumHelper.idEnum.wall.type.stoneWallCornerS &&
+        //    wallId !== EnumHelper.idEnum.wall.type.stoneWallCornerE &&
+        //    wallId !== EnumHelper.idEnum.wall.type.stoneWallCornerW) {
+        //    this._addTile(x, y);
+        //}
         if (wallId === EnumHelper.idEnum.wall.type.stoneWallE) {
-            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallE').setOrigin(0, 0);
+            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallE').setOrigin(0, 0);//.setOrigin(0, 0.25);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallE';
         } else if (wallId === EnumHelper.idEnum.wall.type.stoneWallN) {
-            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallN').setOrigin(0, 0);
+            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallN').setOrigin(0, 0);//.setOrigin(0, 0.25);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallN';
         } else if (wallId === EnumHelper.idEnum.wall.type.stoneWallS) {
-            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallS').setOrigin(0, 0);
+            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallS').setOrigin(0, 0);//.setOrigin(0, 0.25);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallS';
         } else if (wallId === EnumHelper.idEnum.wall.type.stoneWallW) {
-            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallW').setOrigin(0, 0);
+            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallW').setOrigin(0, 0);//.setOrigin(0, 0.25);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallW';
         } else if (wallId === EnumHelper.idEnum.wall.type.stoneWallCornerE) {
-            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallCornerE').setOrigin(0, 0);
+            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallCornerE').setOrigin(0, 0);//.setOrigin(0, 0.36);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallCornerE';
         } else if (wallId === EnumHelper.idEnum.wall.type.stoneWallCornerN) {
-            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallCornerN').setOrigin(0, 0);
+            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallCornerN').setOrigin(0, 0);//.setOrigin(0, 0.25);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallCornerN';
         } else if (wallId === EnumHelper.idEnum.wall.type.stoneWallCornerS) {
-            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallCornerS').setOrigin(0, 0);
+            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallCornerS').setOrigin(0, 0);//.setOrigin(0, 0.25);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallCornerS';
         } else if (wallId === EnumHelper.idEnum.wall.type.stoneWallCornerW) {
-            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallCornerW').setOrigin(0, 0);
+            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallCornerW').setOrigin(0, 0);//.setOrigin(0, 0.36);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallCornerW';
         }
         obj.displayWidth = 100;
-        obj.displayHeight = 200;
-        obj.width = 100;
-        obj.height = 200;
+        obj.displayHeight = obj.displayWidth * obj.height / obj.width;
+        //obj.width = 100;
+        //obj.height = 200;
         obj.objectConfig.description = 'Wall';
         obj.objectConfig.id = EnumHelper.idEnum.wall.id;
         obj.setDepth(1);
@@ -373,8 +386,10 @@ export const BattleMap = function (game, map) {
     };
 
     this._getPathToTile = (character, tile) => {
-        var auxMap = this.addEnemiesToMap(this.game.enemies);
-        var pathWay = Pathfinder.findWay(character.x / 50, character.y / 50, tile.x / 50, tile.y / 50, auxMap);
+        var auxMap = this.addEnemiesToMap(this.game.enemies),
+            isometricCharacter = CoordHelper.IsometricToCartesian(character.x, character.y),
+            isometricTile = CoordHelper.IsometricToCartesian(tile.x, tile.y);
+        var pathWay = Pathfinder.findWay(isometricCharacter.x / 50, isometricCharacter.y / 50, isometricTile.x / 50, isometricTile.y / 50, auxMap);
         if (pathWay.length > 0) {
             pathWay.shift();
         }
@@ -412,9 +427,10 @@ export const BattleMap = function (game, map) {
                     var highlightedPath = [];
                     _.each(pathWay, function (path) {
                         var filteredPathWay = self.tiles.getChildren().filter(function (tile) {
-                            return tile.x === path[0] * 50 &&
-                                tile.y === path[1] * 50 &&
-                                self.levelMap[tile.y / 50][tile.x / 50] === EnumHelper.idEnum.tile.id;
+                            var cartesianTile = CoordHelper.IsometricToCartesian(tile.x, tile.y);
+                            return cartesianTile.x === path[0] * 50 &&
+                                cartesianTile.y === path[1] * 50 &&
+                                self.levelMap[cartesianTile.y / 50][cartesianTile.x / 50] === EnumHelper.idEnum.tile.id;
                         });
                         if (filteredPathWay.length > 0) {
                             _.each(filteredPathWay, function (tile) {
@@ -427,6 +443,9 @@ export const BattleMap = function (game, map) {
                     });
                 }
             }
+        }
+        if (tile) {
+            tile.setTint(0xff0000);
         }
     };
 };

@@ -5,18 +5,18 @@
 
     this.loadImages = function () {
         // tiles --------------------------------------------------------------------
-        game.load.image('stoneTile1', AssetFolder + KenneyNLPack + 'stone_N.png');
-        game.load.image('stoneTile2', AssetFolder + KenneyNLPack + 'stoneMissingTiles_N.png');
+        game.load.image('stoneTile1', AssetFolder + KenneyNLPack + 'stone_N - Copy.png');
+        game.load.image('stoneTile2', AssetFolder + KenneyNLPack + 'stoneMissingTiles_N - Copy.png');
 
-        game.load.image('stoneWallE', AssetFolder + KenneyNLPack + 'stoneWall_E.png');
-        game.load.image('stoneWallN', AssetFolder + KenneyNLPack + 'stoneWall_N.png');
-        game.load.image('stoneWallS', AssetFolder + KenneyNLPack + 'stoneWall_S.png');
-        game.load.image('stoneWallW', AssetFolder + KenneyNLPack + 'stoneWall_W.png');
+        game.load.image('stoneWallE', AssetFolder + KenneyNLPack + 'stoneWall_E - Copy.png');
+        game.load.image('stoneWallN', AssetFolder + KenneyNLPack + 'stoneWall_N - Copy.png');
+        game.load.image('stoneWallS', AssetFolder + KenneyNLPack + 'stoneWall_S - Copy.png');
+        game.load.image('stoneWallW', AssetFolder + KenneyNLPack + 'stoneWall_W - Copy.png');
 
-        game.load.image('stoneWallCornerE', AssetFolder + KenneyNLPack + 'stoneWallCorner_E.png');
-        game.load.image('stoneWallCornerN', AssetFolder + KenneyNLPack + 'stoneWallCorner_N.png');
-        game.load.image('stoneWallCornerS', AssetFolder + KenneyNLPack + 'stoneWallCorner_S.png');
-        game.load.image('stoneWallCornerW', AssetFolder + KenneyNLPack + 'stoneWallCorner_W.png');
+        game.load.image('stoneWallCornerE', AssetFolder + KenneyNLPack + 'stoneWallCorner_E - Copy.png');
+        game.load.image('stoneWallCornerN', AssetFolder + KenneyNLPack + 'stoneWallCorner_N - Copy.png');
+        game.load.image('stoneWallCornerS', AssetFolder + KenneyNLPack + 'stoneWallCorner_S - Copy.png');
+        game.load.image('stoneWallCornerW', AssetFolder + KenneyNLPack + 'stoneWallCorner_W - Copy.png');
 
         game.load.image('stoneWallDoorClosedE', AssetFolder + KenneyNLPack + 'stoneWallDoorClosed_E.png');
         game.load.image('stoneWallDoorClosedN', AssetFolder + KenneyNLPack + 'stoneWallDoorClosed_N.png');

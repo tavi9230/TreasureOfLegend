@@ -391,7 +391,7 @@ export const SceneManager = function (game) {
             game.characters.moveActiveCharacterToTile(tile);
         }
     };
-    this._hoverTile = (tile) => {
+    this._hoverTile = (tile, pointer) => {
         var invisibleObject = game.activeMap.objects.getChildren().find(function (obj) {
             return obj.alpha === 0.35;
         });
@@ -399,6 +399,7 @@ export const SceneManager = function (game) {
             invisibleObject.alpha = 1;
         }
         game.activeMap.highlightPathToTile(tile);
+        return pointer;
     };
     this._hoverObject = (object) => {
         var invisibleObject = game.activeMap.objects.getChildren().find(function (obj) {

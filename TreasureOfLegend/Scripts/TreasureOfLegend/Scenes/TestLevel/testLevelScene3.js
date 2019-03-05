@@ -41,6 +41,9 @@ export const TestLevelScene3 = function () {
             this.input.mouse.capture = true;
             this.sceneManager.createKeys();
             this.events.emit('showCharacterInitiative', this.initiative);
+
+            this.cameras.main.startFollow(this.activeCharacter, true, 0.09, 0.09);
+            this.cameras.main.stopFollow();
         },
         update() {
             this.sceneManager.checkManager();
