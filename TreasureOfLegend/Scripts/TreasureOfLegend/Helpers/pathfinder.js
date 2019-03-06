@@ -1,5 +1,4 @@
 ﻿var PF = require('pathfinding');
-import { EnumHelper } from 'TreasureOfLegend/Helpers/enumHelper';
 import { CoordHelper } from 'TreasureOfLegend/Helpers/coordHelper';
 
 var _cloneMap = (levelMap) => {
@@ -26,20 +25,12 @@ export const Pathfinder = {
     },
     getPathFromAToB: (source, destination, levelMap) => {
         var map = _cloneMap(levelMap),
-            posX = destination.x,
-            posY = destination.y,
-            objConfig = destination.objectConfig,
             cartesianSource = CoordHelper.IsometricToCartesian(source.x, source.y),
-            cartesianDestination = CoordHelper.IsometricToCartesian(destination.x, destination.y);
-        if (objConfig && objConfig.isActivated) {
-            if (objConfig.id === EnumHelper.idEnum.door.type.right || objConfig.id === EnumHelper.idEnum.door.type.left) {
-                posY = cartesianDestination.y + 50;
-            } else if (objConfig.id === EnumHelper.idEnum.door.type.down || objConfig.id === EnumHelper.idEnum.door.type.up) {
-                posX = cartesianDestination.x + 50;
-            }
-        }
+            cartesianDestination = CoordHelper.IsometricToCartesian(destination.x, destination.y),
+            posX = cartesianDestination.x,
+            posY = cartesianDestination.y;
         // Make object a moveable tile to see if we can get to it
-        map[cartesianDestination.y / 50][posX / 50] = 0;
+        map[posY / 50][posX / 50] = 0;
         var paths = [],
             auxPosY,
             auxPosX;

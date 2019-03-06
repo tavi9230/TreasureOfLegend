@@ -14,7 +14,7 @@ export const TestLevelScene3 = function () {
             this.debugMode = true;
             this.sceneManager = new SceneManager(this);
             this.sceneManager.createMap(MapConfig.level1);
-            this.sceneManager.createCharacter({ x: 1, y: 1 }, 'character1');
+            this.sceneManager.createCharacter({ x: 3, y: 5 }, 'character1');
             //this.sceneManager.createEnemy(500, 250, EnemyConfig.test, true);
             this.sceneManager.addHUDSceneEvents();
 

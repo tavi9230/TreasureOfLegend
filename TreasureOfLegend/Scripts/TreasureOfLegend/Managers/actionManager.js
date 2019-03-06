@@ -3,6 +3,7 @@ import { InventoryConfig } from 'TreasureOfLegend/Configurations/inventoryConfig
 import { EnergyConfig } from 'TreasureOfLegend/Configurations/energyConfig';
 import { EnemyConfig } from 'TreasureOfLegend/Configurations/enemyConfig';
 import { StatusIconConfig } from 'TreasureOfLegend/Configurations/statusIconConfig';
+import { CoordHelper } from 'TreasureOfLegend/Helpers/coordHelper';
 
 export const ActionManager = function (scene) {
     var game = scene,
@@ -84,8 +85,9 @@ export const ActionManager = function (scene) {
     this._interactWithDoor = (object) => {
         // TODO: Don't close door when another character is in it's position
         var charConfig = game.activeCharacter.characterConfig,
-            x = object.x / 50,
-            y = object.y / 50;
+            cartesianObject = CoordHelper.IsometricToCartesian(object.x, object.y),
+            x = cartesianObject.x / 50,
+            y = cartesianObject.y / 50;
         if (charConfig.energy.max - charConfig.energy.spent >= EnergyConfig.door.cost) {
             charConfig.energy.spent += EnergyConfig.door.cost;
             StatusIconConfig.showEnergyIcon(game, game.activeCharacter, EnergyConfig.door.cost);
@@ -94,13 +96,15 @@ export const ActionManager = function (scene) {
             //door animations would be nice
             if (!object.objectConfig.isActivated) {
                 game.activeMap.levelMap[y][x] = 0;
-                if (object.objectConfig.id === EnumHelper.idEnum.door.type.up || object.objectConfig.id === EnumHelper.idEnum.door.type.down) {
-                    object.setX(object.x - 50);
-                } else if (object.objectConfig.id === EnumHelper.idEnum.door.type.right || object.objectConfig.id === EnumHelper.idEnum.door.type.left) {
-                    object.setY(object.y - 50);
-                }
+                object.setTexture(object.objectConfig.activatedImage);
+                //if (object.objectConfig.id === EnumHelper.idEnum.door.type.up || object.objectConfig.id === EnumHelper.idEnum.door.type.down) {
+                //    object.setX(object.x - 50);
+                //} else if (object.objectConfig.id === EnumHelper.idEnum.door.type.right || object.objectConfig.id === EnumHelper.idEnum.door.type.left) {
+                //    object.setY(object.y - 50);
+                //}
             } else {
                 game.activeMap.levelMap[y][x] = object.objectConfig.id;
+                object.setTexture(object.objectConfig.image);
             }
             var doorSound = game.sound.add('open_door', { volume: 0.5 });
             doorSound.play();

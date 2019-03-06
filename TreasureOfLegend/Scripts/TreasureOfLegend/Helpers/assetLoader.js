@@ -37,14 +37,14 @@
         //game.load.image('stoneWallDoorOpenN', AssetFolder + KenneyNLPack + 'stoneWallDoorOpen_N.png');
         //game.load.image('stoneWallDoorOpenS', AssetFolder + KenneyNLPack + 'stoneWallDoorOpen_S.png');
         //game.load.image('stoneWallDoorOpenW', AssetFolder + KenneyNLPack + 'stoneWallDoorOpen_W.png');
-        game.load.image('stoneWallDoorClosedE', AssetFolder + 'testassets/isometric_0024.png');
-        game.load.image('stoneWallDoorClosedN', AssetFolder + 'testassets/isometric_0024.png');
-        game.load.image('stoneWallDoorClosedS', AssetFolder + 'testassets/isometric_0024.png');
-        game.load.image('stoneWallDoorClosedW', AssetFolder + 'testassets/isometric_0024.png');
-        game.load.image('stoneWallDoorOpenE', AssetFolder + 'testassets/isometric_0024.png');
-        game.load.image('stoneWallDoorOpenN', AssetFolder + 'testassets/isometric_0024.png');
-        game.load.image('stoneWallDoorOpenS', AssetFolder + 'testassets/isometric_0024.png');
-        game.load.image('stoneWallDoorOpenW', AssetFolder + 'testassets/isometric_0024.png');
+        game.load.image('stoneWallDoorClosedE', AssetFolder + 'testassets/doorClosedE.png');
+        game.load.image('stoneWallDoorClosedN', AssetFolder + 'testassets/doorClosedN.png');
+        game.load.image('stoneWallDoorClosedS', AssetFolder + 'testassets/doorClosedN.png');
+        game.load.image('stoneWallDoorClosedW', AssetFolder + 'testassets/doorClosedE.png');
+        game.load.image('stoneWallDoorOpenE', AssetFolder + 'testassets/doorOpenE.png');
+        game.load.image('stoneWallDoorOpenN', AssetFolder + 'testassets/doorOpenN.png');
+        game.load.image('stoneWallDoorOpenS', AssetFolder + 'testassets/doorOpenN.png');
+        game.load.image('stoneWallDoorOpenW', AssetFolder + 'testassets/doorOpenE.png');
 
         game.load.image('characterFrame', AssetFolder + 'frame.png');
         game.load.image('character1', AssetFolder + 'KenneyNL/Characters/Male/Male_3_Idle0 - Copy.png');

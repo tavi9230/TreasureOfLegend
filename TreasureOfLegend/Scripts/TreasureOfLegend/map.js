@@ -28,6 +28,7 @@ export const BattleMap = function (game, map) {
         turnActivated: 0,
         turnsToReset: 0,
         image: '',
+        activatedImage: '',
         callback: null,
         sound: ''
     };
@@ -62,9 +63,6 @@ export const BattleMap = function (game, map) {
                     this._addDoor(i, j, x, y, this.levelMap[i][j]);
                 } else if (Math.floor(this.levelMap[i][j]) === Math.floor(EnumHelper.idEnum.well.id)) {
                     this._addTile(i, j, x, y, true);
-                    this._addTile(i, j, x + 50, y, true);
-                    this._addTile(i, j, x, y + 50, true);
-                    this._addTile(i, j, x + 50, y + 50, true);
                     this._addWell(i, j, x, y, this.levelMap[i][j]);
                 }
             }
@@ -233,10 +231,10 @@ export const BattleMap = function (game, map) {
         obj.objectConfig.sound = 'walk_stone';
         obj.objectConfig.id = EnumHelper.idEnum.tile.id;
         obj.objectConfig.image = 'stoneTile' + tileNumber;
-        //obj.height = 100;
-        //obj.width = 100;
         obj.displayWidth = 100;
-        obj.displayHeight = obj.displayWidth * obj.height / obj.width;//58;
+        obj.displayHeight = obj.displayWidth * obj.height / obj.width;
+        obj.width = 50;
+        obj.height = 50;
         obj.setDepth(i + j);
         if (!isUnreachable) {
             this.tiles.add(obj);
@@ -248,13 +246,6 @@ export const BattleMap = function (game, map) {
     this._addWall = (i, j, x, y, wallId) => {
         var obj,
             isometricPoint = CoordHelper.CartesianToIsometric(x, y);
-        //if (wallId !== EnumHelper.idEnum.wall.type.stoneWallE &&
-        //    wallId !== EnumHelper.idEnum.wall.type.stoneWallS &&
-        //    wallId !== EnumHelper.idEnum.wall.type.stoneWallCornerS &&
-        //    wallId !== EnumHelper.idEnum.wall.type.stoneWallCornerE &&
-        //    wallId !== EnumHelper.idEnum.wall.type.stoneWallCornerW) {
-        //    this._addTile(x, y);
-        //}
         if (wallId === EnumHelper.idEnum.wall.type.stoneWallE) {
             obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallE').setOrigin(0, 0);//.setOrigin(0, 0.25);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
@@ -290,8 +281,8 @@ export const BattleMap = function (game, map) {
         }
         obj.displayWidth = 100;
         obj.displayHeight = obj.displayWidth * obj.height / obj.width;
-        //obj.width = 100;
-        //obj.height = 200;
+        obj.width = 50;
+        obj.height = 50;
         obj.objectConfig.description = 'Wall';
         obj.objectConfig.id = EnumHelper.idEnum.wall.id;
         obj.setDepth(i + j);
@@ -306,39 +297,51 @@ export const BattleMap = function (game, map) {
             obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallDoorClosedE').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallDoorClosedE';
+            obj.objectConfig.activatedImage = 'stoneWallDoorOpenE';
         } else if (doorId === EnumHelper.idEnum.door.type.stoneWallDoorClosedN) {
             obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallDoorClosedN').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallDoorClosedN';
+            obj.objectConfig.activatedImage = 'stoneWallDoorOpenN';
         } else if (doorId === EnumHelper.idEnum.door.type.stoneWallDoorClosedS) {
             obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallDoorClosedS').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallDoorClosedS';
+            obj.objectConfig.activatedImage = 'stoneWallDoorOpenS';
         } else if (doorId === EnumHelper.idEnum.door.type.stoneWallDoorClosedW) {
             obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallDoorClosedW').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.image = 'stoneWallDoorClosedW';
+            obj.objectConfig.activatedImage = 'stoneWallDoorOpenW';
         } else if (doorId === EnumHelper.idEnum.door.type.stoneWallDoorOpenE) {
             obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallDoorOpenE').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
-            obj.objectConfig.image = 'stoneWallDoorOpenE';
+            obj.objectConfig.isActivated = true;
+            obj.objectConfig.image = 'stoneWallDoorClosedE';
+            obj.objectConfig.activatedImage = 'stoneWallDoorOpenE';
         } else if (doorId === EnumHelper.idEnum.door.type.stoneWallDoorOpenN) {
             obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallDoorOpenN').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
-            obj.objectConfig.image = 'stoneWallDoorOpenN';
+            obj.objectConfig.isActivated = true;
+            obj.objectConfig.image = 'stoneWallDoorClosedN';
+            obj.objectConfig.activatedImage = 'stoneWallDoorOpenN';
         } else if (doorId === EnumHelper.idEnum.door.type.stoneWallDoorOpenS) {
             obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallDoorOpenS').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
-            obj.objectConfig.image = 'stoneWallDoorOpenS';
+            obj.objectConfig.isActivated = true;
+            obj.objectConfig.image = 'stoneWallDoorClosedS';
+            obj.objectConfig.activatedImage = 'stoneWallDoorOpenS';
         } else if (doorId === EnumHelper.idEnum.door.type.stoneWallDoorOpenW) {
             obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallDoorOpenW').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
-            obj.objectConfig.image = 'stoneWallDoorOpenW';
+            obj.objectConfig.isActivated = true;
+            obj.objectConfig.image = 'stoneWallDoorClosedW';
+            obj.objectConfig.activatedImage = 'stoneWallDoorOpenW';
         }
         obj.displayWidth = 100;
         obj.displayHeight = obj.displayWidth * obj.height / obj.width;
-        //obj.width = 100;
-        //obj.height = 200;
+        obj.width = 50;
+        obj.height = 50;
         obj.objectConfig.description = 'Door';
         obj.objectConfig.id = doorId;
         obj.objectConfig.isInteractible = true;
@@ -372,8 +375,8 @@ export const BattleMap = function (game, map) {
         }
         obj.displayWidth = 100;
         obj.displayHeight = obj.displayWidth * obj.height / obj.width;
-        //obj.width = 100;
-        //obj.height = 100;
+        obj.width = 100;
+        obj.height = 100;
         obj.objectConfig.id = wellId;
         obj.objectConfig.isInteractible = true;
         this.objects.add(obj);
@@ -411,30 +414,31 @@ export const BattleMap = function (game, map) {
             // If character is not moving
             if (currentCharacter.characterConfig.path.length === 0 &&
                 currentCharacter.x === currentCharacter.characterConfig.posX &&
-                currentCharacter.y === currentCharacter.characterConfig.posY &&
-                (tile && !this._isPartyMemberOnTile(tile))) {
-                this.showMovementGrid();
-                var pathWay = obj.isTile
-                    ? this._getPathToTile(currentCharacter, obj.value)
-                    : this._getPathToObject(currentCharacter, obj.value);
-                if (pathWay.length > 0 && pathWay.length <= (currentCharacter.characterConfig.movement.max - currentCharacter.characterConfig.movement.spent)) {
-                    var highlightedPath = [];
-                    _.each(pathWay, function (path) {
-                        var filteredPathWay = self.tiles.getChildren().filter(function (tile) {
-                            var cartesianTile = CoordHelper.IsometricToCartesian(tile.x, tile.y);
-                            return cartesianTile.x === path[0] * 50 &&
-                                cartesianTile.y === path[1] * 50 &&
-                                self.levelMap[cartesianTile.y / 50][cartesianTile.x / 50] === EnumHelper.idEnum.tile.id;
-                        });
-                        if (filteredPathWay.length > 0) {
-                            _.each(filteredPathWay, function (tile) {
-                                highlightedPath.push(tile);
+                currentCharacter.y === currentCharacter.characterConfig.posY) {
+                if ((obj.isTile && !this._isPartyMemberOnTile(tile)) || !obj.isTile) {
+                    this.showMovementGrid();
+                    var pathWay = obj.isTile
+                        ? this._getPathToTile(currentCharacter, obj.value)
+                        : this._getPathToObject(currentCharacter, obj.value);
+                    if (pathWay.length > 0 && pathWay.length <= (currentCharacter.characterConfig.movement.max - currentCharacter.characterConfig.movement.spent)) {
+                        var highlightedPath = [];
+                        _.each(pathWay, function (path) {
+                            var filteredPathWay = self.tiles.getChildren().filter(function (tile) {
+                                var cartesianTile = CoordHelper.IsometricToCartesian(tile.x, tile.y);
+                                return cartesianTile.x === path[0] * 50 &&
+                                    cartesianTile.y === path[1] * 50 &&
+                                    self.levelMap[cartesianTile.y / 50][cartesianTile.x / 50] === EnumHelper.idEnum.tile.id;
                             });
-                        }
-                    });
-                    _.each(highlightedPath, function (tile) {
-                        tile.setTint(0x167509);
-                    });
+                            if (filteredPathWay.length > 0) {
+                                _.each(filteredPathWay, function (tile) {
+                                    highlightedPath.push(tile);
+                                });
+                            }
+                        });
+                        _.each(highlightedPath, function (tile) {
+                            tile.setTint(0x167509);
+                        });
+                    }
                 }
             }
         }

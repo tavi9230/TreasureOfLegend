@@ -43,6 +43,8 @@ export const Character = function (game) {
             (charConfig.inventory.offHand.armor
                 ? charConfig.inventory.offHand.armor
                 : 0) + charConfig.attributes.dexterity;
+
+        character.setDepth(coords.x + coords.y + 1);
         return character;
     };
 
@@ -53,8 +55,9 @@ export const Character = function (game) {
     };
 
     this.moveActiveCharacterNearObject = (object, pathX, pathY) => {
-        var posX = object ? object.x : pathX * 50,
-            posY = object ? object.y : pathY * 50;
+        var isometricPoint = CoordHelper.CartesianToIsometric(pathX * 50, pathY * 50),
+            posX = object ? object.x : isometricPoint.x,
+            posY = object ? object.y : isometricPoint.y;
         this._moveActiveCharacter(posX, posY);
     };
 
@@ -63,34 +66,32 @@ export const Character = function (game) {
             charConfig = character.characterConfig;
         charConfig.energy.inProgress = null;
         if (object.objectConfig.isInteractible && !charConfig.movement.isMoving) {
-            var obj = {
-                x: object.x,
-                y: object.y
-            },
+            var cartesianCharacter = CoordHelper.IsometricToCartesian(character.x, character.y),
+                cartesianObject = CoordHelper.IsometricToCartesian(object.x, object.y),
                 isWithinReach = false;
             if (Math.floor(object.objectConfig.id) === EnumHelper.idEnum.door.id) {
-                obj = game.activeMap.getObjRealCoords(object);
-                if (Math.abs(character.x - obj.x) <= 50 && Math.abs(character.y - obj.y) <= 50 &&
-                    (Math.abs(character.x - obj.x) > 0 || Math.abs(character.y - obj.y) > 0)) {
+                //obj = game.activeMap.getObjRealCoords(object);
+                if (Math.abs(cartesianCharacter.x - cartesianObject.x) <= 50 && Math.abs(cartesianCharacter.y - cartesianObject.y) <= 50 &&
+                    (Math.abs(cartesianCharacter.x - cartesianObject.x) > 0 || Math.abs(cartesianCharacter.y - cartesianObject.y) > 0)) {
                     isWithinReach = true;
-                    object.x = obj.x;
-                    object.y = obj.y;
+                    //object.x = obj.x;
+                    //object.y = obj.y;
                 }
             } else if (Math.floor(object.objectConfig.id) === EnumHelper.idEnum.well.id) {
-                var XY = Math.abs(character.x - object.x) <= 50 &&
-                    Math.abs(character.y - object.y) <= 50 &&
-                    (Math.abs(character.x - object.x) > 0 || Math.abs(character.y - object.y) > 0),
-                    plusXY = Math.abs(character.x - (object.x + (object.width / 2))) <= 50 && Math.abs(character.y - object.y) <= 50 &&
-                        (Math.abs(character.x - (object.x + (object.width / 2))) > 0 || Math.abs(character.y - object.y)) > 0,
-                    XplusY = Math.abs(character.x - object.x) <= 50 && Math.abs(character.y - (object.y + (object.height / 2))) <= 50 &&
-                        (Math.abs(character.x - object.x) > 0 || Math.abs(character.y - (object.y + (object.height / 2)))) > 0,
-                    plusXplusY = Math.abs(character.x - (object.x + (object.width / 2))) <= 50 && Math.abs(character.y - (object.y + (object.height / 2))) <= 50 &&
-                        (Math.abs(character.x - (object.x + (object.width / 2))) > 0 || Math.abs(character.y - (object.y + (object.height / 2)))) > 0;
+                var XY = Math.abs(cartesianCharacter.x - cartesianObject.x) <= 50 &&
+                    Math.abs(cartesianCharacter.y - cartesianObject.y) <= 50 &&
+                    (Math.abs(cartesianCharacter.x - cartesianObject.x) > 0 || Math.abs(cartesianCharacter.y - cartesianObject.y) > 0),
+                    plusXY = Math.abs(cartesianCharacter.x - (cartesianObject.x + (object.width / 2))) <= 50 && Math.abs(cartesianCharacter.y - cartesianObject.y) <= 50 &&
+                        (Math.abs(cartesianCharacter.x - (cartesianObject.x + (object.width / 2))) > 0 || Math.abs(cartesianCharacter.y - cartesianObject.y)) > 0,
+                    XplusY = Math.abs(cartesianCharacter.x - cartesianObject.x) <= 50 && Math.abs(cartesianCharacter.y - (cartesianObject.y + (object.height / 2))) <= 50 &&
+                        (Math.abs(cartesianCharacter.x - cartesianObject.x) > 0 || Math.abs(cartesianCharacter.y - (cartesianObject.y + (cartesianObject.height / 2)))) > 0,
+                    plusXplusY = Math.abs(cartesianCharacter.x - (cartesianObject.x + (object.width / 2))) <= 50 && Math.abs(cartesianCharacter.y - (cartesianObject.y + (object.height / 2))) <= 50 &&
+                        (Math.abs(cartesianCharacter.x - (cartesianObject.x + (object.width / 2))) > 0 || Math.abs(cartesianCharacter.y - (cartesianObject.y + (object.height / 2)))) > 0;
                 if (XY || plusXY || XplusY || plusXplusY) {
                     isWithinReach = true;
                 }
-            } else if (Math.abs(character.x - obj.x) <= 50 && Math.abs(character.y - obj.y) <= 50 &&
-                (Math.abs(character.x - obj.x) > 0 || Math.abs(character.y - obj.y) > 0)) {
+            } else if (Math.abs(cartesianCharacter.x - cartesianObject.x) <= 50 && Math.abs(cartesianCharacter.y - cartesianObject.y) <= 50 &&
+                (Math.abs(cartesianCharacter.x - cartesianObject.x) > 0 || Math.abs(cartesianCharacter.y - cartesianObject.y) > 0)) {
                 isWithinReach = true;
             }
 
@@ -98,7 +99,7 @@ export const Character = function (game) {
             if (isWithinReach) {
                 actionManager.interactWithObject(object);
                 // Otherwise move near the object and try again
-            } else if (Math.abs(character.x - obj.x) !== 0 || Math.abs(character.y - obj.y) !== 0) {
+            } else if (Math.abs(cartesianCharacter.x - cartesianObject.x) !== 0 || Math.abs(cartesianCharacter.y - cartesianObject.y) !== 0) {
                 var path = Pathfinder.getPathFromAToB(character, object, game.activeMap.levelMap);
                 if (path) {
                     if (!this._isTileOccupied(path[path.length - 2][0] * 50, path[path.length - 2][1] * 50)) {
@@ -506,9 +507,9 @@ export const Character = function (game) {
             (currentCharacter.x !== posX || currentCharacter.y !== posY)) {
             if (!this._isTileOccupied(posX, posY)) {
                 var auxMap = game.activeMap.addEnemiesToMap(game.enemies),
-                    isometricCharacter = CoordHelper.IsometricToCartesian(currentCharacter.x, currentCharacter.y),
-                    isometricPosisiton = CoordHelper.IsometricToCartesian(posX, posY),
-                    pathWay = Pathfinder.findWay(isometricCharacter.x / 50, isometricCharacter.y / 50, isometricPosisiton.x / 50, isometricPosisiton.y / 50, auxMap);
+                    cartesianCharacter = CoordHelper.IsometricToCartesian(currentCharacter.x, currentCharacter.y),
+                    cartesianPosisiton = CoordHelper.IsometricToCartesian(posX, posY),
+                    pathWay = Pathfinder.findWay(cartesianCharacter.x / 50, cartesianCharacter.y / 50, cartesianPosisiton.x / 50, cartesianPosisiton.y / 50, auxMap);
                 charConfig.path = pathWay || [];
                 if (pathWay.length > 0) {
                     charConfig.path.shift();
