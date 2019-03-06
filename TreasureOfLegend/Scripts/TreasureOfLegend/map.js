@@ -294,7 +294,6 @@ export const BattleMap = function (game, map) {
     this._addDoor = (i, j, x, y, doorId) => {
         var obj,
             isometricPoint = CoordHelper.CartesianToIsometric(x, y);
-        //this._addTile(x, y);
         if (doorId === EnumHelper.idEnum.door.type.stoneWallDoorClosedE) {
             obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneWallDoorClosedE').setOrigin(0, 0);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
@@ -414,17 +413,18 @@ export const BattleMap = function (game, map) {
                 isTile: tile ? true : false,
                 value: tile ? tile : object
             };
-            var self = this;
+            var self = this,
+                charConfig = currentCharacter.characterConfig;
             // If character is not moving
-            if (currentCharacter.characterConfig.path.length === 0 &&
-                currentCharacter.x === currentCharacter.characterConfig.posX &&
-                currentCharacter.y === currentCharacter.characterConfig.posY) {
+            if (charConfig.path.length === 0 &&
+                currentCharacter.x === charConfig.posX &&
+                currentCharacter.y === charConfig.posY) {
                 if ((obj.isTile && !this._isPartyMemberOnTile(tile)) || !obj.isTile) {
                     this.showMovementGrid();
                     var pathWay = obj.isTile
                         ? this._getPathToTile(currentCharacter, obj.value)
                         : this._getPathToObject(currentCharacter, obj.value);
-                    if (pathWay.length > 0 && pathWay.length <= (currentCharacter.characterConfig.movement.max - currentCharacter.characterConfig.movement.spent)) {
+                    if (pathWay.length > 0 && pathWay.length <= (charConfig.movement.max - charConfig.movement.spent)) {
                         var highlightedPath = [];
                         _.each(pathWay, function (path) {
                             var filteredPathWay = self.tiles.getChildren().filter(function (tile) {
@@ -445,9 +445,9 @@ export const BattleMap = function (game, map) {
                     }
                 }
             }
-        }
-        if (tile) {
-            tile.setTint(0xff0000);
+            if (tile && !charConfig.movement.isMoving) {
+                tile.setTint(0xff0000);
+            }
         }
     };
 };

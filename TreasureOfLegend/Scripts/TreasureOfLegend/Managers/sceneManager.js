@@ -162,6 +162,16 @@ export const SceneManager = function (game) {
                 }
             }
         });
+        game.hudScene.events.on('interactSelected', function () {
+            if (game.activeCharacter.characterConfig.energy.actionId === EnumHelper.actionEnum.interact) {
+                game.activeCharacter.characterConfig.energy.actionId = -1;
+                game.events.emit('removeSelectedActionIcon');
+            } else {
+                game.activeCharacter.characterConfig.energy.actionId = EnumHelper.actionEnum.interact;
+                game.events.emit('showSelectedActionIcon', 'interactButton');
+            }
+            game.activeCharacter.characterConfig.energy.selectedAction = null;
+        });
     };
 
     this.createKeys = function () {
@@ -200,11 +210,11 @@ export const SceneManager = function (game) {
         item.on('pointerover', _.bind(this._hoverItem, this, item));
     };
 
-    this.createCharacter = (x, y, characterImage) => {
-        var character = game.characters.addNewCharacter(x, y, characterImage);
+    this.createCharacter = (coords, characterImage) => {
+        var character = game.characters.addNewCharacter(coords, characterImage);
         game.input.setHitArea([character]);
         this.bindCharacterEvents(character);
-        character.setDepth(x + y + 1);
+        character.setDepth(coords.x + coords.y + 1);
         game.characters.characters.add(character);
     };
 
@@ -410,6 +420,14 @@ export const SceneManager = function (game) {
             invisibleObject.alpha = 1;
         }
         object.alpha = 0.35;
+        if (game.activeCharacter.characterConfig.energy.actionId === -1) {
+            var tile = game.activeMap.tiles.getChildren().find(function (tile) {
+                return tile.x === object.x && tile.y === object.y;
+            });
+            if (tile) {
+                tile.setTint(0xff0000);
+            }
+        }
         game.activeMap.highlightPathToObject(object);
     };
     this._interactWithObject = (object) => {
@@ -418,8 +436,20 @@ export const SceneManager = function (game) {
             game.activeCharacter.characterConfig.energy.actionId = -1;
             game.activeCharacter.characterConfig.energy.selectedAction = null;
             game.characters.inspect(object);
-        } else {
+        } else if (actionId === EnumHelper.actionEnum.interact) {
             game.characters.interactWithObject(object);
+        } else if (actionId === EnumHelper.actionEnum.attackMainHand ||
+            actionId === EnumHelper.actionEnum.attackOffHand ||
+            actionId === EnumHelper.actionEnum.attackSpell) {
+            // TODO: Attack object
+        } else {
+            var tile = game.activeMap.tiles.getChildren().find(function (tile) {
+                return tile.x === object.x && tile.y === object.y;
+            });
+            if (tile && Math.floor(object.objectConfig.id) === EnumHelper.idEnum.door.id) {
+                //game.characters.moveActiveCharacterToTile(tile);
+                game.characters.moveActiveCharacterNearObject(object);
+            }
         }
     };
     this._interactWithCharacter = (enemy, pointer) => {

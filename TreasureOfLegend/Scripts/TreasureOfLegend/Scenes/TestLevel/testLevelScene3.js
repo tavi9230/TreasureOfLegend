@@ -9,15 +9,15 @@ export const TestLevelScene3 = function () {
         initialize: function TestLevelScene3() {
             Phaser.Scene.call(this, { key: 'TestLevelScene3' });
         },
-        preload() { },
-        create() {
+        preload() {
             this.debugMode = true;
             this.sceneManager = new SceneManager(this);
             this.sceneManager.createMap(MapConfig.level1);
             this.sceneManager.createCharacter({ x: 3, y: 5 }, 'character1');
             //this.sceneManager.createEnemy(500, 250, EnemyConfig.test, true);
             this.sceneManager.addHUDSceneEvents();
-
+        },
+        create() {
             var character = this.characters.characters.getChildren()[0];
             character.characterConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.weapons.javelin);
             character.characterConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.weapons.handaxe);

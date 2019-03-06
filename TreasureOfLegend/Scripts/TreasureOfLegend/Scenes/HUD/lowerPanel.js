@@ -156,6 +156,22 @@
                     }
                 }
             );
+            _createButton(
+                { x: game.windowWidth - 145, y: game.windowHeight - 60 },
+                'interactButton',
+                { height: 50, width: 50 },
+                {
+                    pointerdown: _.bind(function () {
+                        this.useInteraction();
+                    }, this),
+                    pointerover: function () {
+                        game.tipsModal.showTips(game.windowWidth - 175, game.windowHeight - 75, 'Interact');
+                    },
+                    pointerout: function () {
+                        game.tipsModal.hideTips();
+                    }
+                }
+            );
         }, this);
 
     this.createLowerPanel = function () {
@@ -179,7 +195,8 @@
                 || btn.name === 'walkButton'
                 || btn.name === 'soulsButton'
                 || btn.name === 'spellsButton'
-                || btn.name === 'inventoryButton';
+                || btn.name === 'inventoryButton'
+                || btn.name === 'interactButton';
         });
         _.each(buttons, function (button) {
             button.visible = isVisible;
@@ -200,7 +217,8 @@
                     || btn.name === 'inspectButton'
                     || btn.name === 'walkButton'
                     || btn.name === 'spellsButton'
-                    || btn.name === 'inventoryButton';
+                    || btn.name === 'inventoryButton'
+                    || btn.name === 'interactButton';
             });
             this.removeSelectedActionIcon();
         } else {
@@ -227,6 +245,9 @@
     };
     this.selectInspectAction = function () {
         game.events.emit('inspectSelected');
+    };
+    this.useInteraction = function() {
+        game.events.emit('interactSelected');
     };
     this.openMainMenu = function () {
         game.scene.sleep('HUDScene');

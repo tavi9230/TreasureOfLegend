@@ -168,6 +168,7 @@
         game.load.image('upgradeButton', AssetFolder + 'buttons/upgradeButton.png');
         game.load.image('closeButton', AssetFolder + 'buttons/closeButton.png');
         game.load.image('replaceButton', AssetFolder + 'buttons/replaceButton.png');
+        game.load.image('interactButton', AssetFolder + 'buttons/interactButton.png');
 
         game.load.image('inventoryBox', AssetFolder + 'inventoryBox.png');
         game.load.image('inventoryBoxSelected', AssetFolder + 'inventoryBoxSelected.png');
