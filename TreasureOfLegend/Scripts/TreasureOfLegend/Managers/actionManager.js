@@ -97,11 +97,6 @@ export const ActionManager = function (scene) {
             if (!object.objectConfig.isActivated) {
                 game.activeMap.levelMap[y][x] = 0;
                 object.setTexture(object.objectConfig.activatedImage);
-                //if (object.objectConfig.id === EnumHelper.idEnum.door.type.up || object.objectConfig.id === EnumHelper.idEnum.door.type.down) {
-                //    object.setX(object.x - 50);
-                //} else if (object.objectConfig.id === EnumHelper.idEnum.door.type.right || object.objectConfig.id === EnumHelper.idEnum.door.type.left) {
-                //    object.setY(object.y - 50);
-                //}
             } else {
                 game.activeMap.levelMap[y][x] = object.objectConfig.id;
                 object.setTexture(object.objectConfig.image);

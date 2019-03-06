@@ -43,8 +43,6 @@ export const Character = function (game) {
             (charConfig.inventory.offHand.armor
                 ? charConfig.inventory.offHand.armor
                 : 0) + charConfig.attributes.dexterity;
-
-        character.setDepth(coords.x + coords.y + 1);
         return character;
     };
 

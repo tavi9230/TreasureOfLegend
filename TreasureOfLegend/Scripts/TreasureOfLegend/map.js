@@ -182,8 +182,9 @@ export const BattleMap = function (game, map) {
 
     this.createReactivatingObject = (config) => {
         var objectToCreate = config.object,
-            obj = this.game.add.sprite(objectToCreate.x, objectToCreate.y, config.image).setOrigin(0, 0),
-            self = this;
+            obj = this.game.add.sprite(objectToCreate.x, objectToCreate.y, config.image).setOrigin(0, 0.15),
+            self = this,
+            cartesianPoint = CoordHelper.IsometricToCartesian(objectToCreate.x, objectToCreate.y);
         obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.objectConfig.description = config.description;
         obj.objectConfig.previousDescription = objectToCreate.objectConfig.description;
@@ -215,6 +216,7 @@ export const BattleMap = function (game, map) {
                 }
             };
         }
+        obj.setDepth((cartesianPoint.x / 50) + (cartesianPoint.y / 50) + 1);
         this.game.input.setHitArea([obj]);
         this.game.sceneManager.bindObjectEvents(obj);
         this.objects.add(obj);
@@ -351,24 +353,25 @@ export const BattleMap = function (game, map) {
     };
 
     this._addWell = (i, j, x, y, wellId) => {
-        var obj;
+        var obj,
+            isometricPoint = CoordHelper.CartesianToIsometric(x, y);
         if (wellId === EnumHelper.idEnum.well.type.health) {
-            obj = this.game.add.sprite(x, y, 'healthWell').setOrigin(0, 0);
+            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'healthWell').setOrigin(0, 0.15);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.description = 'Restore Health';
             obj.objectConfig.image = 'healthWell';
         } else if (wellId === EnumHelper.idEnum.well.type.mana) {
-            obj = this.game.add.sprite(x, y, 'manaWell').setOrigin(0, 0);
+            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'manaWell').setOrigin(0, 0.15);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.description = 'Restore Mana';
             obj.objectConfig.image = 'manaWell';
         } else if (wellId === EnumHelper.idEnum.well.type.movement) {
-            obj = this.game.add.sprite(x, y, 'movementWell').setOrigin(0, 0);
+            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'movementWell').setOrigin(0, 0.15);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.description = 'Restore Movement';
             obj.objectConfig.image = 'movementWell';
         } else if (wellId === EnumHelper.idEnum.well.type.energy) {
-            obj = this.game.add.sprite(x, y, 'energyWell').setOrigin(0, 0);
+            obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'energyWell').setOrigin(0, 0.15);
             obj.objectConfig = lodash.cloneDeep(this.objConfig);
             obj.objectConfig.description = 'Restore Energy';
             obj.objectConfig.image = 'energyWell';
@@ -379,6 +382,7 @@ export const BattleMap = function (game, map) {
         obj.height = 100;
         obj.objectConfig.id = wellId;
         obj.objectConfig.isInteractible = true;
+        obj.setDepth(i + j + 1);
         this.objects.add(obj);
     };
 

@@ -19,7 +19,6 @@ export const TestLevelScene3 = function () {
             this.sceneManager.addHUDSceneEvents();
 
             var character = this.characters.characters.getChildren()[0];
-            character.setDepth(2);
             character.characterConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.weapons.javelin);
             character.characterConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.weapons.handaxe);
             character.characterConfig.inventory.mainHand.isEquipped = true;

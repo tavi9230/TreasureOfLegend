@@ -204,6 +204,7 @@ export const SceneManager = function (game) {
         var character = game.characters.addNewCharacter(x, y, characterImage);
         game.input.setHitArea([character]);
         this.bindCharacterEvents(character);
+        character.setDepth(x + y + 1);
         game.characters.characters.add(character);
     };
 
