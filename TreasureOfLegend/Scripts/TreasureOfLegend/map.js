@@ -235,8 +235,8 @@ export const BattleMap = function (game, map) {
         obj.objectConfig.image = 'stoneTile' + tileNumber;
         obj.displayWidth = 100;
         obj.displayHeight = obj.displayWidth * obj.height / obj.width;
-        obj.width = 100;
-        obj.height = obj.width * obj.displayHeight / obj.displayWidth;
+        obj.width = 50;
+        obj.height = 50; //obj.width * obj.displayHeight / obj.displayWidth;
         obj.setDepth(i + j);
         if (!isUnreachable) {
             this.tiles.add(obj);

@@ -936,28 +936,15 @@ export const ActionManager = function (scene) {
         for (let i = 0; i < pointMatrix.length; i++) {
             pointsFound = 0;
             for (let j = 0; j < pointMatrix[i].length; j++) {
-                var test = game.add.graphics();
-                test.fillStyle(0xff0000, 1);
-                test.fillRect(pointMatrix[i][j][0], pointMatrix[i][j][1], 2, 2);
-                test.setDepth(99999);
-
-                test = game.add.graphics();
-                test.fillStyle(0xff0000, 1);
-                test.fillRect(pointMatrix[i][j][2], pointMatrix[i][j][3], 2, 2);
-                test.setDepth(99999);
+                console.log('Point 1 X:' + pointMatrix[i][j][0] + ' Y:' + pointMatrix[i][j][1]);
+                console.log('Point 1 X:' + pointMatrix[i][j][2] + ' Y:' + pointMatrix[i][j][3]);
                 isNotBlocked = true;
                 linePoints = this._supercoverLine(pointMatrix[i][j][0], pointMatrix[i][j][1], pointMatrix[i][j][2], pointMatrix[i][j][3]);
                 _.each(linePoints, function (point) {
-                    //var test = game.add.graphics();
-                    //test.fillStyle(0x00ff00, 1);
-                    //test.fillRect(point.x, point.y, 2, 2);
-                    //test.setDepth(99999);
-                    /*eslint-disable*/
-                    var cartesianPoint = CoordHelper.IsometricToCartesian(point.x, point.y),
-                        tile = game.activeMap.levelMap[(cartesianPoint.y - cartesianPoint.y % 50) / 50][(cartesianPoint.x - cartesianPoint.x % 50) / 50],
+                    var tile = game.activeMap.levelMap[(point.y - point.y % 50) / 50][(point.x - point.x % 50) / 50],
                         testTile = game.activeMap.tiles.getChildren().find(function (t) {
                             var cartesianTile = CoordHelper.IsometricToCartesian(t.x, t.y);
-                            return cartesianTile.x === cartesianPoint.x - cartesianPoint.x % 50 && cartesianTile.y === cartesianPoint.y - cartesianPoint.y % 50;
+                            return cartesianTile.x === point.x - point.x % 50 && cartesianTile.y === point.y - point.y % 50;
                         });
                     if (testTile) {
                         testTile.setTint(0xff00ff);
@@ -965,16 +952,12 @@ export const ActionManager = function (scene) {
                     if (Math.floor(tile) !== 0) {
                         isNotBlocked = false;
                     }
-                    /*eslint-enable*/
                 });
+                // TODO: Check lines and send the correct ones (the isometric ones)
                 if (isNotBlocked) {
                     pointsFound++;
                     allLinePoints.push(linePoints);
                     lines.push({
-                        //charX: isometricPointSource.x,
-                        //charY: isometricPointSource.y,
-                        //enemyX: isometricPointDestination.x,
-                        //enemyY: isometricPointDestination.y
                         charX: pointMatrix[i][j][0],
                         charY: pointMatrix[i][j][1],
                         enemyX: pointMatrix[i][j][2],
@@ -1006,7 +989,7 @@ export const ActionManager = function (scene) {
             linePoints: linePoints
         };
     };
-
+    /*eslint-disable*/
     this._supercoverLine = function (characterX, characterY, enemyX, enemyY) {
         var dx = enemyX - characterX,
             dy = enemyY - characterY,
@@ -1018,7 +1001,7 @@ export const ActionManager = function (scene) {
                 x: characterX,
                 y: characterY
             },
-            points = [{ x: p.x, y: p.y }];
+            points = p.x % 50 === 0 && p.y % 50 === 0 ? [{ x: p.x, y: p.y }] : [];
         for (var ix = 0, iy = 0; ix < nx || iy < ny;) {
             if ((0.5 + ix) / nx === (0.5 + iy) / ny) {
                 // next step is diagonal
@@ -1035,18 +1018,21 @@ export const ActionManager = function (scene) {
                 p.y += signY;
                 iy++;
             }
-            if (!points.find(function (point) {
-                return point.x === p.x && point.y === p.y;
-            })) {
-                points.push({
-                    x: Math.floor(p.x),
-                    y: Math.floor(p.y)
-                });
+            if (p.x % 10 === 0 || p.y % 10 === 0) {
+                if (!points.find(function (point) {
+                    return point.x === Math.floor(p.x - p.x % 50) &&
+                        point.y === Math.floor(p.y - p.y % 50);
+                })) {
+                    points.push({
+                        x: Math.floor(p.x - p.x % 50),
+                        y: Math.floor(p.y - p.y % 50)
+                    });
+                }
             }
         }
         return points;
     };
-    /*eslint-disable*/
+
     this._getPointMatrix = function (character, enemy) {
         var characterTile = game.activeMap.tiles.getChildren().find(function (tile) {
             return tile.x === character.x && tile.y === character.y;
@@ -1054,75 +1040,50 @@ export const ActionManager = function (scene) {
             enemyTile = game.activeMap.tiles.getChildren().find(function (tile) {
                 return tile.x === enemy.x && tile.y === enemy.y;
             }),
-            characterTileOriginX = -(characterTile.originX * characterTile.width),
-            characterTileOriginY = -(characterTile.originY * characterTile.height),
-            enemyTileOriginX = -(enemyTile.originX * enemyTile.width),
-            enemyTileOriginY = -(enemyTile.originY * enemyTile.height),
-            cartesianCharacter = characterTile,
-            cartesianEnemy = enemyTile,
-            xyc = [
-                [
-                    cartesianCharacter.x + characterTileOriginX,
-                    cartesianCharacter.y + enemyTileOriginY + (characterTile.height / 2),
-                    cartesianEnemy.x + enemyTileOriginX,
-                    cartesianEnemy.y + (enemyTile.height / 2) + enemyTileOriginY
-                ],
-                [
-                    cartesianCharacter.x + characterTileOriginX,
-                    cartesianCharacter.y + enemyTileOriginY + (characterTile.height / 2),
-                    cartesianEnemy.x + enemyTile.width + enemyTileOriginX,
-                    cartesianEnemy.y + (enemyTile.height / 2) + enemyTileOriginY
-                ],
-                [
-                    cartesianCharacter.x + characterTileOriginX,
-                    cartesianCharacter.y + enemyTileOriginY + (characterTile.height / 2),
-                    cartesianEnemy.x + (enemyTile.width / 2) + enemyTileOriginX,
-                    cartesianEnemy.y + enemyTileOriginY + (enemyTile.height / 2)
-                ],
-                [
-                    cartesianCharacter.x + characterTileOriginX,
-                    cartesianCharacter.y + enemyTileOriginY + (characterTile.height / 2),
-                    cartesianEnemy.x + (enemyTile.width / 2) + enemyTileOriginX,
-                    cartesianEnemy.y + enemyTile.height - enemyTileOriginY - (enemyTile.height / 2)
-                ]
+            isometricCharacter = CoordHelper.IsometricToCartesian(characterTile.x, characterTile.y),
+            isometricEnemy = CoordHelper.IsometricToCartesian(enemyTile.x, enemyTile.y);
+        var xyc = [
+            [isometricCharacter.x, isometricCharacter.y, isometricEnemy.x, isometricEnemy.y],
+            [isometricCharacter.x, isometricCharacter.y, isometricEnemy.x + enemy.width, isometricEnemy.y],
+            [isometricCharacter.x, isometricCharacter.y, isometricEnemy.x, isometricEnemy.y + enemy.height],
+            [isometricCharacter.x, isometricCharacter.y, isometricEnemy.x + enemy.width, isometricEnemy.y + enemy.height]
+        ],
+            xpyc = [
+                [isometricCharacter.x + character.width, isometricCharacter.y, isometricEnemy.x, isometricEnemy.y],
+                [isometricCharacter.x + character.width, isometricCharacter.y, isometricEnemy.x + enemy.width, isometricEnemy.y],
+                [isometricCharacter.x + character.width, isometricCharacter.y, isometricEnemy.x, isometricEnemy.y + enemy.height],
+                [isometricCharacter.x + character.width, isometricCharacter.y, isometricEnemy.x + enemy.width, isometricEnemy.y + enemy.height]
+            ],
+            xypc = [
+                [isometricCharacter.x, isometricCharacter.y + character.height, isometricEnemy.x, isometricEnemy.y],
+                [isometricCharacter.x, isometricCharacter.y + character.height, isometricEnemy.x + enemy.width, isometricEnemy.y],
+                [isometricCharacter.x, isometricCharacter.y + character.height, isometricEnemy.x, isometricEnemy.y + enemy.height],
+                [isometricCharacter.x, isometricCharacter.y + character.height, isometricEnemy.x + enemy.width, isometricEnemy.y + enemy.height]
+            ],
+            xpypc = [
+                [isometricCharacter.x + character.width, isometricCharacter.y + character.height, isometricEnemy.x, isometricEnemy.y],
+                [isometricCharacter.x + character.width, isometricCharacter.y + character.height, isometricEnemy.x + enemy.width, isometricEnemy.y],
+                [isometricCharacter.x + character.width, isometricCharacter.y + character.height, isometricEnemy.x, isometricEnemy.y + enemy.height],
+                [isometricCharacter.x + character.width, isometricCharacter.y + character.height, isometricEnemy.x + enemy.width, isometricEnemy.y + enemy.height]
             ];
-        //xpyc = [
-        //    [cartesianCharacter.x + character.width + characterTileOriginX, cartesianCharacter.y + (character.height / 2) + characterTileOriginY, cartesianEnemy.x + enemyTileOriginX, cartesianEnemy.y + (enemy.height / 2) + enemyTileOriginY],
-        //    [cartesianCharacter.x + character.width + characterTileOriginX, cartesianCharacter.y + (character.height / 2) + characterTileOriginY, cartesianEnemy.x + enemy.width + enemyTileOriginX, cartesianEnemy.y + (enemy.height / 2) + enemyTileOriginY],
-        //    [cartesianCharacter.x + character.width + characterTileOriginX, cartesianCharacter.y + (character.height / 2) + characterTileOriginY, cartesianEnemy.x + (enemy.width / 2) + enemyTileOriginX, cartesianEnemy.y + enemyTileOriginY + (enemyTile.height / 2)],
-        //    [cartesianCharacter.x + character.width + characterTileOriginX, cartesianCharacter.y + (character.height / 2) + characterTileOriginY, cartesianEnemy.x + (enemy.width / 2) + enemyTileOriginX, cartesianEnemy.y + enemy.height - enemyTileOriginY - (enemyTile.height / 2)]
-        //],
-        //xypc = [
-        //    [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + characterTileOriginY + (characterTile.height / 2), cartesianEnemy.x + enemyTileOriginX, cartesianEnemy.y + (enemy.height / 2) + enemyTileOriginY],
-        //    [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + characterTileOriginY + (characterTile.height / 2), cartesianEnemy.x + enemy.width + enemyTileOriginX, cartesianEnemy.y + (enemy.height / 2) + enemyTileOriginY],
-        //    [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + characterTileOriginY + (characterTile.height / 2), cartesianEnemy.x + (enemy.width / 2) + enemyTileOriginX, cartesianEnemy.y + enemyTileOriginY + (enemyTile.height / 2)],
-        //    [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + characterTileOriginY + (characterTile.height / 2), cartesianEnemy.x + (enemy.width / 2) + enemyTileOriginX, cartesianEnemy.y + enemy.height - enemyTileOriginY - (enemyTile.height / 2)]
-        //],
-        //xpypc = [
-        //    [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + character.height - characterTileOriginY - (characterTile.height / 2), cartesianEnemy.x + enemyTileOriginX, cartesianEnemy.y + (enemy.height / 2) + enemyTileOriginY],
-        //    [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + character.height - characterTileOriginY - (characterTile.height / 2), cartesianEnemy.x + enemy.width + enemyTileOriginX, cartesianEnemy.y + (enemy.height / 2) + enemyTileOriginY],
-        //    [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + character.height - characterTileOriginY - (characterTile.height / 2), cartesianEnemy.x + (enemy.width / 2) + enemyTileOriginX, cartesianEnemy.y + enemyTileOriginY + (enemyTile.height / 2)],
-        //    [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + character.height - characterTileOriginY - (characterTile.height / 2), cartesianEnemy.x + (enemy.width / 2) + enemyTileOriginX, cartesianEnemy.y + enemy.height - enemyTileOriginY - (enemyTile.height / 2)]
-        //];
-        var pointMatrix = [xyc];
-        //var pointMatrix = [xyc, xpyc, xypc, xpypc];
-        //if (cartesianCharacter.x > cartesianEnemy.x && cartesianCharacter.y === cartesianEnemy.y) {
-        //    pointMatrix = [xyc, xypc, xpyc, xpypc];
-        //} else if (cartesianCharacter.x < cartesianEnemy.x && cartesianCharacter.y === cartesianEnemy.y) {
-        //    pointMatrix = [xpyc, xpypc, xyc, xypc];
-        //} else if (cartesianCharacter.y > cartesianEnemy.y && cartesianCharacter.x === cartesianEnemy.x) {
-        //    pointMatrix = [xyc, xpyc, xypc, xpypc];
-        //} else if (cartesianCharacter.y < cartesianEnemy.y && cartesianCharacter.x === cartesianEnemy.x) {
-        //    pointMatrix = [xypc, xpypc, xyc, xpyc];
-        //} else if (cartesianCharacter.x > cartesianEnemy.x && cartesianCharacter.y > cartesianEnemy.y) {
-        //    pointMatrix = [xyc, xpyc, xypc, xpypc];
-        //} else if (cartesianCharacter.x < cartesianEnemy.x && cartesianCharacter.y < cartesianEnemy.y) {
-        //    pointMatrix = [xpypc, xypc, xpyc, xyc];
-        //} else if (cartesianCharacter.x < cartesianEnemy.x && cartesianCharacter.y > cartesianEnemy.y) {
-        //    pointMatrix = [xpyc, xyc, xpypc, xypc];
-        //} else if (cartesianCharacter.x > cartesianEnemy.x && cartesianCharacter.y < cartesianEnemy.y) {
-        //    pointMatrix = [xpyc, xyc, xpypc, xypc];
-        //}
+        var pointMatrix = [xyc, xpyc, xypc, xpypc];
+        if (isometricCharacter.x > isometricEnemy.x && isometricCharacter.y === isometricEnemy.y) {
+            pointMatrix = [xyc, xypc, xpyc, xpypc];
+        } else if (isometricCharacter.x < isometricEnemy.x && isometricCharacter.y === isometricEnemy.y) {
+            pointMatrix = [xpyc, xpypc, xyc, xypc];
+        } else if (isometricCharacter.y > isometricEnemy.y && isometricCharacter.x === isometricEnemy.x) {
+            pointMatrix = [xyc, xpyc, xypc, xpypc];
+        } else if (isometricCharacter.y < isometricEnemy.y && isometricCharacter.x === isometricEnemy.x) {
+            pointMatrix = [xypc, xpypc, xyc, xpyc];
+        } else if (isometricCharacter.x > isometricEnemy.x && isometricCharacter.y > isometricEnemy.y) {
+            pointMatrix = [xyc, xpyc, xypc, xpypc];
+        } else if (isometricCharacter.x < isometricEnemy.x && isometricCharacter.y < isometricEnemy.y) {
+            pointMatrix = [xpypc, xypc, xpyc, xyc];
+        } else if (isometricCharacter.x < isometricEnemy.x && isometricCharacter.y > isometricEnemy.y) {
+            pointMatrix = [xpyc, xyc, xpypc, xypc];
+        } else if (isometricCharacter.x > isometricEnemy.x && isometricCharacter.y < enemy.y) {
+            pointMatrix = [xpyc, xyc, xpypc, xypc];
+        }
         return pointMatrix;
     };
     /*eslint-enable*/
