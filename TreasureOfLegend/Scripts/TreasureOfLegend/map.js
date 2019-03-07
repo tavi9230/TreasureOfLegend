@@ -227,7 +227,7 @@ export const BattleMap = function (game, map) {
     this._addTile = (i, j, x, y, isUnreachable) => {
         var tileNumber = Math.floor(Math.random() * 2) + 1,
             isometricPoint = CoordHelper.CartesianToIsometric(x, y);
-        var obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneTile' + tileNumber).setOrigin(0, -0.4);
+        var obj = this.game.add.sprite(isometricPoint.x, isometricPoint.y, 'stoneTile' + tileNumber).setOrigin(0, -0.85);
         obj.objectConfig = lodash.cloneDeep(this.objConfig);
         obj.objectConfig.description = 'Tile';
         obj.objectConfig.sound = 'walk_stone';
@@ -235,8 +235,8 @@ export const BattleMap = function (game, map) {
         obj.objectConfig.image = 'stoneTile' + tileNumber;
         obj.displayWidth = 100;
         obj.displayHeight = obj.displayWidth * obj.height / obj.width;
-        obj.width = 50;
-        obj.height = 50;
+        obj.width = 100;
+        obj.height = obj.width * obj.displayHeight / obj.displayWidth;
         obj.setDepth(i + j);
         if (!isUnreachable) {
             this.tiles.add(obj);
