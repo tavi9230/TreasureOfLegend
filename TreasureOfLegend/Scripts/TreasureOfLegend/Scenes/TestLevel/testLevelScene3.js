@@ -1,6 +1,6 @@
 ﻿import { SceneManager } from 'TreasureOfLegend/Managers/sceneManager';
 import { MapConfig } from 'TreasureOfLegend/Configurations/mapConfig';
-//import { EnemyConfig } from 'TreasureOfLegend/Configurations/enemyConfig';
+import { EnemyConfig } from 'TreasureOfLegend/Configurations/enemyConfig';
 import { InventoryConfig } from 'TreasureOfLegend/Configurations/inventoryConfig';
 
 export const TestLevelScene3 = function () {
@@ -14,7 +14,7 @@ export const TestLevelScene3 = function () {
             this.sceneManager = new SceneManager(this);
             this.sceneManager.createMap(MapConfig.level1);
             this.sceneManager.createCharacter({ x: 3, y: 5 }, 'character1');
-            //this.sceneManager.createEnemy(500, 250, EnemyConfig.test, true);
+            this.sceneManager.createEnemy({ x: 5, y: 5 }, EnemyConfig.test, true);
             this.sceneManager.addHUDSceneEvents();
         },
         create() {
@@ -26,11 +26,11 @@ export const TestLevelScene3 = function () {
             character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(InventoryConfig.head.cap));
             character.characterConfig.inventory.slots.items.push(lodash.cloneDeep(InventoryConfig.head.helm));
 
-            //character = this.enemies.characters.getChildren()[0];
-            //character.characterConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.weapons.lightCrossbow);
-            //character.characterConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.weapons.dagger);
-            //character.characterConfig.inventory.mainHand.isEquipped = true;
-            //character.characterConfig.inventory.offHand.isEquipped = true;
+            character = this.enemies.characters.getChildren()[0];
+            character.characterConfig.inventory.mainHand = lodash.cloneDeep(InventoryConfig.weapons.lightCrossbow);
+            character.characterConfig.inventory.offHand = lodash.cloneDeep(InventoryConfig.weapons.dagger);
+            character.characterConfig.inventory.mainHand.isEquipped = true;
+            character.characterConfig.inventory.offHand.isEquipped = true;
 
             this.cursors = this.input.keyboard.createCursorKeys();
             this.initiative = this.sceneManager.getInitiativeArray();

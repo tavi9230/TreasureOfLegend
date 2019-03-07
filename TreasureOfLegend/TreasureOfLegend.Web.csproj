@@ -397,6 +397,7 @@
     <Content Include="Assets\TreasureOfLegend\buttons\endTurnButton.png" />
     <Content Include="Assets\TreasureOfLegend\buttons\inspectButton.png" />
     <Content Include="Assets\TreasureOfLegend\buttons\inspectButtonActivated.png" />
+    <Content Include="Assets\TreasureOfLegend\buttons\interactButton.png" />
     <Content Include="Assets\TreasureOfLegend\buttons\inventoryButton.png" />
     <Content Include="Assets\TreasureOfLegend\buttons\inventoryButtonActivated.png" />
     <Content Include="Assets\TreasureOfLegend\buttons\mainHandButton.png" />

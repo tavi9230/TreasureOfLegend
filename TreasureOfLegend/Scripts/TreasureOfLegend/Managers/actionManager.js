@@ -48,10 +48,10 @@ export const ActionManager = function (scene) {
             Math.abs(character.y - enemy.y) <= 50 * (isThrownWeapon ? charConfig.energy.selectedAction.rangeThrown : charConfig.energy.selectedAction.range) &&
             (Math.abs(character.x - enemy.x) > 0 || Math.abs(character.y - enemy.y) > 0)) {
             _.each(projectileLines.lines, function (line) {
-                rangeLines.add(game.add.line(0, 0, line.charX, line.charY, line.enemyX, line.enemyY, 0x00ff00).setOrigin(0, 0));
+                rangeLines.add(game.add.line(0, 0, line.charX, line.charY, line.enemyX, line.enemyY, 0x00ff00).setOrigin(0, 0).setDepth(99999));
             });
         } else {
-            rangeLines.add(game.add.line(0, 0, character.x, character.y, enemy.x, enemy.y, 0xff0000).setOrigin(0, 0));
+            rangeLines.add(game.add.line(0, 0, character.x, character.y, enemy.x, enemy.y, 0xff0000).setOrigin(0, 0).setDepth(99999));
         }
     };
 
@@ -936,18 +936,45 @@ export const ActionManager = function (scene) {
         for (let i = 0; i < pointMatrix.length; i++) {
             pointsFound = 0;
             for (let j = 0; j < pointMatrix[i].length; j++) {
+                var test = game.add.graphics();
+                test.fillStyle(0xff0000, 1);
+                test.fillRect(pointMatrix[i][j][0], pointMatrix[i][j][1], 2, 2);
+                test.setDepth(99999);
+
+                test = game.add.graphics();
+                test.fillStyle(0xff0000, 1);
+                test.fillRect(pointMatrix[i][j][2], pointMatrix[i][j][3], 2, 2);
+                test.setDepth(99999);
                 isNotBlocked = true;
                 linePoints = this._supercoverLine(pointMatrix[i][j][0], pointMatrix[i][j][1], pointMatrix[i][j][2], pointMatrix[i][j][3]);
                 _.each(linePoints, function (point) {
-                    var tile = game.activeMap.levelMap[point.y / 50][point.x / 50];
+                    var test = game.add.graphics();
+                    test.fillStyle(0x00ff00, 1);
+                    test.fillRect(point.x, point.y, 2, 2);
+                    test.setDepth(99999);
+                    /*eslint-disable*/
+                    var cartesianPoint = CoordHelper.IsometricToCartesian(point.x, point.y),
+                        tile = game.activeMap.levelMap[(cartesianPoint.x - cartesianPoint.x % 50) / 50][(cartesianPoint.x - cartesianPoint.x % 50) / 50],
+                        testTile = game.activeMap.tiles.getChildren().find(function (t) {
+                            var cartesianTile = CoordHelper.IsometricToCartesian(t.x, t.y);
+                            return cartesianTile.x === cartesianPoint.x - cartesianPoint.x % 50 && cartesianTile.y === cartesianPoint.y - cartesianPoint.y % 50;
+                        });
+                    if (testTile) {
+                        testTile.setTint(0xff00ff);
+                    }
                     if (Math.floor(tile) !== 0) {
                         isNotBlocked = false;
                     }
+                    /*eslint-enable*/
                 });
                 if (isNotBlocked) {
                     pointsFound++;
                     allLinePoints.push(linePoints);
                     lines.push({
+                        //charX: isometricPointSource.x,
+                        //charY: isometricPointSource.y,
+                        //enemyX: isometricPointDestination.x,
+                        //enemyY: isometricPointDestination.y
                         charX: pointMatrix[i][j][0],
                         charY: pointMatrix[i][j][1],
                         enemyX: pointMatrix[i][j][2],
@@ -991,7 +1018,7 @@ export const ActionManager = function (scene) {
                 x: characterX,
                 y: characterY
             },
-            points = p.x % 50 === 0 && p.y % 50 === 0 ? [{ x: p.x, y: p.y }] : [];
+            points = [{ x: p.x, y: p.y }];
         for (var ix = 0, iy = 0; ix < nx || iy < ny;) {
             if ((0.5 + ix) / nx === (0.5 + iy) / ny) {
                 // next step is diagonal
@@ -1008,67 +1035,74 @@ export const ActionManager = function (scene) {
                 p.y += signY;
                 iy++;
             }
-            if (p.x % 10 === 0 || p.y % 10 === 0) {
-                if (!points.find(function (point) {
-                    return point.x === Math.floor(p.x - p.x % 50) &&
-                        point.y === Math.floor(p.y - p.y % 50);
-                })) {
-                    points.push({
-                        x: Math.floor(p.x - p.x % 50),
-                        y: Math.floor(p.y - p.y % 50)
-                    });
-                }
+            if (!points.find(function (point) {
+                return point.x === p.x && point.y === p.y;
+            })) {
+                points.push({
+                    x: Math.floor(p.x),
+                    y: Math.floor(p.y)
+                });
             }
         }
         return points;
     };
-
+    /*eslint-disable*/
     this._getPointMatrix = function (character, enemy) {
-        var xyc = [
-            [character.x, character.y, enemy.x, enemy.y],
-            [character.x, character.y, enemy.x + enemy.width, enemy.y],
-            [character.x, character.y, enemy.x, enemy.y + enemy.height],
-            [character.x, character.y, enemy.x + enemy.width, enemy.y + enemy.height]
-        ],
+        var characterTile = game.activeMap.tiles.getChildren().find(function (tile) {
+            return tile.x === character.x && tile.y === character.y;
+        }),
+            enemyTile = game.activeMap.tiles.getChildren().find(function (tile) {
+                return tile.x === enemy.x && tile.y === enemy.y;
+            }),
+            characterTileOriginX = -(characterTile.originX * characterTile.width),
+            characterTileOriginY = -(characterTile.originY * characterTile.height),
+            enemyTileOriginX = -(enemyTile.originX * enemyTile.width),
+            enemyTileOriginY = -(enemyTile.originY * enemyTile.height),
+            cartesianCharacter = characterTile,
+            cartesianEnemy = enemyTile,
+            xyc = [
+                [cartesianCharacter.x + characterTileOriginX, cartesianCharacter.y + (character.height / 2) + characterTileOriginY, cartesianEnemy.x + enemyTileOriginX, cartesianEnemy.y + (enemy.height / 2) + enemyTileOriginY],
+                [cartesianCharacter.x + characterTileOriginX, cartesianCharacter.y + (character.height / 2) + characterTileOriginY, cartesianEnemy.x + enemy.width + enemyTileOriginX, cartesianEnemy.y + (enemy.height / 2) + enemyTileOriginY],
+                [cartesianCharacter.x + characterTileOriginX, cartesianCharacter.y + (character.height / 2) + characterTileOriginY, cartesianEnemy.x + (enemy.width / 2) + enemyTileOriginX, cartesianEnemy.y + enemyTileOriginY + (enemyTile.height / 2)],
+                [cartesianCharacter.x + characterTileOriginX, cartesianCharacter.y + (character.height / 2) + characterTileOriginY, cartesianEnemy.x + (enemy.width / 2) + enemyTileOriginX, cartesianEnemy.y + enemy.height + enemyTileOriginY - (enemyTile.height / 2)]
+            ],
             xpyc = [
-                [character.x + character.width, character.y, enemy.x, enemy.y],
-                [character.x + character.width, character.y, enemy.x + enemy.width, enemy.y],
-                [character.x + character.width, character.y, enemy.x, enemy.y + enemy.height],
-                [character.x + character.width, character.y, enemy.x + enemy.width, enemy.y + enemy.height]
+                [cartesianCharacter.x + character.width + characterTileOriginX, cartesianCharacter.y + (character.height / 2) + characterTileOriginY, cartesianEnemy.x + enemyTileOriginX, cartesianEnemy.y + (enemy.height / 2) + enemyTileOriginY],
+                [cartesianCharacter.x + character.width + characterTileOriginX, cartesianCharacter.y + (character.height / 2) + characterTileOriginY, cartesianEnemy.x + enemy.width + enemyTileOriginX, cartesianEnemy.y + (enemy.height / 2) + enemyTileOriginY],
+                [cartesianCharacter.x + character.width + characterTileOriginX, cartesianCharacter.y + (character.height / 2) + characterTileOriginY, cartesianEnemy.x + (enemy.width / 2) + enemyTileOriginX, cartesianEnemy.y + enemyTileOriginY + (enemyTile.height / 2)],
+                [cartesianCharacter.x + character.width + characterTileOriginX, cartesianCharacter.y + (character.height / 2) + characterTileOriginY, cartesianEnemy.x + (enemy.width / 2) + enemyTileOriginX, cartesianEnemy.y + enemy.height + enemyTileOriginY - (enemyTile.height / 2)]
             ],
             xypc = [
-                [character.x, character.y + character.height, enemy.x, enemy.y],
-                [character.x, character.y + character.height, enemy.x + enemy.width, enemy.y],
-                [character.x, character.y + character.height, enemy.x, enemy.y + enemy.height],
-                [character.x, character.y + character.height, enemy.x + enemy.width, enemy.y + enemy.height]
+                [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + characterTileOriginY + (characterTile.height / 2), cartesianEnemy.x + enemyTileOriginX, cartesianEnemy.y + (enemy.height / 2) + enemyTileOriginY],
+                [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + characterTileOriginY + (characterTile.height / 2), cartesianEnemy.x + enemy.width + enemyTileOriginX, cartesianEnemy.y + (enemy.height / 2) + enemyTileOriginY],
+                [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + characterTileOriginY + (characterTile.height / 2), cartesianEnemy.x + (enemy.width / 2) + enemyTileOriginX, cartesianEnemy.y + enemyTileOriginY + (enemyTile.height / 2)],
+                [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + characterTileOriginY + (characterTile.height / 2), cartesianEnemy.x + (enemy.width / 2) + enemyTileOriginX, cartesianEnemy.y + enemy.height + enemyTileOriginY - (enemyTile.height / 2)]
             ],
             xpypc = [
-                [character.x + character.width, character.y + character.height, enemy.x, enemy.y],
-                [character.x + character.width, character.y + character.height, enemy.x + enemy.width, enemy.y],
-                [character.x + character.width, character.y + character.height, enemy.x, enemy.y + enemy.height],
-                [
-                    character.x + character.width, character.y + character.height, enemy.x + enemy.width,
-                    enemy.y + enemy.height
-                ]
+                [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + character.height + characterTileOriginY - (characterTile.height / 2), cartesianEnemy.x + enemyTileOriginX, cartesianEnemy.y + (enemy.height / 2) + enemyTileOriginY],
+                [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + character.height + characterTileOriginY - (characterTile.height / 2), cartesianEnemy.x + enemy.width + enemyTileOriginX, cartesianEnemy.y + (enemy.height / 2) + enemyTileOriginY],
+                [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + character.height + characterTileOriginY - (characterTile.height / 2), cartesianEnemy.x + (enemy.width / 2) + enemyTileOriginX, cartesianEnemy.y + enemyTileOriginY + (enemyTile.height / 2)],
+                [cartesianCharacter.x + (character.width / 2) + characterTileOriginX, cartesianCharacter.y + character.height + characterTileOriginY - (characterTile.height / 2), cartesianEnemy.x + (enemy.width / 2) + enemyTileOriginX, cartesianEnemy.y + enemy.height + enemyTileOriginY - (enemyTile.height / 2)]
             ];
         var pointMatrix = [xyc, xpyc, xypc, xpypc];
-        if (character.x > enemy.x && character.y === enemy.y) {
+        if (cartesianCharacter.x > cartesianEnemy.x && cartesianCharacter.y === cartesianEnemy.y) {
             pointMatrix = [xyc, xypc, xpyc, xpypc];
-        } else if (character.x < enemy.x && character.y === enemy.y) {
+        } else if (cartesianCharacter.x < cartesianEnemy.x && cartesianCharacter.y === cartesianEnemy.y) {
             pointMatrix = [xpyc, xpypc, xyc, xypc];
-        } else if (character.y > enemy.y && character.x === enemy.x) {
+        } else if (cartesianCharacter.y > cartesianEnemy.y && cartesianCharacter.x === cartesianEnemy.x) {
             pointMatrix = [xyc, xpyc, xypc, xpypc];
-        } else if (character.y < enemy.y && character.x === enemy.x) {
+        } else if (cartesianCharacter.y < cartesianEnemy.y && cartesianCharacter.x === cartesianEnemy.x) {
             pointMatrix = [xypc, xpypc, xyc, xpyc];
-        } else if (character.x > enemy.x && character.y > enemy.y) {
+        } else if (cartesianCharacter.x > cartesianEnemy.x && cartesianCharacter.y > cartesianEnemy.y) {
             pointMatrix = [xyc, xpyc, xypc, xpypc];
-        } else if (character.x < enemy.x && character.y < enemy.y) {
+        } else if (cartesianCharacter.x < cartesianEnemy.x && cartesianCharacter.y < cartesianEnemy.y) {
             pointMatrix = [xpypc, xypc, xpyc, xyc];
-        } else if (character.x < enemy.x && character.y > enemy.y) {
+        } else if (cartesianCharacter.x < cartesianEnemy.x && cartesianCharacter.y > cartesianEnemy.y) {
             pointMatrix = [xpyc, xyc, xpypc, xypc];
-        } else if (character.x > enemy.x && character.y < enemy.y) {
+        } else if (cartesianCharacter.x > cartesianEnemy.x && cartesianCharacter.y < cartesianEnemy.y) {
             pointMatrix = [xpyc, xyc, xpypc, xypc];
         }
         return pointMatrix;
     };
+    /*eslint-enable*/
 };

@@ -165,7 +165,7 @@ export const EnemyConfig = {
             dexterity: 0,
             intelligence: 0
         },
-        image: 'enemy',
+        image: 'character1',
         experience: 500,
         souls: 200,
         traits: [EnumHelper.traitEnum.magic],

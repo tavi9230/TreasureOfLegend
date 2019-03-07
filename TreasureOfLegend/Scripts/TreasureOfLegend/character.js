@@ -20,10 +20,10 @@ export const Character = function (game) {
     this.addNewCharacter = (coords, spriteName) => {
         var isometricPoint = CoordHelper.CartesianToIsometric(coords.x * 50, coords.y * 50);
         var character = game.physics.add.sprite(isometricPoint.x, isometricPoint.y, spriteName).setOrigin(-1, -0.35);
-        //character.height = 200;
-        //character.width = 100;
         character.displayWidth = 30;
         character.displayHeight = character.displayWidth * character.height / character.width;
+        character.height = 100;
+        character.width = 100;
         character.characterConfig = lodash.cloneDeep(lodash.cloneDeep(CharacterConfig.config));
         character.characterConfig.inventory.mainHand = lodash.cloneDeep(character.characterConfig.inventory.mainHand);
         character.characterConfig.inventory.offHand = lodash.cloneDeep(character.characterConfig.inventory.offHand);

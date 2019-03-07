@@ -3,6 +3,7 @@ import { EnumHelper } from 'TreasureOfLegend/Helpers/enumHelper';
 import { ActionManager } from 'TreasureOfLegend/Managers/actionManager';
 import { InventoryConfig } from 'TreasureOfLegend/Configurations/inventoryConfig';
 import { StatusIconConfig } from 'TreasureOfLegend/Configurations/statusIconConfig';
+import { CoordHelper } from 'TreasureOfLegend/Helpers/coordHelper';
 
 export const Enemy = function (scene) {
     var game = scene,
@@ -68,15 +69,18 @@ export const Enemy = function (scene) {
     this.map = game.activeMap;
     this.characters = game.add.group();
 
-    this.addNewCharacter = (x, y, config, isMasterControlled = false) => {
-        var character = game.physics.add.sprite(x, y, config.image).setOrigin(-0.25, 0.5);
-        character.height = 50;
-        character.width = 50;
+    this.addNewCharacter = (coords, config, isMasterControlled = false) => {
+        var isometricPoint = CoordHelper.CartesianToIsometric(coords.x * 50, coords.y * 50),
+            character = game.physics.add.sprite(isometricPoint.x, isometricPoint.y, config.image).setOrigin(-1, -0.35);
+        character.displayWidth = 30;
+        character.displayHeight = character.displayWidth * character.height / character.width;
+        character.height = 100;
+        character.width = 100;
         character.characterConfig = lodash.cloneDeep(this.characterConfig);
         var charConfig = character.characterConfig;
         charConfig.isMasterControlled = isMasterControlled;
-        charConfig.posX = x;
-        charConfig.posY = y;
+        charConfig.posX = isometricPoint.x;
+        charConfig.posY = isometricPoint.y;
         charConfig.height = config.height;
         charConfig.width = config.width;
         charConfig.image = config.image;

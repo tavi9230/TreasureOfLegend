@@ -218,11 +218,12 @@ export const SceneManager = function (game) {
         game.characters.characters.add(character);
     };
 
-    this.createEnemy = (x, y, enemyType, isMasterControlled) => {
-        var character = game.enemies.addNewCharacter(x, y, enemyType, isMasterControlled);
+    this.createEnemy = (coords, enemyType, isMasterControlled) => {
+        var character = game.enemies.addNewCharacter(coords, enemyType, isMasterControlled);
         game.enemies.total = game.enemies.characters.getChildren().length;
         game.input.setHitArea([character]);
         this.bindEnemyEvents(character);
+        character.setDepth(coords.x + coords.y + 1);
         game.enemies.characters.add(character);
     };
 
